@@ -1,0 +1,187 @@
+{
+  "inbox/language_disorders_infancy_adolescence.pdf": {
+    "description": "The document is a comprehensive textbook titled 'Language Disorders from Infancy through Adolescence: Listening, Speaking, Reading, Writing, and Communicating' by Rhea Paul and Courtenay F. Norbury. It covers language disorders across the developmental spectrum from infancy to adolescence, including listening, speaking, reading, writing, and communicating. The book discusses various aspects such as prevention, syndromes associated with language disorders, multicultural practice, and the impact of language disorders on reading and writing. It also includes case studies and vignettes to illustrate real-life applications of the material. The fourth edition has been updated with new research, particularly in genetic, neuropsychological, and neurophysiological aspects of child language disorders, and includes specific recommendations for autism spectrum disorders. The text emphasizes practical clinical applications and evidence-based practice, aiming to provide students with a broad introduction to the field of language pathology.",
+    "document_type": "textbook",
+    "suggested_filename": "language_disorders_infancy_adolescence"
+  },
+  "inbox/healthcare_project_brief.pdf": {
+    "description": "The document outlines a healthcare project brief, focusing on clinical and payer channels. It discusses project goals, timeline, resources needed, and various healthcare policy complexities including FDA, CMS, ASHA, and other channel requirements. The document also touches on specific needs for Speech Pathologists in the SGD funding process and the ongoing burdens on providers and DME manufacturers.",
+    "document_type": "project brief",
+    "suggested_filename": "healthcare_project_brief"
+  },
+  "inbox/cartoon_office_worker_busy_scene.png": {
+    "title": "Busy Office Worker",
+    "alt_text": "A cartoon illustration of a busy office worker. The worker, with brown hair and a blue suit, is sitting at a desk with a computer. Papers are flying around him, suggesting a hectic work environment. The background is a green circle, and the worker has an expression of surprise or stress. The computer screen is dark, and the desk is brown.",
+    "suggested_filename": "cartoon_office_worker_busy_scene"
+  },
+  "inbox/python_programming_tips_and_tricks.txt": {
+    "description": "This document is a text file that provides tips and tricks for Python programming, aimed at developers interested in learning about Python's advanced features. It highlights Python's utility in machine learning, web development, and data science.",
+    "document_type": "notes",
+    "suggested_filename": "python_programming_tips_and_tricks"
+  },
+  "inbox/no_limits_ai_config.zip": {
+    "description": "This .zip file contains configuration files and images for an application named 'No Limits AI Alpha Test'. The main components are a manifest.json file, which provides metadata for a Microsoft Teams application, and two PNG images (color.png and outline.png) used as icons for the application. The manifest.json file includes details such as the application's ID, name, developer information, and bot configurations, indicating that this is a setup or configuration file for an AI application focused on ABA and SLP with an emphasis on AAC.",
+    "document_type": "configuration",
+    "suggested_filename": "no_limits_ai_config"
+  },
+  "inbox/us_time_zone_map_forest_background.png": {
+    "title": "US Time Zone Map",
+    "alt_text": "This image displays a detailed map of the United States, highlighting different time zones with colored lines. The map includes state boundaries, major cities, and geographical features. The background shows a forest scene with tall trees. The time zones are outlined as follows: Eastern Time Zone in blue, Central Time Zone in pink, Mountain Time Zone in yellow, and Pacific Time Zone in green. There are also labels for time zone names and state abbreviations. The map is displayed on a computer screen with a dark theme, and the browser window shows tabs and navigation elements at the top.",
+    "suggested_filename": "us_time_zone_map_forest_background"
+  },
+  "inbox/stylized_cat_circuit_tech_dreamwalker_renamed.md": {
+    "description": "The document contains a detailed description of a digital illustration featuring a stylized cat's face with a technological theme. The cat's face is composed of white circuit board patterns on a dark blue background, giving it a futuristic and cybernetic appearance. The eyes of the cat are particularly striking, with the pupils designed as glowing blue circles, resembling camera lenses or digital sensors. The cat's face is framed within a rounded square border, also in white, which adds a modern, app-like aesthetic to the image. Below the cat's face, the word 'Dreamwalker' is written in a clean, sans-serif font, centered and in white, matching the color scheme of the illustration. The overall design suggests a blend of technology and mysticism, possibly indicating a theme related to virtual reality, cybernetics, or digital exploration. The purpose of this document is to describe and possibly promote or explain the concept behind this digital artwork.",
+    "document_type": "description",
+    "suggested_filename": "stylized_cat_circuit_tech_dreamwalker"
+  },
+  "inbox/fist_holding_scales_of_justice.jpg": {
+    "title": "Fist Holding Scales of Justice",
+    "alt_text": "A black and white line drawing of a clenched fist holding a balance scale. The fist is centered in the image, gripping the beam of the scale. The scale has two pans hanging from either side of the beam, symbolizing justice and balance. The background is plain white, and the image is sourced from VectorStock with the reference number 35018973 at the bottom.",
+    "suggested_filename": "fist_holding_scales_of_justice"
+  },
+  "inbox/cartoon_puppy_illustration.md": {
+    "description": "The document contains a detailed description of a cartoon illustration featuring an adorable puppy with a light brown and white coat, large blue eyes, and a playful expression. The illustration includes a whimsical background with sparkles and a speech bubble with the text 'VISIUALIZE A DRABLE', which appears to be a playful misspelling. The purpose of the document is to describe this cartoon image, possibly for use in a project or presentation where the image's cuteness and joy are intended to be highlighted.",
+    "document_type": "description",
+    "suggested_filename": "cartoon_puppy_illustration"
+  },
+  "inbox/gumrid_utility_overview_image.png": {
+    "title": "Gumrid Utility Overview",
+    "alt_text": "The image is a promotional graphic for a Python utility called 'gumrid'. The background is black. At the top, in white text, it says 'gumrid' followed by 'A python utility to export and delete all your Gumroad products' in smaller text. Below this, there is a bold red banner with white text stating 'BECAUSE FUCK FASCISTS'. Underneath the banner, there is a paragraph in white text explaining the functionality: 'This tool allows you to export your sales data and product information to CSV files, and then delete all your products from Gumroad, including cancelling subscriptions.' At the bottom right, there is a pink button with white text labeled 'Download Script'.",
+    "suggested_filename": "gumrid_utility_overview_image"
+  },
+  "inbox/javascript_dom_screenshot.md": {
+    "description": "This document contains a detailed screenshot of a web browser's console or developer tools, showcasing the JavaScript object representing the DOM of a webpage. The content includes various properties of the DOM, such as outerText, ownerDocument, location, and more, formatted with different colors to distinguish between keys, values, and data types. The purpose of this document is to provide a visual representation of the DOM structure for debugging or educational purposes.",
+    "document_type": "code",
+    "suggested_filename": "javascript_dom_screenshot"
+  },
+  "inbox/social_scout_search_interface.png": {
+    "title": "Social Scout Search Interface",
+    "alt_text": "The image shows the interface for Social Scout, a tool designed to find user accounts across various platforms for cleanup purposes. The background is dark with a gradient from dark blue to black. At the top, in white text, it says 'Social Scout' followed by a tagline 'Find your accounts across hundreds of platforms to clean up'. Below this, there is a handle '@coolhand_bsky_social'. The main section of the interface has a heading 'Start Your Search' in white text. Below this, there is a search bar with placeholder text 'Enter username, handle, email, or identifier' in light gray. To the right of the search bar, there is a purple 'Search' button. Below the search bar, there is a toggle switch labeled 'Include NSFW sites' in light gray.",
+    "suggested_filename": "social_scout_search_interface"
+  },
+  "inbox/january_2025_financial_transactions.csv": {
+    "description": "This document contains a list of financial transactions from January 2025, including dates, transaction descriptions, amounts, and categories. It appears to be a personal or household financial record used for tracking expenses and income.",
+    "document_type": "data",
+    "suggested_filename": "january_2025_financial_transactions"
+  },
+  "inbox/bluesky_social_login_form.png": {
+    "title": "Login Form for Bluesky Social",
+    "alt_text": "A login form for Bluesky Social is displayed on a light background. The form has three fields: 'Handle' with the placeholder text 'you.bsky.social', 'AppPassword' with the placeholder text 'Your AppPassword', and a blue 'Log in' button. The form has a modern, minimalist design with rounded corners and a clean layout. The text is in a dark color, and the background of the form is white.",
+    "suggested_filename": "bluesky_social_login_form"
+  },
+  "inbox/cute_cartoon_dog_speech_bubble.png": {
+    "title": "Cute Cartoon Dog with Speech Bubble",
+    "alt_text": "A cartoon illustration of a cute, brown and white puppy with large, expressive eyes and a joyful expression. The puppy is surrounded by pink sparkles. Above the puppy, there is a speech bubble with the text 'VISUALIZE A DRABLE' in white letters on a blue background. The background of the image is light blue.",
+    "suggested_filename": "cute_cartoon_dog_speech_bubble"
+  },
+  "inbox/historical_map_excerpt_analysis.png": {
+    "title": "Historical Map Excerpt",
+    "alt_text": "The image shows a partial view of a historical map. On the left side, there is text mentioning 'Gadsden Purchase' and 'Mexican-American War'. The map includes a border line colored in blue, orange, and red, indicating different territories. On the right side, there is a white rectangular overlay with a circular button, partially obscuring the map. Below the overlay, text reads 'State of LINCOLN Proposed new State west of the Colorado River'. The background of the map is dark, contrasting with the white overlay and the colored border lines.",
+    "suggested_filename": "historical_map_excerpt_analysis"
+  },
+  "inbox/person_demonstrating_vr_headsets.jpg": {
+    "title": "Person Demonstrating VR Headsets",
+    "alt_text": "A person wearing a blue sweater and a cap with a logo is standing in a room with light-colored walls and wooden shelves. The person is holding up a VR headset with one hand while gesturing with the other. On a large wooden table in front of the person, there are several VR headsets lined up, all facing forward. The headsets are predominantly white with black accents. The room appears to be an office or meeting space with a professional setting, indicated by the presence of office chairs and a neat arrangement of the table.",
+    "suggested_filename": "person_demonstrating_vr_headsets"
+  },
+  "inbox/user_profile_with_tiger_mascot.png": {
+    "title": "User Profile with Tiger Mascot",
+    "alt_text": "A user profile screenshot from a social media platform. The profile belongs to a user named Luke with the handle @coolhandbsky.social. The profile shows statistics: 38,390 posts, 2,168 following, and 11,714 followers. The join date is April 3. To the right of the statistics, there is an image of a cartoon tiger mascot, which is orange with black stripes and white areas, extending its left arm forward. The tiger's hand is open with fingers spread. Below the statistics, there is a profile picture of Luke, who is wearing glasses and has a beard.",
+    "suggested_filename": "user_profile_with_tiger_mascot"
+  },
+  "inbox/sherlock_project_archive_renamed.zip": {
+    "description": "The document is a compressed archive file named 'sherlock_project_archive.zip' containing the 'sherlock-master' directory. This directory includes various files and subdirectories related to a project called 'Sherlock', which appears to be a software development project. The contents include configuration files, documentation, and source code, suggesting it is a complete project archive. The purpose of this document is to store and distribute the entire project, including its source code, configuration settings, and documentation.",
+    "document_type": "code",
+    "suggested_filename": "sherlock_project_archive"
+  },
+  "inbox/federal_spending_dashboard_2022_renamed.html": {
+    "description": "The document is an HTML file that serves as a Federal Spending Dashboard for the year 2022. It includes a user interface for displaying federal receipts and expenditures by state, with options to sort and filter the data. The dashboard features a theme toggle for light and dark modes, interactive charts, and statistical summaries. The purpose of this document is to provide an interactive visualization tool for analyzing federal spending data.",
+    "document_type": "code",
+    "suggested_filename": "federal_spending_dashboard_2022"
+  },
+  "inbox/random_text_on_fabric_closeup.jpg": {
+    "title": "Random Text on Fabric",
+    "alt_text": "A close-up image of a white fabric with a pattern of random black uppercase letters and numbers printed on it. The fabric appears to be slightly wrinkled, creating a textured effect. The letters and numbers are densely packed, covering the entire visible area of the fabric. The background is a solid white, and the text is uniformly black, creating a stark contrast.",
+    "suggested_filename": "random_text_on_fabric_closeup"
+  },
+  "inbox/ollama_chat_interface_renamed.py": {
+    "description": "The document is a Python script named 'ollama_chat_interface.py' that implements a chat interface for the Ollama API. It provides functionalities such as model selection, multi-turn conversations, image analysis, and file handling with streaming responses. The script supports both local and cloud Ollama instances. It includes classes and methods for initializing the client, fetching models, listing models with sorting and pagination, creating test images, encoding files and images, and formatting messages with attachments.",
+    "document_type": "code",
+    "suggested_filename": "ollama_chat_interface"
+  },
+  "inbox/awesome_accessibility_project.png": {
+    "title": "Awesome Accessibility Project",
+    "alt_text": "A dark-themed webpage titled 'Awesome Accessibility' with a purple 'awesome' tag. Below the title, there is a paragraph explaining the purpose of the project: 'Accessibility is about inclusive design and ensuring technology can be used by anyone, regardless of ability or disability.' A quote from Mary Pat Radabaugh, former Director of IBM National Support Center for Persons with Disabilities, reads: 'For most people technology makes things easier, for some people technology makes things possible.' The page includes a 'Table of Contents' with links to 'Assistive Technologies', 'Web Accessibility', 'Inclusive Design', and 'Accessibility Testing & Validation'.",
+    "suggested_filename": "awesome_accessibility_project"
+  },
+  "inbox/conversation_export_2025_03_28.html": {
+    "description": "This document is an HTML file that serves as an export of a conversation between a user and a bot. The conversation includes the user requesting an introduction and the bot responding with a formatted message containing a header, a horizontal rule, an icon, an image, and several links. The document's purpose is to preserve and display this specific interaction for later reference or analysis.",
+    "document_type": "conversation_export",
+    "suggested_filename": "conversation_export_2025_03_28"
+  },
+  "inbox/top_economies_and_companies_comparison.png": {
+    "title": "Top Economies and Companies by GDP/Market Cap",
+    "alt_text": "The image is a list comparing the GDP of countries and the market capitalization of companies. The list includes: 1. China with a GDP of $19.3 trillion, 2. Germany with $4.9 trillion, 3. Japan with $4.4 trillion, 4. India with $3.7 trillion, 5. United Kingdom with $3.6 trillion, 6. France with $3.2 trillion, 7. Apple with a market cap of $2.7 trillion, 8. Microsoft with $2.5 trillion, 9. Saudi Arabia with $1.9 trillion, 10. NVIDIA with $1.2 trillion, 11. Canada with $2.2 trillion, 12. Brazil with $1.8 trillion, and 13. Russia with $1.7 trillion. The countries are listed with flag icons next to their names, and the companies are listed with their logos. The text is in black on a white background with some green text indicating 'Market Cap' for the companies.",
+    "suggested_filename": "top_economies_and_companies_comparison"
+  },
+  "inbox/couple_vintage_attire_smiling.png": {
+    "title": "Couple in Vintage Attire",
+    "alt_text": "A vintage photograph of a couple standing close together. The woman on the left has long dark hair and is wearing a black top with a cream-colored fur vest. She is smiling and looking at the man. The man on the right has a mustache, is wearing a brown cowboy hat with decorative band, a blue denim jacket with a brown corduroy collar, and a blue shirt. The background shows a rustic setting with wooden shutters and a yellowish wall.",
+    "suggested_filename": "couple_vintage_attire_smiling"
+  },
+  "inbox/texas_annexation_map_1845.png": {
+    "title": "Texas Annexation Map",
+    "alt_text": "A historical map showing the annexation of Texas into the United States in 1845. The map highlights Texas with a yellow outline, indicating its boundaries at the time. There is a circular overlay in the center with a plus and minus sign, suggesting zoom functionality. Inside the circle, text reads 'TEXAS 1845' and 'Annexed by U.S. Senate 1844'. To the right, it states 'Admitted to the Union Dec 29, 1845' and 'Independent from Mexico 1836'. The map also shows parts of Mexico to the south and the Gulf of Mexico to the east. The background is a dark gray, with white text and lines for geographical features. The map includes additional details like 'Rep. of Texas declared war on Mexico 1836' and 'Treaty of Guadalupe Hidalgo 1848'.",
+    "suggested_filename": "texas_annexation_map_1845"
+  },
+  "inbox/inbox_folder_summary_report.html": {
+    "description": "The document is an HTML file that provides a comprehensive summary of the 'inbox' folder, detailing its contents and themes. It includes a folder description with statistics on file types, an overview of the folder's purpose, and detailed descriptions of 18 document files within the folder. The purpose of this document is to organize and describe the contents of the 'inbox' folder, which focuses on data analysis, medical research, social activism, and public sector transparency, primarily through textual and structured data.",
+    "document_type": "summary_report",
+    "suggested_filename": "inbox_folder_summary_report"
+  },
+  "inbox/google_cloud_run_metrics_camina_ollama.md": {
+    "description": "This document provides a detailed view of the Google Cloud Platform interface for a Cloud Run service named 'camina-ollama' under the 'Actually Useful AI' project. It includes the service's URL, region, and minimum instance count. The document focuses on the 'METRICS' tab, displaying predefined metrics with no errors reported during the interval. It includes two graphs: one for request count showing a spike at 4:00 PM with 3 requests, and another for request latencies peaking at 0.02s. The purpose of this document is to monitor and analyze the performance metrics of the 'camina-ollama' service.",
+    "document_type": "report",
+    "suggested_filename": "google_cloud_run_metrics_camina_ollama"
+  },
+  "inbox/person_holding_vr_headset_meeting_room.jpg": {
+    "title": "Person Holding VR Headset in Meeting Room",
+    "alt_text": "A person wearing a dark blue long-sleeve shirt and a black cap with a white logo is standing in a meeting room. The person is holding a VR headset in one hand and pointing with the other. On the round wooden table in front of them, there are several VR headsets lined up, all of which are white with black straps and blue light accents. The room has light beige walls, a large window to the left, and a set of empty shelves on the right. The lighting is natural, coming from the window, and the overall atmosphere is professional and tech-focused.",
+    "suggested_filename": "person_holding_vr_headset_meeting_room"
+  },
+  "inbox/us_expansion_slavery_maps_1800_1850.png": {
+    "title": "US Expansion and Slavery Maps",
+    "alt_text": "The image contains three historical maps of the United States showing different stages of expansion and the issue of slavery. The first map on the left shows the US in 1800 with states labeled in white and territories in gray. The second map in the middle depicts the US in 1820, with additional states and territories, including the Missouri Compromise line. The third map on the right illustrates the US in 1850, with further expansion and the Compromise of 1850. Each map is accompanied by text boxes below them. The left text box discusses the Louisiana Purchase and the Northwest Ordinance. The middle text box explains the Missouri Compromise. The right text box describes the Compromise of 1850. The background is white, and the maps use different shades of gray and blue to differentiate between states and territories. The text is in black.",
+    "suggested_filename": "us_expansion_slavery_maps_1800_1850"
+  },
+  "inbox/popular_online_tools_services.png": {
+    "title": "Popular Online Tools and Services",
+    "alt_text": "The image is a dark-themed infographic titled 'People normally come here for ...' listing various online tools and services. Each entry is in a blue-bordered box with white text on a dark background. The entries are:\n\n1. **Alt Text Generator** - 'alt text generator public'\n2. **Social Scout** - 'Find your online footprint to clean up'\n3. **I Need To Tell Someone About My Mother** - 'Essay adapted'\n4. **gummid** - 'Gumroad account backup and deletion tool'\n5. **Desktop installers** - 'For alt text generator and local LLM file renamer'\n6. **Bluestky** - 'Bluesky posting client that does it on multiple images and posts'\n7. **Awesome Accessibility** - 'Massive list of accessibility tools for developers'\n8. **go science!** - 'My sarcastic research review blog'\n9. **BipolarSky** - 'Bipolar resources, infographics, more'\n10. **Billions** - 'Ranking of country GDP against individual and corporate wealth'\n11. **Dow Overlap** - 'Visualization of board and executive overlap between Dow 30 companies'\n\nThe background is dark gray, and the text is white, with blue borders around each box.",
+    "suggested_filename": "popular_online_tools_services"
+  },
+  "inbox/us_time_zone_map_screenshot.png": {
+    "title": "US Time Zone Map",
+    "alt_text": "This image displays a map of the United States divided into different time zones. The map is overlaid with various colored lines: pink, yellow, green, and blue, which likely represent different time zone boundaries. The background of the map is dark, with each state outlined in white. The map includes labels for each state and possibly some additional information like time zone names or abbreviations. The map is shown on a computer screen with a forest background, suggesting it was taken in a natural setting. There are some interface elements visible at the top of the screen, indicating it is a screenshot from a digital application or website.",
+    "suggested_filename": "us_time_zone_map_screenshot"
+  },
+  "inbox/python_programming_overview.txt": {
+    "description": "This text file provides an overview of Python programming, focusing on its use in various fields like web development, data science, and automation. It discusses Python's data structures including lists, dictionaries, and tuples.",
+    "document_type": "notes",
+    "suggested_filename": "python_programming_overview"
+  },
+  "inbox/comprehensive_presentation_28_slides.pptx": {
+    "description": "The document is a PowerPoint presentation with 28 slides. It contains various slide masters and slides, indicating a comprehensive presentation with multiple sections or topics. The content includes text, charts, media, and possibly embedded files, as suggested by the file structure.",
+    "document_type": "presentation",
+    "suggested_filename": "comprehensive_presentation_28_slides"
+  },
+  "inbox/tts_engine_test_log_2025_04_06.log": {
+    "description": "This document is a log file from a TTS (Text-to-Speech) engine test conducted on April 6, 2025. It records the start time of the test, the output directory where results are stored, and confirms the successful import of a local TTS module named 'local_tts.py'. The purpose of this document is to provide a record of the TTS engine test setup and initial steps.",
+    "document_type": "log",
+    "suggested_filename": "tts_engine_test_log_2025_04_06"
+  },
+  "inbox/medical_conditions_database.csv": {
+    "description": "This document is a CSV file containing a detailed database of various medical conditions. Each row represents a different condition and includes comprehensive data such as the condition name, confidence level, associated media, segment, etiology, pathology, pathophysiology, occurrence, typical onset, average mortality age, gender impact, degenerative nature, seizure occurrence, percentage who could benefit from interventions, access modality, incidence, prevalence, diagnosed cases, addressable population, market value, trend, notes, micro-targetability, support organizations, citations, population at onset, annual live births, total population, population at mortality, average selling price, addressable populations in world markets, global addressable population, global market value, record creation and last update dates, non-candidate status for specific treatments, and various market value variants. The purpose of this document appears to be to provide a comprehensive overview of medical conditions for research, market analysis, or healthcare planning.",
+    "document_type": "data",
+    "suggested_filename": "medical_conditions_database"
+  }
+}

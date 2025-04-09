@@ -1,0 +1,12 @@
+{
+  "inbox/example_document.pptx": {
+    "description": "Example document description",
+    "document_type": "report",
+    "suggested_filename": "example_document"
+  },
+  "inbox/example_document.pdf": {
+    "description": "Example document description",
+    "document_type": "report",
+    "suggested_filename": "example_document"
+  }
+}
