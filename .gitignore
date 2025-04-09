@@ -1,5 +1,6 @@
 # .gitignore for Python projects
 highres*
+.DS_Store
 
 # Python bytecode
 __pycache__/
