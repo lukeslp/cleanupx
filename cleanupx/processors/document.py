@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple, Union, Any
 
 from cleanupx.config import DOCUMENT_EXTENSIONS, DOCUMENT_FUNCTION_SCHEMA, FILE_DOCUMENT_PROMPT, XAI_MODEL_TEXT
-from cleanupx.utils.common import read_text_file
+from cleanupx.utils.common import read_text_file, strip_media_suffixes
 from cleanupx.utils.cache import save_cache
 from cleanupx.api import call_xai_api
 from cleanupx.processors.base import generate_new_filename, rename_file
@@ -25,6 +25,17 @@ def extract_text_from_docx(file_path: Union[str, Path]) -> str:
     except Exception as e:
         logger.error(f"Error extracting text from {file_path}: {e}")
         return ""
+
+def get_pdf_page_count(file_path: Union[str, Path]) -> Optional[int]:
+    """Get the number of pages in a PDF file."""
+    try:
+        import PyPDF2
+        with open(file_path, 'rb') as f:
+            reader = PyPDF2.PdfReader(f)
+            return len(reader.pages)
+    except Exception as e:
+        logger.error(f"Error getting page count from {file_path}: {e}")
+        return None
 
 def extract_text_from_pdf(file_path: Union[str, Path]) -> str:
     """Extract text content from a PDF file."""
@@ -84,28 +95,54 @@ def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], re
     """
     file_path = Path(file_path)
     ext = file_path.suffix.lower()
+    
+    # For PDFs, we need to add page count to filename
+    if ext == ".pdf":
+        # First clean the stem to remove any existing metadata
+        clean_stem = strip_media_suffixes(file_path.stem)
+        
+        # Get the page count
+        page_count = get_pdf_page_count(file_path)
+        if page_count is not None:
+            # Create new name with page count
+            new_name = f"{clean_stem}_PAGES{page_count}{ext}"
+            new_path = rename_file(file_path, new_name, rename_log)
+            
+            # After renaming with page count, we can still extract text and process further
+            file_path = new_path or file_path  # Use new path if renaming succeeded
+    
+    # Continue with normal processing
     if ext == ".docx":
         text_content = extract_text_from_docx(file_path)
     elif ext == ".pdf":
         text_content = extract_text_from_pdf(file_path)
     else:
         text_content = read_text_file(file_path)
+    
     if not text_content.strip():
         logger.error(f"No text could be extracted from {file_path}")
         return file_path, None, None
+        
     prompt = FILE_DOCUMENT_PROMPT.format(name=file_path.name, suffix=ext, text_content=text_content[:10000])
     result = call_xai_api(XAI_MODEL_TEXT, prompt, DOCUMENT_FUNCTION_SCHEMA)
     description = result
     cache_key = str(file_path)
+    
     if description:
         cache[cache_key] = description
         save_cache(cache)
-    new_name = generate_new_filename(file_path, description)
-    new_path = None
-    if new_name:
-        new_path = rename_file(file_path, new_name, rename_log)
-        if new_path and new_path != file_path and cache_key in cache:
-            cache[str(new_path)] = cache[cache_key]
-            del cache[cache_key]
-            save_cache(cache)
-    return file_path, new_path, description
+    
+    # For PDFs, we've already renamed with page count, so only rename if not PDF
+    if ext != ".pdf":
+        new_name = generate_new_filename(file_path, description)
+        new_path = None
+        if new_name:
+            new_path = rename_file(file_path, new_name, rename_log)
+            if new_path and new_path != file_path and cache_key in cache:
+                cache[str(new_path)] = cache[cache_key]
+                del cache[cache_key]
+                save_cache(cache)
+        return file_path, new_path, description
+    
+    # For PDFs, return the already renamed file
+    return file_path, file_path if ext == ".pdf" else None, description

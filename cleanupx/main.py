@@ -23,8 +23,12 @@ except ImportError:
 
 from cleanupx.utils.cache import load_cache, load_rename_log, save_rename_log
 from cleanupx.processors import process_file
+from cleanupx.utils.directory_summary import update_directory_summary, get_directory_summary, suggest_reorganization
+from cleanupx.processors.dedupe import dedupe_directory
 
-def process_directory(directory: Union[str, Path], recursive: bool = False, skip_renamed: bool = True, max_size_mb: float = 25.0) -> Dict[str, int]:
+def process_directory(directory: Union[str, Path], recursive: bool = False, skip_renamed: bool = True, 
+                     max_size_mb: float = 25.0, update_summary: bool = True, 
+                     include_user_prefs: bool = False) -> Dict[str, int]:
     """
     Process files in a directory, optionally recursively.
     
@@ -33,6 +37,8 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
         recursive: Whether to process subdirectories recursively
         skip_renamed: Whether to skip previously renamed files
         max_size_mb: Maximum file size to process in MB
+        update_summary: Whether to create/update a directory summary file
+        include_user_prefs: Whether to prompt for user preferences for organization
         
     Returns:
         Dictionary with processing statistics
@@ -178,7 +184,68 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
     })
     
     save_rename_log(rename_log)
+    
+    # Update directory summary if requested
+    if update_summary:
+        logger.info("Updating directory summary...")
+        summary = update_directory_summary(directory, include_user_prefs=include_user_prefs)
+        stats["summary_updated"] = True
+        
+        # Provide organization suggestions based on the summary
+        suggestions = summary.get("suggestions", [])
+        if suggestions:
+            logger.info(f"Organization suggestions for {directory}:")
+            
+            # Sort suggestions by priority if available
+            try:
+                suggestions.sort(key=lambda x: {
+                    "high": 0,
+                    "medium": 1,
+                    "normal": 2,
+                    "low": 3
+                }.get(x.get("priority", "normal"), 2))
+            except:
+                pass  # If sorting fails, just use original order
+                
+            for suggestion in suggestions:
+                suggestion_type = suggestion.get("type", "")
+                reason = suggestion.get("reason", "")
+                priority = suggestion.get("priority", "")
+                if priority:
+                    priority = f"[{priority}] "
+                logger.info(f"- {suggestion_type}: {priority}{reason}")
+    
     return stats
+
+def dedupe_files(directory: Union[str, Path], recursive: bool = False, 
+                auto_delete: bool = False, dry_run: bool = True) -> Dict:
+    """
+    Find and optionally remove duplicate files in a directory.
+    
+    Args:
+        directory: Path to directory to scan
+        recursive: Whether to process subdirectories recursively
+        auto_delete: Whether to automatically delete duplicates without confirmation
+        dry_run: If True, just report duplicates without deleting
+        
+    Returns:
+        Dictionary with deduplication statistics
+    """
+    directory = Path(directory)
+    logger.info(f"Scanning for duplicates in {directory}...")
+    
+    # Run the deduplication process
+    result = dedupe_directory(
+        directory=directory,
+        recursive=recursive,
+        auto_delete=auto_delete,
+        dry_run=dry_run
+    )
+    
+    # Update the directory summary after deduplication
+    update_directory_summary(directory)
+    
+    return result
 
 def main() -> int:
     """

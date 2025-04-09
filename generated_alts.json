@@ -1,307 +1,67 @@
 {
-  "inbox/ice_bucket_challenge_als_impact.pdf": {
-    "description": "The document discusses the impact of the Ice Bucket Challenge on raising awareness and funds for ALS and other rare diseases. It highlights the challenge's global spread, its effectiveness in increasing donations, and the criticisms it faced. The document also emphasizes the need for a sustained system of medical care and research for rare diseases, particularly in countries like China where such systems are lacking. It provides statistics on donations, discusses the role of orphan drugs, and calls for public sector involvement in promoting the development of medical care and research systems for rare diseases.",
+  "inbox/y24mlb57rm_PAGES352.pdf": {
+    "description": "The document is a PhD thesis submitted by Nicole McGill to Charles Sturt University in February 2020. It focuses on the issue of waiting lists for speech and language services for children and families. The thesis is structured into four parts: General Introduction, Desperation and Aspirations, Reimagining Services, and Conclusions and Contributions. It includes various chapters discussing stakeholders' perspectives, SLPs' views on waiting lists, the design and evaluation of a waiting list management strategy, and the implications and contributions of the research. The document also contains acknowledgements, ethical approvals, and a certificate of authorship.",
+    "document_type": "thesis",
+    "suggested_filename": "phd_thesis_nicole_mcgill_waiting_lists"
+  },
+  "inbox/patreon_connect_web_files.zip": {
+    "description": "The document is a compressed .zip file named 'ozn34gcvxe.zip'. It contains a directory structure with files related to a web application or website, specifically for a 'patreon-connect' project. The directory includes CSS files ('admin.css' and 'app.css') for styling, and a 'fonts' directory with a license file ('Apache License.txt') and a font file ('LibreFranklin-ExtraBold.ttf'). The purpose of this document appears to be to package and distribute the necessary files for a web application or website, likely related to connecting with Patreon services.",
+    "document_type": "code",
+    "suggested_filename": "patreon_connect_web_files"
+  },
+  "inbox/qak250zqau_PAGES9.pdf": {
+    "description": "The document is a scientific article discussing the use of pyrosequencing for quantitative methylation analysis of the SNRPN gene as a diagnostic test for Prader-Willi Syndrome (PWS) and Angelman Syndrome (AS). It details the background of these syndromes, the methodology used for the analysis, including sodium bisulfite treatment of DNA, PCR amplification, and pyrosequencing. The study compares the results of pyrosequencing with methylation-specific PCR (MS-PCR) and finds them to be 100% concordant. The article concludes that pyrosequencing is a rapid and robust method for diagnosing PWS and AS.",
     "document_type": "article",
-    "suggested_filename": "ice_bucket_challenge_als_impact"
+    "suggested_filename": "quantitative_analysis_of_snrpn_methylation"
   },
-  "inbox/functional_assessment_workbook.docx": {
-    "description": "The document is a workbook for seminars at DataFinch, presented by Gregory P. Hanley, Ph.D., BCBA-D, focusing on the functional assessment approach. It includes an open-ended functional assessment interview with sections for background information, questions to inform the design of a functional analysis, and tactics to overcome obstacles in conducting functional analyses. The document also references several works by Hanley on functional analysis and problem behavior.",
-    "document_type": "workbook",
-    "suggested_filename": "functional_assessment_workbook"
+  "inbox/yhjs6lyh84.pdf": {
+    "description": "The document contains a single line of text 'yhjs6lyh84', which appears to be a random string or code.",
+    "document_type": "notes",
+    "suggested_filename": "random_string_notes"
   },
-  "inbox/friedreich_ataxia_review_pandolfo.pdf": {
-    "description": "The document is a comprehensive neurological review on Friedreich Ataxia by Massimo Pandolfo, MD. It discusses the disease's autosomal recessive nature, its effects on the nervous system and heart, and its genetic epidemiology. The review covers symptoms, onset variability, progression, and the impact on daily life. It also delves into the pathology, including neuronal vulnerability, and the genetic basis with the FXN gene mutation. The document includes details on frataxin's function and its role in the disease's pathogenesis, as well as the distribution of the disease among different ethnic groups.",
-    "document_type": "article",
-    "suggested_filename": "friedreich_ataxia_review_pandolfo"
-  },
-  "inbox/self_determination_cognitive_disabilities.pdf": {
-    "description": "The document is an article discussing self-determination for individuals with significant cognitive disabilities and their families. It is written by Ann Turnbull and Rud Turnbull, who are both parents of a son with significant cognitive disabilities and professionals in the field. The article explores the concept of self-determination, its challenges, and the role of families in supporting it. It also addresses the influence of significant cognitive disabilities and cultural values on self-determination. The article includes personal anecdotes, theoretical arguments, and a table contrasting beliefs, values, and practices between Anglo-European and other cultures.",
-    "document_type": "article",
-    "suggested_filename": "self_determination_cognitive_disabilities"
-  },
-  "inbox/new_aac_tech_children_research.pdf": {
-    "description": "The document is a research article published in the journal 'Augmentative and Alternative Communication' in 2019. It discusses new and emerging augmentative and alternative communication (AAC) technologies designed to support children with complex communication needs and their communication partners. The article reviews the state of the science and future research directions related to AAC technologies that aim to enhance language learning, facilitate social interaction, improve literacy skills, increase societal participation, and teach interaction strategies to communication partners. It includes specific examples of how these technologies can be applied, such as supporting a young child named Trevor with Down syndrome in his language learning.",
-    "document_type": "research article",
-    "suggested_filename": "new_aac_tech_children_research"
-  },
-  "inbox/pecs_pals_autism_intervention_study.pdf": {
-    "description": "The document is a research article published in the Journal of Speech, Language, and Hearing Research in October 2016. It investigates the effectiveness of a social intervention that integrates peer-mediated approaches and the Picture Exchange Communication System (PECS) for minimally verbal preschoolers with autism. The study used A-B designs replicated across four children with severe autism and limited verbal skills, and seven peers without disabilities were trained to use PECS and facilitative social skills. The results showed an intervention effect for one child, which was replicated across three other children. All children improved in peer-directed communication, with some showing greater increases during snack time. The primary communication behavior for children with autism was to initiate with picture symbols to request, while peers primarily responded. Some children also increased communicative functions to comment and share, and all showed improved social engagement. The peers also increased their communication with the children with autism. The article concludes that teaching typically developing peers to be responsive listeners using PECS can be beneficial, and suggests further investigation into other augmentative and alternative communication approaches and increasing children's communication with peers for different purposes.",
-    "document_type": "research article",
-    "suggested_filename": "pecs_pals_autism_intervention_study"
-  },
-  "inbox/parkinsons_disease_management_review.pdf": {
-    "description": "The document is an open access review article published in 2013 in the journal Neuropsychiatric Disease and Treatment by David J Pedrosa and Lars Timmermann from the Department of Neurology at University Hospital Cologne, Germany. The article focuses on the management of Parkinson's disease (PD), discussing both motor and nonmotor symptoms, and various treatment options including medical treatments, nonpharmacologic therapies, and emerging therapies like pump therapies and deep brain stimulation (DBS). It covers the clinical diagnosis of PD, the importance of early treatment, and the challenges in managing the disease due to its progressive nature and the side effects of therapies.",
-    "document_type": "article",
-    "suggested_filename": "parkinsons_disease_management_review"
-  },
-  "inbox/broader_autism_phenotype_study.pdf": {
-    "description": "The document is a research article published in the American Journal of Psychiatry in February 1997, authored by Piven, Palmer, Jacobi, et al. It focuses on the broader autism phenotype, examining behaviors in relatives of families with multiple-incidence autism compared to relatives of Down syndrome probands. The study uses a semistructured family history interview to assess social and communication deficits and stereotyped behaviors. The results indicate higher rates of these behaviors in the autism families, suggesting the need for further studies to define the broader autism phenotype for genetic analyses.",
-    "document_type": "research article",
-    "suggested_filename": "broader_autism_phenotype_study"
-  },
-  "inbox/joubert_syndrome_review_2012.pdf": {
-    "description": "The document is a review paper published in Neurologia i Neurochirurgia Polska in 2012, focusing on Joubert syndrome and related disorders (JSRD). It discusses the role of the cerebellum in motor control, learning, and cognition, and describes Joubert syndrome as a rare genetic disorder characterized by ataxia, hypotonia, developmental delay, and other features like neonatal respiratory disturbances or abnormal eye movements. The paper also covers the genetic basis of the syndrome, identifying seven causal genes, and provides clinical presentation, differential diagnosis, and molecular background. The document includes an abstract, key words, and a detailed classification of JSRD.",
-    "document_type": "review paper",
-    "suggested_filename": "joubert_syndrome_review_2012"
-  },
-  "inbox/prc_saltillo_switch_selection_sheet.pdf": {
-    "description": "The document is a product selection sheet from PRC-Saltillo, detailing various switches and switch mounts for assistive technology, specifically for use with AAC devices. It includes product codes, quantities, and detailed descriptions of each switch and mount, including their features like size, activation surface, feedback, and compatibility. The document also has sections for client details and switch selection, indicating it's used for ordering or recommending equipment.",
-    "document_type": "product selection sheet",
-    "suggested_filename": "prc_saltillo_switch_selection_sheet"
-  },
-  "inbox/speech_language_evaluation_report_1.pdf": {
-    "description": "The document is a comprehensive speech language evaluation report intended for funding purposes. It outlines the requirements for a Speech Language Pathologist (SLP) to evaluate and report on a client's need for a speech-generating device (SGD). The report includes sections on the client's background, evaluation date, speech and language abilities, medical diagnosis, cognitive and physical abilities, mobility, hearing and vision status, daily communication needs, rationale for device selection, SGDs considered and/or trialed, recommended SGD and accessories, functional communication goals, treatment plan, and a non-conflict statement with a signature. Additional resources for report writing and funding are also provided.",
+  "inbox/cognixion_one_clinical_plan.docx": {
+    "description": "The document titled 'Cognixion ONE Guidance Documents: Clinical Trials, Human Factors, and User Testing' by Luke Steuber, last updated on 8/25/2022, version 1.6, discusses the clinical plan for the Cognixion ONE headset. It focuses on achieving FDA 510k and PDAC approval as a Class II EEG measurement system and CMS accreditation as a Speech Generating Device (SGD) for AAC use. The document outlines the initial clinical assessments, future partnerships, and potential expansions into new software and hardware applications. It also covers human factors and user testing, including background research, testing schedules, inclusion and exclusion criteria for participants, and areas of particular diligence such as photosensitive epilepsy and allergies. The document provides a detailed summary of addressable populations for the device, categorizing them based on various criteria.",
     "document_type": "report",
-    "suggested_filename": "speech_language_evaluation_report_1"
+    "suggested_filename": "cognixion_one_clinical_plan"
+  },
+  "inbox/datafinch_seminar_workbook_functional_assessment.docx": {
+    "description": "The document is a workbook for seminars at DataFinch, presented by Gregory P. Hanley, Ph.D., BCBA-D, focusing on the functional assessment approach. It includes an open-ended functional assessment interview template with sections for relevant background information, questions to inform the design of a functional analysis, and tactics to overcome general obstacles to conducting functional analyses. The document also lists several references related to functional analysis and problem behavior.",
+    "document_type": "workbook",
+    "suggested_filename": "datafinch_seminar_workbook_functional_assessment"
   },
   "inbox/speakprose_ar_bci_prd.docx": {
-    "description": "The document is a Product Requirements Document (PRD) for the Speakprose AR/BCI, a wearable headset with a speech-generating device driven by augmented reality. It outlines high-level software requirements for the end-user application (Speakprose AR), caregiver application (Companion App), and supporting infrastructure (Platform). The document also discusses business objectives, product overview, target user characteristics, regulatory requirements, and product risks. It is a living document, updated during development, and includes sections on document control, introduction, glossary, audience, document evolution, requirements, non-requirements, and regulatory compliance in the US and Canada.",
+    "description": "The document is a Product Requirements Document (PRD) for the software related to Speakprose AR/BCI, a wearable headset with a speech-generating device driven by augmented reality. It outlines high-level requirements for the software, including business objectives, product overview, and specific requirements for the end user application (Speakprose AR), caregiver application (Companion App), and supporting infrastructure (Platform). The document also discusses regulatory requirements for selling the device as a medical product in the US and Canada, and includes sections on non-requirements, product risks, and document control.",
     "document_type": "report",
     "suggested_filename": "speakprose_ar_bci_prd"
   },
-  "inbox/the_village_within_identity_perception.pdf": {
-    "description": "The document is an article titled 'The Village Within' by Lucas Steuber, published on BuzzFeed Community on February 22, 2017. It explores the concept of multiple identities within individuals, focusing on how gender and other factors influence self-perception and societal perception. The article uses personal anecdotes, such as a conversation with the author's mother about height, and informal research on how parents perceive their children's heights based on gender. It delves into cognitive linguistics, discussing conceptual metaphors and societal biases towards 'up' and 'down' in relation to gender perception. The author, a speech-language pathologist, reflects on how these perceptions affect his work with children, emphasizing the complexity of identity and the importance of understanding individuals holistically.",
-    "document_type": "article",
-    "suggested_filename": "the_village_within_identity_perception"
-  },
-  "inbox/predicting_graduate_success_slp.pdf": {
-    "description": "The document is an academic article titled 'Predicting Graduate School Success in a Speech-Language Pathology Program' published in the journal 'Teaching and Learning in Communication Sciences & Disorders' in 2018. It discusses the effectiveness of various admission criteria in predicting success in a graduate program for speech-language pathology. The article reviews literature from multiple fields and presents an analysis of one specific program's admission criteria and outcomes. Key findings include the predictive value of the verbal and quantitative portions of the GRE, and the grade in a speech and language development course taken prior to admission.",
-    "document_type": "article",
-    "suggested_filename": "predicting_graduate_success_slp"
-  },
-  "inbox/ice_bucket_challenge_als_awareness.pdf": {
-    "description": "The document discusses the 'Ice Bucket Challenge,' a viral charity event aimed at raising awareness and funds for Amyotrophic Lateral Sclerosis (ALS) and other rare diseases. It highlights the challenge's global impact, including significant donations and public participation. The document critiques the challenge for potential water wastage, safety concerns, and its nature as a publicity stunt. It also emphasizes the need for a systematic approach to medical care and research for rare diseases, particularly in countries like China where such systems are lacking. The text includes statistics on donations, mentions the role of celebrities, and discusses the broader implications for rare disease management, including the need for specific legislation, orphan drug development, and health insurance coverage.",
-    "document_type": "article",
-    "suggested_filename": "ice_bucket_challenge_als_awareness"
-  },
-  "inbox/phenylketonuria_info_brochure.pdf": {
-    "description": "The document is an informational brochure about phenylketonuria (PKU), a genetic disorder that affects the body's ability to process the amino acid phenylalanine. It covers the disease's definition, prevalence, genetic aspects, diagnosis, treatment, and potential complications if untreated. The brochure emphasizes the importance of early detection through neonatal screening and the effectiveness of dietary management in preventing symptoms. It also discusses the impact of the disease on different age groups and the necessity of strict metabolic control during pregnancy.",
-    "document_type": "informational brochure",
-    "suggested_filename": "phenylketonuria_info_brochure"
-  },
-  "inbox/tbi_incidence_and_slp_implications.pdf": {
-    "description": "The document discusses the rising incidence of traumatic brain injury (TBI) and its implications for speech-language pathologists (SLPs). It includes a personal anecdote about a patient with TBI, statistics on TBI incidence and survivability, and the challenges and opportunities for SLPs in treating TBI. The document also provides practical advice for SLPs on how to approach TBI treatment, emphasizing the need for individualized care and the use of external supports. Additionally, it touches on the emotional and psychological aspects of TBI recovery, using the metaphor of Kintsukuroi to illustrate the concept of embracing change. The document concludes with job advertisements for SLPs and related professionals.",
-    "document_type": "article",
-    "suggested_filename": "tbi_incidence_and_slp_implications"
-  },
-  "inbox/random_string_notes.pdf": {
-    "description": "The document contains a single line of text stating 'random string notes'. It appears to be a simple note or memo with no additional content or structure.",
+  "inbox/kb2t9w62ay.pdf": {
+    "description": "The document contains a single line of text 'kb2t9w62ay', which appears to be a unique identifier or code.",
     "document_type": "notes",
-    "suggested_filename": "random_string_notes"
+    "suggested_filename": "unique_identifier_notes"
   },
-  "inbox/executive_dysfunction_timing_pd.pdf": {
-    "description": "The document is a review article published on October 31, 2013, discussing the relationship between executive dysfunction and timing deficits in Parkinson's disease (PD). It explores how cognitive symptoms in PD, such as deficits in working memory, planning, and visuospatial attention, contribute to timing deficits. The article also discusses the role of dopamine signaling in the striatum and the involvement of the frontal cortex in timing. It suggests that timing could be considered an executive function and proposes that timing tasks could be used to study the neural circuitry of cognitive symptoms in PD and as a clinical biomarker for frontal and striatal dysfunction.",
-    "document_type": "review article",
-    "suggested_filename": "executive_dysfunction_timing_pd"
-  },
-  "inbox/random_string_notes_1.pdf": {
-    "description": "The document contains a single line of text stating 'random string notes 1'. It appears to be a simple note or a placeholder for further content.",
-    "document_type": "notes",
-    "suggested_filename": "random_string_notes_1"
-  },
-  "inbox/speech_generating_device_funding_request.pdf": {
-    "description": "The document is a funding request form for a Speech Generating Device, requiring the identification of the 'Place of Service' for billing purposes. It includes instructions for marking the appropriate code based on the beneficiary's residence type (private, assisted living, group home, etc.) and requires signatures from the beneficiary or facility management. The form also requests the facility's name, phone number, and address if applicable, and asks for a copy of the client's insurance card to be included with the form.",
-    "document_type": "form",
-    "suggested_filename": "speech_generating_device_funding_request"
-  },
-  "inbox/quantitative_analysis_of_srnpmn_gene_methylation.pdf": {
-    "description": "The document is a scientific article discussing the use of pyrosequencing for quantitative analysis of SRNPN gene methylation as a diagnostic test for Prader-Willi Syndrome (PWS) and Angelman Syndrome (AS). It details the background of these syndromes, the methodology of using pyrosequencing for methylation analysis, and compares the results with traditional methylation-specific PCR (MS-PCR) methods. The article includes sections on the molecular basis of PWS and AS, the materials and methods used in the study, and the results and conclusions drawn from the research.",
-    "document_type": "article",
-    "suggested_filename": "quantitative_analysis_of_srnpmn_gene_methylation"
-  },
-  "inbox/via_pro_selection_sheet.pdf": {
-    "description": "The document is a selection sheet for the Via Pro device, detailing various customization options for the device, including model selection, communication apps, accessories, and language packs. It also includes sections for client and contact information, as well as options for keyguards and touchguides for different apps. The document is divided into three pages, each focusing on different aspects of the device configuration.",
-    "document_type": "selection_sheet",
-    "suggested_filename": "via_pro_selection_sheet"
-  },
-  "inbox/sma_carrier_screening_guideline.pdf": {
-    "description": "The document is a comprehensive guideline on carrier screening for spinal muscular atrophy (SMA), authored by Thomas W. Prior, PhD, for the Professional Practice and Guidelines Committee. It discusses the genetic basis of SMA, including the role of the SMN1 and SMN2 genes, the prevalence and clinical types of SMA, and the molecular diagnosis methods. The guideline emphasizes the importance of carrier screening, detailing the sensitivity and limitations of current testing methods, and the implications for genetic counseling. It also touches on the potential for population-based screening, drawing parallels with other genetic disorders like Tay-Sachs disease, and stresses the need for educational materials and informed decision-making in carrier testing.",
-    "document_type": "guideline",
-    "suggested_filename": "sma_carrier_screening_guideline"
-  },
-  "inbox/meta_analysis_parkinson_risk_factors.pdf": {
-    "description": "The document is an original research article titled 'Meta-Analysis of Early Nonmotor Features and Risk Factors for Parkinson Disease' published in 2012 in the Annals of Neurology. It discusses a systematic review and meta-analysis of risk factors and early nonmotor symptoms associated with the later diagnosis of Parkinson's disease (PD). The study found strong associations between PD diagnosis and family history of PD or tremor, constipation, and lack of smoking history. Other factors like anxiety, depression, pesticide exposure, head injury, rural living, beta-blockers, farming occupation, and well-water drinking were also positively associated, while coffee drinking, hypertension, nonsteroidal anti-inflammatory drugs, calcium channel blockers, and alcohol were negatively associated. The article provides detailed methods, including search strategies, inclusion and exclusion criteria, data extraction, and statistical analysis used in the study.",
-    "document_type": "article",
-    "suggested_filename": "meta_analysis_parkinson_risk_factors"
-  },
-  "inbox/evidence_based_assessment_of_asd.pdf": {
-    "description": "The document is an article from the Journal of Clinical Child and Adolescent Psychology, published in 2005, focusing on evidence-based assessment of Autism Spectrum Disorders (ASD) in children and adolescents. It discusses the criteria for selecting, using, and interpreting assessment tools for ASD, including the relevance of these tools to service delivery. The article covers the background of ASD, including diagnostic criteria from DSM-IV-TR, and details on various types of ASD such as autistic disorder, Asperger's disorder, and PDDNOS. It also addresses the prevalence, gender ratio, and genetic factors related to ASD. The document further elaborates on the assessment process, including Level 1 and Level 2 evaluations, and emphasizes the importance of a developmental perspective in assessing ASD.",
-    "document_type": "article",
-    "suggested_filename": "evidence_based_assessment_of_asd"
-  },
-  "inbox/preoperative_aac_pediatric_tracheostomy.pdf": {
-    "description": "The document discusses a study on preoperative augmentative and alternative communication strategies for pediatric patients undergoing tracheostomy. It details the use of high-technology, low-technology, and no-technology communication tools and strategies, emphasizing the importance of communication planning before tracheostomy placement. The study was conducted at a tertiary pediatric center, reviewing patients from 2013-2016, and found that most patients utilized some form of AAC before the procedure. The document also highlights the significance of effective communication in healthcare settings and the risks associated with communication vulnerabilities in tracheostomy patients.",
-    "document_type": "article",
-    "suggested_filename": "preoperative_aac_pediatric_tracheostomy"
-  },
-  "inbox/random_string_notes_2.pdf": {
-    "description": "The document contains a single line of text, 'random string notes 2', which appears to be a placeholder or a note.",
-    "document_type": "notes",
-    "suggested_filename": "random_string_notes_2"
-  },
-  "inbox/joubert_syndrome_review_article.pdf": {
-    "description": "The document is a review article on Joubert syndrome and related disorders (JSRD), published in Neurologia i Neurochirurgia Polska in 2012. It discusses the role of the cerebellum in motor control and cognition, the clinical presentation of JSRD, including ataxia, hypotonia, developmental delay, and other features like neonatal respiratory disturbances or abnormal eye movements. The article also covers the genetic basis of JSRD, mentioning seven causal genes, and provides a classification of JSRD based on diagnostic criteria and clinical features.",
-    "document_type": "review article",
-    "suggested_filename": "joubert_syndrome_review_article"
-  },
-  "inbox/speech_language_evaluation_report.pdf": {
-    "description": "The document is a Speech Language Evaluation and Report, detailing the requirements and process for evaluating a client's need for a speech generating device (SGD). It includes sections on client background, evaluation date, speech and language abilities, medical diagnosis, cognitive and physical abilities, mobility, hearing and vision, daily communication needs, rationale for device selection, SGDs considered and trialed, recommended SGD and accessories, functional communication goals, treatment plan, and a non-conflict statement. The document also provides additional resources for report writing and funding.",
+  "inbox/5zbu4u8fly_PAGES1.pdf": {
+    "description": "The document is a comprehensive guide for Speech Language Pathologists (SLPs) on how to evaluate and report on a client's need for a speech-generating device (SGD). It outlines the necessary components of a speech report, including client background, evaluation date, speech and language abilities, medical diagnosis, cognitive and physical abilities, mobility, hearing and vision status, daily communication needs, rationale for device selection, SGDs considered or trialed, recommended SGD and accessories, functional communication goals, treatment plan, and a non-conflict statement with signature. The document also provides additional resources for report writing and funding.",
     "document_type": "report",
     "suggested_filename": "speech_language_evaluation_report"
   },
-  "inbox/worldwide_ms_prevalence_europe.pdf": {
-    "description": "The document discusses the worldwide prevalence of multiple sclerosis (MS), focusing on Europe. It details prevalence rates in various regions like Scotland, England, Wales, Ireland, Norway, Sweden, Denmark, and the Faroe Islands. The document also touches on genetic and environmental factors influencing MS distribution, including the hypothesis of MS as a transmissible disease in the Faroe Islands. It includes references to previous studies and data from the last 70 years.",
-    "document_type": "article",
-    "suggested_filename": "worldwide_ms_prevalence_europe"
-  },
-  "inbox/perceptions_of_aae_in_slp_programs.pdf": {
-    "description": "The document is a research article published in the American Journal of Speech-Language Pathology, focusing on the perceptions of African American English (AAE) by students in Speech-Language Pathology (SLP) programs. It discusses the validity of AAE as a linguistic form, the negative perceptions of AAE in the general population, and the need for SLP students to understand and appreciate linguistic diversity. The article includes a study where 73 students from 46 U.S. universities participated in an online survey and a matched-guide task to assess their explicit and implicit perceptions of AAE. The results showed that while students expressed positive opinions about the validity of AAE, they rated speakers of AAE lower on personal attributes compared to those speaking Mainstream American English. The article emphasizes the importance of expanding SLP training to address implicit biases and provides supplemental materials for such training.",
-    "document_type": "research article",
-    "suggested_filename": "perceptions_of_aae_in_slp_programs"
-  },
-  "inbox/random_string_notes_3.pdf": {
-    "description": "The document contains a single line of text stating 'random string notes 3'. It appears to be a simple note or a placeholder for a document.",
-    "document_type": "notes",
-    "suggested_filename": "random_string_notes_3"
-  },
-  "inbox/random_string_notes_4.pdf": {
-    "description": "The document contains a single line of text, 'c0kkwbla47', which appears to be a random string or code.",
-    "document_type": "notes",
-    "suggested_filename": "random_string_notes"
-  },
-  "inbox/random_string_notes_5.pdf": {
-    "description": "The document contains a single line of text stating 'random string notes 5'. It appears to be a simple note or a placeholder text.",
-    "document_type": "notes",
-    "suggested_filename": "random_string_notes_5"
-  },
-  "inbox/penrose_triangle_illusion_black_background_600x600.gif": {
-    "title": "Penrose Triangle Illusion",
-    "alt_text": "The image depicts a famous optical illusion known as the Penrose Triangle or the Impossible Triangle. The triangle is constructed from three straight, rectangular beams that appear to form a continuous loop, creating an impossible object in three-dimensional space. Each beam is shaded in a gradient of gray, with the top faces being lighter and the sides darker, giving a sense of depth and perspective. The beams are outlined in white, which contrasts against the black background, enhancing the illusion. The triangle's corners are connected by dashed yellow lines, which help to emphasize the impossible nature of the construction. The overall effect is a visually striking paradox that challenges our perception of reality. This illusion has been widely discussed in the context of visual perception, mathematics, and art, often used to illustrate concepts of impossible objects and the limits of human visual processing.",
-    "suggested_filename": "penrose_triangle_illusion_black_background"
-  },
-  "inbox/antioxidant_nutrients_ad_children.pdf": {
-    "description": "The document is an original research article published in the European Journal of Clinical Nutrition in 2010. It investigates the association between antioxidant nutritional status and the risk of atopic dermatitis (AD) in young children through a case-control, population-based study. The study involved 180 children with AD and 242 without AD, assessing their dietary intake using a validated food frequency questionnaire and analyzing fasting blood samples for fat-soluble vitamins and vitamin C. The results indicate a negative association between AD and intakes of antioxidant-related nutrients like b-carotene, vitamin E, folic acid, and iron. Higher serum levels of a-tocopherol and retinol were also linked to reduced AD risk. The study suggests that higher antioxidant nutritional status may reduce the risk of AD, with effects varying by nutrient type.",
-    "document_type": "article",
-    "suggested_filename": "antioxidant_nutrients_ad_children"
-  },
-  "inbox/pecs_peer_intervention_autism_study.pdf": {
-    "description": "The document is a research article published in the Journal of Speech, Language, and Hearing Research in October 2016. It investigates the effectiveness of a social intervention that integrates peer-mediated approaches and the Picture Exchange Communication System (PECS) for minimally verbal preschoolers with autism. The study used A-B designs replicated across four children with severe autism and limited verbal skills, and seven peers without disabilities were trained to use PECS and facilitative social skills. The results showed an intervention effect for one child, which was replicated across three other children. All children improved in peer-directed communication, with some showing greater increases during snack time. The primary communication behavior for children with autism was to initiate with picture symbols to request, while peers primarily responded. Some children also increased communicative functions to comment and share, and all showed improved social engagement. The peers also increased their communication with the children with autism. The article concludes that teaching typically developing peers to be responsive listeners using PECS can be beneficial, and suggests further investigation into other augmentative and alternative communication approaches and increasing children's communication with peers for different purposes.",
-    "document_type": "research article",
-    "suggested_filename": "pecs_peer_intervention_autism_study"
-  },
-  "inbox/disordered_thought_language_schizophrenia_study.pdf": {
-    "description": "The document is a thesis submitted by Lucas Carl Steuber to Portland State University in 2011, titled 'Disordered Thought, Disordered Language: A corpus-based description of the speech of individuals undergoing treatment for schizophrenia'. It explores the linguistic characteristics of speech in individuals diagnosed with schizophrenia, comparing it with those diagnosed with depression. The study uses a combination of quantitative and qualitative methods to analyze speech from 140 medicated individuals with schizophrenia, assessing various language features. The thesis includes an abstract, dedication, acknowledgements, and detailed chapters on introduction, literature review, methodology, results, and discussion. It concludes that while specific types of abnormal language behavior are present in schizophrenia, similar behaviors are also found in depression, with significant differences in three categories: peculiar word choice, illogicality, and distractibility.",
-    "document_type": "thesis",
-    "suggested_filename": "disordered_thought_language_schizophrenia_study"
-  },
-  "inbox/pediatric_language_telepractice_articles.pdf": {
-    "description": "The document is a compilation of five articles from the April-June 2022 issue of the journal 'Topics in Language Disorders'. The articles focus on pediatric language assessment and intervention using telepractice. Each article includes author disclosures detailing financial and non-financial relationships, funding sources, and professional affiliations. The articles cover topics such as preparing graduate students for telepractice, online language assessment, best practices for telepractice interventions, using animated action scenes for remote assessment, and guidance for school-based telepractice assessment.",
-    "document_type": "journal issue",
-    "suggested_filename": "pediatric_language_telepractice_articles"
-  },
-  "inbox/genetic_advances_speech_language_disorders.pdf": {
-    "description": "The document is a review article published in the journal Neuron, focusing on genetic advances in the study of speech and language disorders. It discusses the heterogeneity of these disorders, their genetic basis, and recent findings on specific genes and pathways like FOXP2, CNTNAP2, ATP2C2, CMIP, and lysosomal enzymes. The article also covers the clinical categorization of speech and language disorders, their comorbidity, and the methods used for identifying genetic variants, including linkage and association studies.",
-    "document_type": "article",
-    "suggested_filename": "genetic_advances_speech_language_disorders"
-  },
-  "inbox/antecedents_of_neonatal_encephalopathy.pdf": {
-    "description": "The document is a research article from the journal Pediatrics, published in November 2012, focusing on the antecedents of neonatal encephalopathy (NE) in term and late preterm infants. It discusses the findings from the Vermont Oxford Network Encephalopathy Registry, which includes data on 4165 singleton neonates. The study confirms the association of several nonasphyxial factors with NE, such as intrauterine exposure to infection or inflammation, fetal growth restriction, and birth defects. It also highlights the prevalence of clinically recognized seizures, low Apgar scores, and other maternal and fetal conditions. The article emphasizes the need for further studies to better understand and prevent NE.",
-    "document_type": "article",
-    "suggested_filename": "antecedents_of_neonatal_encephalopathy"
-  },
-  "inbox/genetics_of_photosensitivity_review.pdf": {
-    "description": "The document is a review article published in Epilepsia in 2004, focusing on the genetics of photosensitivity, specifically the photoparoxysmal response (PPR). It discusses the phenotype-genotype correlation, the influence of individual factors like age and gender on PPR expression, and the genetic heterogeneity of PPR. The article also covers the association of PPR with idiopathic generalized epilepsies, particularly juvenile myoclonic epilepsy, and suggests that genes involved in photosensitivity might also influence susceptibility to these epilepsies. The review includes historical context on EEG traits, detailed discussions on PPR phenotype, and genetic studies of PPR in both epileptic and non-epileptic individuals.",
-    "document_type": "article",
-    "suggested_filename": "genetics_of_photosensitivity_review"
-  },
-  "inbox/mutations_in_dnajc5_and_ancl.pdf": {
-    "description": "The document is an article discussing mutations in the DNAJC5 gene, which encodes cysteine-string protein alpha (CSPa), and their association with autosomal-dominant adult-onset neuronal ceroid lipofuscinosis (ANCL). It details the genetic and molecular basis of the disease, including linkage mapping, gene-expression analysis, exome sequencing, and candidate-gene sequencing in affected individuals from multiple families. The article also covers the clinical characteristics of ANCL, such as seizures, movement disorders, cognitive deterioration, and progressive dementia, with an onset age in the third decade or later. The study identifies two specific mutations in DNAJC5, c.346_348delCTC and c.344T>G, which affect the cysteine-string domain of CSPa, impacting its palmitoylation-dependent sorting and quantity in neuronal cells. The article concludes that these mutations lead to presynaptic dysfunction, progressive neurodegeneration, and lysosomal accumulation of misfolded proteins, confirming the neuroprotective role of CSPa in humans.",
-    "document_type": "article",
-    "suggested_filename": "mutations_in_dnajc5_and_ancl"
-  },
-  "inbox/friedreich_ataxia_neurological_review.pdf": {
-    "description": "The document is a detailed neurological review on Friedreich Ataxia, authored by Massimo Pandolfo, MD. It discusses the disease's autosomal recessive nature, its effects on the nervous system and heart, and its genetic epidemiology. The review covers symptoms, onset variability, progression, and the specific vulnerability of different neuronal types. It also includes information on the mutated gene (FXN), frataxin protein, and its mitochondrial function. The document concludes with a discussion on the pathogenesis of Friedreich Ataxia.",
-    "document_type": "article",
-    "suggested_filename": "friedreich_ataxia_neurological_review"
-  },
-  "inbox/random_string_notes_6.pdf": {
-    "description": "The document contains a single line of text '8oivtk14rd', which appears to be a random string or code.",
-    "document_type": "notes",
-    "suggested_filename": "random_string_notes"
-  },
-  "inbox/preliminary_aac_assessment_armenia.pdf": {
-    "description": "The document is a letter to the editor published in the Iran Journal of Public Health, Volume 48, Number 1, January 2019. It discusses a preliminary assessment of the need and awareness of augmentative and alternative communication (AAC) systems in Armenia. The study aimed to determine the number of people who could benefit from AAC in selected clinics using an epidemiological approach. It highlights the lack of epidemiological evidence on the prevalence of AAC need and the necessity for regular reviews of data due to increasing prevalence of disabilities. The research identifies 39 medical disorders, with 169 people having one of these conditions, 104 of whom have speech, language, or communication needs, and 54 could benefit from AAC. The awareness among medical professionals about AAC technologies is low, with only 3 out of 24 having heard of it and none having applied it. The document also lists specific medical conditions and their associated numbers of patients with speech problems and those who could benefit from AAC. It concludes with the need for broader studies to get accurate national estimates and mentions no similar studies in the region. The authors declare no conflict of interest.",
-    "document_type": "article",
-    "suggested_filename": "preliminary_aac_assessment_armenia"
-  },
-  "inbox/congenital_anomalies_and_twins.pdf": {
-    "description": "The document discusses the hypothesis that a significant proportion of congenital anomalies and cerebral palsy of unknown etiology are attributable to monozygotic multiple conception with monochorionic placentation. It explores the mechanisms of fetal damage in monochorionic twins, including the role of acute feto-fetal transfusion syndromes. The document also provides statistical data on the prevalence of congenital anomalies as a cause of fetal and neonatal death, and discusses different types of placentation and their implications for congenital anomalies.",
-    "document_type": "article",
-    "suggested_filename": "congenital_anomalies_and_twins"
-  },
-  "inbox/hfe_h63d_polymorphism_in_als_italian_patients.pdf": {
-    "description": "The document discusses the association between the HFE H63D polymorphism and amyotrophic lateral sclerosis (ALS) in Italian patients. It includes a detailed study on the prevalence of HFE mutations in ALS patients compared to controls, suggesting a higher frequency of the H63D allele in ALS patients. The document also touches on the potential mechanisms by which the H63D polymorphism might contribute to ALS, such as altered iron metabolism and oxidative stress. Additionally, it includes a section on the causes of death in multiple system atrophy (MSA), though this seems to be a separate topic within the same document.",
-    "document_type": "research_article",
-    "suggested_filename": "hfe_h63d_polymorphism_in_als_italian_patients"
-  },
-  "inbox/survival_and_surgical_interventions_for_children_w.pdf": {
-    "description": "The document is a research article published in the Journal of the American Medical Association (JAMA) in 2016, focusing on the survival rates and surgical interventions for children with trisomy 13 and 18 in Ontario, Canada. It discusses the high early mortality rates, with median survival times of 12.5 days for trisomy 13 and 9 days for trisomy 18, but also notes that 10% to 13% of children survive for 10 years. The study also examines the utilization of surgical procedures, ranging from minor to major surgeries, and reports a 1-year survival rate of 69% to 71% among children who underwent surgery. The article emphasizes the need for more data on long-term survival and the potential benefits of surgical interventions.",
-    "document_type": "research article",
-    "suggested_filename": "survival_and_surgical_interventions_for_children_with_trisomy_13_and_18"
-  },
-  "inbox/preoperative_slp_counseling_laryngectomy.pdf": {
-    "description": "The document is a research article detailing a pilot randomized clinical trial on the effects of pre-operative speech-language pathology counseling in patients undergoing total laryngectomy. It discusses the impact of the surgery on patients' quality of life and psychological well-being, the methodology of the study, and the results showing that the experimental group, which received counseling, had better outcomes in terms of distress, post-traumatic stress, anxious-depressive symptoms, and acceptance of the new voice compared to the control group. The article also covers the broader context of laryngeal cancer treatment and the importance of counseling in the surgical process.",
-    "document_type": "research article",
-    "suggested_filename": "preoperative_slp_counseling_laryngectomy"
-  },
   "inbox/marketing_requirements_project_yoda.docx": {
-    "description": "The document is a comprehensive marketing and customer requirements document for Project Yoda, identified by IMP-002. It outlines the product strategy and requirements for a product aimed at ALS patients, focusing on enhancing communication capabilities. The document includes sections on market analysis, stakeholder analysis, competitor analysis, SWOT, product overview, commercialization plan, and detailed product requirements. It emphasizes the need for confidentiality and provides guidelines for document completion and formatting.",
+    "description": "The document is a comprehensive marketing and customer requirements document for Project Yoda, identified by IMP-002. It outlines the product strategy and requirements for a product aimed at ALS patients, focusing on enhancing communication capabilities as the disease progresses. The document includes sections on market analysis, stakeholder analysis, competitor analysis, SWOT analysis, product overview, commercialization plan, and detailed product requirements. It emphasizes confidentiality and provides guidelines for document completion and formatting.",
     "document_type": "report",
     "suggested_filename": "marketing_requirements_project_yoda"
   },
-  "inbox/new_emerging_aac_technology_supports.pdf": {
-    "description": "The document is a research article published in the journal 'Augmentative and Alternative Communication' in 2019. It discusses new and emerging research-based augmentative and alternative communication (AAC) technologies designed to support children with complex communication needs and their communication partners. The article reviews the state of the science and future research directions related to AAC technologies that aim to enhance language learning, facilitate social interaction, improve literacy skills, increase societal participation, and teach interaction strategies to communication partners. It includes specific examples and case studies, such as the case of Trevor, a 16-month-old with Down syndrome, to illustrate the application of these technologies.",
-    "document_type": "research article",
-    "suggested_filename": "new_emerging_aac_technology_supports"
-  },
-  "inbox/quality_of_life_in_als_review.pdf": {
-    "description": "The document is a systematic review published in Neuroscience & Biobehavioral Reviews, Volume 111, April 2020, focusing on the quality of life and functional independence in patients with Amyotrophic Lateral Sclerosis (ALS). It discusses the impact of ALS on patients' functional capacity and quality of life, and reviews clinical trials that evaluated the effects of rehabilitation programs on these aspects. The review covers various interventions like respiratory care, mental health, communication skills, and exercises, and highlights the challenges in improving quality of life due to the disease's progression. The document includes sections on material and methods, study selection, summary of findings, and a conclusion emphasizing the lack of a cure for ALS and the need for symptomatic treatments to enhance patients' quality of life and functional independence.",
-    "document_type": "article",
-    "suggested_filename": "quality_of_life_in_als_review"
-  },
-  "highres/tax_burden_by_state_in_2024_data.md": {
-    "description": "This document is a markdown file that contains a detailed description of a map image titled 'Tax Burden by State in 2024'. The map visually represents the tax burden across different states in the U.S., using a color gradient to show the percentage of personal income paid towards state and local taxes. The document includes specific data points for states with the lowest and highest tax burdens, as well as other notable states. It also provides information on the map's design, including the use of icons and a legend. The purpose of this document is to provide a comprehensive overview of the tax burden distribution across the U.S. for the year 2024, aimed at informing readers about the tax situation in different states.",
+  "inbox/inbox_directory_metadata.json": {
+    "description": "This JSON file contains metadata about a directory named 'inbox'. It includes information on the last update time, file and subdirectory counts, and categorizes files into videos, audio, documents, archives, data, and other types. The document also lists all files within the directory, provides a directory tree structure, and includes content analysis with keywords. Additionally, it suggests organizing files into subdirectories and standardizing file naming for better organization.",
     "document_type": "data",
-    "suggested_filename": "tax_burden_by_state_in_2024_data"
+    "suggested_filename": "inbox_directory_metadata"
   },
-  "highres/super_powers_infographic_visualization_1308x1734.png": {
-    "title": "Super Powers Infographic",
-    "alt_text": "This image is an infographic titled 'SUPER POWERS' from an illustrated guidebook. The background is a light beige color with a grid of hexagonal nodes connected by lines, creating a complex network diagram. The nodes are color-coded in various shades including green, blue, yellow, orange, red, and purple, each representing different categories or themes of super powers. Each node contains text, likely the name of a specific power or related concept. The top section has a banner with the title in bold, uppercase letters, with a dark blue background. The top left corner has a small logo or icon with the number '1' and some text, possibly indicating this is part of a series. The bottom of the image has small text, likely credits or additional information. The overall layout suggests a detailed exploration of various super powers, their relationships, and categorizations.",
-    "suggested_filename": "super_powers_infographic_visualization"
+  "inbox/9u7fkh6h6x_PAGES1.pdf": {
+    "description": "The document is a comprehensive guide for Speech Language Pathologists (SLPs) on how to evaluate and report on a client's need for a speech-generating device (SGD). It outlines the necessary components of a speech report, including client background, evaluation date, speech and language abilities, medical diagnosis, cognitive and physical abilities, mobility, hearing and vision status, daily communication needs, rationale for device selection, SGDs considered and trialed, recommended SGD and accessories, functional communication goals, treatment plan, and a non-conflict statement with signature. The document also provides additional resources for report writing and funding.",
+    "document_type": "report",
+    "suggested_filename": "speech_language_evaluation_report"
   },
-  "highres/natures_time_spiral_geological_timeline_1753x2048.png": {
-    "title": "Nature's Time Spiral",
-    "alt_text": "This image depicts a spiral representation of Earth's geological timeline, titled 'Nature's Time Spiral'. The spiral starts from the center, representing the Hadean eon, and expands outward through the Archean, Proterozoic, Paleozoic, Mesozoic, and Cenozoic eras. Each segment of the spiral is visually distinct, with different colors and textures representing various geological periods. The Hadean eon at the center is depicted with a fiery, molten appearance, transitioning into the Archean eon with cooler, blue tones suggesting early oceans. Moving outward, the Proterozoic era is shown with a mix of blues and greens, indicating the emergence of life. The Paleozoic era features vibrant greens and browns, symbolizing the diversification of life forms. The Mesozoic era is marked by lush greens and the presence of dinosaurs, while the Cenozoic era at the outer edge is depicted with modern landscapes and human activity. Around the spiral, text labels each geological period, providing context for the timeline. The background is a blend of natural elements like mountains, forests, and oceans, enhancing the visual representation of Earth's history. The image is framed with a white border, and the title 'Nature's Time Spiral' is placed at the bottom.",
-    "suggested_filename": "natures_time_spiral_geological_timeline"
-  },
-  "highres/worlds_deadliest_animals_infographic_956x5396.png": {
-    "title": "World's Deadliest Animals",
-    "alt_text": "The image is an infographic titled 'World's Deadliest Animals'. It features a color-coded bar at the top indicating the number of deaths caused by various animals, with a legend explaining the color codes: 'Annual deaths' in red, 'Decade deaths' in orange, 'Century deaths' in yellow, 'Millennium deaths' in green, and 'Extinct' in blue. Below the bar, there are icons of 20 animals listed with their names and death statistics:\n\n1. **Mosquito** - Red, indicating high annual deaths.\n2. **Human** - Red, indicating high annual deaths.\n3. **Snake** - Orange, indicating deaths over a decade.\n4. **Dog** - Orange, indicating deaths over a decade.\n5. **Assassin Bug** - Yellow, indicating deaths over a century.\n6. **Tsetse Fly** - Yellow, indicating deaths over a century.\n7. **Freshwater Snail** - Yellow, indicating deaths over a century.\n8. **Scorpion** - Yellow, indicating deaths over a century.\n9. **Crocodile** - Green, indicating deaths over a millennium.\n10. **Hippopotamus** - Green, indicating deaths over a millennium.\n11. **Elephant** - Green, indicating deaths over a millennium.\n12. **Lion** - Green, indicating deaths over a millennium.\n13. **Tiger** - Green, indicating deaths over a millennium.\n14. **Bear** - Green, indicating deaths over a millennium.\n15. **Jellyfish** - Green, indicating deaths over a millennium.\n16. **Wolf** - Green, indicating deaths over a millennium.\n17. **Shark** - Green, indicating deaths over a millennium.\n18. **Rhino** - Green, indicating deaths over a millennium.\n19. **Horse** - Green, indicating deaths over a millennium.\n20. **Bee** - Green, indicating deaths over a millennium.\n\nEach animal icon is accompanied by its name in black text. The background of the image is white, providing contrast to the colorful icons and text. The infographic aims to educate on the relative danger of these animals based on human fatalities they cause, with context from various sources indicating that mosquitoes are responsible for the highest number of deaths due to diseases like malaria, dengue, and yellow fever. The source of the data is not provided in the image but can be inferred from similar infographics online.",
-    "suggested_filename": "worlds_deadliest_animals_infographic"
-  },
-  "highres/usgs_geologic_time_spiral_poster_1.md": {
-    "description": "The document contains a detailed description of a USGS poster titled 'The Geologic Time Spiral - A Path to the Past'. It illustrates the geologic time scale in a spiral format, starting from the present at the outer edge and spiraling inward to the distant past at the center. The spiral is divided into geological eras and periods, each depicted with corresponding environmental scenes. The purpose of the document is to provide an educational visual representation of Earth's geological history, highlighting the evolution of life and geological features over time.",
-    "document_type": "educational_poster",
-    "suggested_filename": "usgs_geologic_time_spiral_poster"
-  },
-  "highres/100_challenging_novels_poster_description.md": {
-    "description": "The document is a markdown file that describes a poster image titled '100 Challenging Novels'. It details the layout of the poster, which features a grid of 100 book covers, each representing a challenging novel. The document provides a row-by-row breakdown of the books included, along with descriptions of the artwork, colors, and text on each cover. The poster has a vintage feel and is designed to showcase a collection of classic literature, possibly as a tribute or a list of recommended reading.",
-    "document_type": "notes",
-    "suggested_filename": "100_challenging_novels_poster_description"
-  },
-  "highres/superpowers_omnibus_cover_description.md": {
-    "description": "The document is a detailed description of the cover of 'The Giant-Size Omnibus of SuperPowers', a fictional comic book. It includes a high-resolution image (3517x5071) with a deep blue background, various colored circles connected by lines, and the title 'SUPERPOWERS' in large, bold, yellow letters with a red outline. The circles represent different categories or themes of superpowers, possibly indicating relationships or hierarchies among them. The document's purpose is to provide a visual representation of the interconnectedness of various superpowers within a fictional universe, serving as a guide or reference for fans of superhero lore.",
-    "document_type": "notes",
-    "suggested_filename": "superpowers_omnibus_cover_description"
+  "inbox/6g68jzpp9y_PAGES9.pdf": {
+    "description": "The document is a review article published on October 31, 2013, in the journal Frontiers in Integrative Neuroscience. It discusses the relationship between executive dysfunction and timing deficits in Parkinson's disease (PD). The article explores how cognitive symptoms in PD, such as deficits in working memory, planning, and visuospatial attention, contribute to timing deficits. It also examines the role of dopamine signaling in the striatum and the frontal cortex in timing, suggesting that timing may be considered an executive function. The article includes sections on the introduction to PD, executive dysfunction, perceptual timing, and models of timing, with references to various studies and theories.",
+    "document_type": "review article",
+    "suggested_filename": "parkinsons_disease_timing_deficits"
   }
 }

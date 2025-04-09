@@ -37,15 +37,28 @@ def process_media_file(file_path: Union[str, Path], cache: Dict[str, Any], renam
         resolution = f"{dimensions[0]}x{dimensions[1]}"
     else:
         resolution = "unknown"
+    
     if duration:
+        # Format duration as HH:MM:SS
         duration_str = format_duration(duration)
+        # For MP3 files, we want just "DURATION" not the timestamp
+        duration_label = "DURATION"
     else:
         duration_str = "unknown"
+        duration_label = "unknown_duration"
     
-    if file_path.suffix.lower() in {'.mp3', '.wav', '.ogg', '.flac', '.mp4', '.avi', '.mov', '.mkv'}:
-        new_name = f"{clean_stem}_{resolution}_{duration_str}{file_path.suffix}"
-    elif file_path.suffix.lower() in {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'}:
-        new_name = f"{clean_stem}_{resolution}{file_path.suffix}"
+    # Determine file type and apply appropriate naming format
+    ext = file_path.suffix.lower()
+    
+    # Video files: append both resolution and duration
+    if ext in {'.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.m4v'}:
+        new_name = f"{clean_stem}_{resolution}_{duration_str}{ext}"
+    # Audio files: append DURATION label
+    elif ext in {'.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a'}:
+        new_name = f"{clean_stem}_{duration_label}{ext}"
+    # Image files: append resolution only
+    elif ext in {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp', '.heic'}:
+        new_name = f"{clean_stem}_{resolution}{ext}"
     else:
         return file_path, None, None
         

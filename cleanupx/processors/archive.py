@@ -17,6 +17,64 @@ from cleanupx.utils.common import clean_filename, strip_media_suffixes
 # Configure logging
 logger = logging.getLogger(__name__)
 
+def get_gz_info(file_path: Union[str, Path]) -> Dict[str, Any]:
+    """
+    Get information about a gzip file.
+    
+    Args:
+        file_path: Path to the gzip file
+        
+    Returns:
+        Dict with information about the gzip file
+    """
+    try:
+        import gzip
+        file_path = Path(file_path)
+        info = {
+            "original_size": 0,
+            "compressed_size": file_path.stat().st_size,
+            "filename": file_path.name,
+            "content_preview": "",
+            "is_binary": True
+        }
+        
+        # Try to determine the original filename
+        with gzip.open(file_path, 'rb') as gz:
+            # Get original filename if available
+            if hasattr(gz, 'name'):
+                info["original_filename"] = Path(gz.name).name
+            
+            # Try to read some content to see if it's text or binary
+            content = gz.read(1024)  # Read first 1KB
+            
+            # Try to decode as text
+            try:
+                decoded = content.decode('utf-8', errors='strict')
+                info["content_preview"] = decoded
+                info["is_binary"] = False
+            except UnicodeDecodeError:
+                # It's binary data
+                info["content_preview"] = f"Binary data ({len(content)} bytes)"
+                info["is_binary"] = True
+                
+            # Try to estimate original size by reading the whole file
+            # (not efficient for large files but gives accurate size)
+            try:
+                gz.seek(0)
+                decompressed = gz.read()
+                info["original_size"] = len(decompressed)
+            except Exception as e:
+                logger.warning(f"Could not determine original size: {e}")
+        
+        return info
+    except Exception as e:
+        logger.error(f"Error analyzing gzip file {file_path}: {e}")
+        return {
+            "error": str(e),
+            "filename": Path(file_path).name,
+            "compressed_size": Path(file_path).stat().st_size
+        }
+
 def process_archive_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict) -> Tuple[Path, Optional[Path], Optional[Dict]]:
     """
     Process archive files (.zip, .tar, etc.) to:
@@ -90,12 +148,36 @@ def process_archive_file(file_path: Union[str, Path], cache: Dict[str, Any], ren
                     content_summary.append(f"Error reading rar: {e}")
             elif file_path.suffix.lower() == '.gz' and not file_path.name.endswith('.tar.gz'):
                 try:
-                    import gzip
-                    with gzip.open(file_path, 'rb') as gz:
-                        preview = gz.read(1024)  # read first 1KB for preview
-                    content_summary.append(f"Gzip file with size: {file_path.stat().st_size} bytes")
-                    content_summary.append("Preview (first 1024 bytes):")
-                    content_summary.append(preview.decode('utf-8', errors='replace'))
+                    # Get detailed information about the gzip file
+                    gz_info = get_gz_info(file_path)
+                    
+                    # Clean the stem to remove any existing metadata
+                    clean_stem = strip_media_suffixes(file_path.stem)
+                    
+                    # Create a new name with compression ratio
+                    if gz_info["original_size"] > 0 and gz_info["compressed_size"] > 0:
+                        compression_ratio = gz_info["compressed_size"] / gz_info["original_size"]
+                        compression_pct = int((1 - compression_ratio) * 100)
+                        
+                        # Append compression information to filename (e.g. _compressed_70pct.gz)
+                        new_name = f"{clean_stem}_compressed_{compression_pct}pct{file_path.suffix}"
+                        new_path = rename_file(file_path, new_name, rename_log)
+                        
+                        if new_path:
+                            file_path = new_path
+                    
+                    # Add information to the content summary
+                    content_summary.append(f"Gzip file with compressed size: {gz_info['compressed_size']} bytes")
+                    if gz_info["original_size"] > 0:
+                        content_summary.append(f"Original size: {gz_info['original_size']} bytes")
+                        content_summary.append(f"Compression ratio: {compression_pct}%")
+                    
+                    if not gz_info["is_binary"]:
+                        content_summary.append("\nContent preview:")
+                        content_summary.append(gz_info["content_preview"])
+                    else:
+                        content_summary.append("\nContains binary data")
+                    
                 except Exception as e:
                     content_summary.append(f"Error reading gzip file: {e}")
             else:

@@ -50,7 +50,13 @@ def process_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log:
         logger.error(f"Error checking file size: {e}")
     
     ext = file_path.suffix.lower()
+    full_name = file_path.name.lower()
+    
     try:
+        # Handle special case for .tar.gz files
+        if full_name.endswith('.tar.gz') or ext == '.tgz':
+            return process_archive_file(file_path, cache, rename_log)
+            
         # Route file to appropriate processor based on extension
         if ext in MEDIA_EXTENSIONS:
             return process_media_file(file_path, cache, rename_log)
