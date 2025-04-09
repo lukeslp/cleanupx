@@ -1,158 +1,119 @@
 # CleanupX
 
-An intelligent file organization and cleanup tool that uses AI to analyze and rename files based on their content.
+An intelligent file organization and renaming tool with AI-powered content analysis.
 
 ## Features
 
-- Generate descriptive names for files based on content analysis
-- Process images, text files, documents, and more
-- Maintain a cache of processed files to avoid reprocessing
-- Undo rename operations if needed
-- Rich command-line interface with progress tracking
-- Cross-platform support
+- **Smart File Renaming**: Analyzes file content and suggests descriptive names
+- **Alt Text Generation**: Creates accessibility-friendly alt text for images
+- **Content Extraction**: Processes text, documents, images, media, and archives
+- **Batch Processing**: Processes entire directories of files recursively
+- **Privacy Mode**: Scrambles filenames with random strings for privacy
+- **Comprehensive Logging**: Maintains detailed logs of all rename operations
+- **Interactive CLI**: User-friendly command-line interface with progress indicators
 
 ## Installation
-
-### Option 1: Install from source
 
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/cleanupx.git
 cd cleanupx
 
-# Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
 # Install dependencies
 pip install -r requirements.txt
-
-# Install the package in development mode
-pip install -e .
 ```
 
-### Option 2: Install with pip
+## Usage
+
+### Command Line Interface
 
 ```bash
-pip install cleanupx
+python cleanupx.py [directory] [options]
+```
+
+### Interactive Mode
+
+```bash
+python cleanupx.py
+```
+
+### Available Options
+
+- `--recursive, -r`: Process subdirectories recursively
+- `--force, -f`: Process all files, including previously renamed ones
+- `--clear-cache`: Clear cache before processing
+- `--interactive, -i`: Run in interactive mode
+- `--scramble, -s`: Scramble filenames with random strings
+- `--max-size`: Skip files larger than this size in MB (default: 25MB)
+- `--images-only`: Process only image files
+- `--text-only`: Process only text files
+- `--documents-only`: Process only document files
+- `--archives-only`: Process only archive files
+- `--skip-images`: Skip processing of image files
+- `--skip-text`: Skip processing of text files
+- `--skip-documents`: Skip processing of document files
+- `--skip-archives`: Skip processing of archive files
+
+## Examples
+
+Process all files in the current directory:
+```bash
+python cleanupx.py .
+```
+
+Process all files recursively in a specific directory:
+```bash
+python cleanupx.py ~/Documents/unsorted -r
+```
+
+Scramble filenames in a directory for privacy:
+```bash
+python cleanupx.py ~/Pictures/private -s
 ```
 
 ## Dependencies
 
-CleanupX requires several dependencies to work properly:
+- OpenAI/X.AI API for content analysis
+- Python 3.7+
+- See requirements.txt for full list of dependencies
 
-- **Required**:
-  - openai: For AI-powered file analysis
-  - Pillow: For image processing
-  - inquirer: For interactive command-line interface
-  - rich: For enhanced terminal output
+## Project Structure
 
-- **Optional but recommended**:
-  - pyheif or pillow-heif: For HEIC/HEIF image support
-  - PyPDF2: For PDF document parsing
-  - ffmpeg: For media file metadata extraction
-
-## Usage
-
-### Basic Usage
-
-Process a single file or directory:
-
-```bash
-cleanupx process path/to/file_or_directory
+```
+cleanupx/
+├── __init__.py
+├── main.py              # Entry point
+├── config.py            # Configuration settings
+├── api.py               # API interaction
+├── utils/
+│   ├── __init__.py
+│   ├── common.py        # Shared utilities
+│   ├── logging.py       # Logging utilities
+│   ├── cache.py         # Cache management
+│   ├── reporting.py     # Report generation
+├── processors/
+│   ├── __init__.py
+│   ├── base.py          # Base processor
+│   ├── file.py          # File processing
+│   ├── image.py         # Image processor
+│   ├── text.py          # Text processor
+│   ├── document.py      # Document processor
+│   ├── archive.py       # Archive processor
+│   ├── media.py         # Media processor
+├── ui/
+│   ├── __init__.py
+│   ├── cli.py           # Command-line interface
+│   ├── interactive.py   # Interactive UI
 ```
 
-Process a directory recursively:
+## Accessibility
 
-```bash
-cleanupx process --recursive path/to/directory
-```
-
-### Advanced Options
-
-Process files even if previously renamed:
-
-```bash
-cleanupx process --force path/to/directory
-```
-
-Clear cache before processing:
-
-```bash
-cleanupx process --clear-cache path/to/directory
-```
-
-Show what would be done without making changes:
-
-```bash
-cleanupx process --dry-run path/to/directory
-```
-
-### Managing Renames
-
-Undo a specific rename:
-
-```bash
-cleanupx undo path/to/file
-```
-
-Undo all renames:
-
-```bash
-cleanupx undo-all
-```
-
-### Cache Management
-
-View current status:
-
-```bash
-cleanupx status
-```
-
-Clear cache and rename log:
-
-```bash
-cleanupx clear-cache
-```
-
-### Global Options
-
-Enable debug logging:
-
-```bash
-cleanupx --debug process path/to/directory
-```
-
-Specify custom cache directory:
-
-```bash
-cleanupx --cache-dir /path/to/cache process path/to/directory
-```
-
-## Configuration
-
-Configuration can be set in `src/cleanupx/core/config.py` or using environment variables:
-
-- `XAI_API_KEY`: Your X.AI API key
-- `XAI_API_BASE`: API base URL (default: https://api.x.ai/v1)
-- `XAI_MODEL_TEXT`: Model for text analysis (default: grok-2-latest)
-- `XAI_MODEL_VISION`: Model for image analysis (default: grok-2-vision-latest)
-- `CLEANUPX_CACHE_DIR`: Directory for cache and log files (default: current directory)
-- `OPENAI_API_KEY`: Your OpenAI API key (required)
-
-## Troubleshooting
-
-### Common Issues
-
-- **Missing OpenAI package**: Install with `pip install openai`
-- **HEIC conversion failures**: Install HEIC support with `pip install pillow-heif` or `pip install pyheif`
-- **Media metadata extraction errors**: Install ffmpeg on your system
+This tool enhances file accessibility by:
+1. Generating detailed alt text for images
+2. Creating separate markdown files with content descriptions
+3. Embedding metadata in files when possible
+4. Using descriptive, content-based filenames
 
 ## License
 
 MIT License
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. # cleanupx
