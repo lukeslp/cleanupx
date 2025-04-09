@@ -1,200 +1,10 @@
-from flask_cors import CORS
-from flask import Blueprint, request, jsonify
-from pathlib import Path
-import json
-from datetime import datetime, timedelta
-from apscheduler.schedulers.background import BackgroundScheduler
-import logging
 
-# Set up logging
-logger = logging.getLogger(__name__)
-
-bp = Blueprint('files', __name__)
-# Configure CORS to allow requests from any origin
-CORS(bp, resources={
-    r"/*": {
-        "origins": "*",
-        "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "Accept"]
-    }
-})
-
-
-
-# Constants
-BASE_DIR = Path(__file__).resolve().parent.parent
-TEMP_DIR = BASE_DIR / "temp"
-IMAGE_COUNTER_FILE = BASE_DIR / "data" / "image_counter.json"
-
-# Create necessary directories
-TEMP_DIR.mkdir(exist_ok=True, parents=True)
-IMAGE_COUNTER_FILE.parent.mkdir(exist_ok=True, parents=True)
-
-# Initialize Coze client
-coze_api_token = 'pat_Uk4Z075Oo8RE5Po13rBUoEQNzr3dcKTNmBuf5Qtj1V6QZLiwAeZDaNzfNSLMIca8'
-# Initialize image counter if it doesn't exist
-if not IMAGE_COUNTER_FILE.exists():
-    with open(IMAGE_COUNTER_FILE, 'w') as f:
-        json.dump({"count": 0}, f)
-
-def increment_image_counter():
-    """
-    Increment the image counter
-    """
-    try:
-        with open(IMAGE_COUNTER_FILE, 'r') as f:
-            data = json.load(f)
-        data["count"] += 1
-        with open(IMAGE_COUNTER_FILE, 'w') as f:
-            json.dump(data, f)
-        logger.info(f"Image counter incremented. New count: {data['count']}")
-    except Exception as e:
-        logger.error(f"Error updating image counter: {e}")
-
-def cleanup_temp_files():
-    """
-    Delete files older than 1 hour from the temp directory
-    """
-    try:
-        current_time = datetime.now()
-        for file_path in TEMP_DIR.glob('*'):
-            if file_path.is_file():
-                file_age = current_time - datetime.fromtimestamp(file_path.stat().st_mtime)
-                if file_age > timedelta(hours=1):
-                    file_path.unlink()
-                    logger.info(f"Deleted old temp file: {file_path}")
-    except Exception as e:
-        logger.error(f"Error cleaning up temp files: {str(e)}")
-
-# Schedule cleanup task
-scheduler = BackgroundScheduler()
-scheduler.add_job(cleanup_temp_files, 'interval', hours=1)
-scheduler.start()
-
-@bp.route('/upload', methods=['POST'])
-def upload_file():
-    logger.info("File upload endpoint hit")
-    try:
-        if 'file' not in request.files:
-            return jsonify({"error": "No file provided"}), 400
-        
-        file = request.files['file']
-        if not file:
-            return jsonify({"error": "Empty file"}), 400
-
-        # Upload file using direct API call
-        files = {'file': (file.filename, file.stream, file.content_type)}
-        headers = {'Authorization': f'Bearer {coze_api_token}'}
-        
-        logger.info(f"Uploading file {file.filename} to Coze")
-        upload_response = requests.post(
-            'https://api.coze.com/v1/files/upload',
-            files=files,
-            headers=headers
-        )
-        
-        logger.info(f"Upload response: {upload_response.text}")
-        
-        if not upload_response.ok:
-            raise Exception(f"Upload failed: {upload_response.text}")
-            
-        upload_data = upload_response.json()
-        logger.info(f"Upload data: {upload_data}")
-        
-        # Extract file ID according to documented response format
-        # Response format: {"code": 0, "data": {"id": "xxx", ...}, "msg": ""}
-        file_id = None
-        if upload_data.get('code') == 0:
-            file_id = upload_data.get('data', {}).get('id')
-        
-        if not file_id:
-            raise Exception("No file_id in response")
-        
-        logger.info(f"File uploaded successfully, ID: {file_id}")
-        return jsonify({
-            "success": True,
-            "file_id": file_id
-        })
-
-    except Exception as e:
-        error_msg = str(e)
-        logger.error(f"File upload error: {error_msg}")
-        return jsonify({"error": error_msg}), 500
-
-@bp.route('/counter', methods=['GET'])
-def get_image_count():
-    """
-    Get the current image counter value
-    """
-    try:
-        logger.debug(f"Accessing image counter file at: {IMAGE_COUNTER_FILE}")
-        
-        if not os.access(IMAGE_COUNTER_FILE, os.R_OK | os.W_OK):
-            logger.error(f"Permission denied for file: {IMAGE_COUNTER_FILE}")
-            return jsonify({
-                "success": False,
-                "error": "Permission denied",
-                "count": 0
-            }), 500
-                
-        with open(IMAGE_COUNTER_FILE, 'r') as f:
-            data = json.load(f)
-            count = data.get("count", 0)
-            logger.debug(f"Successfully read count: {count}")
-            
-        return jsonify({
-            "success": True,
-            "count": count
-        }), 200
-    except json.JSONDecodeError as e:
-        logger.error(f"JSON decode error: {str(e)}")
-        with open(IMAGE_COUNTER_FILE, 'w') as f:
-            json.dump({"count": 0}, f)
-        return jsonify({
-            "success": False,
-            "error": "Counter reset due to file corruption",
-            "count": 0
-        }), 500
-    except Exception as e:
-        logger.error(f"Error in get_image_count: {str(e)}")
-        return jsonify({
-            "success": False,
-            "error": str(e),
-            "count": 0
-        }), 500
-
-@bp.route('/nuke', methods=['POST'])
-def clear_conversation():
-    """
-    Clear all temporary files and conversations
-    """
-    try:
-        # Clear temp directory
-        for file_path in TEMP_DIR.glob('*'):
-            if file_path.is_file():
-                file_path.unlink()
-        
-        return jsonify({'success': True, 'message': 'All temporary files cleared'}), 200
-    except Exception as e:
-        logger.error(f"Error clearing files: {str(e)}")
-        return jsonify({'error': str(e)}), 500
-    
-    
-    
 @bp.route('/url-to-base64', methods=['POST'])
 def url_to_base64():
     """
-    Convert an image URL to base64 encoding
-    
+    Convert an image URL to a base64-encoded data URL.
     Expects JSON payload with:
-    {
-        "url": "https://example.com/image.jpg"
-    }
-    
-    Returns:
-    {
-        "base64": "data:image/jpeg;base64,/9j/4AAQSkZJRg..."
-    }
+      { "url": "https://example.com/image.jpg" }
     """
     try:
         data = request.json
@@ -202,72 +12,46 @@ def url_to_base64():
             return jsonify({"error": "URL is required"}), 400
             
         image_url = data['url']
-        
-        # Download image from URL
         response = requests.get(image_url)
         if response.status_code != 200:
             return jsonify({"error": "Failed to fetch image from URL"}), 400
             
-        # Get content type
         content_type = response.headers.get('content-type', 'application/octet-stream')
-        
-        # Convert to base64
-        import base64
         base64_data = base64.b64encode(response.content).decode('utf-8')
-        
-        # Format as data URL
         data_url = f"data:{content_type};base64,{base64_data}"
-        
-        return jsonify({
-            "base64": data_url
-        }), 200
-        
+        return jsonify({"base64": data_url}), 200
     except Exception as e:
-        logger.error(f"Error converting URL to base64: {str(e)}")
+        logger.error(f"Error converting URL to base64: {e}")
         return jsonify({"error": str(e)}), 500
 
 @bp.route('/ocr', methods=['POST'])
 def perform_ocr():
     """
-    Extract text from an image using Tesseract OCR
-    
-    Accepts either:
-    - Multipart form data with an image file
-    - JSON with base64 encoded image
-    - JSON with image URL
-    
-    Returns:
-    {
-        "text": "Extracted text from image",
-        "confidence": 95.5
-    }
+    Extract text from an image using Tesseract OCR.
+    Accepts:
+      - Multipart form data with an image file,
+      - JSON with base64 encoded image,
+      - JSON with image URL.
+    Returns JSON with extracted text and average confidence.
     """
     try:
-        import pytesseract
         from PIL import Image
         import io
-        import base64
+        import pytesseract
 
         image = None
-        
-        # Handle different input types
         if request.files and 'image' in request.files:
-            # Handle direct file upload
             file = request.files['image']
             image = Image.open(file.stream)
-            
         elif request.is_json:
             data = request.json
             if 'base64' in data:
-                # Handle base64 encoded image
                 base64_data = data['base64']
                 if 'base64,' in base64_data:
                     base64_data = base64_data.split('base64,')[1]
                 image_data = base64.b64decode(base64_data)
                 image = Image.open(io.BytesIO(image_data))
-                
             elif 'url' in data:
-                # Handle image URL
                 response = requests.get(data['url'])
                 if response.status_code != 200:
                     return jsonify({"error": "Failed to fetch image from URL"}), 400
@@ -276,14 +60,10 @@ def perform_ocr():
         if not image:
             return jsonify({"error": "No image provided"}), 400
 
-        # Perform OCR
         ocr_data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
-        
-        # Extract text and confidence
         text = " ".join(ocr_data['text'])
-        # Calculate average confidence excluding empty text
         confidences = [conf for conf, txt in zip(ocr_data['conf'], ocr_data['text']) 
-                      if txt.strip() and conf != -1]
+                       if txt.strip() and conf != -1]
         avg_confidence = sum(confidences) / len(confidences) if confidences else 0
 
         return jsonify({
@@ -292,5 +72,143 @@ def perform_ocr():
         }), 200
 
     except Exception as e:
-        logger.error(f"Error performing OCR: {str(e)}\n{traceback.format_exc()}")
+        logger.error(f"Error performing OCR: {e}\n{traceback.format_exc()}")
         return jsonify({"error": str(e)}), 500
+
+def safe_rename(src: str, dst: str, backup: bool = True) -> Tuple[bool, Optional[str]]:
+    """
+    Safely rename a file with optional backup creation.
+    
+    Args:
+        src: Source file path
+        dst: Destination file path
+        backup: Whether to create a backup before renaming
+        
+    Returns:
+        Tuple of (success: bool, backup_path: Optional[str])
+        
+    Raises:
+        OSError: If the rename operation fails and cannot be recovered
+    """
+    src_path = Path(src)
+    dst_path = Path(dst)
+    
+    if not src_path.exists():
+        logger.error(f"Source file does not exist: {src}")
+        return False, None
+        
+    if src_path == dst_path:
+        logger.info(f"Source and destination are the same: {src}")
+        return True, None
+    
+    backup_path = None
+    
+    try:
+        # Create destination directory if it doesn't exist
+        dst_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Create backup if requested
+        if backup and dst_path.exists():
+            backup_path = str(dst_path) + ".bak"
+            shutil.copy2(str(dst_path), backup_path)
+            logger.info(f"Created backup at: {backup_path}")
+        
+        # Use atomic rename when possible (same filesystem)
+        try:
+            os.replace(str(src_path), str(dst_path))
+            logger.info(f"Renamed {src} to {dst}")
+            return True, backup_path
+            
+        # Fall back to copy + delete if atomic rename fails
+        except OSError:
+            logger.warning(f"Atomic rename failed, falling back to copy + delete for {src}")
+            # Use temporary file for atomic copy
+            temp_dir = dst_path.parent
+            with tempfile.NamedTemporaryFile(dir=temp_dir, delete=False) as tmp:
+                shutil.copy2(str(src_path), tmp.name)
+                os.replace(tmp.name, str(dst_path))
+            os.unlink(str(src_path))
+            logger.info(f"Completed copy + delete rename from {src} to {dst}")
+            return True, backup_path
+            
+    except OSError as e:
+        logger.error(f"Failed to rename {src} to {dst}: {str(e)}")
+        # Try to restore backup if it exists
+        if backup_path and os.path.exists(backup_path):
+            try:
+                os.replace(backup_path, str(dst_path))
+                logger.info(f"Restored backup from {backup_path}")
+            except OSError as restore_error:
+                logger.error(f"Failed to restore backup: {str(restore_error)}")
+        raise
+        
+def bulk_rename(file_pairs: list[Tuple[str, str]], backup: bool = True) -> list[Tuple[str, str, bool]]:
+    
+    async def fetch_citation(self, doi: str) -> Dict:
+
+        try:
+            response = await requests.get(f"https://api.crossref.org/works/{doi}")
+            return response.json()["message"]
+        except Exception as e:
+            print(f"Citation fetch failed: {e}")
+            return None
+
+def process_file_embed(self, file: Dict, file_url: str) -> str:
+        """
+        Generate appropriate embed HTML based on file type.
+        Referenced from from_utils.js lines 1388-1415
+        """
+        file_ext = file["name"].split(".")[-1].lower()
+        
+        # Code files
+        code_extensions = {
+            'js', 'jsx', 'ts', 'tsx', 'py', 'java', 'cpp', 'c', 'cs', 
+            'php', 'rb', 'go', 'rs', 'swift', 'kt', 'dart', 'sql',
+            'html', 'css', 'scss', 'less', 'json', 'xml', 'yaml', 'yml', 'toml'
+        }
+        
+        if file_ext in code_extensions:
+            return f"```{file_ext}\n{file['name']}\n```"
+            
+        # Markdown files
+        if file_ext in ['md', 'markdown']:
+            return f"[View Markdown: {file['name']}]({file_url})"
+            
+        # Text files
+        if file["type"] == "text/plain" or file_ext in ['txt', 'log', 'csv', 'tsv']:
+            return f'<div class="text-embed-container" data-file-url="{file_url}">\n' \
+                   f'    <pre class="text-content">Loading text content...</pre>\n' \
+                   f'</div>'
+                   
+        # Default fallback
+        return f'<div class="file-embed-container">\n' \
+               f'    <a href="{file_url}" target="_blank" rel="noopener noreferrer">\n' \
+               f'        <i class="fas fa-file"></i> {file["name"]}\n' \
+               f'    </a>\n' \
+               f'</div>'
+
+def get_supported_mime_types(self) -> List[str]:
+        """
+        Get list of supported MIME types for file processing.
+        Referenced from from_simple_alt_text.js lines 140-185
+        """
+        return [
+            # Image Formats
+            'image/jpeg', 'image/jpg', 'image/png', 'image/gif',
+            'image/webp', 'image/heic', 'image/heif', 'image/avif',
+            'image/tiff', 'image/bmp', 'image/x-icon',
+            'image/vnd.microsoft.icon', 'image/svg+xml',
+            'image/vnd.adobe.photoshop', 'image/x-adobe-dng',
+            'image/x-canon-cr2', 'image/x-nikon-nef',
+            'image/x-sony-arw', 'image/x-fuji-raf',
+            'image/x-olympus-orf', 'image/x-panasonic-rw2',
+            'image/x-rgb', 'image/x-portable-pixmap',
+            'image/x-portable-graymap', 'image/x-portable-bitmap',
+            # Video Formats
+            'video/mp4', 'video/quicktime', 'video/webm',
+            'video/x-msvideo', 'video/x-flv', 'video/x-ms-wmv',
+            'video/x-matroska', 'video/3gpp', 'video/x-m4v',
+            'video/x-ms-asf', 'video/x-mpegURL', 'video/x-ms-vob',
+            'video/x-ms-tmp', 'video/x-mpeg', 'video/mp2t',
+            'application/octet-stream'
+        ]

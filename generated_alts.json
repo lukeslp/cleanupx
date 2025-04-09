@@ -1,91 +1,334 @@
 {
-  "inbox/comprehensive_presentation_28_slides.pptx": {
-    "description": "The document is a PowerPoint presentation with 28 slides. It contains various slide masters and slides, indicating a comprehensive presentation with multiple sections or themes. The content includes charts, embeddings, media, and notes, suggesting a detailed and possibly technical or business-related presentation.",
-    "document_type": "presentation",
-    "suggested_filename": "comprehensive_presentation_28_slides"
-  },
-  "inbox/patreon_connect_web_resources.zip": {
-    "description": "The document appears to be a compressed file containing web-related resources, specifically for a project named 'patreon-connect'. It includes CSS files (admin.css, app.css) and font files (LibreFranklin-ExtraBold.ttf) along with a license file (Apache License.txt). The purpose of this document is to provide the necessary styling and font resources for a web application or website related to Patreon.",
-    "document_type": "web resources",
-    "suggested_filename": "patreon_connect_web_resources"
-  },
-  "inbox/inbox_folder_summary_report.html": {
-    "description": "This HTML document provides a comprehensive summary of the 'inbox' folder, detailing its contents and themes. It includes metadata for various files, focusing on data visualization, genetics, medical data, social activism, and government spending. The document serves as a repository for data-driven documents, aiding in research, documentation, and file management.",
-    "document_type": "report",
-    "suggested_filename": "inbox_folder_summary_report"
-  },
-  "inbox/harry_potter_complete_collection.rar": {
-    "suggested_filename": "harry_potter_complete_collection",
-    "summary_md": "## Harry Potter Complete Collection\n\nThis archive contains the complete collection of Harry Potter books. Due to the unsupported archive type (.rar), the contents could not be fully analyzed."
-  },
-  "inbox/javascript_dom_screenshot.md": {
-    "description": "This document contains a screenshot of a web browser's console or developer tools displaying a detailed JavaScript object representing the document object model (DOM) of a webpage. The text is formatted with different colors to distinguish between keys, values, and data types, with keys in white, strings in light blue, null values in light purple, and other values in various colors. The structure is hierarchical, with nested objects and arrays indicated by curly braces and square brackets respectively. The purpose of this document is to provide a visual representation of the DOM for debugging or educational purposes.",
-    "document_type": "code",
-    "suggested_filename": "javascript_dom_screenshot"
-  },
-  "inbox/ngrok_v3_stable_software.zip": {
-    "description": "The document contains a compressed file named 'Ngrok v3 stable.zip'. The content within the zip file appears to be binary data, likely representing the Ngrok v3 stable version software or related files. The purpose of this document is to store and distribute the Ngrok software in a compressed format for easier download and installation.",
-    "document_type": "software",
-    "suggested_filename": "ngrok_v3_stable_software"
-  },
-  "inbox/cartoon_puppy_illustration_description.md": {
-    "description": "The document contains a detailed description of a cartoon illustration featuring an adorable puppy with a light brown and white coat, large expressive blue eyes, and a playful demeanor. The background is light blue with pink sparkles, enhancing the whimsical and cute feel. A speech bubble above the puppy contains the text 'VISIUALIZE A DRABLE,' which seems to be a playful misspelling of 'Visualize a Drabble.' The purpose of the document appears to be to describe this illustration in a way that evokes joy and cuteness.",
-    "document_type": "description",
-    "suggested_filename": "cartoon_puppy_illustration_description"
-  },
   "inbox/conversation_export_2025_03_28.html": {
-    "description": "This HTML document is a conversation export from March 28, 2025, at 3:48:40 AM. It includes a user's request for an introduction and the bot's response, which contains a heading, a horizontal rule, an icon, an image, and links to external resources. The document's purpose is to record and display a specific conversation between a user and a bot.",
+    "description": "This document is an HTML file that serves as a conversation export. It contains a conversation between a user and a bot, with the user requesting an introduction and the bot responding with various elements including text, images, and links. The document includes styling for better readability and visual appeal, with specific CSS classes for user and bot messages.",
     "document_type": "conversation_export",
     "suggested_filename": "conversation_export_2025_03_28"
   },
-  "inbox/chainlit_main_project_archive.zip": {
-    "description": "The document is a compressed archive containing the main directory of the Chainlit project. It includes various configuration files, documentation, and workflow files necessary for setting up and running the project. The purpose of this document is to provide a complete package for developers to clone, configure, and run the Chainlit application.",
+  "inbox/harry_potter_complete_collection.rar": {
+    "suggested_filename": "harry_potter_complete_collection",
+    "summary_md": "## Harry Potter Complete Collection\n\nThis archive contains the complete Harry Potter series by J.K. Rowling, including:\n\n- **Fantastic Beasts and Where to Find Them**\n- **Harry Potter Prequel**\n- **Harry Potter and the Sorcerer's Stone**\n- **Harry Potter and the Chamber of Secrets**\n- **Harry Potter and the Prisoner of Azkaban**\n- **Harry Potter and the Goblet of Fire**\n- **Harry Potter and the Order of the Phoenix**\n- **Harry Potter and the Half-Blood Prince**\n- **Harry Potter and the Deathly Hallows**\n- **Quidditch Through the Ages**\n- **The Tales of Beedle the Bard**\n\nAll files are in PDF format and are organized within a single directory titled 'Harry Potter - Complete PDF Collection'."
+  },
+  "inbox/complex_presentation_with_media.pptx": {
+    "description": "The document is a complex PowerPoint presentation with 28 slides, including multiple slide masters, charts, media files, and notes. It contains various types of content such as images, videos, and spreadsheets, indicating a comprehensive presentation on an unspecified topic.",
+    "document_type": "presentation",
+    "suggested_filename": "complex_presentation_with_media"
+  },
+  "inbox/ibm_board_connections_diagram.png": {
+    "title": "IBM Board Connections Network Diagram",
+    "alt_text": "The image is a network diagram illustrating the connections of IBM's board members with other companies. The diagram uses nodes and lines to show relationships. Here are the details:\n- **IBM** is highlighted in blue with connections to:\n  - **Goldman Sachs** (orange)\n  - **Agen** (purple)\n  - **Apple** (pink)\n  - **JPM** (orange)\n- **Apple** has connections to:\n  - **Goldman Sachs** (orange)\n  - **Agen** (purple)\n  - **JPM** (orange)\n  - **Walt Disney** (grey)\n  - **Nike** (grey)\n  - **Sherwin-Williams** (grey)\n  - **Johnson & Johnson** (grey)\n  - **Honeywell International** (grey)\n  - **Chevron** (grey)\n  - **Merck & Co.** (grey)\n  - **3M** (grey)\n- **Walmart** is connected to **Honeywell International** (grey)\n- The diagram includes text on the right side:\n  - 'IBM Information Technology (32% of interlock Connections)'\n  - 'Board Connections: 4'\n  - 'Notable Power Brokers:'\n    - 'Alex Gorsky - Connects healthcare/finance through JNJ legacy with healthcare expertise'\n    - 'Indra Nooyi - Former PepsiCo CEO connected to retail & technology'\n  - 'Connected to:'\n    - 'AAPL - Apple'\n    - 'AXP - American Express'\n    - 'Board Director (APPL, Board Director (IBM))'\n    - 'JPM - JPMorgan Chase'\n- Colors used include blue, orange, purple, pink, and grey for different companies or entities.\n- The background is white, and the text is black.",
+    "suggested_filename": "ibm_board_connections_diagram"
+  },
+  "inbox/woman_with_vr_headset_conference_room.jpg": {
+    "title": "Woman with VR Headset",
+    "alt_text": "A woman wearing a teal blazer and a VR headset is seated at a wooden table in a conference room. She is holding a smartphone. Behind her, a man in a blue sweater and black cap is holding a plastic-wrapped item. The room has white walls, large windows with blinds, and several office chairs around the table. The lighting is natural, coming from the windows, and there is a bright reflection on the table.",
+    "suggested_filename": "woman_with_vr_headset_conference_room"
+  },
+  "inbox/software_distribution_package.zip": {
+    "description": "The document appears to be a compressed file containing various files, possibly including executable files, scripts, and configuration files, as indicated by the presence of 'PK' headers and other binary data. The purpose of this document might be to distribute software or data in a compact format.",
+    "document_type": "compressed_file",
+    "suggested_filename": "software_distribution_package"
+  },
+  "inbox/harry_potter_complete_collection_1.rar": {
+    "suggested_filename": "harry_potter_complete_collection",
+    "summary_md": "## Harry Potter Complete Collection\n\nThis archive contains the complete collection of Harry Potter books in PDF format, including:\n\n- **Fantastic Beasts and Where to Find Them**\n- **Harry Potter Prequel**\n- **Harry Potter and the Sorcerer's Stone**\n- **Harry Potter and the Chamber of Secrets**\n- **Harry Potter and the Prisoner of Azkaban**\n- **Harry Potter and the Goblet of Fire**\n- **Harry Potter and the Order of the Phoenix**\n- **Harry Potter and the Half-Blood Prince**\n- **Harry Potter and the Deathly Hallows**\n- **Quidditch Through the Ages**\n- **The Tales of Beedle the Bard**\n\nAll files are organized under the directory 'Harry Potter - Complete PDF Collection'."
+  },
+  "inbox/webpage_dom_structure.md": {
+    "description": "This document contains a detailed JavaScript object representing the Document Object Model (DOM) of a webpage, displayed in a web browser's console or developer tools. The content includes properties and values of the DOM, formatted with different colors to distinguish between keys, values, and data types. The purpose of this document is to provide a comprehensive view of the webpage's structure and content for debugging or analysis purposes.",
     "document_type": "code",
-    "suggested_filename": "chainlit_main_project_archive"
+    "suggested_filename": "webpage_dom_structure"
   },
-  "inbox/stylized_cat_tech_dreamwalker.md": {
-    "description": "The document contains a detailed description of a digital illustration featuring a stylized cat's face with a technological theme. The cat's face is composed of white circuit board patterns on a dark blue background, giving it a futuristic and cybernetic appearance. The eyes are designed as glowing blue circles, resembling camera lenses or digital sensors. The cat's face is framed within a rounded square border, adding a modern, app-like aesthetic. Below the cat's face, the word 'Dreamwalker' is written in a clean, sans-serif font, centered and in white, matching the color scheme. The overall design suggests a blend of technology and mysticism, possibly indicating a theme related to virtual reality, cybernetics, or digital exploration.",
-    "document_type": "notes",
-    "suggested_filename": "stylized_cat_tech_dreamwalker"
+  "inbox/federal_spending_dashboard_2022.html": {
+    "description": "This HTML document represents a Federal Spending Dashboard that displays federal receipts versus expenditures by state for the year 2022. It includes a user interface with controls for sorting data by different criteria (expenditure, receipt, ratio, balance, alphabetical), and options to display data for the top 10, 20, or all 50 states. The dashboard also features a theme toggle for light and dark modes, and uses modern UI libraries like Bootstrap and Chart.js for styling and interactive charts. The document's purpose is to provide an interactive visualization tool for analyzing federal financial data across states.",
+    "document_type": "code",
+    "suggested_filename": "federal_spending_dashboard_2022"
   },
-  "inbox/harry_potter_collection_summary.md": {
-    "description": "This document serves as an archive summary for the Harry Potter Complete Collection, detailing that the collection is contained within a .rar file. It mentions that due to the unsupported file type, the contents could not be fully analyzed. The purpose of this document is to provide a brief overview of what the archive contains.",
-    "document_type": "notes",
-    "suggested_filename": "harry_potter_collection_summary"
-  },
-  "inbox/ibm_technology_board_connections.png": {
-    "title": "IBM Technology Board Connections",
-    "alt_text": "This image is a network diagram showing the board connections of IBM Technology with various companies. The diagram includes nodes representing companies like IBM, Apple, Johnson & Johnson, Chevron, and others, connected by lines indicating board member connections. Key details include:\n- IBM has 4 board connections.\n- Notable Power Brokers: Al Gore, connects Apple and Honeywell International through J&J; Indra Nooyi, connects PepsiCo to Chevron.\n- Companies like Apple, Johnson & Johnson, Chevron, and others are shown with their connections.\n- The nodes are color-coded: IBM is blue, Apple is purple, Johnson & Johnson is green, Chevron is yellow, and others are grey.\n- Text annotations provide additional information about the connections, such as 'J&J legacy with healthcare expertise' and 'Board Director (APPL, Board Chair IBM)'. \n- The background is white, and the lines connecting the nodes are grey.",
-    "suggested_filename": "ibm_technology_board_connections"
+  "inbox/chainlit_main_development_setup.zip": {
+    "description": "The document is a compressed .zip file named 'dbshzhl7l3.zip'. It contains a directory structure for a project named 'chainlit-main'. The directory includes various configuration files and scripts for setting up a development environment, including .editorconfig, .eslintignore, .eslintrc, .github directory with workflow files for CI, e2e tests, mypy, publish, and pytest, .gitignore, .husky directory with pre-commit hooks, .npmrc, .prettierrc, and a CHANGELOG.md. The purpose of this document is to provide the necessary files for setting up and maintaining a development environment for the 'chainlit-main' project.",
+    "document_type": "configuration",
+    "suggested_filename": "chainlit_main_development_setup"
   },
   "inbox/nyt_top_stories_api_spec.yaml": {
-    "description": "This document is a Swagger specification for the New York Times Top Stories API. It outlines the structure and endpoints for accessing articles from various sections of the NYT website. The API allows users to retrieve an array of articles from specified sections like arts, business, health, etc., or from the homepage. The document includes details on how to use the API, including example calls, security requirements (API key), and the structure of the response which includes article metadata like title, abstract, URL, and multimedia content.",
+    "description": "This YAML file defines an API specification for the New York Times Top Stories API, version 2.0.0. It outlines the structure and endpoints for retrieving articles from various sections of the NYT website, such as arts, business, and world news. The API uses the OpenAPI (Swagger) 2.0 specification to describe its operations, including the base path, host, schemes, and security requirements. It provides detailed information on how to call the API, including example calls, and describes the expected responses, including successful responses with article data and error responses for unauthorized access or rate limiting.",
     "document_type": "API specification",
     "suggested_filename": "nyt_top_stories_api_spec"
   },
-  "inbox/edit_plugin_configuration_patreon_url.md": {
-    "description": "The document contains a detailed description of a user interface screenshot for editing plugin configuration. It includes sections for plugin creation method, plugin URL, header list, authorization method, footer note, and buttons. The purpose of this document is to provide a visual guide or reference for configuring a plugin, specifically for a Patreon URL.",
-    "document_type": "configuration",
-    "suggested_filename": "edit_plugin_configuration_patreon_url"
+  "inbox/harry_potter_complete_collection_2.rar": {
+    "suggested_filename": "harry_potter_complete_collection",
+    "summary_md": "## Harry Potter Complete Collection\n\nThis archive contains the complete collection of Harry Potter books in PDF format, including:\n\n- **Fantastic Beasts and Where to Find Them**\n- **Harry Potter Prequel**\n- **Harry Potter and the Sorcerer's Stone**\n- **Harry Potter and the Chamber of Secrets**\n- **Harry Potter and the Prisoner of Azkaban**\n- **Harry Potter and the Goblet of Fire**\n- **Harry Potter and the Order of the Phoenix**\n- **Harry Potter and the Half-Blood Prince**\n- **Harry Potter and the Deathly Hallows**\n- **Quidditch Through the Ages**\n- **The Tales of Beedle the Bard**\n\nAll files are organized under the directory 'Harry Potter - Complete PDF Collection [www.thegeniusandherquirks.wordpress.com]'."
   },
-  "inbox/january_2025_financial_transactions.csv": {
-    "description": "This document contains financial transaction data for January 2025, including dates, transaction descriptions, amounts, and categories. It serves as a record of financial activities for the month, useful for budgeting, financial analysis, and tracking expenses and income.",
-    "document_type": "data",
-    "suggested_filename": "january_2025_financial_transactions"
+  "inbox/patreon_connect_resources.zip": {
+    "description": "The document is a compressed .zip file named 'vnndggo93w.zip'. It contains a folder named 'patreon-connect' with subfolders for assets, including CSS and fonts. The CSS folder contains two files: 'admin.css' and 'app.css', which are likely used for styling the administrative and user interfaces of a Patreon-related application. The fonts folder includes a license file and a TrueType font file, suggesting the inclusion of custom fonts for the application. The purpose of this document is to package and distribute the necessary static files (CSS and fonts) for a web application connected to Patreon.",
+    "document_type": "web application resources",
+    "suggested_filename": "patreon_connect_resources"
   },
   "inbox/ollama_chat_interface.py": {
-    "description": "This document is a Python module named 'ollama_chat_interface_renamed.py' that implements an interface to the Ollama API for streaming chat responses. It supports model selection, multi-turn conversations, image analysis, and file handling with streaming responses, compatible with both local and cloud Ollama instances. The module includes classes and methods for initializing the client, fetching available models, listing models with sorting and pagination, creating test images, encoding files and images to base64, and formatting messages with attachments for the API. It also handles error checking for file sizes and supported types.",
+    "description": "The document contains a Python module named 'OllamaChat' which provides an interface to the Ollama API for streaming chat responses. It supports model selection, multi-turn conversations, image analysis, and file handling with streaming responses. The module can connect to both local and cloud Ollama instances. It includes methods for fetching available models, listing models with sorting and pagination, creating test images, encoding files and images to base64, and formatting messages with attachments for the Ollama API. The purpose of this document is to facilitate interaction with the Ollama API for various AI tasks.",
     "document_type": "code",
     "suggested_filename": "ollama_chat_interface"
   },
-  "inbox/federal_spending_dashboard_2022.html": {
-    "description": "This HTML document represents a Federal Spending Dashboard for the year 2022, focusing on federal receipts and expenditures by state. It includes interactive elements such as a theme toggle, sorting options, and a chart type toggle, suggesting it is designed for user interaction and data visualization. The document uses modern UI libraries like Bootstrap Icons, Chart.js, and D3.js for styling and data representation. The purpose of this document is to provide an interactive platform for users to explore and analyze federal spending data across different states.",
-    "document_type": "webpage",
-    "suggested_filename": "federal_spending_dashboard_2022"
+  "inbox/inbox_folder_summary.html": {
+    "description": "This HTML document provides a detailed summary of the 'inbox' folder, containing 77 files, primarily documents and other file types, with no multimedia content. It includes metadata for various files, focusing on data visualization, genetics, medical data, social activism, and government spending. The document's purpose is to serve as a repository for data-driven documents, supporting research, activism, and public sector transparency.",
+    "document_type": "summary",
+    "suggested_filename": "inbox_folder_summary"
   },
-  "inbox/google_cloud_run_metrics_camina_ollama.md": {
-    "description": "The document provides a detailed view of the Google Cloud Platform interface for the 'camina-ollama' Cloud Run service under the 'Actually Useful AI' project. It includes the service's URL, region, and minimum instance count. The document focuses on the 'METRICS' tab, displaying predefined metrics with no errors reported. It features two graphs: one for request count showing a spike at 4:00 PM with 3 requests, and another for request latencies peaking at 0.02s. The document also mentions a Cloud Shell terminal and annotations. The purpose of this document is to provide an overview of the service's performance metrics and operational status.",
+  "inbox/harry_potter_collection_summary.md": {
+    "description": "This document is an archive summary detailing the contents of a .rar file named 'harry_potter_complete_collection_1.rar'. It lists all the Harry Potter books and related texts in PDF format, organized under a specific directory. The purpose of this document is to provide a quick reference for the contents of the archive, making it easier for users to understand what is included in the collection.",
+    "document_type": "archive_summary",
+    "suggested_filename": "harry_potter_collection_summary"
+  },
+  "inbox/harry_potter_collection_summary_1.md": {
+    "description": "This document is an archive summary for a collection of Harry Potter books in PDF format. It lists the titles of the books included in the archive, which are organized under a specific directory. The purpose of this document is to provide an overview of the contents of the archive, helping users understand what they will find inside.",
+    "document_type": "archive_summary",
+    "suggested_filename": "harry_potter_collection_summary"
+  },
+  "inbox/via_pro_selection_sheet.pdf": {
+    "description": "The document is a selection sheet for the Via Pro device, detailing options for model selection, communication apps, accessories, and customization. It includes sections for choosing the model, communication app, accessories, and extras, as well as client and contact information. The document also provides options for keyguards and touchguides for different apps, with pricing and specifications for each option.",
+    "document_type": "selection_sheet",
+    "suggested_filename": "via_pro_selection_sheet"
+  },
+  "inbox/survival_surgical_interventions_trisomy_13_18.pdf": {
+    "description": "The document is a research article published in the Journal of the American Medical Association (JAMA) in 2016, focusing on the survival rates and surgical interventions for children with trisomy 13 and 18 in Ontario, Canada, over a 21-year period. The study uses retrospective cohort data to analyze survival from birth and the utilization of surgical procedures. Key findings include early mortality being common, but 10% to 13% of children surviving for 10 years, and among those who underwent surgery, 1-year survival rates were 69% to 71%. The document discusses the implications of these findings for clinical decision-making and the need for more data on longer-term survival and surgical outcomes.",
+    "document_type": "research article",
+    "suggested_filename": "survival_surgical_interventions_trisomy_13_18"
+  },
+  "inbox/preservice_education_aac_update.pdf": {
+    "description": "The document is a master's thesis titled 'Preservice Education in Augmentative and Alternative Communication: An Update' by Kate DeJarnette, submitted to the University of Kansas in 2018. It focuses on assessing the characteristics of preservice education in augmentative and alternative communication (AAC) within Council on Academic Accreditation (CAA) graduate programs in speech-language pathology. The thesis includes a survey of 85 program directors, department chairs, clinical directors, and faculty members, revealing trends in AAC coursework, clinical experiences, and barriers to providing comprehensive education. It suggests solutions like building relationships with AAC vendors, using technology for collaboration, and telepractice for service delivery.",
+    "document_type": "thesis",
+    "suggested_filename": "preservice_education_aac_update"
+  },
+  "inbox/foix_chavany_marie_syndrome_case.pdf": {
+    "description": "The document is a case report published in Clinical Neurology and Neurosurgery in 2013. It details a rare case of Foix\u2013Chavany\u2013Marie syndrome following a unilateral right frontal opercular contusion in a 20-year-old woman after a traffic accident. The report includes the patient's clinical history, neurological examination findings, and treatment outcomes. Key points include severe dysarthria, bilateral central voluntary paresis of lower cranial nerves, preserved automatic movements, and the patient's recovery process.",
+    "document_type": "case_report",
+    "suggested_filename": "foix_chavany_marie_syndrome_case"
+  },
+  "inbox/triple_x_syndrome_review.pdf": {
+    "description": "The document is a comprehensive review of the literature on Triple X syndrome (47,XXX), a sex chromosomal abnormality. It discusses the developmental and clinical aspects, including prenatal diagnosis, incidence, physical and psychological characteristics, and the need for further research. The review covers various age groups and highlights issues such as delayed language development, motor-coordination problems, auditory-processing disorders, and increased prevalence of psychiatric disorders in affected individuals. The document also mentions the importance of unbiased studies and provides information useful for parents, clinical geneticists, and other healthcare professionals.",
+    "document_type": "review article",
+    "suggested_filename": "triple_x_syndrome_review"
+  },
+  "inbox/joubert_syndrome_review_2012.pdf": {
+    "description": "The document is a review paper published in Neurologia i Neurochirurgia Polska in 2012, focusing on Joubert syndrome and related disorders (JSRD). It discusses the role of the cerebellum in motor control, learning, and cognition, and describes Joubert syndrome as a rare genetic disorder characterized by ataxia, hypotonia, developmental delay, and other features like neonatal respiratory disturbances or abnormal eye movements. The paper also covers the genetic basis of the syndrome, identifying seven causal genes, and provides clinical presentation, differential diagnosis, and molecular background. The document includes an abstract, key words, and a detailed classification of JSRD.",
+    "document_type": "review paper",
+    "suggested_filename": "joubert_syndrome_review_2012"
+  },
+  "inbox/preoperative_counselling_laryngectomy.pdf": {
+    "description": "The document is a research article detailing a pilot randomized clinical trial on the effects of pre-operative speech-language pathology counselling in patients undergoing total laryngectomy. The study involved 27 patients divided into an experimental group receiving counselling and a control group without it. The results showed that the experimental group had better outcomes in terms of distress levels, post-traumatic stress, anxious-depressive symptoms, and acceptance of the new voice. The article also discusses the impact of total laryngectomy on patients' quality of life and psychological well-being, emphasizing the importance of counselling in improving patient outcomes.",
+    "document_type": "article",
+    "suggested_filename": "preoperative_counselling_laryngectomy"
+  },
+  "inbox/hfe_polymorphism_als_italian.pdf": {
+    "description": "The document is a research article focusing on the association between the HFE H63D polymorphism and amyotrophic lateral sclerosis (ALS) in Italian patients. It discusses the role of metal-mediated oxidative stress in ALS pathogenesis, the prevalence of HFE mutations in ALS patients compared to controls, and the potential genetic risk factors for ALS. The study involved 149 Italian ALS patients and 168 controls, analyzing the H63D, C282Y, and S65C mutations in the HFE gene. Results showed a higher frequency of the H63D allele in ALS patients, suggesting a possible link to ALS susceptibility. The article also touches on the ethnic differences in HFE allele frequencies and the potential mechanisms by which the H63D polymorphism might contribute to ALS.",
+    "document_type": "research article",
+    "suggested_filename": "hfe_polymorphism_als_italian"
+  },
+  "inbox/mutations_in_dnajc5_cause_ancl.pdf": {
+    "description": "The document is an article titled 'Mutations in DNAJC5, Encoding Cysteine-String Protein Alpha, Cause Autosomal-Dominant Adult-Onset Neuronal Ceroid Lipofuscinosis'. It discusses the genetic and molecular basis of autosomal-dominant adult-onset neuronal ceroid lipofuscinosis (ANCL), identifying mutations in the DNAJC5 gene that lead to the disease. The article details the methodology used, including linkage mapping, gene-expression analysis, exome sequencing, and candidate-gene sequencing, and describes the impact of these mutations on the cysteine-string protein alpha (CSPa) in neuronal cells. It also covers the clinical characteristics of affected individuals, such as seizures, movement disorders, cognitive deterioration, and progressive dementia, with an age of onset in the third decade of life or later.",
+    "document_type": "article",
+    "suggested_filename": "mutations_in_dnajc5_cause_ancl"
+  },
+  "inbox/speech_language_evaluation_report.pdf": {
+    "description": "The document is a comprehensive Speech Language Evaluation and Report intended for funding purposes, detailing the evaluation process and requirements for a speech generating device (SGD) by an ASHA certified Speech Language Pathologist (SLP). It covers client background information, evaluation date, speech and language abilities, medical diagnosis, cognitive and physical abilities, mobility, hearing and vision status, daily communication needs, rationale for device selection, SGDs considered and/or trialed, recommended SGD and accessories with rationale, functional communication goals, treatment plan with short and long term goals, and a non-conflict statement with signature. Additional resources for report writing and funding are provided.",
     "document_type": "report",
-    "suggested_filename": "google_cloud_run_metrics_camina_ollama"
+    "suggested_filename": "speech_language_evaluation_report"
+  },
+  "inbox/psychometric_conversion_table.pdf": {
+    "description": "The document is a psychometric conversion table that lists various scores and their corresponding percentile ranks, scaled scores, ETS scores, T-scores, Z-scores, and descriptions. It covers a range of scores from 150 to 50, with descriptions ranging from 'Very Superior' to 'Profound (<25)'. The table is useful for converting between different psychometric scoring systems.",
+    "document_type": "table",
+    "suggested_filename": "psychometric_conversion_table"
+  },
+  "inbox/lack_of_cortical_contrast_gain_control_in_pse.pdf": {
+    "description": "The document is a scientific article from Nature Neuroscience, published in April 2000, titled 'Lack of cortical contrast gain control in human photosensitive epilepsy'. It discusses the study of visually evoked potentials (VEPs) in response to temporally modulated patterns of different contrast in patients with idiopathic photosensitive epilepsy. The article highlights that for stimuli of low to medium temporal frequency, the contrast dependence of VEP amplitude and latency is abnormal for luminance contrast but not for chromatic contrast in these patients, suggesting a lack or severe impairment of cortical mechanisms of contrast gain control.",
+    "document_type": "article",
+    "suggested_filename": "lack_of_cortical_contrast_gain_control_in_pse"
+  },
+  "inbox/prc_saltillo_switch_selection.pdf": {
+    "description": "The document is a switch selection sheet from PRC-Saltillo, detailing various types of switches and their product codes, quantities, and features. It includes information on access switches, lib switches, lib mats, wobble switches, freedom switches, jelly bean twist switches, specs switches, micro light switches, and aero switches. Additionally, it provides details on switch mounts for tables, wheelchairs, and universal mounts, as well as a softspeaker pillow speaker. The document also has sections for gathering client details and selecting switches and mounts.",
+    "document_type": "selection_sheet",
+    "suggested_filename": "prc_saltillo_switch_selection"
+  },
+  "inbox/causal_hypothesis_congenital_anomalies.pdf": {
+    "description": "The document discusses a causal hypothesis for congenital anomalies, focusing on the role of monozygotic multiple conceptions with monochorionic placentation. It explores how hemodynamic instability and acute feto-fetal transfusion syndromes in monochorionic twins can lead to various congenital anomalies, including cerebral palsy. The document includes statistical data on the prevalence of congenital anomalies as a cause of fetal and neonatal death, and discusses different types of placentation and their implications. It also reviews case reports linking fetal death in one twin to congenital anomalies in the surviving twin, and proposes three mechanisms of fetal damage due to hemodynamic instability.",
+    "document_type": "article",
+    "suggested_filename": "causal_hypothesis_congenital_anomalies"
+  },
+  "inbox/friedreich_ataxia_review_pandolfo.pdf": {
+    "description": "The document is a comprehensive neurological review on Friedreich Ataxia, authored by Massimo Pandolfo, MD. It discusses the disease's autosomal recessive nature, its primary impact on the nervous system and heart, and its historical context from the 19th century. The review details the genetic epidemiology, pathogenesis, and therapeutic developments since the genetic test became available in 1996. It covers symptoms, onset variability, and progression, including gait instability, scoliosis, hypertrophic cardiomyopathy, ataxia, dysarthria, dysphagia, and cognitive functions. The document also explores the pathological aspects, such as the vulnerability of specific neuronal types, sensory and motor system degeneration, and cardiac involvement. It mentions common skeletal abnormalities and the higher frequency of diabetes in FRDA patients. The review concludes with a discussion on the frataxin gene, its expression, and the protein's function in mitochondrial matrix, contributing to the understanding of FRDA pathogenesis.",
+    "document_type": "article",
+    "suggested_filename": "friedreich_ataxia_review_pandolfo"
+  },
+  "inbox/paganoni_als_rehabilitative_care.pdf": {
+    "description": "The document is a review article published in NeuroRehabilitation journal, Volume 37, Issue 2015, pages 53-68, discussing comprehensive rehabilitative care for patients with Amyotrophic Lateral Sclerosis (ALS). It covers the spectrum of care from diagnosis to end-of-life, emphasizing the importance of multidisciplinary, patient-centered approaches to enhance quality of life, function, and safety. The article includes sections on the background of ALS, the purpose of the review, the conclusion, and detailed discussions on care from symptom onset to diagnosis, and the role of various healthcare professionals in managing the disease.",
+    "document_type": "review article",
+    "suggested_filename": "paganoni_als_rehabilitative_care"
+  },
+  "inbox/worldwide_ms_prevalence.pdf": {
+    "description": "The document provides an in-depth analysis of the worldwide prevalence of multiple sclerosis (MS). It discusses the challenges in comparing prevalence studies due to variability in population size, age structure, ethnic composition, diagnostic criteria, and other factors. The document details prevalence rates in various regions of Europe, including Scotland, England, Wales, Ireland, Norway, Sweden, Denmark, and the Faroe Islands. It also touches on genetic susceptibility and environmental factors related to MS, with specific references to historical data and studies.",
+    "document_type": "article",
+    "suggested_filename": "worldwide_ms_prevalence"
+  },
+  "inbox/genetics_of_photosensitivity_review.pdf": {
+    "description": "The document is a comprehensive review on the genetics of photosensitivity, focusing on the photoparoxysmal response (PPR) in EEG. It discusses the genetic predisposition, phenotype-genotype correlations, and the influence of various factors like age, gender, and other unknown factors on PPR expression. The review covers the inheritance patterns of PPR in both epileptic and non-epileptic individuals, its association with idiopathic generalized epilepsies like juvenile myoclonic epilepsy, and the challenges in defining the PPR phenotype due to methodological and individual variability. It also touches on the historical context of EEG traits and the potential genetic factors involved in PPR, including genes for ion channels and neurotransmitters.",
+    "document_type": "review article",
+    "suggested_filename": "genetics_of_photosensitivity_review"
+  },
+  "inbox/predicting_graduate_success_slp.pdf": {
+    "description": "The document titled 'Predicting Graduate School Success in a Speech-Language Pathology Program' by Larry Boles, published in 2018, discusses the effectiveness of various admission criteria for predicting success in graduate programs in speech-language pathology. The study investigates the predictive value of the Graduate Record Examination (GRE) scores, undergraduate grade point average (GPA), prerequisite GPA, letters of recommendation, and letters of intent. The findings suggest that the verbal and quantitative portions of the GRE, along with the grade in a speech and language development course, are significant predictors of graduate school success. The document includes a review of literature from other fields and two studies specific to communication sciences and disorders, highlighting the variability in admission criteria and their impact on student outcomes. It also provides recommendations for implementing and monitoring admission criteria in graduate programs.",
+    "document_type": "research article",
+    "suggested_filename": "predicting_graduate_success_slp"
+  },
+  "inbox/preoperative_aac_pediatric_tracheostomy.pdf": {
+    "description": "The document discusses a retrospective study on the use of augmentative and alternative communication (AAC) strategies in pediatric patients before tracheostomy placement. It covers the study's objectives, design, methods, results, and conclusions, emphasizing the importance of multidisciplinary teams involving speech-language pathologists to enhance communication in these patients. The study found that a significant number of patients utilized various AAC tools, including electronic, low-tech, and no-tech strategies, to communicate effectively during the preoperative period.",
+    "document_type": "research article",
+    "suggested_filename": "preoperative_aac_pediatric_tracheostomy"
+  },
+  "inbox/quantitative_analysis_of_srn.pdf": {
+    "description": "The document is a scientific article detailing a quantitative analysis of SRNPN gene methylation using pyrosequencing as a diagnostic test for Prader-Willi Syndrome (PWS) and Angelman Syndrome (AS). It discusses the background of these syndromes, the methodology of using pyrosequencing for methylation analysis, the results comparing this method with methylation-specific PCR (MS-PCR), and concludes that pyrosequencing is a rapid and robust method for diagnosing PWS and AS. The article includes detailed experimental procedures, results, and references to other studies.",
+    "document_type": "article",
+    "suggested_filename": "quantitative_analysis_of_srn"
+  },
+  "inbox/antioxidant_nutrients_ad_children.pdf": {
+    "description": "The document is an original article published in the European Journal of Clinical Nutrition in 2010, focusing on the association between antioxidant nutrient intakes and the risk of atopic dermatitis (AD) in young children. The study is a case-control, population-based research involving 180 children with AD and 242 without AD, aged around 5 years. The research investigates the relationship between dietary intake of antioxidant nutrients like vitamin A, C, E, b-carotene, folic acid, and iron, and their corresponding blood biomarkers, with the risk of AD. Key findings indicate that higher intakes of certain antioxidants (b-carotene, vitamin E, folic acid, and iron) are associated with reduced AD risk, with specific odds ratios provided for each nutrient. The study also notes the lack of association with vitamin C and nutrient supplements. The article includes detailed sections on the background, methods, results, and conclusions, along with information on the study's contributors and funding.",
+    "document_type": "article",
+    "suggested_filename": "antioxidant_nutrients_ad_children"
+  },
+  "inbox/recent_advances_parkinsons_treatment.pdf": {
+    "description": "The document is a comprehensive review article titled 'Recent advances in treating Parkinson\u2019s disease' by Wolfgang H. Oertel. It discusses recent achievements in improving symptomatic therapy for motor symptoms of Parkinson's disease (PD), the limited attempts to address non-motor symptoms, and the development of compounds for disease modification in manifest PD. The article also touches on the challenges in preventing PD at a prodromal stage, mentioning the lack of consensus on primary endpoints for clinical trials. It includes sections on the genetic and neuropathological understanding of PD, with references to key discoveries and the Braak staging of PD. The document also lists the author's affiliations, competing interests, and grant information, and provides a detailed figure on the dopaminergic synapse and its therapeutic targets.",
+    "document_type": "article",
+    "suggested_filename": "recent_advances_parkinsons_treatment"
+  },
+  "inbox/executive_dysfunction_timing_pd.pdf": {
+    "description": "The document is a review article discussing the relationship between executive dysfunction and timing deficits in Parkinson's disease (PD). It covers the cognitive symptoms of PD, the role of dopamine in timing, and how frontal cortex impairments affect timing tasks. The article also explores the potential of timing tasks as a clinical biomarker for PD and discusses various models of interval timing, including the scalar timing theory. The document includes references to numerous studies and researchers in the field.",
+    "document_type": "review article",
+    "suggested_filename": "executive_dysfunction_timing_pd"
+  },
+  "inbox/parkinsons_disease_management_review.pdf": {
+    "description": "The document is a comprehensive review on the management of Parkinson's disease (PD) published in 2013 in the Neuropsychiatric Disease and Treatment journal. It discusses the clinical diagnosis of PD, the role of modern imaging and nuclear techniques in early diagnosis, and the management of both motor and nonmotor symptoms. The review covers various treatment options including pharmacological treatments like levodopa and dopamine agonists, nonpharmacological therapies such as physical and speech therapy, and emerging treatments like continuous pump therapies and deep brain stimulation. It also touches on disease modification strategies and the importance of early treatment to improve quality of life.",
+    "document_type": "review",
+    "suggested_filename": "parkinsons_disease_management_review"
+  },
+  "inbox/sma_carrier_screening_guidelines.pdf": {
+    "description": "The document is a comprehensive guideline on carrier screening for spinal muscular atrophy (SMA), authored by Thomas W. Prior, PhD, for the Professional Practice and Guidelines Committee. It discusses the genetic basis of SMA, including the role of the SMN1 and SMN2 genes, and the molecular diagnosis of SMA through the detection of the absence of exon 7 in the SMN1 gene. The guideline also covers the carrier frequency, the importance of carrier testing, the limitations of current testing methods, and the implications for genetic counseling. It emphasizes the need for educational material and informed decision-making for carrier screening, particularly in the context of population-based screening.",
+    "document_type": "guideline",
+    "suggested_filename": "sma_carrier_screening_guidelines"
+  },
+  "inbox/self_determination_cognitive_disabilities.pdf": {
+    "description": "The document is an article titled 'Self-Determination for Individuals With Significant Cognitive Disabilities and Their Families' by Ann Turnbull and Rud Turnbull from the University of Kansas. It was published in the Journal of the Association for Severe Handicaps (JASH) in 2001. The article discusses the concept of self-determination for individuals with significant cognitive disabilities, focusing on the authors' personal experiences with their son, JT, and the broader implications for families and professionals. The authors explore the influence of significant cognitive disabilities on self-determination, the role of families in supporting self-determination, and the impact of cultural values on the concept. They argue that self-determination for individuals with significant cognitive disabilities requires extensive support and collaboration with trusted allies, and that cultural values significantly influence how self-determination is defined and practiced.",
+    "document_type": "article",
+    "suggested_filename": "self_determination_cognitive_disabilities"
+  },
+  "inbox/preliminary_aac_assessment_armenia.pdf": {
+    "description": "The document is a preliminary assessment of the need and awareness of augmentative and alternative communication (AAC) systems in Armenia. It discusses the prevalence of various medical conditions that could benefit from AAC, the awareness among medical professionals, and the need for further studies. The document includes a detailed table showing the number of patients with specific conditions, their speech problems, and their potential need for AAC.",
+    "document_type": "research article",
+    "suggested_filename": "preliminary_aac_assessment_armenia"
+  },
+  "inbox/genetic_advances_speech_language.pdf": {
+    "description": "The document is a comprehensive review article published in Neuron, focusing on the genetic advances in understanding speech and language disorders. It discusses the heterogeneity of these disorders, their clinical classification, and the genetic factors contributing to their etiology. The review covers specific genetic variants and their roles in stuttering, speech-sound disorder, specific language impairment, and developmental verbal dyspraxia, emphasizing the complexity of genetic interactions and the potential for future research to elucidate biological pathways and neurological mechanisms.",
+    "document_type": "review article",
+    "suggested_filename": "genetic_advances_speech_language"
+  },
+  "inbox/broader_autism_phenotype_study.pdf": {
+    "description": "The document is a research article published in the American Journal of Psychiatry in February 1997, authored by Piven, Palmer, Jacobi, and others. It focuses on the broader autism phenotype, exploring evidence from a family history study of multiple-incidence autism families. The study compares the rates of social and communication deficits and stereotyped behaviors in relatives of families with two autistic siblings to those in families with Down syndrome probands. The results indicate higher rates of these deficits in the relatives of multiple-incidence autism families, suggesting the need for further studies to delineate the boundaries of the broader autism phenotype and its inclusion in future genetic analyses of autism.",
+    "document_type": "research_article",
+    "suggested_filename": "broader_autism_phenotype_study"
+  },
+  "inbox/meta_analysis_parkinson_risk_factors.pdf": {
+    "description": "This document is an original research article titled 'Meta-Analysis of Early Nonmotor Features and Risk Factors for Parkinson Disease'. It discusses a systematic review and meta-analysis of risk factors for Parkinson's Disease (PD), focusing on early nonmotor features and risk factors that could be used for population-based screening. The study identifies strong associations between PD diagnosis and factors such as family history of PD or tremor, constipation, and lack of smoking history. Other factors like anxiety, depression, pesticide exposure, head injury, rural living, beta-blockers, farming occupation, and well-water drinking also show significant associations, while coffee drinking, hypertension, nonsteroidal anti-inflammatory drugs, calcium channel blockers, and alcohol show negative associations. The article also mentions the prevalence of PD, its unknown cause, and the need for further studies on premotor symptoms.",
+    "document_type": "research article",
+    "suggested_filename": "meta_analysis_parkinson_risk_factors"
+  },
+  "inbox/quality_of_life_als_review.pdf": {
+    "description": "The document is a systematic review published in the Neuroscience & Biobehavioral Reviews journal, focusing on the impact of Amyotrophic Lateral Sclerosis (ALS) on quality of life and functional independence. It discusses the effects of various treatment protocols and rehabilitation programs on ALS patients, including respiratory care, mental health, communication skills, and exercises. The review highlights the use of BiPAP, inspiratory muscle training, communication devices, and the safety and tolerability of exercises. It also emphasizes the lack of a cure for ALS and the importance of multidisciplinary care to improve patients' quality of life.",
+    "document_type": "article",
+    "suggested_filename": "quality_of_life_als_review"
+  },
+  "inbox/perceptions_of_aae_in_slp_programs.pdf": {
+    "description": "The document is a research article from the American Journal of Speech-Language Pathology (AJSLP), published in September 2021. It discusses the perceptions of African American English (AAE) among students in speech-language pathology (SLP) programs. The study involved seventy-three students from forty-six randomly selected university programs in the United States who completed an online survey. The survey included explicit statements about the validity of AAE and a matched-guide task assessing participants' implicit perceptions of AAE. The results showed that while students expressed positive opinions about the validity of AAE, they rated speakers of AAE lower on personal attributes compared to those speaking Mainstream American English (MAE). The article highlights the need for expanded training in SLP programs to address implicit biases and perceptions of dialect use, providing lesson plans and materials as supplemental materials. The article also discusses the linguistic validity and social value of AAE, the required education in cultural and linguistic diversity for SLPs, and the impact of anti-Black racism on perceptions of AAE.",
+    "document_type": "research article",
+    "suggested_filename": "perceptions_of_aae_in_slp_programs"
+  },
+  "inbox/successful_treatment_melas_succinate.pdf": {
+    "description": "The document is a case report detailing the successful treatment of a 27-year-old man with MELAS using succinate. It discusses the patient's medical history, including his diagnosis, symptoms, and previous treatments. The report highlights the effectiveness of succinate in controlling convulsions and preventing stroke-like episodes over a 30-month period. It also includes discussions on the mechanisms of succinate in mitochondrial function and its potential for treating MELAS. The document contains sections such as abstract, introduction, case report, and discussion, along with figures and references.",
+    "document_type": "case report",
+    "suggested_filename": "successful_treatment_melas_succinate"
+  },
+  "inbox/phd_thesis_wait_lifting.pdf": {
+    "description": "The document is a PhD thesis titled 'Wait-Lifting: Active waiting for speech and language services by children and families' by Nicole McGill, submitted to Charles Sturt University in February 2020. It explores the issue of waiting lists for speech and language services, focusing on the perspectives of stakeholders, speech-language pathologists (SLPs), and the design and evaluation of a waiting list management strategy. The thesis is structured into four parts: a general introduction, desperation and aspirations, reimagining services, and conclusions and contributions. It includes various chapters, each addressing different aspects of the research, supported by multiple papers and research grants. The document also contains acknowledgements, ethical approvals, and a certificate of authorship.",
+    "document_type": "thesis",
+    "suggested_filename": "phd_thesis_wait_lifting"
+  },
+  "inbox/functional_brain_connectivity_autism_review.pdf": {
+    "description": "The document is a research article titled 'Is functional brain connectivity atypical in autism? A systematic review of EEG and MEG studies' by Christian O'Reilly, John D. Lewis, and Mayada Elsabbagh. It was published in PLOS ONE on May 3, 2017. The article systematically reviews literature on EEG/MEG functional and effective connectivity in autism spectrum disorder (ASD), focusing on the hypothesis of long-range underconnectivity and local overconnectivity. It discusses the variability in study samples and methodology, and concludes that there is strong support for long-range underconnectivity in ASD, while the status of local connectivity remains unclear. The article also touches on frequency-band specific patterns and their relationships with autism symptoms.",
+    "document_type": "research article",
+    "suggested_filename": "functional_brain_connectivity_autism_review"
+  },
+  "inbox/telepractice_pediatric_language_assessment.pdf": {
+    "description": "The document is a collection of five articles from the 'Topics in Language Disorders' journal, April-June 2022 issue, focusing on pediatric language assessment and intervention using telepractice. Each article includes author disclosures detailing financial and non-financial relationships, as well as funding sources. The articles cover topics such as preparing graduate students for telepractice, online language assessment, best practices for telepractice interventions, using animated scenes for assessing sentence diversity in toddlers, and guidance for school-based telepractice assessment.",
+    "document_type": "journal articles",
+    "suggested_filename": "telepractice_pediatric_language_assessment"
+  },
+  "inbox/spinal_cord_injury_statistics_2009.pdf": {
+    "description": "The document provides comprehensive statistics and facts about spinal cord injuries in the United States, including incidence, prevalence, age at injury, gender, race/ethnicity, etiology, neurologic level and extent of lesion, occupational status, residence, marital status, length of stay, lifetime costs, life expectancy, and cause of death. It also includes information about the National Spinal Cord Injury Statistical Center and the Model SCI Care Systems.",
+    "document_type": "report",
+    "suggested_filename": "spinal_cord_injury_statistics_2009"
+  },
+  "inbox/forbes_aac_funding_request.pdf": {
+    "description": "The document is a funding request form for a Speech Generating Device from Forbes AAC. It requires the identification of the 'Place of Service' for billing purposes, with specific codes for different types of residences or facilities. The form must be signed by the beneficiary or a representative from the facility. It also requests the licensing category of the facility, contact details, and the full address. The form must be returned with a copy of the client's Medicaid/Medicare/Insurance card, either by fax or mail.",
+    "document_type": "form",
+    "suggested_filename": "forbes_aac_funding_request"
+  },
+  "inbox/guidelines_bci_aac_assessment.pdf": {
+    "description": "The document discusses guidelines for feature matching assessment of brain-computer interfaces (BCIs) for augmentative and alternative communication (AAC). It proposes a person-centered framework to ensure the selection of the most appropriate BCI technology for individuals with communication needs, based on their cognitive-sensory-motor and motor imagery profiles. The document reviews the current state of BCI technology, discusses the importance of feature matching in AAC and BCI, and highlights the need for assessing sensory, motor, and cognitive profiles to match individuals with the most suitable BCI method.",
+    "document_type": "article",
+    "suggested_filename": "guidelines_bci_aac_assessment"
+  },
+  "inbox/tbi_incidence_slp_challenges.pdf": {
+    "description": "The document discusses traumatic brain injury (TBI) incidence, survivability, and its impact on speech-language pathology (SLP). It includes personal anecdotes, statistics on TBI, and practical advice for SLPs working with TBI patients. The document also touches on the unique nature of each TBI case, the importance of family education, and the use of external cognitive supports. Additionally, it references the Japanese art of Kintsukuroi as a metaphor for recovery from TBI.",
+    "document_type": "article",
+    "suggested_filename": "tbi_incidence_slp_challenges"
+  },
+  "inbox/new_aac_tech_children_research.pdf": {
+    "description": "The document is a research article published in the 'Augmentative and Alternative Communication' journal, discussing new and emerging AAC technology supports for children with complex communication needs and their communication partners. It covers the state of the science and future research directions related to AAC technologies that enhance language learning, facilitate social interaction, improve literacy skills, increase societal participation, and teach interaction strategies to communication partners. The article includes a detailed case study of a child named Trevor, who has Down syndrome, to illustrate the application of these technologies in enhancing language learning.",
+    "document_type": "research article",
+    "suggested_filename": "new_aac_tech_children_research"
+  },
+  "inbox/steuber_2011_schizophrenia_speech.pdf": {
+    "description": "The document is a thesis submitted by Lucas Carl Steuber at Portland State University in 2011, titled 'Disordered Thought, Disordered Language: A corpus-based description of the speech of individuals undergoing treatment for schizophrenia.' It explores the linguistic characteristics of speech in individuals diagnosed with schizophrenia, comparing it with those diagnosed with depression. The study uses a combination of quantitative and qualitative methods to analyze speech from 140 medicated individuals with schizophrenia, finding that specific types of abnormal language behavior occur in this group, though similar behaviors are also observed in individuals with depression. The thesis includes sections on background, literature review, methodology, results, discussion, and clinical implications, with acknowledgments, dedication, and a table of contents.",
+    "document_type": "thesis",
+    "suggested_filename": "steuber_2011_schizophrenia_speech"
+  },
+  "inbox/speech_language_evaluation_report_1.pdf": {
+    "description": "The document is a comprehensive Speech Language Evaluation and Report, detailing the process and requirements for a Speech Language Pathologist (SLP) to evaluate and report on a client's need for a speech device. It includes sections on client background, evaluation date, speech and language abilities, medical diagnosis, cognitive and physical abilities, mobility, hearing and vision status, daily communication needs, rationale for device selection, SGDs considered and trialed, recommended SGD and accessories, functional communication goals, treatment plan, and a non-conflict statement with signature. Additional resources for report writing and funding are also provided.",
+    "document_type": "report",
+    "suggested_filename": "speech_language_evaluation_report"
+  },
+  "inbox/ice_bucket_challenge_als_2014.pdf": {
+    "description": "The document discusses the 'Ice Bucket Challenge' charity event that went viral in 2014 to raise awareness and funds for ALS and other rare diseases. It highlights the impact of the challenge, including increased donations and public participation, but also notes criticisms such as water wastage and safety concerns. The document emphasizes the need for a system of medical care and research for rare diseases, particularly in countries like China where such systems are lacking. It also discusses the role of orphan drugs and the need for legislative and economic incentives to support their development.",
+    "document_type": "article",
+    "suggested_filename": "ice_bucket_challenge_als_2014"
+  },
+  "inbox/multiple_identities_gender_perception.pdf": {
+    "description": "The document discusses the concept of multiple identities within individuals, focusing on how gender and other factors influence perception. It includes personal anecdotes, such as the author's interaction with his mother about his height, and an informal study on how parents perceive their children's heights based on gender. The document also explores societal biases through the lens of cognitive linguistics, specifically the 'up is good' metaphor, and its impact on gender perception. It concludes with reflections on identity, self-perception, and the role of a clinician in understanding and supporting individuals.",
+    "document_type": "article",
+    "suggested_filename": "multiple_identities_gender_perception"
+  },
+  "inbox/phenylketonuria_genetic_disorder_info.pdf": {
+    "description": "The document provides comprehensive information on phenylketonuria, a genetic disorder that affects the metabolism of phenylalanine. It discusses the disease's definition, prevalence, diagnosis, genetic aspects, treatment, and the importance of early detection through neonatal screening. The document also covers the manifestations of the disease in untreated individuals, the impact on quality of life, and considerations for pregnancy in affected women.",
+    "document_type": "article",
+    "suggested_filename": "phenylketonuria_genetic_disorder_info"
+  },
+  "inbox/pecs_pals_intervention_autism.pdf": {
+    "description": "The document is a research article published in the Journal of Speech, Language, and Hearing Research in October 2016. It investigates the effectiveness of a social intervention that integrates peer-mediated approaches and the Picture Exchange Communication System (PECS) for minimally verbal preschoolers with autism. The study used A-B designs replicated across four children with severe autism and limited verbal skills, and seven peers without disabilities were trained to use PECS and facilitative social skills. The results showed an intervention effect for one child, which was replicated across three other children. All children improved in peer-directed communication, with some showing increased communicative functions and social engagement. The article also discusses the background and previous research on PECS, its phases, and the empirical support for its use with preschool children with autism.",
+    "document_type": "research article",
+    "suggested_filename": "pecs_pals_intervention_autism"
+  },
+  "inbox/nelson_2012_neonatal_encephalopathy_study.pdf": {
+    "description": "The document discusses a study on the antecedents of neonatal encephalopathy (NE) in term and late preterm infants, using data from the Vermont Oxford Network Encephalopathy Registry. It highlights that most infants with NE do not have recognized asphyxial birth events, and identifies several nonasphyxial risk factors such as intrauterine exposure to infection or inflammation, fetal growth restriction, and birth defects. The study also notes the prevalence of clinical conditions like seizures, low Apgar scores, and reduced consciousness in these infants. It emphasizes the need for improved studies on NE to better understand and prevent this condition.",
+    "document_type": "article",
+    "suggested_filename": "nelson_2012_neonatal_encephalopathy_study"
+  },
+  "inbox/evidence_based_asd_assessment.pdf": {
+    "description": "The document is an article from the Journal of Clinical Child and Adolescent Psychology, published in 2005, focusing on evidence-based assessment of Autism Spectrum Disorders (ASD) in children and adolescents. It discusses the selection, use, and interpretation of assessment tools for ASD, emphasizing the importance of tools that not only have good psychometric qualities but also relevance to service delivery. The article reviews relevant research on ASD, outlines the assessment process, and describes a core assessment battery along with additional domains for a comprehensive assessment. It covers topics such as core autism symptomatology, intelligence, language, adaptive behavior, neuropsychological functions, comorbid psychiatric illnesses, and contextual factors. The document also provides background information on different ASD diagnoses, including autistic disorder, Asperger's disorder, PDDNOS, Rett's disorder, and childhood disintegrative disorder, discussing their symptoms and diagnostic criteria. It concludes with a discussion on how well the literature meets criteria for evidence-based assessments.",
+    "document_type": "article",
+    "suggested_filename": "evidence_based_asd_assessment"
   }
 }
