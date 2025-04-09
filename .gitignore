@@ -1,4 +1,5 @@
 # .gitignore for Python projects
+highres*
 
 # Python bytecode
 __pycache__/
