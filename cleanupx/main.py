@@ -7,7 +7,7 @@ import os
 import sys
 import logging
 from pathlib import Path
-from typing import Dict, Union
+from typing import Dict, Union, Tuple, Optional
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -25,6 +25,7 @@ from cleanupx.utils.cache import load_cache, load_rename_log, save_rename_log
 from cleanupx.processors import process_file
 from cleanupx.utils.directory_summary import update_directory_summary, get_directory_summary, suggest_reorganization
 from cleanupx.processors.dedupe import dedupe_directory
+from cleanupx.utils.hidden_summary import update_hidden_summary, get_reorganization_suggestions
 
 def process_directory(directory: Union[str, Path], recursive: bool = False, skip_renamed: bool = True, 
                      max_size_mb: float = 25.0, update_summary: bool = True, 
@@ -190,6 +191,15 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
         logger.info("Updating directory summary...")
         summary = update_directory_summary(directory, include_user_prefs=include_user_prefs)
         stats["summary_updated"] = True
+        
+        # Also update the hidden directory summary file
+        try:
+            logger.info("Updating hidden directory summary...")
+            hidden_summary = update_hidden_summary(directory, full_analysis=True)
+            stats["hidden_summary_updated"] = True
+        except Exception as e:
+            logger.error(f"Error updating hidden directory summary: {e}")
+            stats["hidden_summary_updated"] = False
         
         # Provide organization suggestions based on the summary
         suggestions = summary.get("suggestions", [])

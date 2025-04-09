@@ -1,0 +1,48 @@
+[
+  {
+    "type": "reference",
+    "authors": "Johnson, A. B., & Thompson, C. D.",
+    "year": "2022",
+    "title": "AI applications in document management",
+    "source": "Computational",
+    "raw": "Johnson, A. B., & Thompson, C. D. 2022 AI applications in document management Computational",
+    "date_added": "2025-04-09T15:37:18.247638"
+  },
+  {
+    "type": "in-text",
+    "authors": "Jones & Brown",
+    "year": "2019",
+    "raw": "Jones & Brown, 2019",
+    "date_added": "2025-04-09T15:37:18.247623"
+  },
+  {
+    "type": "doi",
+    "authors": "Rule, A., Tabard, A., Hollan, J..",
+    "year": "2018",
+    "title": "Exploration and Explanation in Computational Notebooks",
+    "source": "Proceedings of the 2018 CHI Conference on Human Factors in Computing Systems",
+    "volume": "",
+    "issue": "",
+    "pages": "1-12",
+    "doi": "10.1145/3173574.3173606",
+    "url": "https://doi.org/10.1145/3173574.3173606",
+    "raw": "Rule, A., Tabard, A., Hollan, J.. (2018). Exploration and Explanation in Computational Notebooks. Proceedings of the 2018 CHI Conference on Human Factors in Computing Systems, (), 1-12. 10.1145/3173574.3173606",
+    "date_added": "2025-04-09T15:37:18.247640"
+  },
+  {
+    "type": "in-text",
+    "authors": "Williams",
+    "year": "2018",
+    "raw": "Williams, 2018, p. 45",
+    "date_added": "2025-04-09T15:37:18.247634"
+  },
+  {
+    "type": "reference",
+    "authors": "Wilson, J. T.",
+    "year": "2021",
+    "title": "The evolution of file management systems",
+    "source": "Journal",
+    "raw": "Wilson, J. T. 2021 The evolution of file management systems Journal",
+    "date_added": "2025-04-09T15:37:18.247636"
+  }
+]

@@ -13,6 +13,7 @@ from typing import List, Optional, Dict, Any
 try:
     from rich.console import Console
     from rich.panel import Panel
+    from rich.table import Table
     RICH_AVAILABLE = True
 except ImportError:
     RICH_AVAILABLE = False
@@ -171,6 +172,50 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         help="Prompt for organization preferences before processing"
     )
     
+    # Add options for citations and hidden summary
+    parser.add_argument(
+        "--citations",
+        action="store_true",
+        help="Display APA citations extracted from documents in the directory"
+    )
+    
+    parser.add_argument(
+        "--update-citations",
+        action="store_true",
+        help="Scan all documents and update the citations file"
+    )
+    
+    parser.add_argument(
+        "--hidden-summary",
+        action="store_true",
+        help="Display the hidden directory summary"
+    )
+    
+    parser.add_argument(
+        "--update-hidden-summary",
+        action="store_true",
+        help="Update the hidden directory summary file (.cleanupx)"
+    )
+    
+    parser.add_argument(
+        "--reorganize",
+        action="store_true",
+        help="Interactively reorganize files based on suggestions"
+    )
+    
+    # Add export options for reports
+    parser.add_argument(
+        "--export-citations",
+        action="store_true",
+        help="Export citation information to a CITATIONS.md file"
+    )
+    
+    parser.add_argument(
+        "--export-summary",
+        action="store_true",
+        help="Export directory summary to a DIRECTORY_SUMMARY.md file"
+    )
+    
     return parser.parse_args(args)
 
 def run_cli(args: Optional[List[str]] = None) -> int:
@@ -209,6 +254,82 @@ def run_cli(args: Optional[List[str]] = None) -> int:
         console.print(f"[bold red]Error: {directory} is not a valid directory[/bold red]")
         return 1
     
+    # Update hidden summary only mode
+    if parsed_args.update_hidden_summary:
+        from cleanupx.utils.hidden_summary import update_hidden_summary
+        try:
+            console.print(f"[bold cyan]Updating hidden directory summary (.cleanupx) for {directory}[/bold cyan]")
+            summary = update_hidden_summary(directory, full_analysis=True)
+            console.print("[bold green]Hidden directory summary updated successfully[/bold green]")
+            
+            # If requested, also display the summary
+            if parsed_args.hidden_summary:
+                display_hidden_summary(directory, console)
+                
+            return 0
+        except Exception as e:
+            console.print(f"[bold red]Error updating hidden summary: {e}[/bold red]")
+            return 1
+    
+    # Citation update only mode
+    if parsed_args.update_citations:
+        try:
+            console.print(f"[bold cyan]Updating citation information for {directory}[/bold cyan]")
+            
+            # Import necessary modules
+            from cleanupx.processors.citation import process_file_for_citations, get_citation_stats
+            from cleanupx.config import DOCUMENT_EXTENSIONS
+            
+            # Find all document files
+            document_files = []
+            if parsed_args.recursive:
+                for root, _, filenames in os.walk(directory):
+                    for filename in filenames:
+                        file_path = Path(root) / filename
+                        if file_path.suffix.lower() in DOCUMENT_EXTENSIONS:
+                            document_files.append(file_path)
+            else:
+                document_files = [f for f in directory.iterdir() 
+                                if f.is_file() and f.suffix.lower() in DOCUMENT_EXTENSIONS]
+            
+            console.print(f"Found {len(document_files)} document files to process")
+            
+            # Process each document file
+            with console.status("[bold cyan]Processing documents for citations..."):
+                for file_path in document_files:
+                    try:
+                        console.print(f"Processing {file_path.name}...", end="\r")
+                        process_file_for_citations(file_path)
+                    except Exception as e:
+                        console.print(f"[yellow]Error processing {file_path.name}: {e}[/yellow]")
+            
+            # Get updated stats
+            stats = get_citation_stats(directory)
+            
+            # Display results
+            console.print("")
+            console.print("[bold green]Citation update complete![/bold green]")
+            console.print(f"[cyan]Total citations:[/cyan] {stats.get('total', 0)}")
+            console.print(f"[cyan]References:[/cyan] {stats.get('reference', 0)}")
+            console.print(f"[cyan]DOI citations:[/cyan] {stats.get('doi', 0)}")
+            console.print(f"[cyan]In-text citations:[/cyan] {stats.get('in_text', 0)}")
+            
+            # If requested, also display the citations
+            if parsed_args.citations:
+                display_citations(directory, console)
+                
+            # If requested, export to markdown
+            if parsed_args.export_citations:
+                from cleanupx.processors.citation import save_markdown_citations
+                md_file = save_markdown_citations(directory)
+                if md_file:
+                    console.print(f"[bold green]Exported citations to {md_file}[/bold green]")
+                    
+            return 0
+        except Exception as e:
+            console.print(f"[bold red]Error updating citations: {e}[/bold red]")
+            return 1
+    
     # Summary-only mode
     if parsed_args.summary:
         from cleanupx.utils.directory_summary import update_directory_summary
@@ -218,7 +339,25 @@ def run_cli(args: Optional[List[str]] = None) -> int:
         include_prefs = parsed_args.ask_preferences
         summary = update_directory_summary(directory, include_user_prefs=include_prefs)
         
+        # Also update the hidden summary
+        try:
+            from cleanupx.utils.hidden_summary import update_hidden_summary
+            update_hidden_summary(directory, full_analysis=True)
+            console.print("[green]Hidden directory summary (.cleanupx) also updated[/green]")
+        except Exception as e:
+            console.print(f"[yellow]Note: Hidden summary update failed: {e}[/yellow]")
+        
         console.print("[bold green]Directory summary updated[/bold green]")
+        
+        # If requested, export to markdown
+        if parsed_args.export_summary:
+            try:
+                from cleanupx.utils.directory_summary import export_summary_to_markdown
+                md_file = export_summary_to_markdown(directory, summary)
+                console.print(f"[bold green]Exported summary to {md_file}[/bold green]")
+            except Exception as e:
+                console.print(f"[yellow]Failed to export summary to markdown: {e}[/yellow]")
+        
         return 0
     
     # Suggestion-only mode
@@ -264,6 +403,16 @@ def run_cli(args: Optional[List[str]] = None) -> int:
                 console.print(f"[cyan]- {suggestion_type}:[/cyan] {priority_str}{source}{reason}")
         else:
             console.print("[green]No suggestions available - directory seems well organized[/green]")
+        return 0
+    
+    # Citations display mode
+    if parsed_args.citations:
+        display_citations(directory, console)
+        return 0
+    
+    # Hidden summary display mode
+    if parsed_args.hidden_summary:
+        display_hidden_summary(directory, console)
         return 0
     
     # Deduplication mode
@@ -383,10 +532,22 @@ def run_cli(args: Optional[List[str]] = None) -> int:
         f"[bold]Recursive:[/bold] {'Yes' if parsed_args.recursive else 'No'}\n"
         f"[bold]Skip renamed:[/bold] {'No' if parsed_args.force else 'Yes'}\n"
         f"[bold]Ask for preferences:[/bold] {'Yes' if parsed_args.ask_preferences else 'No'}\n"
-        f"[bold]File types:[/bold] {', '.join(file_type_selection) or 'None - no files will be processed'}",
+        f"[bold]File types:[/bold] {', '.join(file_type_selection) or 'None - no files will be processed'}\n"
+        f"[bold]Update hidden summary:[/bold] {'No' if parsed_args.no_summary else 'Yes'}\n"
+        f"[bold]Update citations:[/bold] Yes for document files",
         title="Processing Configuration",
         border_style="cyan"
     ))
+    
+    # Ask for confirmation before processing
+    if INQUIRER_AVAILABLE:
+        confirm = inquirer.confirm(
+            message=f"Ready to process files in {directory}. Continue?",
+            default=True
+        )
+        if not confirm:
+            console.print("[yellow]Operation cancelled by user[/yellow]")
+            return 1
     
     # Import process_directory here to avoid circular imports
     from cleanupx.main import process_directory
@@ -428,4 +589,174 @@ def run_cli(args: Optional[List[str]] = None) -> int:
             
             console.print("\nRun with --suggest to see detailed suggestions or --dedupe to find duplicates")
     
+    # Reorganize mode
+    if parsed_args.reorganize:
+        try:
+            from cleanupx.utils.hidden_summary import get_reorganization_suggestions, create_suggested_structure
+            console.print(f"[bold cyan]Reorganization Suggestions for {directory}[/bold cyan]")
+            
+            # Get the reorganization suggestions
+            suggestions = get_reorganization_suggestions(directory)
+            
+            if not suggestions:
+                console.print("[yellow]No reorganization suggestions available for this directory.[/yellow]")
+                return 0
+            
+            # Display suggestions and let user choose
+            for i, suggestion in enumerate(suggestions):
+                suggestion_type = suggestion.get("type", "")
+                reason = suggestion.get("reason", "")
+                priority = suggestion.get("priority", "normal").upper()
+                console.print(f"[cyan]{i+1}. {suggestion_type}[/cyan] [{priority}]: {reason}")
+            
+            # Ask user which suggestion to implement
+            if INQUIRER_AVAILABLE:
+                choices = [f"{i+1}. {s.get('type')} - {s.get('reason')[:40]}..." for i, s in enumerate(suggestions)]
+                choices.append("Cancel - don't reorganize")
+                
+                questions = [
+                    inquirer.List(
+                        "choice",
+                        message="Which suggestion would you like to implement?",
+                        choices=choices
+                    )
+                ]
+                
+                answers = inquirer.prompt(questions)
+                if not answers or answers["choice"] == "Cancel - don't reorganize":
+                    console.print("[yellow]Operation cancelled by user[/yellow]")
+                    return 0
+                
+                selected_index = int(answers["choice"].split(".")[0]) - 1
+            else:
+                console.print("\nEnter the number of the suggestion to implement (or 'q' to quit):")
+                choice = input("> ").strip()
+                if choice.lower() == 'q':
+                    console.print("[yellow]Operation cancelled by user[/yellow]")
+                    return 0
+                
+                try:
+                    selected_index = int(choice) - 1
+                    if selected_index < 0 or selected_index >= len(suggestions):
+                        console.print("[bold red]Invalid choice[/bold red]")
+                        return 1
+                except ValueError:
+                    console.print("[bold red]Invalid input[/bold red]")
+                    return 1
+            
+            # Implement the selected suggestion
+            selected = suggestions[selected_index]
+            console.print(f"\n[bold cyan]Implementing suggestion: {selected.get('type')}[/bold cyan]")
+            
+            # Confirm before proceeding
+            if INQUIRER_AVAILABLE:
+                confirm = inquirer.confirm(
+                    message=f"This will reorganize files in {directory}. Continue?",
+                    default=False
+                )
+                if not confirm:
+                    console.print("[yellow]Operation cancelled by user[/yellow]")
+                    return 0
+            else:
+                confirm = input(f"This will reorganize files in {directory}. Continue? (y/N): ").lower().strip() == 'y'
+                if not confirm:
+                    console.print("[yellow]Operation cancelled by user[/yellow]")
+                    return 0
+            
+            # Create the suggested structure
+            success = create_suggested_structure(directory, selected)
+            
+            if success:
+                console.print("[bold green]Reorganization complete![/bold green]")
+                
+                # Update the directory summary after reorganization
+                from cleanupx.utils.directory_summary import update_directory_summary
+                from cleanupx.utils.hidden_summary import update_hidden_summary
+                update_directory_summary(directory)
+                update_hidden_summary(directory, full_analysis=True)
+            else:
+                console.print("[bold red]Reorganization failed[/bold red]")
+            
+            return 0
+        except Exception as e:
+            console.print(f"[bold red]Error during reorganization: {e}[/bold red]")
+            return 1
+    
     return 0
+
+def display_citations(directory: Path, console: Console) -> None:
+    """Display citations from a directory"""
+    try:
+        from cleanupx.processors.citation import generate_apa_citation_list, get_citation_stats
+        console.print(f"[bold cyan]APA Citations from {directory}[/bold cyan]")
+        
+        # Get citation stats
+        stats = get_citation_stats(directory)
+        
+        # Show summary table
+        table = Table(title="Citation Summary")
+        table.add_column("Type", style="cyan")
+        table.add_column("Count", style="green")
+        
+        table.add_row("Total Citations", str(stats.get("total", 0)))
+        table.add_row("Formal References", str(stats.get("reference", 0)))
+        table.add_row("DOI Citations", str(stats.get("doi", 0)))
+        table.add_row("In-text Citations", str(stats.get("in_text", 0)))
+        
+        console.print(table)
+        console.print("")
+        
+        # Generate the APA citation list
+        apa_list = generate_apa_citation_list(directory)
+        
+        # Display the citations
+        if apa_list == "No citations found.":
+            console.print("[yellow]No citations found in this directory.[/yellow]")
+        else:
+            console.print(Panel(apa_list, title="APA Citations", border_style="green"))
+        
+    except Exception as e:
+        console.print(f"[bold red]Error displaying citations: {e}[/bold red]")
+
+def display_hidden_summary(directory: Path, console: Console) -> None:
+    """Display the hidden directory summary"""
+    try:
+        from cleanupx.utils.hidden_summary import get_hidden_summary
+        console.print(f"[bold cyan]Hidden Directory Summary for {directory}[/bold cyan]")
+        
+        # Get the hidden summary
+        summary = get_hidden_summary(directory)
+        
+        # Display key information
+        console.print(f"[bold]Directory:[/bold] {summary.get('directory')}")
+        console.print(f"[bold]Last updated:[/bold] {summary.get('updated')}")
+        console.print(f"[bold]File count:[/bold] {summary.get('file_count')}")
+        console.print(f"[bold]Directory count:[/bold] {summary.get('directory_count')}")
+        console.print(f"[bold]Update hidden summary:[/bold] {'No' if parsed_args.no_summary else 'Yes'}")
+        console.print(f"[bold]Update citations:[/bold] Yes for document files")
+        
+        # Display content analysis
+        content = summary.get("content_analysis", {})
+        if content.get("topics"):
+            console.print("\n[bold cyan]Topics:[/bold cyan]")
+            for topic in content.get("topics", []):
+                console.print(f"- {topic}")
+        
+        if content.get("keywords"):
+            console.print("\n[bold cyan]Keywords:[/bold cyan]")
+            console.print(", ".join(content.get("keywords", [])))
+        
+        # Display organization suggestions
+        suggestions = summary.get("organization", {}).get("suggestions", [])
+        if suggestions:
+            console.print("\n[bold yellow]Organization Suggestions:[/bold yellow]")
+            for suggestion in suggestions:
+                suggestion_type = suggestion.get("type", "")
+                reason = suggestion.get("reason", "")
+                priority = suggestion.get("priority", "")
+                if priority:
+                    priority = f"[{priority.upper()}] "
+                console.print(f"[cyan]- {suggestion_type}:[/cyan] {priority}{reason}")
+        
+    except Exception as e:
+        console.print(f"[bold red]Error displaying hidden summary: {e}[/bold red]")

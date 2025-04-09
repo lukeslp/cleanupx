@@ -19,13 +19,13 @@ logger = logging.getLogger(__name__)
 
 def get_gz_info(file_path: Union[str, Path]) -> Dict[str, Any]:
     """
-    Get information about a gzip file.
+    Get detailed information about a gzip file and its contents.
     
     Args:
         file_path: Path to the gzip file
         
     Returns:
-        Dict with information about the gzip file
+        Dict with information about the gzip file and its contents
     """
     try:
         import gzip
@@ -35,34 +35,89 @@ def get_gz_info(file_path: Union[str, Path]) -> Dict[str, Any]:
             "compressed_size": file_path.stat().st_size,
             "filename": file_path.name,
             "content_preview": "",
-            "is_binary": True
+            "is_binary": True,
+            "content_type": "unknown"
         }
         
-        # Try to determine the original filename
+        # Try to determine the original filename and examine content
         with gzip.open(file_path, 'rb') as gz:
             # Get original filename if available
             if hasattr(gz, 'name'):
                 info["original_filename"] = Path(gz.name).name
             
-            # Try to read some content to see if it's text or binary
-            content = gz.read(1024)  # Read first 1KB
+            # Try to read some content to analyze
+            content = gz.read(8192)  # Read first 8KB for better analysis
             
-            # Try to decode as text
+            # Try to detect content type
+            import magic
+            content_type = "unknown"
             try:
-                decoded = content.decode('utf-8', errors='strict')
-                info["content_preview"] = decoded
-                info["is_binary"] = False
-            except UnicodeDecodeError:
-                # It's binary data
-                info["content_preview"] = f"Binary data ({len(content)} bytes)"
-                info["is_binary"] = True
+                # Use python-magic if available for better content type detection
+                content_type = magic.from_buffer(content, mime=True)
+                info["content_type"] = content_type
+            except (ImportError, AttributeError):
+                # Fallback method if python-magic not available
+                if content.startswith(b'<html') or content.startswith(b'<!DOCTYPE html'):
+                    content_type = "text/html"
+                elif content.startswith(b'<?xml'):
+                    content_type = "text/xml"
+                elif content.startswith(b'PK\x03\x04'):
+                    content_type = "application/zip"
+                elif b'\0' not in content[:100]:
+                    content_type = "text/plain"
+                info["content_type"] = content_type
+            
+            # Try to decode as text if it appears to be text-based
+            if content_type.startswith('text/') or content_type in ['application/json', 'application/xml']:
+                try:
+                    decoded = content.decode('utf-8', errors='replace')
+                    info["content_preview"] = decoded[:2000]  # First 2000 chars
+                    info["is_binary"] = False
+                except UnicodeDecodeError:
+                    info["content_preview"] = f"Binary data ({len(content)} bytes)"
+                    info["is_binary"] = True
+            else:
+                # Handle binary data differently based on content type
+                if content_type.startswith('image/'):
+                    info["content_preview"] = f"Image data ({len(content)} bytes)"
+                elif content_type == 'application/zip':
+                    info["content_preview"] = f"Zip archive data ({len(content)} bytes)"
+                    # You could try to open this as a zip file and list contents
+                    try:
+                        import io
+                        import zipfile
+                        zf = zipfile.ZipFile(io.BytesIO(content))
+                        info["zip_contents"] = zf.namelist()[:20]  # List up to 20 files
+                    except:
+                        pass
+                else:
+                    info["content_preview"] = f"Binary data ({len(content)} bytes)"
                 
-            # Try to estimate original size by reading the whole file
-            # (not efficient for large files but gives accurate size)
+            # Try to estimate original size by seeking to end
             try:
                 gz.seek(0)
                 decompressed = gz.read()
                 info["original_size"] = len(decompressed)
+                
+                # Try to create a more detailed preview based on what we've seen
+                if not info["is_binary"]:
+                    # For text files, add line count
+                    line_count = decompressed.count(b'\n') + 1
+                    info["line_count"] = line_count
+                    info["detail"] = f"Text file with {line_count} lines"
+                elif content_type.startswith('image/'):
+                    # For images, try to get dimensions
+                    try:
+                        import io
+                        from PIL import Image
+                        img = Image.open(io.BytesIO(decompressed))
+                        info["image_dimensions"] = f"{img.width}x{img.height}"
+                        info["detail"] = f"Image: {img.width}x{img.height}, {img.format}"
+                    except:
+                        info["detail"] = "Image file"
+                else:
+                    info["detail"] = f"Binary file ({content_type})"
+                    
             except Exception as e:
                 logger.warning(f"Could not determine original size: {e}")
         

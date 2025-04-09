@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+!! IMPORTANT
+
+YOU NEVER CHANGE THE BASE URL OF THE SERVER API
+
+it is ALWAYS api.assisted.space/v2
+
+NEVER use localhost

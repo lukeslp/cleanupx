@@ -12,15 +12,47 @@ XAI_MODEL_TEXT = "grok-2-latest"
 XAI_MODEL_VISION = "grok-2-vision-latest"
 
 # File type constants
-IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp', '.heic', '.heif'}
-TEXT_EXTENSIONS = {'.txt', '.md', '.markdown', '.rst', '.text', '.log', '.csv', '.tsv', '.json', '.xml', '.yaml', '.yml', '.html', '.htm', '.py', '.zip'}
-MEDIA_EXTENSIONS = {'.mp3', '.wav', '.ogg', '.flac', '.mp4', '.avi', '.mov', '.mkv'}
+IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp', '.heic', '.heif', '.ico'}
+TEXT_EXTENSIONS = {'.txt', '.md', '.markdown', '.rst', '.text', '.log', '.csv', '.tsv', '.json', '.xml', '.yaml', '.yml', '.html', '.htm', '.py', '.db', '.sh', 'rtf', 'ics', 'icsv', 'icsx'}
+MEDIA_EXTENSIONS = {'.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.m4v'}
 DOCUMENT_EXTENSIONS = {'.pdf', '.docx', '.doc', '.ppt', '.pptx'}
-ARCHIVE_EXTENSIONS = {'.zip', '.tar', '.tgz', '.tar.gz', '.rar', '.gz'}
+ARCHIVE_EXTENSIONS = {'.zip', '.tar', '.tgz', '.tar.gz', '.rar', '.gz', '.apk'}
 
 # Cache and rename log files
 CACHE_FILE = "generated_alts.json"
 RENAME_LOG_FILE = "rename_log.json"
+
+# Protected files that should not be processed
+PROTECTED_PATTERNS = [
+    "PROJECT_PLAN.md",
+    ".git*",
+    "*.exe",
+    "*.dll",
+    "requirements.txt",
+    "package.json",
+    "setup.py",
+    "Makefile",
+    "Dockerfile",
+    "*.pyc",
+    "__pycache__*",
+    ".env*",
+    "*.env",
+    ".venv*",
+    "venv*",
+    "*.ini",
+    "*.cfg",
+    "*.config",
+    "*.lock",
+    "*.sh",
+    "*.bat",
+    "*.cmd",
+    "*.ps1",
+    "LICENSE*",
+    "README*",
+    ".cleanupx*",
+    ".dir_summary.json",
+    ".cleanupx-citations"
+]
 
 # Function schemas for API calls
 IMAGE_FUNCTION_SCHEMA = {

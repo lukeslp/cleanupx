@@ -1,0 +1,189 @@
+{
+  "directory": ".",
+  "last_updated": "2025-04-09T15:37:32.998913",
+  "generation_count": 6,
+  "previous_update": "2025-04-09T15:37:24.275533",
+  "file_count": 11,
+  "subdir_count": 0,
+  "categories": {
+    "images": [
+      "test_image.jpg"
+    ],
+    "documents": [
+      "test_document_placeholder.txt",
+      "archive_contents_summary.txt",
+      "test_citation_extraction_notes.txt"
+    ],
+    "archives": [
+      "test_archive_with_two_text_files.zip"
+    ],
+    "data": [
+      "rename_log.json",
+      "metadata_overview_of_documents_1.json",
+      "metadata_overview_of_documents.json",
+      "file_renaming_log.json",
+      "file_renaming_log_with_stats.json",
+      "generated_alts.json"
+    ]
+  },
+  "directory_tree": {
+    "type": "directory",
+    "name": "",
+    "children": [
+      {
+        "type": "file",
+        "name": "rename_log.json"
+      },
+      {
+        "type": "file",
+        "name": "test_document_placeholder.txt"
+      },
+      {
+        "type": "file",
+        "name": "metadata_overview_of_documents_1.json"
+      },
+      {
+        "type": "file",
+        "name": "metadata_overview_of_documents.json"
+      },
+      {
+        "type": "file",
+        "name": "file_renaming_log.json"
+      },
+      {
+        "type": "file",
+        "name": "archive_contents_summary.txt"
+      },
+      {
+        "type": "file",
+        "name": "test_image.jpg"
+      },
+      {
+        "type": "file",
+        "name": "test_archive_with_two_text_files.zip"
+      },
+      {
+        "type": "file",
+        "name": "file_renaming_log_with_stats.json"
+      },
+      {
+        "type": "file",
+        "name": "generated_alts.json"
+      },
+      {
+        "type": "file",
+        "name": "test_citation_extraction_notes.txt"
+      }
+    ]
+  },
+  "content_analysis": {
+    "themes": [],
+    "patterns": [],
+    "keywords": [
+      "alts",
+      "archive",
+      "citation",
+      "document",
+      "documents",
+      "extraction",
+      "file",
+      "files",
+      "generated",
+      "image",
+      "metadata",
+      "notes",
+      "overview",
+      "placeholder",
+      "rename",
+      "stats",
+      "summary",
+      "test",
+      "text",
+      "with"
+    ]
+  },
+  "previous_suggestions": [
+    {
+      "type": "create_subdirectory",
+      "category": "data",
+      "priority": "normal",
+      "reason": "Found 6 data files that could be organized into a subdirectory",
+      "user_requested": false
+    },
+    {
+      "type": "standardize_naming",
+      "category": "documents",
+      "patterns": [
+        "archive_contents_summary",
+        "test_citation_extraction_notes",
+        "test_document_placeholder"
+      ],
+      "priority": "medium",
+      "reason": "Files in documents have inconsistent naming patterns"
+    },
+    {
+      "type": "standardize_naming",
+      "category": "data",
+      "patterns": [
+        "metadata_overview_of_documents_",
+        "file_renaming_log_with_stats",
+        "file_renaming_log",
+        "rename_log",
+        "generated_alts",
+        "metadata_overview_of_documents"
+      ],
+      "priority": "medium",
+      "reason": "Files in data have inconsistent naming patterns"
+    },
+    {
+      "type": "deduplicate",
+      "priority": "medium",
+      "reason": "This directory has been scanned multiple times, consider running deduplication"
+    }
+  ],
+  "has_project_plan": false,
+  "project_info": {},
+  "user_preferences": {},
+  "suggestions": [
+    {
+      "type": "create_subdirectory",
+      "category": "data",
+      "priority": "normal",
+      "reason": "Found 6 data files that could be organized into a subdirectory",
+      "user_requested": false
+    },
+    {
+      "type": "standardize_naming",
+      "category": "documents",
+      "patterns": [
+        "test_citation_extraction_notes",
+        "test_document_placeholder",
+        "archive_contents_summary"
+      ],
+      "priority": "medium",
+      "reason": "Files in documents have inconsistent naming patterns"
+    },
+    {
+      "type": "standardize_naming",
+      "category": "data",
+      "patterns": [
+        "metadata_overview_of_documents_",
+        "rename_log",
+        "file_renaming_log",
+        "metadata_overview_of_documents",
+        "file_renaming_log_with_stats",
+        "generated_alts"
+      ],
+      "priority": "medium",
+      "reason": "Files in data have inconsistent naming patterns"
+    },
+    {
+      "type": "deduplicate",
+      "priority": "medium",
+      "reason": "This directory has been scanned multiple times, consider running deduplication"
+    }
+  ],
+  "project_plan": {
+    "exists": false
+  }
+}

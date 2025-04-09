@@ -98,18 +98,82 @@ def get_media_dimensions(file_path: Union[str, Path]) -> Optional[Tuple[int, int
         return None
 
 def get_media_duration(file_path: Union[str, Path]) -> Optional[float]:
-    """Get duration of media files in seconds using OpenCV."""
+    """
+    Get duration of media files in seconds.
+    
+    Tries multiple methods to get the most accurate duration:
+    1. For MP3/audio files: Uses mutagen
+    2. For video files: Uses OpenCV
+    3. Fallback: Uses ffprobe if available
+    
+    Args:
+        file_path: Path to the media file
+        
+    Returns:
+        Duration in seconds, or None if duration could not be determined
+    """
+    file_path = Path(file_path)
+    ext = file_path.suffix.lower()
+    
+    # First try mutagen for audio files (more accurate for MP3s)
+    if ext in {'.mp3', '.wav', '.ogg', '.flac', '.m4a', '.aac'}:
+        try:
+            import mutagen
+            audio = mutagen.File(file_path)
+            if audio is not None and hasattr(audio, 'info') and hasattr(audio.info, 'length'):
+                return audio.info.length
+        except ImportError:
+            logger.warning("Mutagen not installed, falling back to other methods for audio duration")
+        except Exception as e:
+            logger.error(f"Error getting audio duration with mutagen: {e}")
+    
+    # Try OpenCV for video files
     try:
         import cv2
         cap = cv2.VideoCapture(str(file_path))
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        duration = frame_count / fps if fps > 0 else None
-        cap.release()
-        return duration
+        if cap.isOpened():
+            fps = cap.get(cv2.CAP_PROP_FPS)
+            frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            duration = frame_count / fps if fps > 0 else None
+            cap.release()
+            if duration and duration > 0:
+                return duration
+        else:
+            cap.release()
     except Exception as e:
-        logger.error(f"Error getting media duration: {e}")
-        return None
+        logger.error(f"Error getting media duration with OpenCV: {e}")
+    
+    # Fallback to ffprobe
+    try:
+        import subprocess
+        import json
+        cmd = [
+            'ffprobe', 
+            '-v', 'quiet', 
+            '-print_format', 'json', 
+            '-show_format', 
+            '-show_streams', 
+            str(file_path)
+        ]
+        output = subprocess.check_output(cmd)
+        data = json.loads(output)
+        
+        # Try to get duration from format
+        if 'format' in data and 'duration' in data['format']:
+            return float(data['format']['duration'])
+        
+        # Try from streams
+        if 'streams' in data:
+            for stream in data['streams']:
+                if 'duration' in stream:
+                    return float(stream['duration'])
+                    
+    except (subprocess.SubprocessError, ImportError, json.JSONDecodeError, FileNotFoundError) as e:
+        logger.error(f"Error using ffprobe for duration: {e}")
+    
+    # If all methods fail
+    logger.warning(f"Could not determine duration for {file_path}")
+    return None
 
 def convert_heic_to_jpeg(file_path: Union[str, Path]) -> Optional[Path]:
     """Convert HEIC image to JPEG format."""

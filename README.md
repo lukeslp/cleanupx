@@ -11,6 +11,9 @@ An intelligent file organization and renaming tool with AI-powered content analy
 - **Privacy Mode**: Scrambles filenames with random strings for privacy
 - **Comprehensive Logging**: Maintains detailed logs of all rename operations
 - **Interactive CLI**: User-friendly command-line interface with progress indicators
+- **Directory Insights**: Creates hidden summary files with content analysis and organization suggestions
+- **Citation Management**: Extracts and maintains APA citations from academic papers
+- **Intelligent Reorganization**: Offers AI-powered suggestions to better organize files
 
 ## Installation
 
@@ -53,6 +56,14 @@ python cleanupx.py
 - `--skip-text`: Skip processing of text files
 - `--skip-documents`: Skip processing of document files
 - `--skip-archives`: Skip processing of archive files
+- `--dedupe`: Find and remove duplicate files
+- `--dry-run`: Show what would be done without making changes (works with --dedupe)
+- `--auto-delete`: Automatically delete duplicates without confirmation
+- `--summary`: Generate or update a directory summary without processing files
+- `--suggest`: Suggest organization improvements based on directory summary
+- `--citations`: Display APA citations extracted from documents in the directory
+- `--hidden-summary`: Display the hidden directory summary
+- `--reorganize`: Interactively reorganize files based on suggestions
 
 ## Examples
 
@@ -69,6 +80,51 @@ python cleanupx.py ~/Documents/unsorted -r
 Scramble filenames in a directory for privacy:
 ```bash
 python cleanupx.py ~/Pictures/private -s
+```
+
+Get suggestions for reorganizing a directory:
+```bash
+python cleanupx.py ~/Downloads --suggest
+```
+
+View citations extracted from academic papers:
+```bash
+python cleanupx.py ~/Research --citations
+```
+
+Interactively reorganize files in a directory:
+```bash
+python cleanupx.py ~/Documents/unsorted --reorganize
+```
+
+## Hidden Directory Summaries
+
+CleanupX creates and maintains hidden `.cleanupx` files in processed directories. These files contain:
+
+- Directory content summaries
+- File categorization 
+- Topics and keywords detection
+- Organization suggestions
+- Project information
+- History of directory changes
+
+View these insights with:
+```bash
+python cleanupx.py [directory] --hidden-summary
+```
+
+## Citation Management
+
+When processing document files (PDF, DOCX, etc.), CleanupX automatically:
+
+1. Extracts citations in APA format
+2. Identifies DOIs and retrieves complete citation information
+3. Maintains a `.cleanupx-citations` file in each directory
+4. Generates formatted citation lists for reference
+
+Access the citation list with:
+```bash
+python cleanupx.py [directory] --citations
 ```
 
 ## Dependencies
@@ -91,6 +147,8 @@ cleanupx/
 │   ├── logging.py       # Logging utilities
 │   ├── cache.py         # Cache management
 │   ├── reporting.py     # Report generation
+│   ├── directory_summary.py # Directory analysis
+│   ├── hidden_summary.py # Hidden directory insights
 ├── processors/
 │   ├── __init__.py
 │   ├── base.py          # Base processor
@@ -100,6 +158,8 @@ cleanupx/
 │   ├── document.py      # Document processor
 │   ├── archive.py       # Archive processor
 │   ├── media.py         # Media processor
+│   ├── citation.py      # Citation extraction
+│   ├── dedupe.py        # Deduplication
 ├── ui/
 │   ├── __init__.py
 │   ├── cli.py           # Command-line interface
@@ -113,6 +173,8 @@ This tool enhances file accessibility by:
 2. Creating separate markdown files with content descriptions
 3. Embedding metadata in files when possible
 4. Using descriptive, content-based filenames
+5. Maintaining organized directories with clear structure
+6. Providing citation management for academic content
 
 ## License
 

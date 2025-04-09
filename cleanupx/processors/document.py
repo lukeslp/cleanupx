@@ -6,6 +6,8 @@ Document file processor for CleanupX (PDF, DOCX, etc.).
 import logging
 from pathlib import Path
 from typing import Dict, Optional, Tuple, Union, Any
+import io
+import subprocess
 
 from cleanupx.config import DOCUMENT_EXTENSIONS, DOCUMENT_FUNCTION_SCHEMA, FILE_DOCUMENT_PROMPT, XAI_MODEL_TEXT
 from cleanupx.utils.common import read_text_file, strip_media_suffixes
@@ -35,50 +37,151 @@ def get_pdf_page_count(file_path: Union[str, Path]) -> Optional[int]:
             return len(reader.pages)
     except Exception as e:
         logger.error(f"Error getting page count from {file_path}: {e}")
+        
+        # Fallback to using pdfinfo if available
+        try:
+            result = subprocess.run(['pdfinfo', str(file_path)], 
+                                   capture_output=True, text=True, check=True)
+            for line in result.stdout.split('\n'):
+                if line.startswith('Pages:'):
+                    return int(line.split(':')[1].strip())
+        except (subprocess.SubprocessError, ValueError, FileNotFoundError) as e:
+            logger.error(f"Fallback page count extraction failed: {e}")
+        
         return None
+
+def extract_text_from_pdf_with_pdfminer(file_path: Union[str, Path]) -> str:
+    """Extract text content from a PDF file using pdfminer.six."""
+    try:
+        from pdfminer.high_level import extract_text
+        return extract_text(str(file_path))
+    except ImportError:
+        logger.warning("pdfminer.six not installed, can't use alternative PDF extraction")
+        return ""
+    except Exception as e:
+        logger.error(f"pdfminer.six extraction failed for {file_path}: {e}")
+        return ""
+
+def extract_text_from_pdf_with_ocr(file_path: Union[str, Path]) -> str:
+    """Extract text content from a PDF file using OCR via pdf2image and pytesseract."""
+    try:
+        from pdf2image import convert_from_path
+        import pytesseract
+        
+        images = convert_from_path(str(file_path))
+        text = ""
+        
+        for i, image in enumerate(images):
+            logger.info(f"OCR processing page {i+1} of {file_path}")
+            text += pytesseract.image_to_string(image)
+            text += "\n\n"
+            
+        return text
+    except ImportError:
+        logger.warning("pdf2image or pytesseract not installed, can't use OCR extraction")
+        return ""
+    except Exception as e:
+        logger.error(f"OCR extraction failed for {file_path}: {e}")
+        return ""
 
 def extract_text_from_pdf(file_path: Union[str, Path]) -> str:
     """Extract text content from a PDF file."""
+    file_path = Path(file_path)
+    text = ""
+    extraction_methods = []
+    
+    # Try different extraction methods in order
     try:
+        # 1. First try PyPDF2 extraction
         import PyPDF2
-        text = ""
+        extraction_methods.append(("PyPDF2 standard", lambda: extract_text_with_pypdf2(file_path)))
         
-        # First try the normal PyPDF2 extraction
+        # 2. Then try pdfminer.six if available
         try:
-            with open(file_path, 'rb') as f:
-                reader = PyPDF2.PdfReader(f)
-                for page in reader.pages:
-                    extracted = page.extract_text()
-                    if extracted:
-                        text += extracted
-        except Exception as e:
-            logger.warning(f"Standard PDF extraction failed for {file_path}: {e}")
-            
-        # If standard extraction failed, try more robust approach
-        if not text:
+            import importlib.util
+            if importlib.util.find_spec("pdfminer"):
+                extraction_methods.append(("pdfminer.six", lambda: extract_text_from_pdf_with_pdfminer(file_path)))
+        except ImportError:
+            pass
+        
+        # 3. Then try OCR if available
+        try:
+            import importlib.util
+            if (importlib.util.find_spec("pdf2image") and 
+                importlib.util.find_spec("pytesseract")):
+                extraction_methods.append(("OCR", lambda: extract_text_from_pdf_with_ocr(file_path)))
+        except ImportError:
+            pass
+        
+        # 4. Fallback to using pdftotext command line if available
+        extraction_methods.append(("pdftotext", lambda: extract_text_with_pdftotext(file_path)))
+        
+        # Try each method until we get some text
+        for method_name, method_func in extraction_methods:
+            logger.info(f"Trying {method_name} extraction for {file_path}")
             try:
-                with open(file_path, 'rb') as f:
-                    reader = PyPDF2.PdfReader(f, strict=False)
-                    for i in range(len(reader.pages)):
-                        try:
-                            page = reader.pages[i]
-                            extracted = page.extract_text()
-                            if extracted:
-                                text += extracted
-                        except Exception as page_e:
-                            logger.warning(f"Error extracting text from page {i}: {page_e}")
-                            continue
-            except Exception as alt_e:
-                logger.warning(f"Alternative PDF extraction failed for {file_path}: {alt_e}")
+                text = method_func()
+                if text.strip():
+                    logger.info(f"Successfully extracted text using {method_name}")
+                    break
+            except Exception as e:
+                logger.warning(f"{method_name} extraction failed: {e}")
+                continue
                 
-        # If both methods failed, try using the filename as fallback text
-        if not text:
-            text = str(Path(file_path).stem).replace("_", " ").replace("-", " ")
-            logger.info(f"Using filename as fallback text for {file_path}")
+        # If all methods failed, use the filename as fallback text
+        if not text.strip():
+            text = str(file_path.stem).replace("_", " ").replace("-", " ")
+            logger.info(f"All extraction methods failed. Using filename as fallback text for {file_path}")
             
         return text
     except Exception as e:
-        logger.error(f"Error extracting text from {file_path}: {e}")
+        logger.error(f"Error in PDF extraction process for {file_path}: {e}")
+        text = str(file_path.stem).replace("_", " ").replace("-", " ")
+        return text
+
+def extract_text_with_pypdf2(file_path: Union[str, Path]) -> str:
+    """Extract text using PyPDF2 with fallback options."""
+    import PyPDF2
+    text = ""
+    
+    # First try the normal PyPDF2 extraction
+    try:
+        with open(file_path, 'rb') as f:
+            reader = PyPDF2.PdfReader(f)
+            for page in reader.pages:
+                extracted = page.extract_text()
+                if extracted:
+                    text += extracted
+    except Exception as e:
+        logger.warning(f"Standard PyPDF2 extraction failed for {file_path}: {e}")
+        
+    # If standard extraction failed, try more robust approach
+    if not text.strip():
+        try:
+            with open(file_path, 'rb') as f:
+                reader = PyPDF2.PdfReader(f, strict=False)
+                for i in range(len(reader.pages)):
+                    try:
+                        page = reader.pages[i]
+                        extracted = page.extract_text()
+                        if extracted:
+                            text += extracted
+                    except Exception as page_e:
+                        logger.warning(f"Error extracting text from page {i}: {page_e}")
+                        continue
+        except Exception as alt_e:
+            logger.warning(f"Alternative PyPDF2 extraction failed for {file_path}: {alt_e}")
+    
+    return text
+
+def extract_text_with_pdftotext(file_path: Union[str, Path]) -> str:
+    """Extract text using pdftotext command line tool."""
+    try:
+        result = subprocess.run(['pdftotext', str(file_path), '-'],
+                              capture_output=True, text=True, check=True)
+        return result.stdout
+    except (subprocess.SubprocessError, FileNotFoundError) as e:
+        logger.warning(f"pdftotext extraction failed: {e}")
         return ""
 
 def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict) -> Tuple[Path, Optional[Path], Optional[Dict]]:
@@ -131,6 +234,13 @@ def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], re
     if description:
         cache[cache_key] = description
         save_cache(cache)
+        
+        # Also process for citations if there's content
+        try:
+            from cleanupx.processors.citation import process_file_for_citations
+            process_file_for_citations(file_path)
+        except Exception as e:
+            logger.error(f"Error processing citations for {file_path}: {e}")
     
     # For PDFs, we've already renamed with page count, so only rename if not PDF
     if ext != ".pdf":

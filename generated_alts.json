@@ -1,67 +1,101 @@
 {
-  "inbox/y24mlb57rm_PAGES352.pdf": {
-    "description": "The document is a PhD thesis submitted by Nicole McGill to Charles Sturt University in February 2020. It focuses on the issue of waiting lists for speech and language services for children and families. The thesis is structured into four parts: General Introduction, Desperation and Aspirations, Reimagining Services, and Conclusions and Contributions. It includes various chapters discussing stakeholders' perspectives, SLPs' views on waiting lists, the design and evaluation of a waiting list management strategy, and the implications and contributions of the research. The document also contains acknowledgements, ethical approvals, and a certificate of authorship.",
-    "document_type": "thesis",
-    "suggested_filename": "phd_thesis_nicole_mcgill_waiting_lists"
-  },
-  "inbox/patreon_connect_web_files.zip": {
-    "description": "The document is a compressed .zip file named 'ozn34gcvxe.zip'. It contains a directory structure with files related to a web application or website, specifically for a 'patreon-connect' project. The directory includes CSS files ('admin.css' and 'app.css') for styling, and a 'fonts' directory with a license file ('Apache License.txt') and a font file ('LibreFranklin-ExtraBold.ttf'). The purpose of this document appears to be to package and distribute the necessary files for a web application or website, likely related to connecting with Patreon services.",
-    "document_type": "code",
-    "suggested_filename": "patreon_connect_web_files"
-  },
-  "inbox/qak250zqau_PAGES9.pdf": {
-    "description": "The document is a scientific article discussing the use of pyrosequencing for quantitative methylation analysis of the SNRPN gene as a diagnostic test for Prader-Willi Syndrome (PWS) and Angelman Syndrome (AS). It details the background of these syndromes, the methodology used for the analysis, including sodium bisulfite treatment of DNA, PCR amplification, and pyrosequencing. The study compares the results of pyrosequencing with methylation-specific PCR (MS-PCR) and finds them to be 100% concordant. The article concludes that pyrosequencing is a rapid and robust method for diagnosing PWS and AS.",
+  "inbox/Canpolat - 2017 - Infections, Infestations and Neoplasms of the Scalp - Hair and Scalp Disorders_PAGES23_PAGES23.pdf": {
+    "description": "The document is a chapter from a book titled 'Hair and Scalp Disorders' authored by Filiz Canpolat, published in 2017. It focuses on infections, infestations, and neoplasms of the scalp. The chapter begins with an introduction to scalp diseases, highlighting their prevalence in dermatology clinics. It then delves into detailed descriptions of bacterial infections like folliculitis, folliculitis decalvans, and tufted hair folliculitis, discussing their causes, symptoms, and treatments. The document also mentions fungal infections such as tinea capitis, favus, and kerion celsi, and protozoal infections like syphilitic alopecia. Infestations, specifically pediculosis capitis, are covered, along with neoplasms including trichilemmal cyst, proliferating trichilemmal cyst, nevus sebaceous, and cylindroma. The chapter includes references to other sections for additional information and is licensed under Creative Commons Attribution License.",
     "document_type": "article",
-    "suggested_filename": "quantitative_analysis_of_snrpn_methylation"
+    "suggested_filename": "canpolat_2017_scalp_disorders"
   },
-  "inbox/yhjs6lyh84.pdf": {
-    "description": "The document contains a single line of text 'yhjs6lyh84', which appears to be a random string or code.",
-    "document_type": "notes",
-    "suggested_filename": "random_string_notes"
+  "inbox/harry_potter_half_blood_prince_split.zip": {
+    "suggested_filename": "harry_potter_half_blood_prince_split",
+    "summary_md": "The archive 'harry_potter_half_blood_prince_split.zip' contains three PDF files:\n\n1. **J.K. Rowling - HP 6 - Harry Potter and the Half-Blood Prince [www.thegeniusandherquirks.wordpress.com]-1-250.pdf**\n   - Pages 1 to 250\n\n2. **J.K. Rowling - HP 6 - Harry Potter and the Half-Blood Prince [www.thegeniusandherquirks.wordpress.com]-251-500.pdf**\n   - Pages 251 to 500\n\n3. **J.K. Rowling - HP 6 - Harry Potter and the Half-Blood Prince [www.thegeniusandherquirks.wordpress.com]-501-671.pdf**\n   - Pages 501 to 671\n\nThese files represent a split version of the book 'Harry Potter and the Half-Blood Prince' by J.K. Rowling."
   },
-  "inbox/cognixion_one_clinical_plan.docx": {
-    "description": "The document titled 'Cognixion ONE Guidance Documents: Clinical Trials, Human Factors, and User Testing' by Luke Steuber, last updated on 8/25/2022, version 1.6, discusses the clinical plan for the Cognixion ONE headset. It focuses on achieving FDA 510k and PDAC approval as a Class II EEG measurement system and CMS accreditation as a Speech Generating Device (SGD) for AAC use. The document outlines the initial clinical assessments, future partnerships, and potential expansions into new software and hardware applications. It also covers human factors and user testing, including background research, testing schedules, inclusion and exclusion criteria for participants, and areas of particular diligence such as photosensitive epilepsy and allergies. The document provides a detailed summary of addressable populations for the device, categorizing them based on various criteria.",
-    "document_type": "report",
-    "suggested_filename": "cognixion_one_clinical_plan"
+  "inbox/Core Accessibility API Mappings 1.2_PAGES86_PAGES86.pdf": {
+    "description": "The document titled 'Core Accessibility API Mappings 1.2' is a W3C Candidate Recommendation Draft published on 13 August 2024. It provides detailed mappings of how user agents should expose the semantics of web content languages to various accessibility APIs, aiding users with disabilities in interacting with web content through assistive technologies. The document includes sections on the status of the document, an abstract, introduction, accessibility APIs, conformance, and extensive mappings of WAI-ARIA roles, states, and properties to different accessibility APIs like ATK/AT-SPI, UIA, and others. It also covers general rules for exposing WAI-ARIA semantics, handling conflicts between native markup and WAI-ARIA, and specific mappings for various roles, states, and properties.",
+    "document_type": "specification",
+    "suggested_filename": "core_accessibility_api_mappings_1_2"
   },
-  "inbox/datafinch_seminar_workbook_functional_assessment.docx": {
-    "description": "The document is a workbook for seminars at DataFinch, presented by Gregory P. Hanley, Ph.D., BCBA-D, focusing on the functional assessment approach. It includes an open-ended functional assessment interview template with sections for relevant background information, questions to inform the design of a functional analysis, and tactics to overcome general obstacles to conducting functional analyses. The document also lists several references related to functional analysis and problem behavior.",
-    "document_type": "workbook",
-    "suggested_filename": "datafinch_seminar_workbook_functional_assessment"
+  "inbox/Chen, O_Leary - 2018 - Eye Gaze 101 What Speech-Language Pathologists Should Know About Selecting Eye Gaze Augmentative and Alternative_PAGES10_PAGES10.pdf": {
+    "description": "The document discusses the use of eye gaze technology as an effective means of communication for girls and women with Rett Syndrome (RTT). It highlights the work of Judy Lariviere, an Assistive Technology Specialist, who has developed customized eye gaze page layouts for RTT patients. The document details the benefits of eye gaze technology, including its ability to leverage the natural eye movements of RTT patients for communication and literacy learning. It also mentions the development of an online AAC curriculum and the use of less expensive eye gaze systems like the Tobii PCEye Go. The document emphasizes the importance of appropriate page layouts and strategies to support communication beyond basic choice making.",
+    "document_type": "article",
+    "suggested_filename": "eye_gaze_technology_for_rett_syndrome"
   },
-  "inbox/speakprose_ar_bci_prd.docx": {
-    "description": "The document is a Product Requirements Document (PRD) for the software related to Speakprose AR/BCI, a wearable headset with a speech-generating device driven by augmented reality. It outlines high-level requirements for the software, including business objectives, product overview, and specific requirements for the end user application (Speakprose AR), caregiver application (Companion App), and supporting infrastructure (Platform). The document also discusses regulatory requirements for selling the device as a medical product in the US and Canada, and includes sections on non-requirements, product risks, and document control.",
-    "document_type": "report",
-    "suggested_filename": "speakprose_ar_bci_prd"
+  "inbox/Heller, Evans - Unknown - Loess Magnetism - Inviversity of Alberta_PAGES31_PAGES31.pdf": {
+    "description": "The document is an article titled 'Loess Magnetism' published in Reviews of Geophysics in May 1995. It discusses the magnetic properties of loess, a type of sediment. The article has been cited 367 times and has 413 reads. The authors, Friedrich Heller from ETH Zurich and Michael E. Evans from the University of Alberta, are also involved in related projects like Cordilleran Cenozoic Volcanics. The document was uploaded by Friedrich Heller on 15 April 2015.",
+    "document_type": "article",
+    "suggested_filename": "loess_magnetism_heller_evans_1995"
   },
-  "inbox/kb2t9w62ay.pdf": {
-    "description": "The document contains a single line of text 'kb2t9w62ay', which appears to be a unique identifier or code.",
-    "document_type": "notes",
-    "suggested_filename": "unique_identifier_notes"
+  "inbox/macos_custom_folder_settings": {
+    "description": "The document appears to be a .DS_Store file, which is used by macOS to store custom folder settings. The content includes various entries related to file metadata, such as file names, types, and possibly some custom attributes. The file contains binary data, which is typical for .DS_Store files, and includes references to files like 'book-1' and 'facebook-100077701761833' with different attributes.",
+    "document_type": "configuration",
+    "suggested_filename": "macos_custom_folder_settings"
   },
-  "inbox/5zbu4u8fly_PAGES1.pdf": {
-    "description": "The document is a comprehensive guide for Speech Language Pathologists (SLPs) on how to evaluate and report on a client's need for a speech-generating device (SGD). It outlines the necessary components of a speech report, including client background, evaluation date, speech and language abilities, medical diagnosis, cognitive and physical abilities, mobility, hearing and vision status, daily communication needs, rationale for device selection, SGDs considered or trialed, recommended SGD and accessories, functional communication goals, treatment plan, and a non-conflict statement with signature. The document also provides additional resources for report writing and funding.",
-    "document_type": "report",
-    "suggested_filename": "speech_language_evaluation_report"
+  "inbox/Stanford, Harris - 2019 - An Exploratory Study on Augmentative and Alternative Communication Classroom Integration Training for Special.pdf": {
+    "description": "The document is an exploratory study conducted by Stanford and Harris in 2019. It focuses on the integration of Augmentative and Alternative Communication (AAC) in classroom settings, specifically for special education training.",
+    "document_type": "research article",
+    "suggested_filename": "stanford_harris_2019_aac_classroom_integration"
   },
-  "inbox/marketing_requirements_project_yoda.docx": {
-    "description": "The document is a comprehensive marketing and customer requirements document for Project Yoda, identified by IMP-002. It outlines the product strategy and requirements for a product aimed at ALS patients, focusing on enhancing communication capabilities as the disease progresses. The document includes sections on market analysis, stakeholder analysis, competitor analysis, SWOT analysis, product overview, commercialization plan, and detailed product requirements. It emphasizes confidentiality and provides guidelines for document completion and formatting.",
-    "document_type": "report",
-    "suggested_filename": "marketing_requirements_project_yoda"
+  "inbox/HTML Accessibility API Mappings 1.0_PAGES163_PAGES163.pdf": {
+    "description": "The document titled 'HTML Accessibility API Mappings 1.0' is a W3C Working Draft published on 16 July 2024. It outlines how HTML elements and attributes are mapped to platform accessibility APIs, promoting interoperability and consistent exposure of roles, states, properties, and events. The document includes sections on the status of the document, introduction to accessibility APIs, conformance requirements, and detailed mappings of HTML to various accessibility APIs like MSAA, UI-Automation, ATK/AT-SPI, and macOS Accessibility Protocol. It also covers how to handle conflicts between native markup semantics and WAI-ARIA, and how to expose HTML features that do not directly map to accessibility APIs. The document is part of the WAI-ARIA suite and is maintained by the Accessible Rich Internet Applications Working Group.",
+    "document_type": "specification",
+    "suggested_filename": "html_accessibility_api_mappings_1_0"
   },
-  "inbox/inbox_directory_metadata.json": {
-    "description": "This JSON file contains metadata about a directory named 'inbox'. It includes information on the last update time, file and subdirectory counts, and categorizes files into videos, audio, documents, archives, data, and other types. The document also lists all files within the directory, provides a directory tree structure, and includes content analysis with keywords. Additionally, it suggests organizing files into subdirectories and standardizing file naming for better organization.",
+  "inbox/Augmentative and alternative communication in children with Down_s syndrome_ a systematic review_PAGES12_PAGES12.pdf": {
+    "description": "The document is a research paper presented at the CHI 2020 conference, focusing on the concept of conversational agency in augmentative and alternative communication (AAC) for individuals with severe speech and physical impairments. It discusses how AAC users, referred to as augmented communicators (ACs), face unique conversational constraints due to their devices and social interactions. The paper introduces the concept of conversational agency, detailing how ACs can exercise agency within these constraints. It includes an observational study involving ACs, their close conversational partners (CCPs), and a third party to understand how CCPs facilitate communication and impact ACs' agency. The paper concludes with implications for future AAC research to enhance ACs' conversational agency.",
+    "document_type": "research paper",
+    "suggested_filename": "conversational_agency_in_aac"
+  },
+  "inbox/thanks_for_software_contributions.htm": {
+    "description": "The document is an HTML file expressing gratitude to various individuals and organizations for their contributions to software development, particularly in areas like compression algorithms, file formats, and testing. It lists contributions related to software like p7zip, ARJ, 7-Zip, and various file formats and algorithms.",
+    "document_type": "acknowledgement",
+    "suggested_filename": "thanks_for_software_contributions"
+  },
+  "inbox/Motor Disabilities and What You Need for Accessibility_PAGES7_PAGES7.pdf": {
+    "description": "The document discusses motor disabilities and web accessibility, detailing various conditions like cerebral palsy, muscular dystrophy, multiple sclerosis, spina bifida, ALS, arthritis, Parkinson's disease, essential tremor, spinal cord injuries, and limb loss. It explains the importance of web accessibility for individuals with motor disabilities, describing how the internet can be a lifeline for them. The document also covers assistive technologies such as head wands, mouth sticks, single switches, sip-and-puff switches, oversized trackball mice, adaptive keyboards, eye-tracking devices, and voice recognition software. It provides strategies for improving web accessibility, including effective keyboard navigation, reducing the number of keypresses required, and adding a search field to websites.",
+    "document_type": "article",
+    "suggested_filename": "motor_disabilities_web_accessibility"
+  },
+  "inbox/Chu et al. - 2019 - Pulmonary toxicities from a 90-day chronic inhalation study with carbon black nanoparticles in rats related to the s_PAGES19_PAGES19.pdf": {
+    "description": "The document is an original research article published in the International Journal of Nanomedicine, focusing on the pulmonary toxicities from a 90-day chronic inhalation study with carbon black nanoparticles in rats. It discusses the systemic immune effects, detailing the study's background, purpose, methods, results, and conclusion. The study involved 32 rats divided into exposure and control groups, with various tests conducted to assess lung function, histopathology, cell apoptosis, cytokine levels, and blood cell counts. The results indicate that carbon black induces both localized and systemic immune toxicity, affecting lung function and immune responses.",
+    "document_type": "article",
+    "suggested_filename": "chu_et_al_2019_pulmonary_toxicities_carbon_black_nanoparticles_rats"
+  },
+  "inbox/Roach, Stefaniak, Roberts - 2019 - Metal nanomaterials Immune effects and implications of physicochemical properties on sensitization, e.pdf": {
+    "description": "The document discusses the immune effects of metal nanomaterials and the implications of their physicochemical properties on sensitization. It provides an overview of the current understanding of how metal nanomaterials interact with the immune system, focusing on the potential for sensitization due to their unique properties.",
+    "document_type": "article",
+    "suggested_filename": "metal_nanomaterials_immune_effects"
+  },
+  "inbox/text_messages_sentiment_analysis_december_2020.csv": {
+    "description": "This document is a CSV file containing text messages exchanged between two individuals over the course of December 2020. The messages include timestamps, sender information, the message content, and a sentiment score for each message. The purpose of this document appears to be to analyze the sentiment of the text messages, possibly for research or personal analysis. The content includes various types of messages such as greetings, sharing links, discussing food, and financial transactions.",
     "document_type": "data",
-    "suggested_filename": "inbox_directory_metadata"
+    "suggested_filename": "text_messages_sentiment_analysis_december_2020"
   },
-  "inbox/9u7fkh6h6x_PAGES1.pdf": {
-    "description": "The document is a comprehensive guide for Speech Language Pathologists (SLPs) on how to evaluate and report on a client's need for a speech-generating device (SGD). It outlines the necessary components of a speech report, including client background, evaluation date, speech and language abilities, medical diagnosis, cognitive and physical abilities, mobility, hearing and vision status, daily communication needs, rationale for device selection, SGDs considered and trialed, recommended SGD and accessories, functional communication goals, treatment plan, and a non-conflict statement with signature. The document also provides additional resources for report writing and funding.",
+  "inbox/Studies Comparing Augmentative and Alternative Communication Systems _AAC_ Applications for Individuals with Autism Spectrum Disorder_PAGES133_PAGES133.pdf": {
+    "description": "The document is a journal issue titled 'Education and Training in Autism and Developmental Disabilities' from June 2020, Volume 55, Number 2. It includes various articles focusing on education and training for individuals with autism and developmental disabilities. The journal is published by the Division on Autism and Developmental Disabilities of The Council for Exceptional Children. It contains editorial information, a list of consulting editors, and details about the organization's purposes and membership. The issue also lists several research articles on topics such as augmentative and alternative communication systems for individuals with autism, computer-based editing strategies, app-based manipulatives, and more. Additionally, it mentions manuscripts accepted for future publication.",
+    "document_type": "journal_issue",
+    "suggested_filename": "education_and_training_in_autism_june_2020"
+  },
+  "inbox/cyrus_behavior_intervention_plan.docx": {
+    "description": "The document is a Behavior Intervention Plan for a client named Cyrus, detailing strategies for managing challenging behaviors. It includes sections on supervision levels, safety assessments, proactive interventions like pairing and steam building, replacement behaviors focusing on functional communication and cooperation skills, a reinforcement plan, staff responses to warning signs and challenging behaviors, and guidelines for progress monitoring and data collection. The plan also outlines how to run 'My Way' programming, emphasizing the importance of maintaining a 'Happy, Relaxed, and Engaged' (HRE) state for the client.",
     "document_type": "report",
-    "suggested_filename": "speech_language_evaluation_report"
+    "suggested_filename": "cyrus_behavior_intervention_plan"
   },
-  "inbox/6g68jzpp9y_PAGES9.pdf": {
-    "description": "The document is a review article published on October 31, 2013, in the journal Frontiers in Integrative Neuroscience. It discusses the relationship between executive dysfunction and timing deficits in Parkinson's disease (PD). The article explores how cognitive symptoms in PD, such as deficits in working memory, planning, and visuospatial attention, contribute to timing deficits. It also examines the role of dopamine signaling in the striatum and the frontal cortex in timing, suggesting that timing may be considered an executive function. The article includes sections on the introduction to PD, executive dysfunction, perceptual timing, and models of timing, with references to various studies and theories.",
-    "document_type": "review article",
-    "suggested_filename": "parkinsons_disease_timing_deficits"
+  "inbox/DePaepe, Feeley, Wood - 2002 - Augmentative and Alternative Communication Considerations for Adults With Significant Cognitive Disabilit.pdf": {
+    "description": "The document discusses considerations for augmentative and alternative communication for adults with significant cognitive disabilities, authored by DePaepe, Feeley, and Wood in 2002.",
+    "document_type": "article",
+    "suggested_filename": "augmentative_communication_cognitive_disabilities"
+  },
+  "inbox/bipolar_disorder_indicators_analysis.docx": {
+    "description": "The document is a detailed analysis report on bipolar disorder indicators from Bsky posts, including frequency counts of keywords related to mania/hypomania, depression, and suicidal conversations. It also includes attempts to create smoothed graphs and bar charts for visualizing trends over six months, with errors and corrections noted. Additionally, there are discussions about aligning and overlaying data from Facebook posts, Apple Health step data, and text messages for a comprehensive analysis over a common six-month period.",
+    "document_type": "report",
+    "suggested_filename": "bipolar_disorder_indicators_analysis"
+  },
+  "inbox/macos_folder_settings_configuration": {
+    "description": "The document appears to be a binary file containing settings or configuration data for macOS folder settings. It includes various entries with keys like 'book-1', 'facebook-100077701761833', and 'Texts', each associated with different types of data such as 'dsclbool', 'lg1Scomp', 'moDDblob', 'modDblob', and 'ph1Scomp'. These entries suggest that the file is used to store and manage folder settings, possibly for user-specific configurations or system-wide settings.",
+    "document_type": "configuration",
+    "suggested_filename": "macos_folder_settings_configuration"
+  },
+  "inbox/rett_syndrome_apops_alpha_PAGES9_PAGES9.pdf": {
+    "description": "The document provides a comprehensive overview of Rett Syndrome, detailing its genetic basis, symptoms, diagnosis, and management strategies. It includes demographic information, coding for medical classification, medical features and pathophysiology, assistive technology suggestions, access modalities, and care management techniques. The content is structured with headings and subheadings, covering topics such as the incidence and prevalence of the syndrome, the role of the MECP2 gene, typical symptoms like loss of skills and repetitive hand movements, and the necessity of assistive technologies like AAC devices, mobility aids, and environmental control units. The document also discusses therapeutic techniques and the importance of a multidisciplinary approach in managing the syndrome.",
+    "document_type": "report",
+    "suggested_filename": "rett_syndrome_overview_and_management"
   }
 }

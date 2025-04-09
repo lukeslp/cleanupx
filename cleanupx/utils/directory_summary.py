@@ -515,29 +515,76 @@ def generate_directory_summary(directory: Path, include_user_prefs: bool = False
 
 def update_directory_summary(directory: Path, include_user_prefs: bool = False) -> Dict:
     """
-    Generate or update a hidden summary file in the directory.
+    Create or update a summary file for a directory.
     
     Args:
-        directory (Path): Directory to analyze
+        directory (Path): Directory to update summary for
         include_user_prefs (bool): Whether to prompt for user preferences
         
     Returns:
-        Dict: Generated summary
+        Dict: Updated summary data
     """
     directory = Path(directory)
+    summary_path = directory / SUMMARY_FILENAME
+    
+    # Generate fresh summary
     summary = generate_directory_summary(directory, include_user_prefs)
     
-    if not summary:
-        return {}
+    # Check if there's a PROJECT_PLAN.md file and incorporate its contents
+    project_plan_path = directory / PROJECT_PLAN_FILE
+    if project_plan_path.exists():
+        logger.info(f"Found PROJECT_PLAN.md in {directory}, incorporating into summary")
+        project_info = parse_project_plan(project_plan_path)
+        
+        # Add the project plan info to the summary
+        summary["project_plan"] = {
+            "exists": True,
+            "path": str(project_plan_path),
+            "info": project_info,
+            "last_modified": datetime.datetime.fromtimestamp(project_plan_path.stat().st_mtime).isoformat()
+        }
+        
+        # If we have project info, use it to enhance the directory summary
+        if project_info.get("title"):
+            summary["title"] = project_info["title"]
+        
+        if project_info.get("description"):
+            summary["description"] = project_info["description"]
+            
+        # Add or update organization structure information
+        if project_info.get("structure"):
+            if "organization" not in summary:
+                summary["organization"] = {}
+            summary["organization"]["planned_structure"] = project_info["structure"]
+            
+        # Add naming conventions if available
+        if project_info.get("naming_conventions"):
+            if "organization" not in summary:
+                summary["organization"] = {}
+            summary["organization"]["naming_conventions"] = project_info["naming_conventions"]
+            
+        # Add project keywords to the topics
+        if project_info.get("keywords"):
+            if "topics" not in summary:
+                summary["topics"] = []
+            summary["topics"].extend(project_info["keywords"])
+            # Remove duplicates
+            summary["topics"] = list(set(summary["topics"]))
+    else:
+        summary["project_plan"] = {"exists": False}
     
-    # Save the summary to a hidden file in the directory
-    summary_path = directory / SUMMARY_FILENAME
+    # Generate suggestions based on all available information
+    project_info = summary.get("project_plan", {}).get("info", {}) if summary.get("project_plan", {}).get("exists", False) else None
+    user_prefs = summary.get("user_preferences", {}) if include_user_prefs else None
+    summary["suggestions"] = suggest_organization(directory, summary, project_info, user_prefs)
+    
+    # Save summary to the hidden file
     try:
         with open(summary_path, 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=2)
-        logger.info(f"Updated directory summary at {summary_path}")
+        logger.info(f"Updated directory summary: {summary_path}")
     except Exception as e:
-        logger.error(f"Error writing summary file: {e}")
+        logger.error(f"Error saving directory summary: {e}")
     
     return summary
 
@@ -588,4 +635,143 @@ def suggest_reorganization(directory: Path, include_user_prefs: bool = False) ->
     if not summary:
         return []
     
-    return summary.get("suggestions", []) 
+    return summary.get("suggestions", [])
+
+def export_summary_to_markdown(directory: Path, summary: Dict[str, Any]) -> Path:
+    """
+    Export directory summary to a markdown file.
+    
+    Args:
+        directory: Directory path to create the summary for
+        summary: Directory summary dictionary
+        
+    Returns:
+        Path to the exported markdown file
+    """
+    output_file = directory / "DIRECTORY_SUMMARY.md"
+    
+    # Generate markdown content
+    markdown = f"# Directory Summary: {directory.name}\n\n"
+    markdown += f"*Generated on {datetime.now().strftime('%Y-%m-%d %H:%M')}*\n\n"
+    
+    # Basic stats
+    markdown += "## Statistics\n\n"
+    markdown += f"- **Files:** {summary.get('file_count', 0)}\n"
+    markdown += f"- **Directories:** {summary.get('directory_count', 0)}\n"
+    
+    # File types
+    markdown += "\n## File Types\n\n"
+    categories = summary.get("categories", {})
+    if categories:
+        for ext, count in sorted(categories.items(), key=lambda x: x[1], reverse=True):
+            markdown += f"- **{ext}:** {count} files\n"
+    else:
+        markdown += "No file categories found.\n"
+    
+    # Content analysis
+    markdown += "\n## Content Analysis\n\n"
+    
+    # Keywords
+    keywords = summary.get("keywords", [])
+    if keywords:
+        markdown += "### Keywords\n\n"
+        markdown += ", ".join(keywords)
+        markdown += "\n\n"
+    
+    # Themes
+    themes = summary.get("themes", [])
+    if themes:
+        markdown += "### Themes\n\n"
+        for theme in themes:
+            markdown += f"- {theme}\n"
+        markdown += "\n"
+    
+    # Organization suggestions
+    suggestions = summary.get("suggestions", [])
+    if suggestions:
+        markdown += "## Organization Suggestions\n\n"
+        
+        # Sort by priority
+        try:
+            suggestions.sort(key=lambda x: {
+                "high": 0,
+                "medium": 1,
+                "normal": 2,
+                "low": 3
+            }.get(x.get("priority", "normal"), 2))
+        except:
+            pass
+            
+        for suggestion in suggestions:
+            suggestion_type = suggestion.get("type", "")
+            reason = suggestion.get("reason", "")
+            priority = suggestion.get("priority", "normal")
+            
+            markdown += f"### {suggestion_type.title()} ({priority.upper()})\n\n"
+            markdown += f"{reason}\n\n"
+    
+    # File tree
+    if "file_tree" in summary:
+        markdown += "## File Tree\n\n"
+        markdown += "```\n"
+        markdown += format_tree_for_markdown(summary.get("file_tree", {}), directory.name)
+        markdown += "```\n"
+    
+    # Write to file
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(markdown)
+        
+    return output_file
+
+def format_tree_for_markdown(file_tree: Dict[str, Any], root_name: str, prefix: str = "") -> str:
+    """
+    Format the file tree as a text tree for markdown.
+    
+    Args:
+        file_tree: File tree dictionary
+        root_name: Name of the root directory
+        prefix: Prefix for the current line (used for recursion)
+        
+    Returns:
+        Formatted tree as string
+    """
+    result = f"{prefix}{root_name}/\n"
+    
+    # Get directories and files
+    items = list(file_tree.items())
+    
+    # Sort items - directories first, then files
+    items.sort(key=lambda x: (x[1].get("type") != "directory", x[0]))
+    
+    # Process each item
+    for i, (name, info) in enumerate(items):
+        is_last = (i == len(items) - 1)
+        
+        # Determine the current and child prefixes
+        curr_prefix = prefix + ("└── " if is_last else "├── ")
+        child_prefix = prefix + ("    " if is_last else "│   ")
+        
+        if info.get("type") == "directory" and "children" in info:
+            # This is a directory with children
+            if info["children"] == "...":
+                result += f"{curr_prefix}{name}/ ...\n"
+            elif isinstance(info["children"], str):
+                result += f"{curr_prefix}{name}/ ({info['children']})\n"
+            else:
+                result += format_tree_for_markdown({c["name"]: c for c in info["children"]}, name, child_prefix)
+        else:
+            # This is a file or empty directory
+            if info.get("type") == "directory":
+                result += f"{curr_prefix}{name}/\n"
+            else:
+                size = info.get("size", 0)
+                if size >= 1024 * 1024:
+                    size_str = f"{size / (1024 * 1024):.2f} MB"
+                elif size >= 1024:
+                    size_str = f"{size / 1024:.2f} KB"
+                else:
+                    size_str = f"{size} bytes"
+                    
+                result += f"{curr_prefix}{name} ({size_str})\n"
+    
+    return result 
