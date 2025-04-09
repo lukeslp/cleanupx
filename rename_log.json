@@ -1727,9 +1727,926 @@
       "new_path": "/Volumes/Galactus/Content Creation Arc/Content/High Res Holding Ground/historical_map_saint_augustine_analysis.md",
       "timestamp": "2025-04-09T14:18:39.859081",
       "status": "success"
+    },
+    {
+      "original_path": "/Volumes/Galactus/Content Creation Arc/Content/High Res Holding Ground/board_game_set_scam_components_layout.md",
+      "new_path": "/Volumes/Galactus/Content Creation Arc/Content/High Res Holding Ground/board_game_scam_components_layout.md",
+      "timestamp": "2025-04-09T14:19:40.677137",
+      "status": "success"
+    },
+    {
+      "original_path": "/Volumes/Galactus/Content Creation Arc/Content/High Res Holding Ground/biomass_of_life_on_earth.md",
+      "new_path": "/Volumes/Galactus/Content Creation Arc/Content/High Res Holding Ground/biomass_of_life_on_earth_infographic.md",
+      "timestamp": "2025-04-09T14:19:43.492882",
+      "status": "success"
+    },
+    {
+      "original_path": "/Volumes/Galactus/Content Creation Arc/Content/High Res Holding Ground/californian_snowflakes_map_2020_detail.md",
+      "new_path": "/Volumes/Galactus/Content Creation Arc/Content/High Res Holding Ground/california_snowflakes_map_2020.md",
+      "timestamp": "2025-04-09T14:20:43.367777",
+      "status": "success"
+    },
+    {
+      "original_path": "highres/historical_double_hemisphere_map_17th_century_6476x4750.md",
+      "new_path": "highres/historical_double_hemisphere_map_17th_century.md",
+      "timestamp": "2025-04-09T14:25:31.265067",
+      "status": "success"
+    },
+    {
+      "original_path": "highres/the_10_commandments_of_user_interface_design_2992x1800.md",
+      "new_path": "highres/the_10_commandments_of_ui_design.md",
+      "timestamp": "2025-04-09T14:25:41.158505",
+      "status": "success"
+    },
+    {
+      "original_path": "highres/global_land_area_comparison_infographic_1723x2409.md",
+      "new_path": "highres/global_land_area_comparison_infographic.md",
+      "timestamp": "2025-04-09T14:25:44.531001",
+      "status": "success"
+    },
+    {
+      "original_path": "highres/watering_the_garden_with_hose_sunlight_5472x2405.md",
+      "new_path": "highres/watering_garden_hose_sunlight_image.md",
+      "timestamp": "2025-04-09T14:25:47.393435",
+      "status": "success"
+    },
+    {
+      "original_path": "highres/the_big_map_of_who_lived_when_authors_edition_9837x4460.md",
+      "new_path": "highres/big_map_of_authors_lifespans.md",
+      "timestamp": "2025-04-09T14:25:49.655077",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/ice_bucket_challenge_als_2014.pdf",
+      "new_path": "inbox/ice_bucket_challenge_als_impact.pdf",
+      "timestamp": "2025-04-09T14:28:08.111955",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/tbi_incidence_slp_challenges.pdf",
+      "new_path": "inbox/tbi_incidence_slp_challenges_article.pdf",
+      "timestamp": "2025-04-09T14:28:10.124697",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/forbes_aac_funding_request.pdf",
+      "new_path": "inbox/forbes_aac_sgd_funding_request.pdf",
+      "timestamp": "2025-04-09T14:28:12.992214",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/quantitative_analysis_of_srn.pdf",
+      "new_path": "inbox/quantitative_analysis_of_srn_methylation.pdf",
+      "timestamp": "2025-04-09T14:28:27.934713",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/paganoni_als_rehabilitative_care.pdf",
+      "new_path": "inbox/paganoni_als_rehabilitative_care_review.pdf",
+      "timestamp": "2025-04-09T14:28:30.390021",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/b0xcohwjve_unknown_unknown_unknown_0x0_unknown.mp3",
+      "new_path": "inbox/b0xcohwjve_unknown_unknown_unknown_unknown_0x0_unknown.mp3",
+      "timestamp": "2025-04-09T14:28:36.522631",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/via_pro_selection_sheet.pdf",
+      "new_path": "inbox/via_pro_customization_options.pdf",
+      "timestamp": "2025-04-09T14:28:38.783269",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/pecs_pals_intervention_autism.pdf",
+      "new_path": "inbox/pecs_pals_autism_intervention.pdf",
+      "timestamp": "2025-04-09T14:28:51.055836",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/guidelines_bci_aac_assessment.pdf",
+      "new_path": "inbox/guidelines_bci_aac_feature_matching.pdf",
+      "timestamp": "2025-04-09T14:28:55.666692",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/genetic_advances_speech_language.pdf",
+      "new_path": "inbox/genetic_advances_speech_language_disorders.pdf",
+      "timestamp": "2025-04-09T14:29:07.837253",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/hfe_polymorphism_als_italian.pdf",
+      "new_path": "inbox/hfe_h63d_polymorphism_als_italian.pdf",
+      "timestamp": "2025-04-09T14:29:17.479881",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/triple_x_syndrome_review.pdf",
+      "new_path": "inbox/triple_x_syndrome_literature_review.pdf",
+      "timestamp": "2025-04-09T14:29:20.366725",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/dqa8e6lz4q_unknown_unknown_unknown_0x0_unknown.mp3",
+      "new_path": "inbox/dqa8e6lz4q_unknown_unknown_unknown_unknown_0x0_unknown.mp3",
+      "timestamp": "2025-04-09T14:29:23.004026",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/causal_hypothesis_congenital_anomalies.pdf",
+      "new_path": "inbox/congenital_anomalies_causal_hypothesis.pdf",
+      "timestamp": "2025-04-09T14:29:26.229441",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/prc_saltillo_switch_selection.pdf",
+      "new_path": "inbox/prc_saltillo_switch_selection_sheet.pdf",
+      "timestamp": "2025-04-09T14:29:38.535124",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/patreon_connect_resources.zip",
+      "new_path": "inbox/patreon_connect_web_resources.zip",
+      "timestamp": "2025-04-09T14:29:41.891268",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/functional-assessment_workbook.docx",
+      "new_path": "inbox/functional_assessment_workbook.docx",
+      "timestamp": "2025-04-09T14:30:32.343473",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/pecs_pals_autism_intervention.pdf",
+      "new_path": "inbox/pecs_pals_autism_intervention_study.pdf",
+      "timestamp": "2025-04-09T14:30:46.301289",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/vc3ta3tfya.docx",
+      "new_path": "inbox/speakprose_ar_bci_prd.docx",
+      "timestamp": "2025-04-09T14:31:05.076016",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/Pitt et al. - 2019 - Behind the Scenes of Noninvasive Brain\u2013Computer Interfaces A Review of Electroencephalography Signals, How The(3).pdf",
+      "new_path": "inbox/22c8yq30u7.pdf",
+      "timestamp": "2025-04-09T14:31:17.820480"
+    },
+    {
+      "original_path": "inbox/ice_bucket_challenge_als_impact.pdf",
+      "new_path": "inbox/bta28a8vp8.pdf",
+      "timestamp": "2025-04-09T14:31:17.821441"
+    },
+    {
+      "original_path": "inbox/friedreich_ataxia_review_pandolfo.pdf",
+      "new_path": "inbox/68nq7hv1dc.pdf",
+      "timestamp": "2025-04-09T14:31:17.822213"
+    },
+    {
+      "original_path": "inbox/lssievlib9.gz",
+      "new_path": "inbox/hpax8o07n4.gz",
+      "timestamp": "2025-04-09T14:31:17.826417"
+    },
+    {
+      "original_path": "inbox/self_determination_cognitive_disabilities.pdf",
+      "new_path": "inbox/3mahly8w75.pdf",
+      "timestamp": "2025-04-09T14:31:17.827224"
+    },
+    {
+      "original_path": "inbox/.DS_Store",
+      "new_path": "inbox/amvsa9tn2m",
+      "timestamp": "2025-04-09T14:31:17.827760"
+    },
+    {
+      "original_path": "inbox/Stanford, Harris - 2019 - An Exploratory Study on Augmentative and Alternative Communication Classroom Integration Training for Special.pdf",
+      "new_path": "inbox/fyd84aef85.pdf",
+      "timestamp": "2025-04-09T14:31:17.828603"
+    },
+    {
+      "original_path": "inbox/new_aac_tech_children_research.pdf",
+      "new_path": "inbox/yowqasjs28.pdf",
+      "timestamp": "2025-04-09T14:31:17.829142"
+    },
+    {
+      "original_path": "inbox/T\u00fcttelmann, Gromoll - 2010 .textClipping",
+      "new_path": "inbox/a330et2ny6.textClipping",
+      "timestamp": "2025-04-09T14:31:17.829669"
+    },
+    {
+      "original_path": "inbox/pecs_pals_autism_intervention_study.pdf",
+      "new_path": "inbox/vjq8b4rdpg.pdf",
+      "timestamp": "2025-04-09T14:31:17.830132"
+    },
+    {
+      "original_path": "inbox/parkinsons_disease_management_review.pdf",
+      "new_path": "inbox/8kjibsthbf.pdf",
+      "timestamp": "2025-04-09T14:31:17.830595"
+    },
+    {
+      "original_path": "inbox/broader_autism_phenotype_study.pdf",
+      "new_path": "inbox/m22ypcpnui.pdf",
+      "timestamp": "2025-04-09T14:31:17.831038"
+    },
+    {
+      "original_path": "inbox/joubert_syndrome_review_2012.pdf",
+      "new_path": "inbox/oe6zulwoat.pdf",
+      "timestamp": "2025-04-09T14:31:17.831481"
+    },
+    {
+      "original_path": "inbox/g66e7fr5fi.dmg",
+      "new_path": "inbox/6qr9bhrvlv.dmg",
+      "timestamp": "2025-04-09T14:31:17.831906"
+    },
+    {
+      "original_path": "inbox/prc_saltillo_switch_selection_sheet.pdf",
+      "new_path": "inbox/ddw406rfdy.pdf",
+      "timestamp": "2025-04-09T14:31:17.832386"
+    },
+    {
+      "original_path": "inbox/9onqk7jwy2.apk",
+      "new_path": "inbox/8myal1o9bd.apk",
+      "timestamp": "2025-04-09T14:31:17.832833"
+    },
+    {
+      "original_path": "inbox/speech_language_evaluation_report_1.pdf",
+      "new_path": "inbox/ccfbex2ruw.pdf",
+      "timestamp": "2025-04-09T14:31:17.833333"
+    },
+    {
+      "original_path": "inbox/phenylketonuria_genetic_disorder_info.pdf",
+      "new_path": "inbox/0twjoq8iys.pdf",
+      "timestamp": "2025-04-09T14:31:17.833833"
+    },
+    {
+      "original_path": "inbox/bibtex.bib",
+      "new_path": "inbox/uapkhhiv3q.bib",
+      "timestamp": "2025-04-09T14:31:17.834220"
+    },
+    {
+      "original_path": "inbox/qlzkh4ps1h.gif",
+      "new_path": "inbox/7y2tjhpsze.gif",
+      "timestamp": "2025-04-09T14:31:17.834616"
+    },
+    {
+      "original_path": "inbox/zswmi08m4h",
+      "new_path": "inbox/3m31bd1zow",
+      "timestamp": "2025-04-09T14:31:17.834992"
+    },
+    {
+      "original_path": "inbox/Ozel et al. - 2016 - Informing evidence-based clinical practice guidelines for children with cerebral palsy at risk of osteoporosis an u.pdf",
+      "new_path": "inbox/o0pdsnnvr0.pdf",
+      "timestamp": "2025-04-09T14:31:17.835680"
+    },
+    {
+      "original_path": "inbox/via_pro_customization_options.pdf",
+      "new_path": "inbox/jt1d9x314l.pdf",
+      "timestamp": "2025-04-09T14:31:17.836362"
+    },
+    {
+      "original_path": "inbox/paganoni_als_rehabilitative_care_review.pdf",
+      "new_path": "inbox/u6jsk3gtdp.pdf",
+      "timestamp": "2025-04-09T14:31:17.837292"
+    },
+    {
+      "original_path": "inbox/O\u2019Brien, Kennedy - 2018 - Predicting remembering Judgments of prospective memory after traumatic brain injury - Journal of Speech, Lan.pdf",
+      "new_path": "inbox/kqz63u3swu.pdf",
+      "timestamp": "2025-04-09T14:31:17.838240"
+    },
+    {
+      "original_path": "inbox/functional_assessment_workbook.docx",
+      "new_path": "inbox/r1g9hzpklo.docx",
+      "timestamp": "2025-04-09T14:31:17.838910"
+    },
+    {
+      "original_path": "inbox/psychometric_conversion_table.pdf",
+      "new_path": "inbox/vlc75muy4l.pdf",
+      "timestamp": "2025-04-09T14:31:17.839412"
+    },
+    {
+      "original_path": "inbox/O\u2019neill, Wilkinson - 2020 - Preliminary investigation of the perspectives of parents of children with cerebral palsy on the supports,.pdf",
+      "new_path": "inbox/8oivtk14rd.pdf",
+      "timestamp": "2025-04-09T14:31:17.840106"
+    },
+    {
+      "original_path": "inbox/Human Factors & Clinical Guidance - CXN ONE.docx",
+      "new_path": "inbox/yp7amx28u3.docx",
+      "timestamp": "2025-04-09T14:31:17.840597"
+    },
+    {
+      "original_path": "inbox/Thomas, Stea - Unknown - Clinical Management of Joint Arthroplasty Metal Implant Allergy and Immuno-Allergological Compatibility Aspects.pdf",
+      "new_path": "inbox/n5pq00gqhp.pdf",
+      "timestamp": "2025-04-09T14:31:17.841458"
+    },
+    {
+      "original_path": "inbox/force_push.sh",
+      "new_path": "inbox/gx3cyqbill.sh",
+      "timestamp": "2025-04-09T14:31:17.841942"
+    },
+    {
+      "original_path": "inbox/speech_language_evaluation_report.pdf",
+      "new_path": "inbox/afhxhuxfa7.pdf",
+      "timestamp": "2025-04-09T14:31:17.842714"
+    },
+    {
+      "original_path": "inbox/317qe3dvh1_486x864_00:00:50.mp4",
+      "new_path": "inbox/175mjw4sg4.mp4",
+      "timestamp": "2025-04-09T14:31:17.843248"
+    },
+    {
+      "original_path": "inbox/forbes_aac_sgd_funding_request.pdf",
+      "new_path": "inbox/tizlc9md8m.pdf",
+      "timestamp": "2025-04-09T14:31:17.843691"
+    },
+    {
+      "original_path": "inbox/antioxidant_nutrients_ad_children.pdf",
+      "new_path": "inbox/yshqc7o931.pdf",
+      "timestamp": "2025-04-09T14:31:17.844186"
+    },
+    {
+      "original_path": "inbox/zq9pk5hz3r.db",
+      "new_path": "inbox/tt2eud71ag.db",
+      "timestamp": "2025-04-09T14:31:17.844565"
+    },
+    {
+      "original_path": "inbox/preliminary_aac_assessment_armenia.pdf",
+      "new_path": "inbox/gvru87ozr9.pdf",
+      "timestamp": "2025-04-09T14:31:17.844979"
+    },
+    {
+      "original_path": "inbox/b0xcohwjve_unknown_unknown_unknown_unknown_0x0_unknown.mp3",
+      "new_path": "inbox/59m6x9n5bg.mp3",
+      "timestamp": "2025-04-09T14:31:17.845490"
+    },
+    {
+      "original_path": "inbox/meta_analysis_parkinson_risk_factors.pdf",
+      "new_path": "inbox/duqyv3uetq.pdf",
+      "timestamp": "2025-04-09T14:31:17.845898"
+    },
+    {
+      "original_path": "inbox/predicting_graduate_success_slp.pdf",
+      "new_path": "inbox/nakep1o348.pdf",
+      "timestamp": "2025-04-09T14:31:17.846290"
+    },
+    {
+      "original_path": "inbox/genetic_advances_speech_language_disorders.pdf",
+      "new_path": "inbox/qdh7gbxfax.pdf",
+      "timestamp": "2025-04-09T14:31:17.846714"
+    },
+    {
+      "original_path": "inbox/patreon_connect_web_resources.zip",
+      "new_path": "inbox/i3w0eu4bli.zip",
+      "timestamp": "2025-04-09T14:31:17.847084"
+    },
+    {
+      "original_path": "inbox/Postman - 2016 - Computer-Mediated Cognitive-Communicative Intervention for Residents with Dementia in a Special Care Unit An Explorator.pdf",
+      "new_path": "inbox/vdt5k4cdfc.pdf",
+      "timestamp": "2025-04-09T14:31:17.847652"
+    },
+    {
+      "original_path": "inbox/guidelines_bci_aac_feature_matching.pdf",
+      "new_path": "inbox/xhnom5tdx0.pdf",
+      "timestamp": "2025-04-09T14:31:17.848042"
+    },
+    {
+      "original_path": "inbox/genetics_of_photosensitivity_review.pdf",
+      "new_path": "inbox/5r53qxrze4.pdf",
+      "timestamp": "2025-04-09T14:31:17.848432"
+    },
+    {
+      "original_path": "inbox/quantitative_analysis_of_srn_methylation.pdf",
+      "new_path": "inbox/wwf74kd69b.pdf",
+      "timestamp": "2025-04-09T14:31:17.848826"
+    },
+    {
+      "original_path": "inbox/Nieuwenhuijsen et al. - 2009 - Experienced Problems of Young Adults With Cerebral Palsy Targets for Rehabilitation Care - Archives of Ph.pdf",
+      "new_path": "inbox/si8mlxyzma.pdf",
+      "timestamp": "2025-04-09T14:31:17.849396"
+    },
+    {
+      "original_path": "inbox/triple_x_syndrome_literature_review.pdf",
+      "new_path": "inbox/4jx51vvin3.pdf",
+      "timestamp": "2025-04-09T14:31:17.849799"
+    },
+    {
+      "original_path": "inbox/Patel, Threats - 2016 - One_s Voice A Central Component of Personal Factors in Augmentative and Alternative Communication - Perspectives.pdf",
+      "new_path": "inbox/aywfhx3d94.pdf",
+      "timestamp": "2025-04-09T14:31:17.850374"
+    },
+    {
+      "original_path": "inbox/Parra et al. - 2017 - The many faces of graphene as protection barrier. Performance under microbial corrosion and Ni allergy conditions.pdf",
+      "new_path": "inbox/l0qm1h9uvx.pdf",
+      "timestamp": "2025-04-09T14:31:17.850994"
+    },
+    {
+      "original_path": "inbox/spinal_cord_injury_statistics_2009.pdf",
+      "new_path": "inbox/6bjxt3qarg.pdf",
+      "timestamp": "2025-04-09T14:31:17.851406"
+    },
+    {
+      "original_path": "inbox/hizwr01vqd.apk",
+      "new_path": "inbox/a6iaylpjqq.apk",
+      "timestamp": "2025-04-09T14:31:17.851862"
+    },
+    {
+      "original_path": "inbox/preservice_education_aac_update.pdf",
+      "new_path": "inbox/qnoqsogqvx.pdf",
+      "timestamp": "2025-04-09T14:31:17.852482"
+    },
+    {
+      "original_path": "inbox/d2go424md7.docx",
+      "new_path": "inbox/rues6fzpzl.docx",
+      "timestamp": "2025-04-09T14:31:17.852970"
+    },
+    {
+      "original_path": "inbox/lack_of_cortical_contrast_gain_control_in_pse.pdf",
+      "new_path": "inbox/xztgh15hob.pdf",
+      "timestamp": "2025-04-09T14:31:17.853470"
+    },
+    {
+      "original_path": "inbox/Ogletree et al. - 2018 - The Changing World of Augmentative and Alternative Communication (AAC) Examining Three Realities Faced by Today.pdf",
+      "new_path": "inbox/e2uy08ul7e.pdf",
+      "timestamp": "2025-04-09T14:31:17.854151"
+    },
+    {
+      "original_path": "inbox/recent_advances_parkinsons_treatment.pdf",
+      "new_path": "inbox/cq2w11dvk5.pdf",
+      "timestamp": "2025-04-09T14:31:17.854597"
+    },
+    {
+      "original_path": "inbox/Polvikoski et al. - 1995 - Apolipoprotein e, dementia, and cortical deposition of \u03b2-amyloid protein - New England Journal of Medicine.pdf",
+      "new_path": "inbox/c0kkwbla47.pdf",
+      "timestamp": "2025-04-09T14:31:17.855174"
+    },
+    {
+      "original_path": "inbox/successful_treatment_melas_succinate.pdf",
+      "new_path": "inbox/v8qnf7d0st.pdf",
+      "timestamp": "2025-04-09T14:31:17.855571"
+    },
+    {
+      "original_path": "inbox/survival_surgical_interventions_trisomy_13_18.pdf",
+      "new_path": "inbox/n1rhs6184c.pdf",
+      "timestamp": "2025-04-09T14:31:17.855981"
+    },
+    {
+      "original_path": "inbox/uhu7h9w908.gif",
+      "new_path": "inbox/oldkyrv19x.gif",
+      "timestamp": "2025-04-09T14:31:17.856301"
+    },
+    {
+      "original_path": "inbox/preoperative_aac_pediatric_tracheostomy.pdf",
+      "new_path": "inbox/ytrar72g0q.pdf",
+      "timestamp": "2025-04-09T14:31:17.856682"
+    },
+    {
+      "original_path": "inbox/Nuytemans et al. - 2010 - Genetic etiology of Parkinson disease associated with mutations in the SNCA, PARK2, PINK1, PARK7, and LRRK2 ge.pdf",
+      "new_path": "inbox/okoczif04q.pdf",
+      "timestamp": "2025-04-09T14:31:17.857238"
+    },
+    {
+      "original_path": "inbox/nelson_2012_neonatal_encephalopathy_study.pdf",
+      "new_path": "inbox/zma84f6k45.pdf",
+      "timestamp": "2025-04-09T14:31:17.857621"
+    },
+    {
+      "original_path": "inbox/gx4cmczsiu.bin",
+      "new_path": "inbox/avkvujjvn3.bin",
+      "timestamp": "2025-04-09T14:31:17.857946"
+    },
+    {
+      "original_path": "inbox/functional_brain_connectivity_autism_review.pdf",
+      "new_path": "inbox/kdu0tlt6x0.pdf",
+      "timestamp": "2025-04-09T14:31:17.858436"
+    },
+    {
+      "original_path": "inbox/speakprose_ar_bci_prd.docx",
+      "new_path": "inbox/gc2r6fc4f0.docx",
+      "timestamp": "2025-04-09T14:31:17.858821"
+    },
+    {
+      "original_path": "inbox/fdf60263yj.ico",
+      "new_path": "inbox/upn0kvjv7i.ico",
+      "timestamp": "2025-04-09T14:31:17.859139"
+    },
+    {
+      "original_path": "inbox/quality_of_life_als_review.pdf",
+      "new_path": "inbox/5e776dindm.pdf",
+      "timestamp": "2025-04-09T14:31:17.859496"
+    },
+    {
+      "original_path": "inbox/phd_thesis_wait_lifting.pdf",
+      "new_path": "inbox/79koco7uw4.pdf",
+      "timestamp": "2025-04-09T14:31:17.859834"
+    },
+    {
+      "original_path": "inbox/dqa8e6lz4q_unknown_unknown_unknown_unknown_0x0_unknown.mp3",
+      "new_path": "inbox/ep2gfrula4.mp3",
+      "timestamp": "2025-04-09T14:31:17.860285"
+    },
+    {
+      "original_path": "inbox/tbi_incidence_slp_challenges_article.pdf",
+      "new_path": "inbox/eyuzb0x2kr.pdf",
+      "timestamp": "2025-04-09T14:31:17.860662"
+    },
+    {
+      "original_path": "inbox/telepractice_pediatric_language_assessment.pdf",
+      "new_path": "inbox/osgdlyo1vx.pdf",
+      "timestamp": "2025-04-09T14:31:17.861039"
+    },
+    {
+      "original_path": "inbox/executive_dysfunction_timing_pd.pdf",
+      "new_path": "inbox/py4a6rkhkb.pdf",
+      "timestamp": "2025-04-09T14:31:17.861401"
+    },
+    {
+      "original_path": "inbox/steuber_2011_schizophrenia_speech.pdf",
+      "new_path": "inbox/qwu2xssm6s.pdf",
+      "timestamp": "2025-04-09T14:31:17.861778"
+    },
+    {
+      "original_path": "inbox/preoperative_counselling_laryngectomy.pdf",
+      "new_path": "inbox/a9ims2l9fl.pdf",
+      "timestamp": "2025-04-09T14:31:17.862150"
+    },
+    {
+      "original_path": "inbox/multiple_identities_gender_perception.pdf",
+      "new_path": "inbox/zwokutv13i.pdf",
+      "timestamp": "2025-04-09T14:31:17.862513"
+    },
+    {
+      "original_path": "inbox/congenital_anomalies_causal_hypothesis.pdf",
+      "new_path": "inbox/gqa0umutws.pdf",
+      "timestamp": "2025-04-09T14:31:17.862854"
+    },
+    {
+      "original_path": "inbox/evidence_based_asd_assessment.pdf",
+      "new_path": "inbox/pojs34c8j1.pdf",
+      "timestamp": "2025-04-09T14:31:17.863184"
+    },
+    {
+      "original_path": "inbox/worldwide_ms_prevalence.pdf",
+      "new_path": "inbox/jyv7uema9p.pdf",
+      "timestamp": "2025-04-09T14:31:17.863523"
+    },
+    {
+      "original_path": "inbox/sma_carrier_screening_guidelines.pdf",
+      "new_path": "inbox/ztrefuysx8.pdf",
+      "timestamp": "2025-04-09T14:31:17.863879"
+    },
+    {
+      "original_path": "inbox/perceptions_of_aae_in_slp_programs.pdf",
+      "new_path": "inbox/0e0z05ej50.pdf",
+      "timestamp": "2025-04-09T14:31:17.864207"
+    },
+    {
+      "original_path": "inbox/hfe_h63d_polymorphism_als_italian.pdf",
+      "new_path": "inbox/xa73unm0xl.pdf",
+      "timestamp": "2025-04-09T14:31:17.864552"
+    },
+    {
+      "original_path": "inbox/foix_chavany_marie_syndrome_case.pdf",
+      "new_path": "inbox/2q3zk5rlgj.pdf",
+      "timestamp": "2025-04-09T14:31:17.864934"
+    },
+    {
+      "original_path": "inbox/mutations_in_dnajc5_cause_ancl.pdf",
+      "new_path": "inbox/fwewui1wgo.pdf",
+      "timestamp": "2025-04-09T14:31:17.865284"
+    },
+    {
+      "original_path": "inbox/zwokutv13i.pdf",
+      "new_path": "inbox/the_village_within_identity_perception.pdf",
+      "timestamp": "2025-04-09T14:32:20.596486",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/nakep1o348.pdf",
+      "new_path": "inbox/predicting_graduate_success_slp.pdf",
+      "timestamp": "2025-04-09T14:32:24.245826",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/gc2r6fc4f0.docx",
+      "new_path": "inbox/speakprose_ar_bci_prd.docx",
+      "timestamp": "2025-04-09T14:32:27.515669",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/a9ims2l9fl.pdf",
+      "new_path": "inbox/preoperative_slp_counselling_laryngectomy.pdf",
+      "timestamp": "2025-04-09T14:32:32.211534",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/bta28a8vp8.pdf",
+      "new_path": "inbox/ice_bucket_challenge_als_awareness.pdf",
+      "timestamp": "2025-04-09T14:32:36.458606",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/0twjoq8iys.pdf",
+      "new_path": "inbox/phenylketonuria_info_brochure.pdf",
+      "timestamp": "2025-04-09T14:32:39.802744",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/vjq8b4rdpg.pdf",
+      "new_path": "inbox/pecs_peer_intervention_autism.pdf",
+      "timestamp": "2025-04-09T14:32:43.738028",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/eyuzb0x2kr.pdf",
+      "new_path": "inbox/tbi_incidence_and_slp_implications.pdf",
+      "timestamp": "2025-04-09T14:32:47.918013",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/e2uy08ul7e.pdf",
+      "new_path": "inbox/random_string_notes.pdf",
+      "timestamp": "2025-04-09T14:32:49.666827",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/osgdlyo1vx.pdf",
+      "new_path": "inbox/pediatric_language_telepractice_2022.pdf",
+      "timestamp": "2025-04-09T14:32:53.477984",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/py4a6rkhkb.pdf",
+      "new_path": "inbox/executive_dysfunction_timing_pd.pdf",
+      "timestamp": "2025-04-09T14:32:57.614042",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/kqz63u3swu.pdf",
+      "new_path": "inbox/random_string_notes_1.pdf",
+      "timestamp": "2025-04-09T14:32:59.325812",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/tizlc9md8m.pdf",
+      "new_path": "inbox/speech_generating_device_funding_request.pdf",
+      "timestamp": "2025-04-09T14:33:02.037195",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/175mjw4sg4.mp4",
+      "new_path": "inbox/175mjw4sg4_486x864_00:00:50.mp4",
+      "timestamp": "2025-04-09T14:33:02.221602",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/wwf74kd69b.pdf",
+      "new_path": "inbox/quantitative_analysis_of_srnpmn_gene_methylation.pdf",
+      "timestamp": "2025-04-09T14:33:05.941800",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/qwu2xssm6s.pdf",
+      "new_path": "inbox/disordered_thought_language_schizophrenia.pdf",
+      "timestamp": "2025-04-09T14:33:10.263773",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/yshqc7o931.pdf",
+      "new_path": "inbox/antioxidant_nutrients_and_ad_in_children.pdf",
+      "timestamp": "2025-04-09T14:33:14.479099",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/jt1d9x314l.pdf",
+      "new_path": "inbox/via_pro_selection_sheet.pdf",
+      "timestamp": "2025-04-09T14:33:16.646667",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/ztrefuysx8.pdf",
+      "new_path": "inbox/sma_carrier_screening_guideline.pdf",
+      "timestamp": "2025-04-09T14:33:21.048836",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/duqyv3uetq.pdf",
+      "new_path": "inbox/meta_analysis_parkinson_risk_factors.pdf",
+      "timestamp": "2025-04-09T14:33:25.416128",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/pojs34c8j1.pdf",
+      "new_path": "inbox/evidence_based_assessment_of_asd.pdf",
+      "timestamp": "2025-04-09T14:33:29.637363",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/ytrar72g0q.pdf",
+      "new_path": "inbox/preoperative_aac_pediatric_tracheostomy.pdf",
+      "timestamp": "2025-04-09T14:33:33.658570",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/vdt5k4cdfc.pdf",
+      "new_path": "inbox/random_string_notes_2.pdf",
+      "timestamp": "2025-04-09T14:33:35.187823",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/xa73unm0xl.pdf",
+      "new_path": "inbox/hfe_h63d_polymorphism_in_als.pdf",
+      "timestamp": "2025-04-09T14:33:37.721516",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/oe6zulwoat.pdf",
+      "new_path": "inbox/joubert_syndrome_review_article.pdf",
+      "timestamp": "2025-04-09T14:33:40.788781",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/afhxhuxfa7.pdf",
+      "new_path": "inbox/speech_language_evaluation_report.pdf",
+      "timestamp": "2025-04-09T14:33:43.907076",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/jyv7uema9p.pdf",
+      "new_path": "inbox/worldwide_ms_prevalence_europe.pdf",
+      "timestamp": "2025-04-09T14:33:46.973256",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/0e0z05ej50.pdf",
+      "new_path": "inbox/perceptions_of_aae_in_slp_programs.pdf",
+      "timestamp": "2025-04-09T14:33:51.348074",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/aywfhx3d94.pdf",
+      "new_path": "inbox/random_string_notes_3.pdf",
+      "timestamp": "2025-04-09T14:33:53.620611",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/c0kkwbla47.pdf",
+      "new_path": "inbox/random_string_notes_4.pdf",
+      "timestamp": "2025-04-09T14:33:55.762917",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/si8mlxyzma.pdf",
+      "new_path": "inbox/random_string_notes_5.pdf",
+      "timestamp": "2025-04-09T14:33:57.034099",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/antioxidant_nutrients_and_ad_in_children.pdf",
+      "new_path": "inbox/antioxidant_nutrients_ad_children.pdf",
+      "timestamp": "2025-04-09T14:36:11.337859",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/pecs_peer_intervention_autism.pdf",
+      "new_path": "inbox/pecs_peer_intervention_autism_study.pdf",
+      "timestamp": "2025-04-09T14:36:15.906906",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/disordered_thought_language_schizophrenia.pdf",
+      "new_path": "inbox/disordered_thought_language_schizophrenia_study.pdf",
+      "timestamp": "2025-04-09T14:36:26.761238",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/pediatric_language_telepractice_2022.pdf",
+      "new_path": "inbox/pediatric_language_telepractice_articles.pdf",
+      "timestamp": "2025-04-09T14:36:33.867800",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/8kjibsthbf.pdf",
+      "new_path": "inbox/parkinsons_disease_management_review.pdf",
+      "timestamp": "2025-04-09T14:36:37.834486",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/59m6x9n5bg.mp3",
+      "new_path": "inbox/59m6x9n5bg_0x0_unknown.mp3",
+      "timestamp": "2025-04-09T14:36:40.518325",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/qdh7gbxfax.pdf",
+      "new_path": "inbox/genetic_advances_speech_language_disorders.pdf",
+      "timestamp": "2025-04-09T14:36:43.624521",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/zma84f6k45.pdf",
+      "new_path": "inbox/antecedents_of_neonatal_encephalopathy.pdf",
+      "timestamp": "2025-04-09T14:36:48.169473",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/5r53qxrze4.pdf",
+      "new_path": "inbox/genetics_of_photosensitivity_review.pdf",
+      "timestamp": "2025-04-09T14:36:51.710962",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/fwewui1wgo.pdf",
+      "new_path": "inbox/mutations_in_dnajc5_and_ancl.pdf",
+      "timestamp": "2025-04-09T14:36:59.162408",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/68nq7hv1dc.pdf",
+      "new_path": "inbox/friedreich_ataxia_neurological_review.pdf",
+      "timestamp": "2025-04-09T14:37:02.101706",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/8oivtk14rd.pdf",
+      "new_path": "inbox/random_string_notes_6.pdf",
+      "timestamp": "2025-04-09T14:37:04.273730",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/gvru87ozr9.pdf",
+      "new_path": "inbox/preliminary_aac_assessment_armenia.pdf",
+      "timestamp": "2025-04-09T14:37:09.299288",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/gqa0umutws.pdf",
+      "new_path": "inbox/congenital_anomalies_and_twins.pdf",
+      "timestamp": "2025-04-09T14:37:13.580087",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/hfe_h63d_polymorphism_in_als.pdf",
+      "new_path": "inbox/hfe_h63d_polymorphism_in_als_italian_patients.pdf",
+      "timestamp": "2025-04-09T14:37:17.224539",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/n1rhs6184c.pdf",
+      "new_path": "inbox/survival_and_surgical_interventions_for_children_w.pdf",
+      "timestamp": "2025-04-09T14:37:22.359720",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/preoperative_slp_counselling_laryngectomy.pdf",
+      "new_path": "inbox/preoperative_slp_counseling_laryngectomy.pdf",
+      "timestamp": "2025-04-09T14:37:27.058595",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/rues6fzpzl.docx",
+      "new_path": "inbox/marketing_requirements_project_yoda.docx",
+      "timestamp": "2025-04-09T14:37:28.910362",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/yowqasjs28.pdf",
+      "new_path": "inbox/new_emerging_aac_technology_supports.pdf",
+      "timestamp": "2025-04-09T14:37:32.116026",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/5e776dindm.pdf",
+      "new_path": "inbox/quality_of_life_in_als_review.pdf",
+      "timestamp": "2025-04-09T14:37:38.848667",
+      "status": "success"
+    },
+    {
+      "original_path": "highres/tax_burden_by_state_in_2024_1079x1322.md",
+      "new_path": "highres/tax_burden_by_state_in_2024_data.md",
+      "timestamp": "2025-04-09T14:38:02.764503",
+      "status": "success"
+    },
+    {
+      "original_path": "highres/geologic_time_spiral_usgs_poster_3295x4313.md",
+      "new_path": "highres/usgs_geologic_time_spiral_poster_1.md",
+      "timestamp": "2025-04-09T14:38:32.709794",
+      "status": "success"
+    },
+    {
+      "original_path": "highres/100_challenging_novels_poster_image_1300x1749.md",
+      "new_path": "highres/100_challenging_novels_poster_description.md",
+      "timestamp": "2025-04-09T14:38:35.101248",
+      "status": "success"
+    },
+    {
+      "original_path": "highres/superpowers_omnibus_cover_detailed_map_3517x5071.md",
+      "new_path": "highres/superpowers_omnibus_cover_description.md",
+      "timestamp": "2025-04-09T14:38:38.586502",
+      "status": "success"
     }
   ],
-  "timestamp": "2025-04-09T13:19:38.407208",
+  "timestamp": "2025-04-09T14:37:58.986912",
   "errors": [
     {
       "file_path": "inbox/as2girih0r.heic",
@@ -1922,13 +2839,25 @@
       "error": "cannot unpack non-iterable NoneType object",
       "error_type": "processing_error",
       "timestamp": "2025-04-09T14:19:10.668398"
+    },
+    {
+      "file_path": "/Volumes/Galactus/Content Creation Arc/Content/High Res Holding Ground/creative_routines_of_famous_creative_thinkers.png",
+      "error": "cannot unpack non-iterable NoneType object",
+      "error_type": "processing_error",
+      "timestamp": "2025-04-09T14:19:43.503433"
+    },
+    {
+      "file_path": "/Volumes/Galactus/Content Creation Arc/Content/High Res Holding Ground/us_birth_patterns_analysis.png",
+      "error": "cannot unpack non-iterable NoneType object",
+      "error_type": "processing_error",
+      "timestamp": "2025-04-09T14:20:12.564815"
     }
   ],
   "stats": {
-    "total_files": 593,
-    "successful_renames": 143,
-    "failed_renames": 32,
-    "skipped_files": 198,
+    "total_files": 883,
+    "successful_renames": 225,
+    "failed_renames": 34,
+    "skipped_files": 256,
     "images_processed": 0,
     "text_processed": 1,
     "documents_processed": 50,
@@ -1936,7 +2865,7 @@
     "total_skipped": 1,
     "total_failed": 32
   },
-  "directory": "/Volumes/Galactus/Content Creation Arc/Content/High Res Holding Ground",
-  "recursive": true,
-  "skip_renamed": false
+  "directory": "highres",
+  "recursive": false,
+  "skip_renamed": true
 }

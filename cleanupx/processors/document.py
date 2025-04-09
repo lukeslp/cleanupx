@@ -30,14 +30,42 @@ def extract_text_from_pdf(file_path: Union[str, Path]) -> str:
     """Extract text content from a PDF file."""
     try:
         import PyPDF2
-        with open(file_path, 'rb') as f:
-            reader = PyPDF2.PdfReader(f)
-            text = ""
-            for page in reader.pages:
-                extracted = page.extract_text()
-                if extracted:
-                    text += extracted
-            return text
+        text = ""
+        
+        # First try the normal PyPDF2 extraction
+        try:
+            with open(file_path, 'rb') as f:
+                reader = PyPDF2.PdfReader(f)
+                for page in reader.pages:
+                    extracted = page.extract_text()
+                    if extracted:
+                        text += extracted
+        except Exception as e:
+            logger.warning(f"Standard PDF extraction failed for {file_path}: {e}")
+            
+        # If standard extraction failed, try more robust approach
+        if not text:
+            try:
+                with open(file_path, 'rb') as f:
+                    reader = PyPDF2.PdfReader(f, strict=False)
+                    for i in range(len(reader.pages)):
+                        try:
+                            page = reader.pages[i]
+                            extracted = page.extract_text()
+                            if extracted:
+                                text += extracted
+                        except Exception as page_e:
+                            logger.warning(f"Error extracting text from page {i}: {page_e}")
+                            continue
+            except Exception as alt_e:
+                logger.warning(f"Alternative PDF extraction failed for {file_path}: {alt_e}")
+                
+        # If both methods failed, try using the filename as fallback text
+        if not text:
+            text = str(Path(file_path).stem).replace("_", " ").replace("-", " ")
+            logger.info(f"Using filename as fallback text for {file_path}")
+            
+        return text
     except Exception as e:
         logger.error(f"Error extracting text from {file_path}: {e}")
         return ""

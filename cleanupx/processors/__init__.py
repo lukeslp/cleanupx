@@ -50,16 +50,24 @@ def process_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log:
         logger.error(f"Error checking file size: {e}")
     
     ext = file_path.suffix.lower()
-    if ext in MEDIA_EXTENSIONS:
-        return process_media_file(file_path, cache, rename_log)
-    elif ext in IMAGE_EXTENSIONS:
-        return process_image_file(file_path, cache, rename_log)
-    elif ext in TEXT_EXTENSIONS:
-        return process_text_file(file_path, cache, rename_log)
-    elif ext in DOCUMENT_EXTENSIONS:
-        return process_document_file(file_path, cache, rename_log)
-    elif ext in ARCHIVE_EXTENSIONS:
-        return process_archive_file(file_path, cache, rename_log)
-    else:
-        logger.info(f"Skipping unsupported file type: {file_path}")
+    try:
+        # Route file to appropriate processor based on extension
+        if ext in MEDIA_EXTENSIONS:
+            return process_media_file(file_path, cache, rename_log)
+        elif ext in IMAGE_EXTENSIONS:
+            return process_image_file(file_path, cache, rename_log)
+        elif ext in TEXT_EXTENSIONS:
+            return process_text_file(file_path, cache, rename_log)
+        elif ext in DOCUMENT_EXTENSIONS:
+            return process_document_file(file_path, cache, rename_log)
+        elif ext in ARCHIVE_EXTENSIONS:
+            return process_archive_file(file_path, cache, rename_log)
+        else:
+            logger.info(f"Skipping unsupported file type: {file_path}")
+            return file_path, None, None
+    except Exception as e:
+        logger.error(f"Error processing file {file_path}: {e}")
+        # Add error to log
+        from cleanupx.utils.cache import add_error_to_log
+        add_error_to_log(rename_log, file_path, str(e), "processing_error")
         return file_path, None, None

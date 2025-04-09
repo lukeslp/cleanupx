@@ -31,101 +31,71 @@ def encode_image(image_path: Union[str, Path]) -> Optional[str]:
         file_path = Path(image_path)
         file_size_mb = file_path.stat().st_size / (1024 * 1024)
         
-        # Handle large files more aggressively
-        if file_size_mb > 5 and PIL_AVAILABLE:
-            logger.info(f"Image is too large ({file_size_mb:.1f}MB). Resizing...")
-            
-            # For extremely large files (>20MB), apply more aggressive initial resize
-            initial_quality = 85
-            optimize_flag = True
-            
-            # For very large PNGs, disable optimization which can cause hanging
-            if file_size_mb > 10 and file_path.suffix.lower() in ['.png']:
-                optimize_flag = False
-                logger.info("Large PNG detected, disabling optimization to prevent hanging")
-            
-            # Apply more aggressive initial resize for very large images
-            initial_scale = 1.0
-            if file_size_mb > 20:
-                initial_scale = 0.5  # 50% reduction for very large files
-            elif file_size_mb > 10:
-                initial_scale = 0.7  # 30% reduction for large files
-                
+        # Always ensure we're dealing with an image format the API can handle
+        if PIL_AVAILABLE:
+            # For all images, convert to JPEG to ensure compatibility
             try:
                 with Image.open(file_path) as img:
-                    resized_path = file_path.with_name(f"{file_path.stem}_resized{file_path.suffix}")
+                    # Check if image needs to be converted to RGB mode
+                    if img.mode != 'RGB':
+                        logger.info(f"Converting image from mode {img.mode} to RGB")
+                        img = img.convert('RGB')
                     
-                    # Apply initial resize if needed
-                    if initial_scale < 1.0:
-                        width, height = img.size
-                        new_width = int(width * initial_scale)
-                        new_height = int(height * initial_scale)
-                        img = img.resize((new_width, new_height), Image.LANCZOS)
-                        logger.info(f"Initial resize to {new_width}x{new_height}")
-                    
-                    # Save with appropriate settings based on file type
-                    if file_path.suffix.lower() in ['.jpg', '.jpeg']:
-                        img.save(resized_path, quality=initial_quality, optimize=optimize_flag)
-                    elif file_path.suffix.lower() in ['.png']:
-                        # Use different settings for PNG to avoid hanging
-                        img.save(resized_path, optimize=optimize_flag, compress_level=6)
-                    else:
-                        img.save(resized_path, quality=initial_quality, optimize=optimize_flag)
-                    
-                    # Maximum resize iterations to prevent infinite loops
-                    max_iterations = 5
-                    iterations = 0
-                    
-                    # Resize loop with iteration limit
-                    while resized_path.stat().st_size / (1024 * 1024) > 5 and iterations < max_iterations:
-                        iterations += 1
-                        logger.info(f"Resize iteration {iterations}, current size: {resized_path.stat().st_size / (1024 * 1024):.1f}MB")
+                    # Handle large files by resizing
+                    if file_size_mb > 5:
+                        logger.info(f"Image is too large ({file_size_mb:.1f}MB). Resizing...")
                         
-                        with Image.open(resized_path) as resize_img:
-                            width, height = resize_img.size
-                            width = int(width * 0.8)
-                            height = int(height * 0.8)
-                            
-                            if width < 100 or height < 100:
-                                logger.info("Image dimensions too small, stopping resize")
-                                break
-                                
-                            resized_img = resize_img.resize((width, height), Image.LANCZOS)
-                            
-                            # Save with appropriate settings
-                            if file_path.suffix.lower() in ['.jpg', '.jpeg']:
-                                resized_img.save(resized_path, quality=initial_quality, optimize=optimize_flag)
-                            elif file_path.suffix.lower() in ['.png']:
-                                # For PNG, each iteration reduces compression quality
-                                compress_level = max(1, 6 - iterations)
-                                resized_img.save(resized_path, optimize=optimize_flag, compress_level=compress_level)
-                            else:
-                                resized_img.save(resized_path, quality=initial_quality, optimize=optimize_flag)
+                        # Determine target size based on original file size
+                        original_width, original_height = img.size
+                        scaling_factor = min(1.0, (5.0 / file_size_mb) ** 0.5)
+                        
+                        # Scale down more aggressively for very large images
+                        if file_size_mb > 20:
+                            scaling_factor *= 0.7
+                        
+                        new_width = max(100, int(original_width * scaling_factor))
+                        new_height = max(100, int(original_height * scaling_factor))
+                        
+                        logger.info(f"Resizing from {original_width}x{original_height} to {new_width}x{new_height}")
+                        resized_img = img.resize((new_width, new_height), Image.LANCZOS)
+                    else:
+                        resized_img = img
                     
-                    # If we hit max iterations and file is still large, log a warning
-                    if iterations >= max_iterations and resized_path.stat().st_size / (1024 * 1024) > 5:
-                        logger.warning(f"Could not resize image below 5MB after {max_iterations} attempts. Using current version.")
+                    # Create a temporary JPEG
+                    temp_jpg = file_path.parent / f"{file_path.stem}_temp_encode.jpg"
+                    resized_img.save(temp_jpg, format='JPEG', quality=90, optimize=True)
                     
-                    # Read the resized file
-                    with open(resized_path, "rb") as f:
+                    # Read the JPEG data and encode it
+                    with open(temp_jpg, "rb") as f:
                         img_data = f.read()
                     
-                    # Remove temporary file
+                    # Clean up temp file
                     try:
-                        os.remove(resized_path)
-                    except:
-                        pass
+                        if temp_jpg.exists():
+                            os.remove(temp_jpg)
+                    except Exception as cleanup_error:
+                        logger.warning(f"Failed to remove temporary file: {cleanup_error}")
                     
+                    # Return the base64 encoded data
                     return base64.b64encode(img_data).decode('utf-8')
-            except Exception as e:
-                logger.error(f"Error during image resize: {e}")
-                # Fall back to the original image if resize fails
-                logger.warning("Resize failed, using original image")
-                
-        # For small files or if resize failed, use the original
-        with open(file_path, "rb") as f:
-            img_data = f.read()
-        return base64.b64encode(img_data).decode('utf-8')
+            except Exception as conversion_error:
+                logger.error(f"Error during image conversion/resize: {conversion_error}")
+                # Fall back to direct encoding if conversion fails
+                logger.warning("Conversion failed, trying direct encoding...")
+        
+        # Direct encoding path (fallback or if PIL not available)
+        try:
+            with open(file_path, "rb") as f:
+                img_data = f.read()
+            # Ensure we're actually getting image data
+            if len(img_data) == 0:
+                logger.error(f"Read zero bytes from {file_path}")
+                return None
+            return base64.b64encode(img_data).decode('utf-8')
+        except Exception as direct_error:
+            logger.error(f"Error in direct encoding: {direct_error}")
+            return None
+    
     except Exception as e:
         logger.error(f"Error encoding image {image_path}: {e}")
         return None
@@ -151,14 +121,55 @@ def analyze_image(image_path: Union[str, Path]) -> Optional[Dict[str, Any]]:
     process_timeout = min(300, 30 + int(file_size_mb))
     logger.info(f"Setting timeout of {process_timeout} seconds for image analysis")
     
-    if original_path.suffix.lower() in {'.heic', '.heif'}:
+    # Check file extension and convert if needed
+    ext = original_path.suffix.lower()
+    if ext in {'.heic', '.heif'}:
         temp_converted = convert_heic_to_jpeg(original_path)
         if temp_converted and temp_converted != original_path:
             analysis_path = temp_converted
-    elif original_path.suffix.lower() == '.webp':
+    elif ext == '.webp':
         temp_converted = convert_webp_to_jpeg(original_path)
         if temp_converted and temp_converted != original_path:
             analysis_path = temp_converted
+    elif ext == '.gif':
+        # Convert GIF to JPEG to handle API limitations
+        try:
+            from PIL import Image
+            temp_converted = original_path.parent / f"{original_path.stem}_temp.jpg"
+            with Image.open(original_path) as img:
+                # Convert to RGB (since GIFs can be indexed color)
+                if img.mode != 'RGB':
+                    img = img.convert('RGB')
+                # Get the first frame for animated GIFs
+                img.save(temp_converted, format='JPEG', quality=95)
+                logger.info(f"Converted GIF to JPEG for analysis: {temp_converted}")
+                analysis_path = temp_converted
+        except Exception as e:
+            logger.error(f"Failed to convert GIF to JPEG: {e}")
+            # Continue with original file
+    # Check if the file is a PNG that might need conversion
+    elif ext == '.png':
+        try:
+            # Convert PNG to JPEG to avoid potential issues with transparency
+            from PIL import Image
+            temp_converted = original_path.parent / f"{original_path.stem}_temp.jpg"
+            with Image.open(original_path) as img:
+                # Convert to RGB to handle transparency
+                if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
+                    background = Image.new('RGB', img.size, (255, 255, 255))
+                    background.paste(img, mask=img.split()[3] if img.mode == 'RGBA' else None)
+                    background.save(temp_converted, format='JPEG', quality=95)
+                    logger.info(f"Converted PNG with transparency to JPEG: {temp_converted}")
+                    analysis_path = temp_converted
+                elif img.mode != 'RGB':
+                    # Convert other non-RGB modes
+                    img = img.convert('RGB')
+                    img.save(temp_converted, format='JPEG', quality=95)
+                    logger.info(f"Converted PNG to RGB JPEG: {temp_converted}")
+                    analysis_path = temp_converted
+        except Exception as e:
+            logger.error(f"Failed to convert PNG: {e}")
+            # Continue with original file
     
     try:
         # Use timeout for the encoding process

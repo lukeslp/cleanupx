@@ -77,6 +77,15 @@ def call_xai_api(model: str, prompt: str, function_schema: dict, image_data: Opt
     try:
         messages = []
         if model == XAI_MODEL_VISION and image_data:
+            # Log for debugging
+            logger.info(f"Using vision model with image data ({len(image_data) // 1000}KB encoded)")
+            
+            # Verify the image data looks valid
+            if len(image_data) < 100:
+                logger.error("Image data too small, likely invalid")
+                return {}
+                
+            # For vision models with images
             messages = [{
                 "role": "user",
                 "content": [
@@ -85,8 +94,13 @@ def call_xai_api(model: str, prompt: str, function_schema: dict, image_data: Opt
                 ]
             }]
         else:
+            # For text-only models
             messages = [{"role": "user", "content": prompt}]
         
+        # Log before making API call
+        logger.info(f"HTTP Request: POST https://api.x.ai/v1/chat/completions")
+        
+        # Make the API call
         response = client.chat.completions.create(
             model=model,
             messages=messages,
@@ -94,9 +108,22 @@ def call_xai_api(model: str, prompt: str, function_schema: dict, image_data: Opt
             tool_choice={"type": "function", "function": {"name": function_schema["name"]}}
         )
         
+        # Log success
+        logger.info(f"HTTP Request: POST https://api.x.ai/v1/chat/completions \"HTTP/1.1 200 OK\"")
+        
+        # Parse the response
         if hasattr(response.choices[0].message, 'tool_calls') and response.choices[0].message.tool_calls:
             tool_call = response.choices[0].message.tool_calls[0]
-            return json.loads(tool_call.function.arguments)
+            # Check for valid JSON
+            try:
+                result = json.loads(tool_call.function.arguments)
+                # Validate required fields
+                for field in function_schema["parameters"].get("required", []):
+                    if field not in result:
+                        logger.warning(f"Missing required field '{field}' in API response")
+                return result
+            except json.JSONDecodeError as e:
+                logger.error(f"Invalid JSON in API response: {e}")
         
         logger.warning("Function call response not found, attempting to parse message content")
         if hasattr(response.choices[0].message, 'content'):
@@ -123,6 +150,7 @@ def call_xai_api(model: str, prompt: str, function_schema: dict, image_data: Opt
                     result["suggested_filename"] = clean_filename(Path(content).stem)
             return result
         
+        logger.error("Could not extract structured result from API response")
         return {}
     except Exception as e:
         logger.error(f"Error calling X.AI API: {e}")
