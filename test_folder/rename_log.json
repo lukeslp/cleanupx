@@ -1,0 +1,34 @@
+{
+  "renames": [
+    {
+      "original_path": "cleanupx.py",
+      "new_path": "cleanupx_wrapper_script.py",
+      "timestamp": "2025-04-09T16:18:19.224686",
+      "status": "success"
+    },
+    {
+      "original_path": "test.pdf",
+      "new_path": "test_document_notespdf.pdf",
+      "timestamp": "2025-04-09T16:18:21.410686",
+      "status": "success"
+    }
+  ],
+  "errors": [],
+  "timestamp": "2025-04-09T16:18:16.810708",
+  "stats": {
+    "total_files": 4,
+    "successful_renames": 2,
+    "failed_renames": 0,
+    "skipped_files": 0,
+    "images_processed": 0,
+    "text_processed": 1,
+    "documents_processed": 1,
+    "total_processed": 4,
+    "total_skipped": 0,
+    "skipped_large_files": 0,
+    "total_failed": 2
+  },
+  "directory": ".",
+  "recursive": false,
+  "skip_renamed": true
+}

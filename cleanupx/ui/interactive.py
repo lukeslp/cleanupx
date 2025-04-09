@@ -9,11 +9,13 @@ import random
 import string
 import sys
 from pathlib import Path
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Set
+from datetime import datetime
 
 try:
     from rich.console import Console
     from rich.panel import Panel
+    from rich.table import Table
     RICH_AVAILABLE = True
 except ImportError:
     RICH_AVAILABLE = False
@@ -28,6 +30,7 @@ except ImportError:
 
 from cleanupx.utils.cache import load_cache, load_rename_log, save_rename_log
 from cleanupx.ui.reporting import display_rename_report
+from cleanupx.utils.documentation import DocumentationManager
 from cleanupx.config import (
     IMAGE_EXTENSIONS, 
     TEXT_EXTENSIONS, 
@@ -89,7 +92,6 @@ def scramble_directory(target_dir: Path, rename_log: Optional[Dict] = None) -> i
                     
                     # Update rename log if provided
                     if rename_log is not None:
-                        from datetime import datetime
                         rename_entry = {
                             "original_path": str(file_path),
                             "new_path": str(new_path),
@@ -103,11 +105,207 @@ def scramble_directory(target_dir: Path, rename_log: Optional[Dict] = None) -> i
     
     # Save rename log
     if rename_log is not None:
-        from datetime import datetime
         rename_log["timestamp"] = datetime.now().isoformat()
         save_rename_log(rename_log)
     
     return scrambled_count
+
+def main_menu(console: Console) -> str:
+    """Display the main menu and get user choice."""
+    questions = [
+        inquirer.List(
+            'action',
+            message="What would you like to do?",
+            choices=[
+                ('Process and rename files', 'process'),
+                ('Generate directory summaries', 'summary'),
+                ('Manage citations', 'citations'),
+                ('Scramble filenames', 'scramble'),
+                ('Find duplicates', 'dedupe'),
+                ('Reorganize files', 'reorganize'),
+                ('Exit', 'exit')
+            ],
+        ),
+    ]
+    answer = inquirer.prompt(questions)
+    return answer['action'] if answer else 'exit'
+
+def process_files_menu(console: Console) -> Dict:
+    """Get file processing preferences from user."""
+    questions = [
+        inquirer.Path(
+            'directory',
+            message="Enter the directory path to process",
+            exists=True,
+            path_type=inquirer.Path.DIRECTORY,
+            default="inbox"
+        ),
+        inquirer.List(
+            'scope',
+            message="How would you like to process the directory?",
+            choices=[
+                ('Current directory only', 'single'),
+                ('Include subdirectories (recursive)', 'recursive')
+            ],
+        ),
+        inquirer.List(
+            'renamed_files',
+            message="How should previously renamed files be handled?",
+            choices=[
+                ('Skip previously renamed files', 'skip'),
+                ('Process all files', 'all')
+            ],
+        ),
+        inquirer.List(
+            'cache',
+            message="How should the cache be handled?",
+            choices=[
+                ('Use existing cache', 'use'),
+                ('Clear cache before starting', 'clear')
+            ],
+        ),
+        inquirer.Text(
+            'max_size',
+            message="Maximum file size to process in MB (larger files will be skipped)",
+            default="25"
+        ),
+        inquirer.Checkbox(
+            'file_types',
+            message="Which file types would you like to process?",
+            choices=[
+                ('Images (jpg, png, etc.)', 'images'),
+                ('Text files (txt, md, etc.)', 'text'),
+                ('Documents (pdf, docx, etc.)', 'documents'),
+                ('Archives (zip, rar, etc.)', 'archives')
+            ],
+            default=['images', 'text', 'documents', 'archives']
+        ),
+        inquirer.Confirm(
+            'proceed',
+            message="Ready to start processing?",
+            default=True
+        ),
+    ]
+    return inquirer.prompt(questions)
+
+def summary_menu(console: Console) -> Dict:
+    """Get summary generation preferences from user."""
+    questions = [
+        inquirer.Path(
+            'directory',
+            message="Select directory to generate summary for",
+            exists=True,
+            path_type=inquirer.Path.DIRECTORY,
+            default="inbox"
+        ),
+        inquirer.Checkbox(
+            'summary_types',
+            message="Which summaries would you like to generate?",
+            choices=[
+                ('Hidden summary (.cleanupx)', 'hidden'),
+                ('README.md', 'readme'),
+                ('Directory analysis', 'analysis'),
+                ('Organization suggestions', 'suggestions')
+            ],
+            default=['hidden', 'readme', 'analysis', 'suggestions']
+        ),
+        inquirer.Confirm(
+            'proceed',
+            message="Generate summaries?",
+            default=True
+        ),
+    ]
+    return inquirer.prompt(questions)
+
+def citations_menu(console: Console) -> Dict:
+    """Get citation management preferences from user."""
+    questions = [
+        inquirer.Path(
+            'directory',
+            message="Select directory to manage citations for",
+            exists=True,
+            path_type=inquirer.Path.DIRECTORY,
+            default="inbox"
+        ),
+        inquirer.List(
+            'action',
+            message="What would you like to do with citations?",
+            choices=[
+                ('Update citations', 'update'),
+                ('Display citations', 'display'),
+                ('Export citations to markdown', 'export')
+            ],
+        ),
+        inquirer.Confirm(
+            'proceed',
+            message="Proceed with citation management?",
+            default=True
+        ),
+    ]
+    return inquirer.prompt(questions)
+
+def dedupe_menu(console: Console) -> Dict:
+    """Get deduplication preferences from user."""
+    questions = [
+        inquirer.Path(
+            'directory',
+            message="Select directory to find duplicates in",
+            exists=True,
+            path_type=inquirer.Path.DIRECTORY,
+            default="inbox"
+        ),
+        inquirer.List(
+            'scope',
+            message="How would you like to search for duplicates?",
+            choices=[
+                ('Current directory only', 'single'),
+                ('Include subdirectories (recursive)', 'recursive')
+            ],
+        ),
+        inquirer.List(
+            'action',
+            message="How should duplicates be handled?",
+            choices=[
+                ('Show duplicates only (dry run)', 'dry_run'),
+                ('Delete duplicates automatically', 'auto_delete'),
+                ('Ask before deleting each duplicate', 'interactive')
+            ],
+        ),
+        inquirer.Confirm(
+            'proceed',
+            message="Start duplicate search?",
+            default=True
+        ),
+    ]
+    return inquirer.prompt(questions)
+
+def reorganize_menu(console: Console) -> Dict:
+    """Get reorganization preferences from user."""
+    questions = [
+        inquirer.Path(
+            'directory',
+            message="Select directory to reorganize",
+            exists=True,
+            path_type=inquirer.Path.DIRECTORY,
+            default="inbox"
+        ),
+        inquirer.List(
+            'method',
+            message="How would you like to reorganize?",
+            choices=[
+                ('By file type', 'type'),
+                ('By content category', 'category'),
+                ('By date', 'date'),
+                ('Custom organization', 'custom')
+            ],
+        ),
+        inquirer.Confirm(
+            'proceed',
+            message="Start reorganization?",
+            default=True
+        ),
+    ]
+    return inquirer.prompt(questions)
 
 def interactive_mode() -> int:
     """
@@ -122,146 +320,43 @@ def interactive_mode() -> int:
         return 1
         
     console = Console()
-    console.print(Panel("[bold cyan]Welcome to CleanupX![/bold cyan]\nThis tool helps organize your files by analyzing their content and renaming them appropriately.", 
-                      border_style="cyan", 
-                      title="CleanupX File Organizer", 
-                      subtitle="v1.0"))
+    console.print(Panel(
+        "[bold cyan]Welcome to CleanupX![/bold cyan]\n"
+        "This tool helps organize your files by analyzing their content and renaming them appropriately.", 
+        border_style="cyan", 
+        title="CleanupX File Organizer", 
+        subtitle="v1.0"
+    ))
     
-    console.print("")
-    
-    # First, choose the operation mode
-    mode_question = [
-        inquirer.List(
-            'mode',
-            message="Choose operation mode",
-            choices=[
-                ('Rename files with descriptive names based on content (default)', 'rename'),
-                ('Scramble filenames with random strings for privacy', 'scramble'),
-            ],
-        ),
-    ]
-    mode_answer = inquirer.prompt(mode_question)
-    if not mode_answer:
-        console.print("\n[yellow]Operation cancelled by user[/yellow]")
-        return 1
-    
-    if mode_answer['mode'] == 'scramble':
-        # Scramble mode
-        questions = [
-            inquirer.Path(
-                'directory',
-                message="Select directory to scramble filenames",
-                exists=True,
-                path_type=inquirer.Path.DIRECTORY,
-                default="inbox"
-            ),
-            inquirer.Confirm(
-                'confirm',
-                message="This will rename ALL files in the directory with random names. Continue?",
-                default=False
-            )
-        ]
+    while True:
+        action = main_menu(console)
         
-        answers = inquirer.prompt(questions)
-        if not answers or not answers['confirm']:
-            console.print("\n[yellow]Operation cancelled by user[/yellow]")
-            return 1
-        
-        directory = Path(answers['directory'])
-        rename_log = load_rename_log()
-        scrambled_count = scramble_directory(directory, rename_log)
-        
-        console.print(f"\n[bold green]Scrambling complete![/bold green]")
-        console.print(f"[cyan]Total files scrambled:[/cyan] {scrambled_count}")
-        
-        # Display the comprehensive report
-        display_rename_report(rename_log)
-        
-        return 0
-    
-    else:
-        # Original rename mode
-        questions = [
-            inquirer.Path(
-                'directory',
-                message="Enter the directory path to process",
-                exists=True,
-                path_type=inquirer.Path.DIRECTORY,
-                default="inbox"
-            ),
-            inquirer.List(
-                'scope',
-                message="How would you like to process the directory?",
-                choices=[
-                    ('Current directory only', 'single'),
-                    ('Include subdirectories (recursive)', 'recursive')
-                ],
-            ),
-            inquirer.List(
-                'renamed_files',
-                message="How should previously renamed files be handled?",
-                choices=[
-                    ('Skip previously renamed files', 'skip'),
-                    ('Process all files', 'all')
-                ],
-            ),
-            inquirer.List(
-                'cache',
-                message="How should the cache be handled?",
-                choices=[
-                    ('Use existing cache', 'use'),
-                    ('Clear cache before starting', 'clear')
-                ],
-            ),
-            inquirer.Text(
-                'max_size',
-                message="Maximum file size to process in MB (larger files will be skipped)",
-                default="25"
-            ),
-            inquirer.Checkbox(
-                'file_types',
-                message="Which file types would you like to process?",
-                choices=[
-                    ('Images (jpg, png, etc.)', 'images'),
-                    ('Text files (txt, md, etc.)', 'text'),
-                    ('Documents (pdf, docx, etc.)', 'documents'),
-                    ('Archives (zip, rar, etc.)', 'archives')
-                ],
-                default=['images', 'text', 'documents', 'archives']
-            ),
-            inquirer.Confirm(
-                'proceed',
-                message="Ready to start processing?",
-                default=True
-            ),
-        ]
-        
-        try:
-            answers = inquirer.prompt(questions)
-            if not answers or not answers['proceed']:
-                console.print("\n[yellow]Operation cancelled by user[/yellow]")
-                return 1
+        if action == 'exit':
+            console.print("\n[green]Thank you for using CleanupX![/green]")
+            return 0
             
-            # Process the user's choices
+        elif action == 'process':
+            answers = process_files_menu(console)
+            if not answers or not answers['proceed']:
+                continue
+            
+            # Process files based on user preferences
             directory = Path(answers['directory'])
             recursive = answers['scope'] == 'recursive'
             skip_renamed = answers['renamed_files'] == 'skip'
             clear_cache = answers['cache'] == 'clear'
-            selected_types = set(answers['file_types'])
-            
-            # Parse max_size with error handling
             try:
                 max_size = float(answers['max_size'])
             except ValueError:
                 console.print("[yellow]Invalid max size value, using default of 25MB[/yellow]")
                 max_size = 25.0
-            
+            selected_types = set(answers['file_types'])
+
             if clear_cache and os.path.exists(CACHE_FILE):
                 os.remove(CACHE_FILE)
                 console.print("[yellow]Cache cleared[/yellow]")
-                
-            # Configure file types to process based on user selection
-            global IMAGE_EXTENSIONS, TEXT_EXTENSIONS, DOCUMENT_EXTENSIONS, ARCHIVE_EXTENSIONS
+
+            # Configure file types based on user selection
             from cleanupx import config
             if 'images' not in selected_types:
                 config.IMAGE_EXTENSIONS = set()
@@ -271,7 +366,7 @@ def interactive_mode() -> int:
                 config.DOCUMENT_EXTENSIONS = set()
             if 'archives' not in selected_types:
                 config.ARCHIVE_EXTENSIONS = set()
-                
+
             console.print(Panel(
                 f"[bold]Processing directory:[/bold] {directory}\n"
                 f"[bold]Recursive:[/bold] {'Yes' if recursive else 'No'}\n"
@@ -281,33 +376,107 @@ def interactive_mode() -> int:
                 title="Processing Configuration",
                 border_style="cyan"
             ))
+            console.print("[blue]Starting file processing...[/blue]")
+            try:
+                from cleanupx.main import process_directory
+                with console.status("[bold green]Processing files...", spinner="dots") as status:
+                    stats = process_directory(directory, recursive=recursive, skip_renamed=skip_renamed, max_size_mb=max_size)
+
+                console.print(Panel(
+                    f"[bold]Total files processed:[/bold] {stats['total']}\n"
+                    f"[bold]Images processed:[/bold] {stats['images']}\n"
+                    f"[bold]Text files processed:[/bold] {stats['text']}\n"
+                    f"[bold]Documents processed:[/bold] {stats['documents']}\n"
+                    f"[bold]Files skipped:[/bold] {stats['skipped']}\n"
+                    f"[bold]Files skipped (too large):[/bold] {stats.get('skipped_large', 0)}\n"
+                    f"[bold]Files failed:[/bold] {stats['failed']}",
+                    title="[bold green]Processing Complete![/bold green]",
+                    border_style="green"
+                ))
+
+                rename_log = load_rename_log()
+                display_rename_report(rename_log)
+            except KeyboardInterrupt:
+                console.print("\n[yellow]Operation cancelled by user[/yellow]")
+            except Exception as e:
+                console.print(f"\n[bold red]Error: {e}[/bold red]")
             
-            # Import process_directory here to avoid circular imports
-            from cleanupx.main import process_directory
+        elif action == 'summary':
+            answers = summary_menu(console)
+            if not answers or not answers['proceed']:
+                continue
+                
+            directory = Path(answers['directory'])
+            doc_manager = DocumentationManager(directory)
             
-            with console.status("[bold green]Processing files...", spinner="dots") as status:
-                stats = process_directory(directory, recursive=recursive, skip_renamed=skip_renamed, max_size_mb=max_size)
+            if 'hidden' in answers['summary_types']:
+                doc_manager.update_hidden_summary()
+            if 'readme' in answers['summary_types']:
+                doc_manager.generate_readme()
+            if 'analysis' in answers['summary_types']:
+                doc_manager.display_summary()
+            if 'suggestions' in answers['summary_types']:
+                # TODO: Implement organization suggestions
+                pass
+                
+        elif action == 'citations':
+            answers = citations_menu(console)
+            if not answers or not answers['proceed']:
+                continue
+                
+            directory = Path(answers['directory'])
+            doc_manager = DocumentationManager(directory)
             
-            console.print(Panel(
-                f"[bold]Total files processed:[/bold] {stats['total']}\n"
-                f"[bold]Images processed:[/bold] {stats['images']}\n"
-                f"[bold]Text files processed:[/bold] {stats['text']}\n"
-                f"[bold]Documents processed:[/bold] {stats['documents']}\n"
-                f"[bold]Files skipped:[/bold] {stats['skipped']}\n"
-                f"[bold]Files skipped (too large):[/bold] {stats.get('skipped_large', 0)}\n"
-                f"[bold]Files failed:[/bold] {stats['failed']}",
-                title="[bold green]Processing Complete![/bold green]",
-                border_style="green"
-            ))
+            if answers['action'] == 'update':
+                doc_manager.update_citations()
+            elif answers['action'] == 'display':
+                doc_manager.display_citations()
+            elif answers['action'] == 'export':
+                # TODO: Implement citation export
+                pass
+                
+        elif action == 'scramble':
+            questions = [
+                inquirer.Path(
+                    'directory',
+                    message="Select directory to scramble filenames",
+                    exists=True,
+                    path_type=inquirer.Path.DIRECTORY,
+                    default="inbox"
+                ),
+                inquirer.Confirm(
+                    'confirm',
+                    message="This will rename ALL files in the directory with random names. Continue?",
+                    default=False
+                )
+            ]
             
-            # Display comprehensive rename report
+            answers = inquirer.prompt(questions)
+            if not answers or not answers['confirm']:
+                continue
+                
+            directory = Path(answers['directory'])
             rename_log = load_rename_log()
+            scrambled_count = scramble_directory(directory, rename_log)
+            
+            console.print(f"\n[bold green]Scrambling complete![/bold green]")
+            console.print(f"[cyan]Total files scrambled:[/cyan] {scrambled_count}")
+            
             display_rename_report(rename_log)
             
-            return 0
-        except KeyboardInterrupt:
-            console.print("\n[yellow]Operation cancelled by user[/yellow]")
-            return 1
-        except Exception as e:
-            console.print(f"\n[bold red]Error: {e}[/bold red]")
-            return 1
+        elif action == 'dedupe':
+            answers = dedupe_menu(console)
+            if not answers or not answers['proceed']:
+                continue
+                
+            # TODO: Implement deduplication with these preferences
+            
+        elif action == 'reorganize':
+            answers = reorganize_menu(console)
+            if not answers or not answers['proceed']:
+                continue
+                
+            # TODO: Implement reorganization with these preferences
+            
+        console.print("\n[cyan]Press Enter to continue...[/cyan]")
+        input()

@@ -47,7 +47,8 @@ def create_hidden_summary(directory: Path) -> Dict[str, Any]:
         "project_info": {
             "name": directory.name,
             "type": None,
-            "description": None
+            "description": None,
+            "from_project_plan": False
         },
         "organization": {
             "current_scheme": None,
@@ -64,11 +65,12 @@ def create_hidden_summary(directory: Path) -> Dict[str, Any]:
         
         for item in directory.iterdir():
             if item.is_file():
-                if not item.name.startswith('.'):  # Skip other hidden files
+                if not item.name.startswith('.'):  # Skip hidden files
                     files.append(item)
                     total_size += item.stat().st_size
             elif item.is_dir():
-                directories.append(item)
+                if not item.name.startswith('.'):  # Skip hidden directories
+                    directories.append(item)
         
         summary["file_count"] = len(files)
         summary["directory_count"] = len(directories)
@@ -93,7 +95,7 @@ def create_hidden_summary(directory: Path) -> Dict[str, Any]:
                     "size": item.stat().st_size,
                     "modified": datetime.fromtimestamp(item.stat().st_mtime).isoformat()
                 }
-            elif item.is_dir():
+            elif item.is_dir() and not item.name.startswith('.'):
                 subdir_file_count = sum(1 for _ in item.glob('*') if not Path(_).name.startswith('.'))
                 file_tree[item.name] = {
                     "type": "directory",
@@ -101,6 +103,22 @@ def create_hidden_summary(directory: Path) -> Dict[str, Any]:
                 }
         
         summary["file_tree"] = file_tree
+        
+        # Check for PROJECT_PLAN.md
+        project_plan_path = directory / "PROJECT_PLAN.md"
+        if project_plan_path.exists():
+            try:
+                from cleanupx.utils.directory_summary import parse_project_plan
+                project_info = parse_project_plan(project_plan_path)
+                if project_info:
+                    summary["project_info"] = {
+                        "name": project_info.get("title") or directory.name,
+                        "type": "project",
+                        "description": project_info.get("description"),
+                        "from_project_plan": True
+                    }
+            except Exception as e:
+                logger.error(f"Error parsing PROJECT_PLAN.md: {e}")
         
     except Exception as e:
         logger.error(f"Error creating directory summary for {directory}: {e}")
@@ -158,27 +176,34 @@ def update_with_ai_analysis(summary: Dict[str, Any], directory: Path) -> Dict[st
         Updated summary dictionary
     """
     try:
-        from cleanupx.config import XAI_MODEL_TEXT, DIRECTORY_ANALYSIS_SCHEMA
-        from cleanupx.api import call_xai_api
+        # Import safely - if this fails, we'll still return a basic summary
+        try:
+            from cleanupx.config import XAI_MODEL_TEXT, DIRECTORY_ANALYSIS_SCHEMA
+            from cleanupx.api import call_xai_api
+        except ImportError as e:
+            logger.warning(f"Could not import AI modules: {e}. Skipping AI analysis.")
+            return summary
         
+        # Create a simple directory content description if AI fails
+        if summary.get("file_count", 0) == 0:
+            default_description = f"Empty directory named '{directory.name}'."
+            summary["project_info"]["description"] = default_description
+            summary["content_analysis"]["topics"] = ["empty directory"]
+            logger.info(f"Directory {directory} is empty, using default description")
+            return summary
+            
         # Create a prompt for the AI to analyze the directory
-        prompt = f"""
-        You are analyzing a directory and its contents to provide insights and organization suggestions.
+        file_types = [ext for ext, count in summary.get('categories', {}).items() if count > 0]
+        file_type_str = ", ".join(file_types) if file_types else "no recognized file types"
         
-        Directory: {directory.name}
+        # Simplify the prompt to reduce processing
+        prompt = f"""
+        Analyze directory: {directory.name}
         File count: {summary.get('file_count', 0)}
         Directory count: {summary.get('directory_count', 0)}
+        File types: {file_type_str}
         
-        Categories:
-        {json.dumps(summary.get('categories', {}), indent=2)}
-        
-        File tree:
-        {json.dumps(summary.get('file_tree', {}), indent=2)}
-        
-        Keywords found in files:
-        {', '.join(summary.get('content_analysis', {}).get('keywords', []))}
-        
-        Based on this information, provide a description of the directory contents, likely topics, and organization suggestions.
+        Based on this information, provide a description of the directory, likely topics, and organization suggestions.
         """
         
         # Call the AI API and parse the result
@@ -193,11 +218,23 @@ def update_with_ai_analysis(summary: Dict[str, Any], directory: Path) -> Dict[st
                 summary["organization"]["suggestions"] = result.get("organization_suggestions", [])
                 
                 logger.info(f"Updated directory summary for {directory} with AI analysis")
+            else:
+                # Fallback to basic description if AI fails
+                fallback_description = f"Directory '{directory.name}' containing {summary.get('file_count', 0)} files and {summary.get('directory_count', 0)} subdirectories."
+                summary["project_info"]["description"] = fallback_description
+                logger.warning(f"AI analysis didn't return valid results for {directory}. Using fallback description.")
         except Exception as ai_error:
             logger.error(f"Error in AI analysis for {directory}: {ai_error}")
+            # Create fallback content if AI fails
+            fallback_description = f"Directory '{directory.name}' containing {summary.get('file_count', 0)} files and {summary.get('directory_count', 0)} subdirectories."
+            summary["project_info"]["description"] = fallback_description
     
     except Exception as e:
         logger.error(f"Error updating AI analysis for {directory}: {e}")
+        # Ensure we have at least a basic description
+        fallback_description = f"Directory '{directory.name}' containing {summary.get('file_count', 0)} files and {summary.get('directory_count', 0)} subdirectories."
+        if "project_info" in summary:
+            summary["project_info"]["description"] = fallback_description
     
     return summary
 
@@ -254,65 +291,89 @@ def get_hidden_summary(directory: Path) -> Dict[str, Any]:
     
     return summary
 
-def update_hidden_summary(directory: Path, full_analysis: bool = False) -> Dict[str, Any]:
+def update_hidden_summary(directory: Path, changes: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Update the hidden summary for a directory.
+    Update an existing hidden summary file with new information.
     
     Args:
-        directory: Directory path to update the summary for
-        full_analysis: Whether to perform a full analysis with AI
+        directory: Directory path to update
+        changes: Dictionary containing changes to apply
         
     Returns:
         Updated summary dictionary
     """
-    directory = Path(directory)  # Ensure it's a Path object
-    summary_file = directory / HIDDEN_SUMMARY_FILE
+    summary = get_hidden_summary(directory)
+    if not summary:
+        return create_hidden_summary(directory)
     
-    # Start with a new summary or load existing one
-    if summary_file.exists():
-        try:
-            with open(summary_file, 'r', encoding='utf-8') as f:
-                summary = json.load(f)
-                
-            # Archive the current state in history
-            if "history" not in summary:
-                summary["history"] = []
-            
-            # Only keep the 5 most recent history entries
-            summary["history"] = summary["history"][-4:] if len(summary["history"]) > 4 else summary["history"]
-            
-            # Add current state to history
-            history_entry = {
-                "timestamp": summary.get("updated"),
-                "file_count": summary.get("file_count"),
-                "directory_count": summary.get("directory_count"),
-                "categories": summary.get("categories"),
-                "organization_scheme": summary.get("organization", {}).get("current_scheme")
-            }
-            summary["history"].append(history_entry)
-            
-        except Exception as e:
-            logger.error(f"Error reading hidden summary file {summary_file}: {e}")
-            summary = create_hidden_summary(directory)
-    else:
-        summary = create_hidden_summary(directory)
-    
-    # Update the basic statistics
-    new_summary = create_hidden_summary(directory)
-    summary["file_count"] = new_summary["file_count"]
-    summary["directory_count"] = new_summary["directory_count"]
-    summary["total_size_bytes"] = new_summary["total_size_bytes"]
-    summary["categories"] = new_summary["categories"]
-    summary["file_tree"] = new_summary["file_tree"]
+    # Update timestamp
     summary["updated"] = datetime.now().isoformat()
     
-    # Perform content analysis if requested
-    if full_analysis:
-        summary = analyze_directory_content(directory, summary)
-        summary = update_with_ai_analysis(summary, directory)
+    # Track changes in history
+    change_entry = {
+        "timestamp": datetime.now().isoformat(),
+        "changes": changes
+    }
+    summary["history"].append(change_entry)
     
-    # Save the updated summary
-    save_hidden_summary(directory, summary)
+    # Apply changes
+    for key, value in changes.items():
+        if key in summary:
+            if isinstance(summary[key], dict) and isinstance(value, dict):
+                summary[key].update(value)
+            else:
+                summary[key] = value
+    
+    # Recalculate statistics if needed
+    if any(key in changes for key in ["file_count", "directory_count", "total_size_bytes"]):
+        try:
+            files = []
+            directories = []
+            total_size = 0
+            
+            for item in directory.iterdir():
+                if item.is_file():
+                    if not item.name.startswith('.'):  # Skip hidden files
+                        files.append(item)
+                        total_size += item.stat().st_size
+                elif item.is_dir():
+                    if not item.name.startswith('.'):  # Skip hidden directories
+                        directories.append(item)
+            
+            summary["file_count"] = len(files)
+            summary["directory_count"] = len(directories)
+            summary["total_size_bytes"] = total_size
+            
+            # Update categories
+            categories = {}
+            for file in files:
+                ext = file.suffix.lower()
+                if ext not in categories:
+                    categories[ext] = 0
+                categories[ext] += 1
+            
+            summary["categories"] = categories
+            
+            # Update file tree
+            file_tree = {}
+            for item in directory.iterdir():
+                if item.is_file() and not item.name.startswith('.'):
+                    file_tree[item.name] = {
+                        "type": "file",
+                        "size": item.stat().st_size,
+                        "modified": datetime.fromtimestamp(item.stat().st_mtime).isoformat()
+                    }
+                elif item.is_dir() and not item.name.startswith('.'):
+                    subdir_file_count = sum(1 for _ in item.glob('*') if not Path(_).name.startswith('.'))
+                    file_tree[item.name] = {
+                        "type": "directory",
+                        "count": subdir_file_count
+                    }
+            
+            summary["file_tree"] = file_tree
+            
+        except Exception as e:
+            logger.error(f"Error recalculating directory statistics: {e}")
     
     return summary
 

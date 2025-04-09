@@ -1,0 +1,92 @@
+{
+  "directory": ".",
+  "created": "2025-04-09T16:18:16.455297",
+  "updated": "2025-04-09T16:18:21.428803",
+  "file_count": 4,
+  "directory_count": 0,
+  "total_size_bytes": 1836,
+  "categories": {
+    ".json": 2,
+    ".py": 1,
+    ".pdf": 1
+  },
+  "file_tree": {
+    "rename_log.json": {
+      "type": "file",
+      "size": 795,
+      "modified": "2025-04-09T16:18:21.412961"
+    },
+    "cleanupx_wrapper_script.py": {
+      "type": "file",
+      "size": 393,
+      "modified": "2025-04-09T16:17:20.544838"
+    },
+    "test_document_notespdf.pdf": {
+      "type": "file",
+      "size": 0,
+      "modified": "2025-04-09T16:17:20.547706"
+    },
+    "generated_alts.json": {
+      "type": "file",
+      "size": 648,
+      "modified": "2025-04-09T16:18:21.411191"
+    }
+  },
+  "content_analysis": {
+    "themes": [],
+    "keywords": [
+      "alts",
+      "cleanupx",
+      "document",
+      "generated",
+      "notespdf",
+      "rename",
+      "script",
+      "test",
+      "wrapper"
+    ],
+    "topics": []
+  },
+  "project_info": {
+    "name": "",
+    "type": null,
+    "description": "Directory '' containing 4 files and 0 subdirectories."
+  },
+  "organization": {
+    "current_scheme": null,
+    "suggestions": []
+  },
+  "history": [
+    {
+      "timestamp": "2025-04-09T16:18:16.792638",
+      "file_count": 2,
+      "directory_count": 0,
+      "categories": {
+        ".py": 1,
+        ".pdf": 1
+      },
+      "organization_scheme": null
+    },
+    {
+      "timestamp": "2025-04-09T16:18:16.796445",
+      "file_count": 2,
+      "directory_count": 0,
+      "categories": {
+        ".py": 1,
+        ".pdf": 1
+      },
+      "organization_scheme": null
+    },
+    {
+      "timestamp": "2025-04-09T16:18:21.421967",
+      "file_count": 4,
+      "directory_count": 0,
+      "categories": {
+        ".json": 2,
+        ".py": 1,
+        ".pdf": 1
+      },
+      "organization_scheme": null
+    }
+  ]
+}

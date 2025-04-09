@@ -583,6 +583,14 @@ def update_directory_summary(directory: Path, include_user_prefs: bool = False) 
         with open(summary_path, 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=2)
         logger.info(f"Updated directory summary: {summary_path}")
+        
+        # Also update the .cleanupx file for compatibility
+        try:
+            from cleanupx.utils.hidden_summary import update_hidden_summary
+            update_hidden_summary(directory, full_analysis=True)
+            logger.info(f"Updated hidden summary (.cleanupx) for {directory}")
+        except Exception as e:
+            logger.warning(f"Could not update .cleanupx file: {e}")
     except Exception as e:
         logger.error(f"Error saving directory summary: {e}")
     

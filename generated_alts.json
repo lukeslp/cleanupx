@@ -1,94 +1,192 @@
 {
-  "inbox/spinal_muscular_atrophy_ubiquitin_beta_catenin_14p.pdf": {
-    "description": "The document is a research article published in The Journal of Clinical Investigation in April 2014. It discusses the role of ubiquitin homeostasis and \u03b2-catenin signaling in the pathogenesis of spinal muscular atrophy (SMA). The article details how reduced levels of survival motor neuron (SMN) protein lead to SMA, with a focus on ubiquitin-dependent pathways. It includes findings from mouse, zebrafish, and Drosophila models, showing that ubiquitin homeostasis disruption and \u03b2-catenin accumulation contribute to SMA's neuromuscular pathology. The article also explores the potential of targeting ubiquitin homeostasis and \u03b2-catenin signaling as therapeutic strategies for SMA.",
-    "document_type": "research article",
-    "suggested_filename": "spinal_muscular_atrophy_ubiquitin_beta_catenin"
-  },
-  "inbox/image_assets_with_manifest.zip": {
-    "suggested_filename": "image_assets_with_manifest",
-    "summary_md": "## Archive Contents\n\n- **color.png**: An image file, likely containing color information.\n- **outline.png**: An image file, likely containing outline information.\n- **manifest.json**: A JSON file, likely containing metadata or configuration for the images."
-  },
-  "inbox/web_accessibility_for_motor_disabilities_7p.pdf": {
-    "description": "The document discusses the importance of web accessibility for individuals with motor disabilities. It defines motor disabilities, lists various conditions like cerebral palsy, muscular dystrophy, multiple sclerosis, spina bifida, ALS, arthritis, Parkinson's disease, essential tremor, spinal cord injuries, and limb loss. It also describes assistive technologies such as head wands, mouth sticks, single switches, sip-and-puff switches, oversized trackball mice, adaptive keyboards, eye-tracking devices, and voice recognition software. The document emphasizes the need for effective keyboard navigation and adherence to WAI-ARIA guidelines to enhance web accessibility.",
-    "document_type": "article",
-    "suggested_filename": "web_accessibility_for_motor_disabilities"
+  "inbox/human_factors_clinical_data_summary.md": {
+    "description": "The document is a summary of an archive containing 409 files and directories related to human factors and clinical data. It lists key documents such as a detailed breakdown of human factors, a comprehensive table for clinical diagnostics, user personas and use cases, acceptance criteria for human factors and clinical settings, and quick reference tables. Additional files cover topics like photosensitive epilepsy, behavioral considerations, allergies, visual and structural comorbidities, market data visualization, guiding principles, strategic financials, bibliographies, glossaries, and internal invitations. The purpose of this document is to provide an overview of the contents of the archive, serving as a guide for users to understand the scope and organization of the data.",
+    "document_type": "summary",
+    "suggested_filename": "human_factors_clinical_data_summary"
   },
   "inbox/cancelled_events_calendar.ics": {
-    "description": "This document is an iCalendar (.ics) file that contains a series of cancelled events related to various activities such as rent payments, social skills groups, conference calls, and school events. The events are organized by different individuals and include details like start and end times, recurrence rules, and participant information. The purpose of this document appears to be to keep track of scheduled events and their cancellations.",
+    "description": "This document is an iCalendar (.ics) file containing a series of cancelled events from various organizers. It includes events like rent due dates, social skills groups, conference calls, and school-related activities, all of which have been cancelled. The file also contains timezone information for America/Los_Angeles and details about the events such as start and end times, recurrence rules, and participant statuses.",
     "document_type": "calendar",
     "suggested_filename": "cancelled_events_calendar"
   },
-  "inbox/binary_data_storage": {
-    "description": "The document appears to be a binary file with a specific structure, possibly related to a database or a data storage system. It contains various sections of data, including headers, metadata, and possibly data records. The purpose of this document could be to store or manage data in a structured format.",
-    "document_type": "data",
-    "suggested_filename": "binary_data_storage"
+  "inbox/image_assets_with_manifest.zip": {
+    "suggested_filename": "image_assets_with_manifest",
+    "summary_md": "The archive contains three files:\n\n- **color.png**: A PNG image file.\n- **outline.png**: A PNG image file.\n- **manifest.json**: A JSON file, likely containing metadata or configuration for the images."
   },
-  "inbox/loess_magnetism_article_1995_31p.pdf": {
-    "description": "The document is an article titled 'Loess Magnetism' published in Reviews of Geophysics in May 1995. It discusses the magnetic properties of loess, a type of sediment. The article has been cited 367 times and has 413 reads. The authors, Friedrich Heller from ETH Zurich and Michael E Evans from the University of Alberta, are also involved in related projects like Cordilleran Cenozoic Volcanics. The document was uploaded by Friedrich Heller on 15 April 2015, with a request for enhancement of the downloaded file.",
-    "document_type": "article",
-    "suggested_filename": "loess_magnetism_article_1995"
+  "inbox/macos_folder_settings": {
+    "description": "The document appears to be a macOS system file used for storing custom folder settings and view options. It contains binary data related to file and folder attributes, such as sorting and display settings. The file includes references to various files and folders, possibly indicating recent interactions or specific configurations.",
+    "document_type": "configuration",
+    "suggested_filename": "macos_folder_settings"
   },
-  "inbox/chi_2020_aac_conversational_agency_12p.pdf": {
-    "description": "The document is a research paper presented at the CHI 2020 conference in Honolulu, HI, USA, focusing on conversational agency in augmentative and alternative communication (AAC). It discusses how augmented communicators (ACs) use AAC technologies and the constraints they face in communication, such as when they can speak, what they can say, and who they can address. The paper introduces conversational agency as a framework to study AC communication, detailing a study with four triads of expert ACs, their close conversation partners, and a third party. It defines metrics for analyzing AAC conversational agency and concludes with implications for future research to enhance ACs' conversational agency.",
-    "document_type": "research paper",
-    "suggested_filename": "chi_2020_aac_conversational_agency"
-  },
-  "inbox/citations_from_inbox_2025_04_09.md": {
-    "description": "This document contains a list of citations from various academic sources, generated on 2025-04-09. It includes references from journals and proceedings across multiple fields such as education, health, and environmental science. The purpose of this document appears to be a compilation of research references for further study or citation in academic work.",
-    "document_type": "references",
-    "suggested_filename": "citations_from_inbox_2025_04_09"
-  },
-  "inbox/exploratory_study_aac_integration_bahamas_26p.pdf": {
-    "description": "The document is a research article titled 'An Exploratory Study on Augmentative and Alternative Communication Classroom Integration Training for Special Educators Who Work With Children With Complex Communication Needs in the Bahamas'. It discusses the benefits of a study on AAC classroom integration training for special educators in the Bahamas, focusing on children with complex communication needs (CCN). The study found that all participants reported increased knowledge and skills in implementing AAC in their classrooms. The article also highlights the limitations in special education services and training in the Bahamas and the broader English-speaking Caribbean, emphasizing the need for more inclusive education systems and better training for special educators.",
-    "document_type": "research article",
-    "suggested_filename": "exploratory_study_aac_integration_bahamas"
-  },
-  "inbox/image_assets_and_manifest.zip": {
-    "suggested_filename": "image_assets_and_manifest",
-    "summary_md": "## Archive Contents\n\n- **color.png**: An image file, likely containing color information.\n- **outline.png**: An image file, likely containing outline information.\n- **manifest.json**: A JSON file, likely containing metadata or configuration for the images."
-  },
-  "inbox/harry_potter_half_blood_prince_split_summary.md": {
-    "description": "This document is an archive summary detailing the contents of 'harry_potter_half_blood_prince_split.zip', which includes three PDF files representing different page ranges of 'Harry Potter and the Half-Blood Prince' by J.K. Rowling. The purpose of this document is to provide a clear overview of the split files within the archive.",
-    "document_type": "notes",
-    "suggested_filename": "harry_potter_half_blood_prince_split_summary"
-  },
-  "inbox/request_to_add_sgd_services_to_medicare_telehealth_68p.pdf": {
-    "description": "The document is a formal request submitted to add specific evaluation and therapeutic services related to speech-generating augmentative and alternative communication devices to the list of Medicare telehealth services. It includes contact information of the requestor, details on the proposed CPT codes, descriptions of the medical professionals involved, and arguments supporting the urgent need for these services to be included in telehealth. The document lists numerous organizations and professionals supporting the request, including their contact details and credentials.",
-    "document_type": "request",
-    "suggested_filename": "request_to_add_sgd_services_to_medicare_telehealth"
-  },
-  "inbox/scalp_infections_and_neoplasms_23p.pdf": {
-    "description": "The document is a detailed chapter from a book published by IntechOpen, focusing on cutaneous infections, infestations, and neoplasms of the scalp. It includes sections on bacterial infections like folliculitis, folliculitis decalvans, and others, fungal infections such as tinea capitis, and neoplasms like trichilemmal cyst. The chapter also provides information on the publisher's statistics, open access policy, and contact details for publishing.",
-    "document_type": "article",
-    "suggested_filename": "scalp_infections_and_neoplasms"
-  },
-  "inbox/human_factors_clinical_data.zip": {
-    "suggested_filename": "human_factors_clinical_data",
-    "summary_md": "## Archive Summary\n\nThe archive contains 409 files and directories, primarily focused on human factors and clinical data. Key documents include:\n\n- **HF Wiki Teardown**: Detailed breakdown of human factors.\n- **Reference Table Clinical and Diagnostic Characteristics**: A comprehensive table for clinical diagnostics.\n- **User Personas and Use Cases**: Documentation on user personas and their use cases.\n- **Acceptance Criterion Human Factors and Clinical Use**: Criteria for acceptance in human factors and clinical settings.\n- **Quick Reference Tables**: For target populations, key characteristics, and other quick references.\n\nAdditional files cover topics like photosensitive epilepsy, behavioral considerations, allergies, visual and structural comorbidities, market data visualization, guiding principles, strategic financials, bibliographies, glossaries, and internal invitations. The archive also includes CSV files for 'Where we're at' and 'Glossary of Terms - Evolving Draft'."
-  },
-  "inbox/metal_nanomaterials_immune_effects_allergic_diseas_39p.pdf": {
-    "description": "The document is a review article from the Journal of Immunotoxicology, discussing the immune effects of metal nanomaterials and their implications on allergic diseases. It covers the potential for metal nanomaterials to induce or exacerbate allergic diseases, focusing on both respiratory and dermal allergies. The article also examines the influence of physicochemical properties of metal nanomaterials on their biological interactions and highlights the need for further research in this area.",
-    "document_type": "article",
-    "suggested_filename": "metal_nanomaterials_immune_effects_allergic_disease"
-  },
-  "inbox/conversational_agency_aac_chi2020_12p.pdf": {
-    "description": "The document is a research paper titled 'Conversational Agency in Augmentative and Alternative Communication' presented at CHI 2020. It discusses the concept of conversational agency in the context of augmented communicators (ACs) who use augmentative and alternative communication (AAC) technologies. The paper explores how different conversational constraints and relationships affect the agency of ACs in communication, using a study involving ACs, their close conversational partners (CCPs), and a third party. It introduces metrics to analyze AAC conversational agency and concludes with implications for future research to enhance ACs' ability to exercise conversational agency.",
-    "document_type": "research paper",
-    "suggested_filename": "conversational_agency_aac_chi2020"
-  },
-  "inbox/proteomic_assessment_of_sma_model_13p.pdf": {
-    "description": "The document is a research article from BMC Neuroscience, published in 2011, focusing on a proteomic assessment of a cell model of spinal muscular atrophy (SMA). It discusses the use of embryonic stem cells from a severe SMA mouse model to study motor neuron differentiation and the effects of SMN deficiency on cellular pathways. The study found that SMN deficiency activates stress pathways, affecting energy metabolism, protein degradation, and cytoskeleton stability. The article includes detailed methods for enhancing motor neuron differentiation efficiency and presents findings on protein expression changes relevant to SMA.",
-    "document_type": "research article",
-    "suggested_filename": "proteomic_assessment_of_sma_model"
-  },
-  "inbox/cyre_support_plan_hard_boundaries.docx": {
-    "description": "The document outlines a support plan for CyRe, detailing procedures for enforcing hard boundaries and safely transporting him from restricted areas to designated safe zones like the gym or game room. It includes specific instructions for two staff members to execute the transport, emphasizing the need for physical coordination and verbal cues. The plan also stresses the importance of never transporting CyRe alone and the continuation of self-regulation activities post-transport.",
+  "inbox/cyre_support_plan_hard_boundariesdocx.docx": {
+    "description": "The document outlines a support plan for CyRe, detailing procedures for enforcing hard boundaries and transporting him from restricted areas to designated safe zones like the gym or game room. It includes specific instructions for two staff members to physically transport CyRe, ensuring his safety and self-regulation. The plan emphasizes the necessity of two people for the transport and lists specific areas considered as hard boundaries.",
     "document_type": "support plan",
     "suggested_filename": "cyre_support_plan_hard_boundaries"
   },
-  "inbox/2gdrtfq7nv.pdf": {
-    "description": "The document is an academic article focused on Augmentative and Alternative Communication (AAC) considerations for adults with significant cognitive disabilities. It discusses challenges in using AAC with people who have aphasia, types of communicators, components of AAC evaluation, and specific AAC considerations for adults with developmental disabilities. The article also covers communication modalities, intervention strategies, and the use of AAC systems to enhance communication for individuals with severe cognitive disabilities.",
+  "inbox/harry_potter_half_blood_prince_archive_summary.md": {
+    "description": "This document is a summary of the contents of the 'harry_potter_half_blood_prince_split.zip' archive, which contains three PDF files representing different sections of the book 'Harry Potter and the Half-Blood Prince' by J.K. Rowling. The purpose of this document is to provide an overview of the archive's contents, detailing the page ranges of each PDF file within the archive.",
+    "document_type": "summary",
+    "suggested_filename": "harry_potter_half_blood_prince_archive_summary"
+  },
+  "inbox/human_factors_clinical_data_analysis.zip": {
+    "suggested_filename": "human_factors_clinical_data_analysis",
+    "summary_md": "## Human Factors and Clinical Data Archive\n\nThis archive contains 409 files and directories related to human factors and clinical data. Key contents include:\n\n- **Wiki Teardown**: Detailed analysis of human factors.\n- **Reference Tables**: Clinical and diagnostic characteristics, target populations, and key considerations.\n- **User Personas and Use Cases**: Insights into user interactions and scenarios.\n- **Acceptance Criteria**: Standards for human factors and clinical usability.\n- **Photosensitive Epilepsy**: Specific considerations for this condition.\n- **Behavioral Considerations**: Factors affecting user behavior.\n- **Bibliographies and Glossaries**: References and terminology used in the field.\n- **Market Data and Strategic Financials**: Business and financial aspects related to human factors.\n- **Health Conditions**: Allergies, dermal concerns, visual and orthopedic comorbidities.\n\nThe archive also includes various other documents and data files, totaling 389 additional items."
+  },
+  "inbox/loess_magnetism_article_1995_31ppdf.pdf": {
+    "description": "The document is an article titled 'Loess Magnetism' published in Reviews of Geophysics in May 1995. It discusses the magnetic properties of loess, a type of sediment. The article has been cited 367 times and has 413 reads. The authors, Friedrich Heller from ETH Zurich and Michael E. Evans from the University of Alberta, are also involved in related projects like Cordilleran Cenozoic Volcanics. The document was uploaded by Friedrich Heller on 15 April 2015, with a request for enhancement of the downloaded file.",
+    "document_type": "article",
+    "suggested_filename": "loess_magnetism_article_1995"
+  },
+  "inbox/aac_considerations_for_adults_with_cognitive_disab.pdf": {
+    "description": "The document discusses Augmentative and Alternative Communication (AAC) considerations for adults with significant cognitive disabilities. It covers challenges in using AAC with people who have aphasia, types of communicators, components of an AAC evaluation, and the population of adults with developmental disabilities. The document also explores communication modalities and intervention strategies, including gestural, graphic, and verbal communication, and the use of nonsymbolic and symbolic systems. It emphasizes the importance of communication partners and environmental supports in enabling individuals with severe disabilities to reach their potential. The document includes examples of AAC systems in use, such as communication boards, digitized devices, and the use of graphic symbols to enhance intelligibility.",
     "document_type": "article",
     "suggested_filename": "aac_considerations_for_adults_with_cognitive_disabilities"
+  },
+  "inbox/spinal_muscular_atrophy_ubiquitin_beta_catenin_14p.pdf": {
+    "description": "The document is a research article published in The Journal of Clinical Investigation in April 2014, focusing on the dysregulation of ubiquitin homeostasis and \u03b2-catenin signaling in the context of spinal muscular atrophy (SMA). The study uses mouse, Drosophila, and zebrafish models to explore how reduced levels of survival motor neuron (SMN) protein lead to SMA. Key findings include widespread perturbations in ubiquitin homeostasis, reduced levels of ubiquitin-like modifier activating enzyme 1 (UBA1), and the accumulation of \u03b2-catenin, which contributes to neuromuscular pathology. The article suggests that targeting ubiquitin homeostasis and \u03b2-catenin signaling could be potential therapeutic strategies for SMA.",
+    "document_type": "research article",
+    "suggested_filename": "spinal_muscular_atrophy_ubiquitin_beta_catenin"
+  },
+  "inbox/harry_potter_and_the_order_of_the_phoenix_891ppdf.pdf": {
+    "description": "The document is a novel titled 'Harry Potter and the Order of the Phoenix' by J.K. Rowling. It is the fifth book in the Harry Potter series, detailing Harry's fifth year at Hogwarts School of Witchcraft and Wizardry. The content includes the story's beginning with Harry hiding in a flower bed at Privet Drive, the Dursleys' reactions, and the broader context of the wizarding world's political and social unrest. The document also lists the table of contents, which outlines the chapters and their page numbers, and includes copyright information, dedications, and illustrations by Mary GrandPr\u00e9.",
+    "document_type": "novel",
+    "suggested_filename": "harry_potter_and_the_order_of_the_phoenix"
+  },
+  "inbox/survival_motor_neuron_protein_in_mouse_germ_cell_d.pdf": {
+    "description": "The document is an article from the International Journal of Molecular Sciences titled 'Survival Motor Neuron Protein Participates in Mouse Germ Cell Development and Spermatogonium Maintenance'. It discusses the role of the survival motor neuron (SMN) protein in mouse germ cell development and spermatogonium maintenance. The study shows that SMN is highly expressed in gonadal tissues, prepubertal spermatogonia, and adult spermatocytes in healthy mice, with lower expression in differentiated spermatid and sperm. In SMA-like mice, testis growth is retarded, and there are gamete development abnormalities and loss of spermatogonia-specific markers. The article also includes findings from shRNA-based knockdown and germ cell transplantation experiments, suggesting SMN's critical role in male germ cell survival and spermatogonium maintenance.",
+    "document_type": "article",
+    "suggested_filename": "survival_motor_neuron_protein_in_mouse_germ_cell_development"
+  },
+  "inbox/sherlock_project_source_code.zip": {
+    "suggested_filename": "sherlock_project_source_code",
+    "summary_md": "## Archive Summary\n\nThe archive contains the source code for the Sherlock project, a tool for checking if a username exists on various websites. It includes:\n\n- **Main Directory**: `sherlock-master/`\n- **Configuration Files**: `.dockerignore`, `.editorconfig`, `.gitignore`, `.replit`\n- **GitHub Integration**: `.github/` directory with issue templates, workflows for main, nightly, pull requests, and site list updates\n- **Documentation**: `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, and other markdown files\n- **Total Files/Directories**: 45 items\n\nThis archive provides a comprehensive set of files necessary for setting up, contributing to, and maintaining the Sherlock project."
+  },
+  "inbox/rett_syndrome_overview_9ppdf.pdf": {
+    "description": "The document provides an in-depth overview of Rett Syndrome, covering its genetic basis, demographic information, medical features, and management strategies. It discusses the syndrome's primary cause as mutations in the MECP2 gene, its predominant effect on females, and the typical onset between 6 to 18 months of age. The document details symptoms like loss of acquired skills, repetitive hand movements, and cognitive impairments. It also covers diagnostic methods, care management, and the use of assistive technology and therapeutic techniques. Demographic data includes incidence and prevalence rates, and coding information for medical classification is provided. The document is structured with sections on etiology, pathophysiology, and suggestions for various professionals involved in care.",
+    "document_type": "report",
+    "suggested_filename": "rett_syndrome_overview"
+  },
+  "inbox/social_media_user_data": {
+    "description": "The document appears to be a binary file containing structured data related to a social media platform, possibly for user profiles or posts. It includes various data types such as boolean, string, and binary large objects (BLOBs). The purpose might be to store or manage user data or content.",
+    "document_type": "data",
+    "suggested_filename": "social_media_user_data"
+  },
+  "inbox/web_accessibility_motor_disabilities_7ppdf.pdf": {
+    "description": "The document is an article about web accessibility for users with motor disabilities. It defines motor disabilities, discusses various conditions like cerebral palsy, muscular dystrophy, multiple sclerosis, spina bifida, ALS, arthritis, Parkinson's disease, essential tremor, spinal cord injuries, and limb loss. The article also covers assistive technologies such as head wands, mouth sticks, single switches, sip-and-puff switches, oversized trackball mice, adaptive keyboards, eye-tracking devices, and voice recognition software. It emphasizes the importance of effective keyboard navigation and adherence to WAI-ARIA guidelines for web accessibility.",
+    "document_type": "article",
+    "suggested_filename": "web_accessibility_motor_disabilities"
+  },
+  "inbox/archive_contents_image_assets_with_manifest.md": {
+    "description": "This document provides a summary of the contents of an archive named 'image_assets_with_manifest.zip'. It lists three files within the archive: 'color.png', 'outline.png', both PNG image files, and 'manifest.json', a JSON file likely used for metadata or configuration related to the images. The purpose of this document is to describe the contents of the archive for reference or documentation purposes.",
+    "document_type": "notes",
+    "suggested_filename": "archive_contents_image_assets_with_manifest"
+  },
+  "inbox/chi_2020_conversational_agency_aac_12ppdf.pdf": {
+    "description": "The document is a research paper presented at the CHI 2020 conference, focusing on conversational agency in augmentative and alternative communication (AAC). It discusses how augmented communicators (ACs) face unique conversational constraints due to their AAC devices and explores how these constraints impact their ability to exercise agency in conversations. The study involves observational research with ACs, their close conversational partners (CCPs), and a third party to understand how CCPs facilitate communication and how this affects ACs' agency. The paper also introduces the concept of colloquial agency, where CCPs help ACs achieve their communication goals at a lower cost.",
+    "document_type": "research paper",
+    "suggested_filename": "chi_2020_conversational_agency_aac"
+  },
+  "inbox/image_assets_and_manifest.zip": {
+    "suggested_filename": "image_assets_and_manifest",
+    "summary_md": "## Archive Contents\n\n- **color.png**: An image file.\n- **outline.png**: An image file.\n- **manifest.json**: A JSON file containing metadata or configuration."
+  },
+  "inbox/aac_technologies_for_adults_with_severe_disabiliti.pdf": {
+    "description": "The document is a research paper presented at the 31st Australian Conference on Human-Computer Interaction (OZCHI'19) focusing on the challenges and opportunities in using Augmentative and Alternative Communication (AAC) technologies for adults with severe disabilities. It discusses the high rate of AAC abandonment among this group, the need for better design considerations, and proposes a framework that includes cultural status, modeling of use, user-friendly environments, and personalization of devices. The paper also explores the potential of tangible or mid-tech AAC solutions.",
+    "document_type": "research paper",
+    "suggested_filename": "aac_technologies_for_adults_with_severe_disabilities"
+  },
+  "inbox/metal_nanomaterials_immune_effects_allergic_diseas.pdf": {
+    "description": "The document is a review article published in the Journal of Immunotoxicology, focusing on the immune effects of metal nanomaterials and their implications on allergic diseases. It discusses the potential for metal nanomaterials to induce or exacerbate allergic diseases due to their physicochemical properties, with a particular emphasis on respiratory and dermal allergies. The article also highlights the knowledge gaps in this field and suggests areas for future research.",
+    "document_type": "review article",
+    "suggested_filename": "metal_nanomaterials_immune_effects_allergic_disease"
+  },
+  "inbox/citations_from_inbox_2025_04_09_1.md": {
+    "description": "This document contains a list of citations formatted in Markdown, generated on 2025-04-09. It includes references from various fields such as medicine, geophysics, immunotoxicology, special education, and human-computer interaction. The purpose of this document appears to be to compile and organize citations for easy reference or for inclusion in a larger document or project.",
+    "document_type": "citations",
+    "suggested_filename": "citations_from_inbox_2025_04_09"
+  },
+  "inbox/facebook_user_data_structure": {
+    "description": "The document appears to be a binary file containing structured data related to a social media platform, possibly for user profiles or posts. It includes references to 'facebook' and various data types like 'blob', 'bool', and 'comp'. The purpose might be to store or manage user data or content.",
+    "document_type": "data",
+    "suggested_filename": "facebook_user_data_structure"
+  },
+  "inbox/frontotemporal_dementia_review_2016_26ppdf.pdf": {
+    "description": "The document is a comprehensive review article on frontotemporal dementia (FTD) published in 2016 by the American Academy of Neurology. It discusses the common behavioral and cognitive features of FTD and related disorders, including the clinical, genetic, and pathologic features of the most common subtypes. The article also covers recent findings in clinical phenotyping, genetics, and biomarkers, which have improved predictions of the underlying molecular pathology. It provides detailed information on the epidemiology, clinical presentation, and neurologic examination of FTD, particularly focusing on the behavioral variant of FTD (bvFTD). The document includes tables and key points summarizing the criteria for diagnosing bvFTD and other related disorders.",
+    "document_type": "article",
+    "suggested_filename": "frontotemporal_dementia_review_2016"
+  },
+  "inbox/patreon_connect_wordpress_plugin.zip": {
+    "suggested_filename": "patreon_connect_wordpress_plugin",
+    "summary_md": "## Patreon Connect WordPress Plugin\n\nThis archive contains the files for the Patreon Connect WordPress plugin. It includes:\n\n- **CSS files**: `admin.css`, `app.css`\n- **Fonts**: Libre Franklin and Open Sans fonts with their respective licenses\n- **Images**: Various images related to Patreon, including locked image placeholders and promotional images\n- **Directories**: Organized into `assets`, `css`, `fonts`, and `img` folders\n\nThe plugin seems to be designed to integrate Patreon functionality into WordPress, allowing for gated posts and other Patreon-specific features."
+  },
+  "inbox/thanks_for_contributions_to_software_projects.htm": {
+    "description": "This HTML document is a thank you page listing individuals and organizations acknowledged for their contributions to various software projects. It includes thanks for porting, testing, bug fixing, code contributions, format descriptions, and other forms of support. The document is structured with a title, a heading, and an unordered list of acknowledgments.",
+    "document_type": "acknowledgments",
+    "suggested_filename": "thanks_for_contributions_to_software_projects"
+  },
+  "inbox/core_accessibility_api_mappings_1_2_86ppdf.pdf": {
+    "description": "The document titled 'Core Accessibility API Mappings 1.2' is a W3C Candidate Recommendation Draft published on 13 August 2024. It provides detailed mappings of how user agents should expose the semantics of web content languages to various accessibility APIs, aiding users with disabilities in interacting with web content through assistive technologies. The document includes sections on the status of the document, an abstract, introduction, accessibility APIs, conformance, and extensive mappings of WAI-ARIA roles, states, and properties to different accessibility APIs like ATK/AT-SPI, UIA, and others. It also lists editors, former editors, and platform mapping maintainers, along with feedback mechanisms and copyright information.",
+    "document_type": "specification",
+    "suggested_filename": "core_accessibility_api_mappings_1_2"
+  },
+  "inbox/citations_from_inbox_2025_04_09.md": {
+    "description": "This document contains a list of citations from an inbox, generated on 2025-04-09. It includes references to various academic articles and studies across different fields such as education, health, and environmental science. The purpose of this document appears to be to compile and organize these citations for future reference or use in research or academic writing.",
+    "document_type": "references",
+    "suggested_filename": "citations_from_inbox_2025_04_09"
+  },
+  "inbox/behavior_intervention_plan_cyrusdocx.docx": {
+    "description": "The document is a Behavior Intervention Plan from No Limits Behavioral Solutions for a client named Cyrus. It outlines strategies for managing challenging behaviors through tracking episodes, supervision levels, safety assessments, and proactive interventions like pairing and steam building. The plan emphasizes maintaining the client in a Happy, Relaxed, and Engaged (HRE) state before introducing demands or changes in conditions. It also details replacement behaviors, a reinforcement plan, staff responses to warning signs and challenging behaviors, and methods for reviewing effectiveness and progress monitoring. The document includes specific instructions on how to run 'My Way' programming, which involves engaging the client in various activities and ensuring they are not solely focused on electronics.",
+    "document_type": "report",
+    "suggested_filename": "behavior_intervention_plan_cyrus"
+  },
+  "inbox/binary_database_dump.db": {
+    "description": "The document appears to be a binary file, likely a database file given the .db extension. The content shown is a binary dump, which includes various control characters and non-printable ASCII characters, suggesting it is not meant for direct human reading but for machine processing. The purpose of this document would be to store and manage data in a structured format, possibly for an application or system that requires persistent data storage.",
+    "document_type": "database",
+    "suggested_filename": "binary_database_dump"
+  },
+  "inbox/education_training_autism_june_2020_133ppdf.pdf": {
+    "description": "This document is the June 2020 issue of 'Education and Training in Autism and Developmental Disabilities,' a quarterly journal published by The Council for Exceptional Children, Division on Autism and Developmental Disabilities. It includes editorial information, a list of consulting editors, details on membership and subscription, manuscript submission guidelines, and is indexed in various databases. The journal focuses on education and training for individuals with autism, intellectual disability, and other developmental disabilities.",
+    "document_type": "journal",
+    "suggested_filename": "education_training_autism_june_2020"
+  },
+  "inbox/human_factors_clinical_data_overview.md": {
+    "description": "This document is a summary of an archive containing 409 files and directories related to human factors and clinical data. It provides an overview of the key contents, including detailed analysis of human factors, clinical and diagnostic characteristics, user personas, acceptance criteria, specific considerations for photosensitive epilepsy, behavioral factors, references, market data, and health conditions. The purpose of this document is to give a comprehensive overview of the archive's contents, aiding in understanding the scope and utility of the data for research or application in human factors and clinical settings.",
+    "document_type": "report",
+    "suggested_filename": "human_factors_clinical_data_overview"
+  },
+  "inbox/html_accessibility_api_mappings_1_0_163ppdf.pdf": {
+    "description": "The document titled 'HTML Accessibility API Mappings 1.0' is a W3C Working Draft published on 16 July 2024. It details how HTML elements and attributes are mapped to platform accessibility APIs, promoting interoperability and consistency with author intent. The document includes sections on the abstract, status, introduction, accessibility APIs, conformance, deprecated features, and detailed mappings of HTML to accessibility APIs, including roles, states, properties, and events. It also covers accessible name and description computations, privacy and security considerations, and includes appendices with a change log, acknowledgments, and references.",
+    "document_type": "report",
+    "suggested_filename": "html_accessibility_api_mappings_1_0"
+  },
+  "inbox/bipolar_disorder_data_analysis_transcriptdocx.docx": {
+    "description": "The document is a transcript of a conversation between a user and an AI named BipolarBot Alpha. The conversation focuses on analyzing data from Bsky posts related to bipolar disorder, including keywords like mania, hypomania, depression, and suicidal conversations. The AI attempts to generate various graphs and charts to visualize the frequency and trends of these keywords over time, encountering several errors and adjustments along the way. Additionally, there is a mention of analyzing data from a Facebook export file, Apple Health step data, and text messages, with the goal of aligning these datasets over a common six-month period for comparative analysis.",
+    "document_type": "transcript",
+    "suggested_filename": "bipolar_disorder_data_analysis_transcript"
+  },
+  "inbox/guide_for_patients_with_noonan_syndrome_and_rasopa.pdf": {
+    "description": "The document is a comprehensive guide for patients with Noonan syndrome and other RASopathies, as well as their families. It includes detailed information about the syndrome, its diagnosis, and management. The guide was authored by Dr. Atilano Carcavilla Urqu\u00ed and Dr. Bego\u00f1a Ezquieta Zubicaray, both experts in their fields. The document was distributed to the President of the Federation of Noonan Syndrome Families and the National Registry of Rare Diseases in November 2015, with 1000 copies printed. It also includes the authors' professional backgrounds and contributions to the field.",
+    "document_type": "guide",
+    "suggested_filename": "guide_for_patients_with_noonan_syndrome_and_rasopathies"
+  },
+  "inbox/chronic_inhalation_study_carbon_black_nanoparticle.pdf": {
+    "description": "The document is an original research article published in the International Journal of Nanomedicine, focusing on a 90-day chronic inhalation study of carbon black nanoparticles in rats. It explores the pulmonary and systemic immune effects of these nanoparticles. The study involved 32 rats divided into exposure and control groups, with detailed methods including lung function tests, histopathology, and cytokine level assessments. Results indicate significant lung burden, decreased lung function, increased apoptosis, and immune system alterations due to carbon black exposure. The article concludes that carbon black induces both localized and systemic immune toxicity, contributing to lung damage.",
+    "document_type": "article",
+    "suggested_filename": "chronic_inhalation_study_carbon_black_nanoparticles"
+  },
+  "inbox/text_message_log_december_2020.csv": {
+    "description": "This document is a CSV file containing a log of text messages exchanged between two individuals over several days in December 2020. The messages include timestamps, sender information, the message content, sentiment scores, and the date. The purpose of this document appears to be a record of communication, possibly for analysis or archival purposes. The content ranges from casual conversations, sharing links to social media posts, images, and discussions about daily activities and financial transactions.",
+    "document_type": "data",
+    "suggested_filename": "text_message_log_december_2020"
+  },
+  "inbox/patreon_connect_wordpress_plugin_summary.md": {
+    "description": "The document is an archive summary for the Patreon Connect WordPress plugin, detailing the contents of the `patreon_connect_wordpress_plugin.zip` file. It lists CSS files, fonts, images, and directories included in the plugin, which is designed to integrate Patreon functionality into WordPress, enabling features like gated posts.",
+    "document_type": "notes",
+    "suggested_filename": "patreon_connect_wordpress_plugin_summary"
+  },
+  "inbox/scalp_infections_and_neoplasms_chapter_23ppdf.pdf": {
+    "description": "The document is a chapter from a book published by IntechOpen, focusing on cutaneous infections, infestations, and neoplasms of the scalp. It includes detailed descriptions of bacterial infections like folliculitis, folliculitis decalvans, and others, fungal infections such as tinea capitis, and neoplasms like trichilemmal cyst. The chapter also discusses the epidemiology, clinical features, histopathology, and treatment options for these conditions.",
+    "document_type": "article",
+    "suggested_filename": "scalp_infections_and_neoplasms_chapter"
   }
 }

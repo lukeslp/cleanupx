@@ -36,6 +36,7 @@ from cleanupx.config import (
     ARCHIVE_EXTENSIONS,
     CACHE_FILE
 )
+from cleanupx.utils.documentation import DocumentationManager
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -287,6 +288,30 @@ def run_cli(args: Optional[List[str]] = None) -> int:
     if not directory.is_dir():
         console.print(f"[bold red]Error: {directory} is not a valid directory[/bold red]")
         return 1
+    
+    # Initialize documentation manager
+    doc_manager = DocumentationManager(directory)
+    
+    # Handle documentation-related commands first
+    if parsed_args.summary:
+        doc_manager.display_summary()
+        return 0
+        
+    if parsed_args.update_hidden_summary:
+        doc_manager.update_hidden_summary()
+        return 0
+        
+    if parsed_args.citations:
+        doc_manager.display_citations()
+        return 0
+        
+    if parsed_args.update_citations:
+        doc_manager.update_citations()
+        return 0
+        
+    if parsed_args.export_summary:
+        doc_manager.generate_readme()
+        return 0
     
     # Update hidden summary only mode
     if parsed_args.update_hidden_summary:
@@ -589,6 +614,19 @@ def run_cli(args: Optional[List[str]] = None) -> int:
         if not confirm:
             console.print("[yellow]Operation cancelled by user[/yellow]")
             return 1
+    
+    # Create both hidden summary files at the start
+    try:
+        console.print("[cyan]Initializing directory summaries...[/cyan]")
+        from cleanupx.utils.directory_summary import update_directory_summary
+        from cleanupx.utils.hidden_summary import update_hidden_summary
+        
+        # Create basic summaries first
+        _ = update_directory_summary(directory, include_user_prefs=parsed_args.ask_preferences)
+        _ = update_hidden_summary(directory, full_analysis=False)
+        console.print("[green]Directory summaries initialized[/green]")
+    except Exception as e:
+        console.print(f"[yellow]Warning: Could not initialize directory summaries: {e}[/yellow]")
     
     # Import process_directory here to avoid circular imports
     from cleanupx.main import process_directory

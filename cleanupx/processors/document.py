@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple, Union, Any
 import io
 import subprocess
+import sys
 
 from cleanupx.config import DOCUMENT_EXTENSIONS, DOCUMENT_FUNCTION_SCHEMA, FILE_DOCUMENT_PROMPT, XAI_MODEL_TEXT
 from cleanupx.utils.common import read_text_file, strip_media_suffixes, clean_filename
@@ -59,6 +60,33 @@ def extract_text_from_pdf_with_pdfminer(file_path: Union[str, Path]) -> str:
         logger.warning("pdfminer.six not installed, can't use alternative PDF extraction")
         return ""
     except Exception as e:
+        # Check for specific "No /Root object" error that indicates a corrupted PDF
+        if "No /Root object" in str(e):
+            logger.error(f"pdfminer.six extraction failed for {file_path}: {e} - File appears to be corrupted or not a valid PDF")
+            # For these specific corrupted files, we should immediately try OCR
+            try:
+                if 'pdf2image' in sys.modules and 'pytesseract' in sys.modules:
+                    logger.info(f"Attempting OCR as fallback for corrupted PDF: {file_path}")
+                    from pdf2image import convert_from_path
+                    import pytesseract
+                    
+                    try:
+                        images = convert_from_path(str(file_path))
+                        text = ""
+                        
+                        for i, image in enumerate(images[:3]):  # Process up to 3 pages
+                            logger.info(f"OCR processing page {i+1} of corrupted PDF")
+                            text += pytesseract.image_to_string(image)
+                            text += "\n\n"
+                            
+                        if text.strip():
+                            logger.info(f"Successfully extracted text from corrupted PDF using OCR")
+                            return text
+                    except Exception as ocr_e:
+                        logger.error(f"OCR fallback for corrupted PDF failed: {ocr_e}")
+            except ImportError:
+                logger.warning("OCR fallback unavailable for corrupted PDF")
+        
         logger.error(f"pdfminer.six extraction failed for {file_path}: {e}")
         return ""
 
@@ -96,7 +124,7 @@ def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> st
     
     Args:
         file_path: Path to the PDF file
-        max_pages: Maximum number of pages to process. Default is 2.
+        max_pages: Maximum number of pages to process. Default is 3.
                   Set to None to process all pages.
     
     Returns:
@@ -105,6 +133,18 @@ def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> st
     file_path = Path(file_path)
     text = ""
     extraction_methods = []
+    
+    # Check if we have a text extraction cache - used to avoid re-extracting the same PDF
+    cache_file = file_path.parent / f".{file_path.stem}_text_cache.txt"
+    if cache_file.exists() and cache_file.stat().st_mtime > file_path.stat().st_mtime:
+        try:
+            with open(cache_file, 'r', encoding='utf-8') as f:
+                cached_text = f.read()
+            if cached_text.strip():
+                logger.info(f"Using cached text extraction for {file_path}")
+                return cached_text
+        except Exception as e:
+            logger.warning(f"Failed to read text extraction cache: {e}")
     
     # Try different extraction methods in order
     try:
@@ -137,17 +177,42 @@ def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> st
             logger.info(f"Trying {method_name} extraction for {file_path}")
             try:
                 text = method_func()
-                if text.strip():
+                if text and text.strip():
                     logger.info(f"Successfully extracted text using {method_name}")
                     break
             except Exception as e:
                 logger.warning(f"{method_name} extraction failed: {e}")
                 continue
                 
-        # If all methods failed, use the filename as fallback text
+        # If all methods failed, try scanning as text file as a last resort
+        if not text.strip():
+            logger.info(f"All extraction methods failed. Trying to read as text file for {file_path}")
+            try:
+                # Try reading as plain text with multiple encodings
+                for encoding in ['utf-8', 'latin-1', 'cp1252', 'ascii']:
+                    try:
+                        with open(file_path, 'r', encoding=encoding, errors='replace') as f:
+                            text = f.read()
+                        if text.strip():
+                            logger.info(f"Successfully read file as text using {encoding} encoding")
+                            break
+                    except Exception as enc_error:
+                        logger.debug(f"Failed to read with {encoding} encoding: {enc_error}")
+            except Exception as txt_error:
+                logger.warning(f"Failed to read as text: {txt_error}")
+                
+        # If still empty, use the filename as fallback text
         if not text.strip():
             text = str(file_path.stem).replace("_", " ").replace("-", " ")
-            logger.info(f"All extraction methods failed. Using filename as fallback text for {file_path}")
+            logger.info(f"All extraction methods including text scan failed. Using filename as fallback text for {file_path}")
+        else:
+            # Cache the extracted text to avoid re-extraction
+            try:
+                with open(cache_file, 'w', encoding='utf-8') as f:
+                    f.write(text)
+                logger.debug(f"Cached text extraction for {file_path}")
+            except Exception as e:
+                logger.warning(f"Failed to cache text extraction: {e}")
             
         return text
     except Exception as e:
@@ -243,6 +308,14 @@ def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], re
     """
     file_path = Path(file_path)
     ext = file_path.suffix.lower()
+    cache_key = str(file_path)
+    
+    # Check if we already have processed this file in this session
+    # This prevents redundant processing of the same file multiple times
+    if cache.get(f"{cache_key}_processed") == True:
+        logger.info(f"Skipping already processed file in this session: {file_path}")
+        description = cache.get(cache_key)
+        return file_path, None, description
     
     # Extract content for analysis
     if ext == ".docx":
@@ -266,10 +339,11 @@ def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], re
     prompt = FILE_DOCUMENT_PROMPT.format(name=file_path.name, suffix=ext, text_content=text_content[:10000])
     result = call_xai_api(XAI_MODEL_TEXT, prompt, DOCUMENT_FUNCTION_SCHEMA)
     description = result
-    cache_key = str(file_path)
     
     if description:
         cache[cache_key] = description
+        # Mark file as processed in this session to avoid redundant processing
+        cache[f"{cache_key}_processed"] = True
         save_cache(cache)
         
         # Also process for citations if there's content

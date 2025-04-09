@@ -97,13 +97,12 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
         for entry in rename_log.get("renames", []):
             renamed_paths.add(entry.get("original_path"))
     
-    files = []
+    # Get list of files based on recursion
     if recursive:
-        for root, _, filenames in os.walk(directory):
-            for filename in filenames:
-                files.append(Path(root) / filename)
+        files = list(directory.rglob('*'))
     else:
-        files = [f for f in directory.iterdir() if f.is_file()]
+        files = list(directory.glob('*'))
+    print(f"[DEBUG] Found {len(files)} files in directory: {directory}")
     
     rename_log["stats"]["total_files"] = len(files)
     
