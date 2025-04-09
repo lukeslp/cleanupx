@@ -8,6 +8,9 @@ Features:
 - Processes text files and document files (.pdf, .docx, etc.) with content-based descriptions.
 - Forces file renaming by appending a suffix if the generated name matches the original.
 - Uses X.AI API for content analysis with structured output via function calling.
+- Can scramble filenames with random strings for privacy or obscurity.
+- Prevents duplicate suffixes when processing media files multiple times.
+- Provides structured archive processing with summary markdown generation.
 """
 
 import os
@@ -17,6 +20,8 @@ import logging
 import argparse
 import base64
 import re
+import random
+import string
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional, List, Union, Tuple
@@ -71,6 +76,7 @@ IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'}
 TEXT_EXTENSIONS = {'.txt', '.md', '.markdown', '.rst', '.text', '.log', '.csv', '.tsv', '.json', '.xml', '.yaml', '.yml', '.html', '.htm', '.py', '.zip'}
 MEDIA_EXTENSIONS = {'.mp3', '.wav', '.ogg', '.flac', '.mp4', '.avi', '.mov', '.mkv'}
 DOCUMENT_EXTENSIONS = {'.pdf', '.docx', '.doc', '.ppt', '.pptx'}
+ARCHIVE_EXTENSIONS = {'.zip', '.tar', '.tgz', '.tar.gz', '.rar'}
 
 # Cache and rename log files
 CACHE_FILE = "generated_alts.json"
@@ -159,6 +165,26 @@ DOCUMENT_FUNCTION_SCHEMA = {
             }
         },
         "required": ["description", "document_type", "suggested_filename"]
+    }
+}
+
+# Add new Archive function schema
+ARCHIVE_FUNCTION_SCHEMA = {
+    "name": "analyze_archive",
+    "description": "Analyze an archive file and return a suggested filename and a markdown summary of its contents.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "suggested_filename": {
+                "type": "string",
+                "description": "A descriptive filename (5-7 words, lowercase with underscores, no extension) based on the archive contents."
+            },
+            "summary_md": {
+                "type": "string",
+                "description": "A markdown formatted summary of the archive contents."
+            }
+        },
+        "required": ["suggested_filename", "summary_md"]
     }
 }
 
@@ -456,6 +482,19 @@ def analyze_text_file(file_path: Union[str, Path]) -> Optional[Dict[str, Any]]:
     logger.error(f"Failed to analyze text file: {file_path.name}")
     return None
 
+def strip_media_suffixes(stem: str) -> str:
+    """
+    Remove duplicate appended resolution and duration patterns from a filename stem.
+    """
+    # Remove any occurrence of _<number>x<number> (e.g., _1920x1080)
+    stem = re.sub(r'_(\d+x\d+)', '', stem)
+    # Remove any occurrence of _HH:MM:SS (e.g., _01:23:45 where HH, MM, SS are two digits)
+    stem = re.sub(r'_(\d{2}:\d{2}:\d{2})', '', stem)
+    # Remove "_renamed" suffix if present
+    stem = re.sub(r'_renamed', '', stem)
+    # Clean up any stray underscores
+    return stem.strip('_')
+
 def generate_new_filename(file_path: Union[str, Path], description: Optional[Dict[str, Any]] = None) -> Optional[str]:
     file_path = Path(file_path)
     if description and isinstance(description, dict):
@@ -465,14 +504,16 @@ def generate_new_filename(file_path: Union[str, Path], description: Optional[Dic
             return f"{clean_name}{file_path.suffix}"
     ext = file_path.suffix.lower()
     if ext in IMAGE_EXTENSIONS:
+        clean_stem = strip_media_suffixes(file_path.stem)
         dimensions = get_image_dimensions(file_path)
         if dimensions:
             width, height = dimensions
-            fallback_name = f"{file_path.stem}_{width}x{height}"
+            fallback_name = f"{clean_stem}_{width}x{height}"
         else:
-            fallback_name = file_path.stem
+            fallback_name = clean_stem
     else:
-        fallback_name = clean_filename(file_path.stem)
+        clean_stem = strip_media_suffixes(file_path.stem)
+        fallback_name = clean_filename(clean_stem)
     return f"{fallback_name}{file_path.suffix}"
 
 def rename_file(original_path: Path, new_name: str, rename_log: Optional[Dict] = None) -> Optional[Path]:
@@ -486,15 +527,19 @@ def rename_file(original_path: Path, new_name: str, rename_log: Optional[Dict] =
         new_path = original_path.parent / new_name
         counter = 1
         base_name, ext = os.path.splitext(new_name)
-        # Force renaming if new_path equals original_path
-        if new_path == original_path:
-            new_name = f"{base_name}_renamed{ext}"
-            new_path = original_path.parent / new_name
-            logger.info(f"Forced rename: changing {original_path.name} to {new_path.name}")
+        
+        # Removed forced _renamed suffix
+        
         while new_path.exists() and new_path != original_path:
             new_name = f"{base_name}_{counter}{ext}"
             new_path = original_path.parent / new_name
             counter += 1
+
+        # If the new path is the same as the original, don't rename
+        if new_path == original_path:
+            logger.info(f"New filename matches original, skipping rename for {original_path}")
+            return original_path
+            
         try:
             os.replace(str(original_path), str(new_path))
             logger.info(f"Renamed: {original_path} -> {new_path}")
@@ -699,6 +744,10 @@ def process_media_file(file_path: Union[str, Path], cache: Dict[str, str], renam
     file_path = Path(file_path)
     duration = get_media_duration(file_path)
     dimensions = get_media_dimensions(file_path)
+    
+    # Clean the stem to remove any existing resolution/duration tokens
+    clean_stem = strip_media_suffixes(file_path.stem)
+    
     if dimensions:
         resolution = f"{dimensions[0]}x{dimensions[1]}"
     else:
@@ -707,14 +756,132 @@ def process_media_file(file_path: Union[str, Path], cache: Dict[str, str], renam
         duration_str = format_duration(duration)
     else:
         duration_str = "unknown"
+    
     if file_path.suffix.lower() in {'.mp3', '.wav', '.ogg', '.flac', '.mp4', '.avi', '.mov', '.mkv'}:
-        new_name = f"{file_path.stem}_{resolution}_{duration_str}{file_path.suffix}"
+        new_name = f"{clean_stem}_{resolution}_{duration_str}{file_path.suffix}"
     elif file_path.suffix.lower() in IMAGE_EXTENSIONS:
-        new_name = f"{file_path.stem}_{resolution}{file_path.suffix}"
+        new_name = f"{clean_stem}_{resolution}{file_path.suffix}"
     else:
         return file_path, None, None
+        
     new_path = rename_file(file_path, new_name, rename_log)
     return file_path, new_path, None
+
+def process_archive_file(file_path: Union[str, Path], cache: Dict[str, str], rename_log: Dict) -> Tuple[Path, Optional[Path], Optional[Dict]]:
+    """
+    Process archive files (.zip, .tar, etc.) to:
+    1. Analyze contents to suggest a new filename
+    2. Generate a markdown (.md) summary of the archive contents
+    """
+    file_path = Path(file_path)
+    cache_key = str(file_path)
+    
+    # Check if we have a cached result
+    cached_result = cache.get(cache_key)
+    result = None
+    
+    if cached_result:
+        try:
+            if isinstance(cached_result, str):
+                result = json.loads(cached_result)
+            else:
+                result = cached_result
+            logger.info(f"Using cached description for {file_path}")
+        except json.JSONDecodeError:
+            result = None
+    
+    # If no cached result, analyze the archive contents
+    if not result:
+        try:
+            content_summary = []
+            if file_path.suffix.lower() == '.zip':
+                try:
+                    import zipfile
+                    with zipfile.ZipFile(file_path, 'r') as zipf:
+                        file_list = zipf.namelist()
+                        content_summary.append(f"Archive contains {len(file_list)} files/directories")
+                        for i, name in enumerate(file_list[:20]):  # Limit to first 20 items
+                            content_summary.append(f"- {name}")
+                        if len(file_list) > 20:
+                            content_summary.append(f"... and {len(file_list) - 20} more items")
+                except Exception as e:
+                    content_summary.append(f"Error reading zip: {e}")
+            elif file_path.suffix.lower() in {'.tar', '.tgz', '.tar.gz'}:
+                try:
+                    import tarfile
+                    with tarfile.open(file_path, 'r') as tar:
+                        file_list = tar.getnames()
+                        content_summary.append(f"Archive contains {len(file_list)} files/directories")
+                        for i, name in enumerate(file_list[:20]):  # Limit to first 20 items
+                            content_summary.append(f"- {name}")
+                        if len(file_list) > 20:
+                            content_summary.append(f"... and {len(file_list) - 20} more items")
+                except Exception as e:
+                    content_summary.append(f"Error reading tar archive: {e}")
+            else:
+                content_summary.append(f"Unsupported archive type: {file_path.suffix}")
+            
+            # Build the prompt for the AI
+            archive_prompt = f"""Analyze this archive file and provide structured information.
+File name: {file_path.name}
+File type: {file_path.suffix}
+
+Archive Contents:
+{chr(10).join(content_summary)}
+
+Provide:
+1. A suggested filename (5-7 words, lowercase with underscores, no extension).
+2. A markdown (.md) summary of the archive contents."""
+            
+            result = call_xai_api(XAI_MODEL_TEXT, archive_prompt, ARCHIVE_FUNCTION_SCHEMA)
+            
+            if result:
+                cache[cache_key] = result
+                save_cache(cache)
+        except Exception as e:
+            logger.error(f"Error analyzing archive {file_path}: {e}")
+            return file_path, None, None
+    
+    # If we have a result, process the file renaming and create markdown summary
+    if result:
+        new_name = None
+        if "suggested_filename" in result:
+            suggested_name = result["suggested_filename"]
+            if suggested_name:
+                clean_name = clean_filename(suggested_name)
+                new_name = f"{clean_name}{file_path.suffix}"
+        
+        # If no suggested filename, use the original name
+        if not new_name:
+            clean_stem = strip_media_suffixes(file_path.stem)
+            new_name = f"{clean_stem}{file_path.suffix}"
+        
+        # Rename the file
+        new_path = rename_file(file_path, new_name, rename_log)
+        
+        # Create a markdown summary file
+        if "summary_md" in result and new_path:
+            try:
+                summary_content = result["summary_md"]
+                md_path = new_path.with_suffix(".md")
+                
+                with open(md_path, "w", encoding="utf-8") as md_file:
+                    md_file.write(f"# Archive Summary: {new_path.name}\n\n")
+                    md_file.write(summary_content)
+                
+                logger.info(f"Created archive summary: {md_path}")
+            except Exception as e:
+                logger.error(f"Error creating archive summary: {e}")
+        
+        # Update cache if renamed
+        if new_path and new_path != file_path and cache_key in cache:
+            cache[str(new_path)] = cache[cache_key]
+            del cache[cache_key]
+            save_cache(cache)
+        
+        return file_path, new_path, result
+    
+    return file_path, None, None
 
 def process_file(file_path: Union[str, Path], cache: Dict[str, str], rename_log: Dict) -> Tuple[Path, Optional[Path], Optional[Dict]]:
     file_path = Path(file_path)
@@ -727,6 +894,8 @@ def process_file(file_path: Union[str, Path], cache: Dict[str, str], rename_log:
         return process_text_file(file_path, cache, rename_log)
     elif ext in DOCUMENT_EXTENSIONS:
         return process_document_file(file_path, cache, rename_log)
+    elif ext in ARCHIVE_EXTENSIONS:
+        return process_archive_file(file_path, cache, rename_log)
     else:
         logger.info(f"Skipping unsupported file type: {file_path}")
         return file_path, None, None
@@ -806,110 +975,230 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
     save_rename_log(rename_log)
     return stats
 
+# Function to scramble filenames in a directory
+def scramble_directory(target_dir: Union[str, Path], rename_log: Optional[Dict] = None) -> int:
+    """
+    Scramble all filenames in the specified directory with random alphanumeric strings.
+    Files are renamed while preserving extensions.
+    
+    Args:
+        target_dir: Directory containing files to scramble
+        rename_log: Optional rename log dictionary to update
+    
+    Returns:
+        Number of files successfully scrambled
+    """
+    target_dir = Path(target_dir)
+    files = list(target_dir.glob('*'))
+    
+    if not files:
+        console.print("[yellow]No files found in directory.[/yellow]")
+        return 0
+    
+    console.print(f"[cyan]Found {len(files)} files to rename in {target_dir}[/cyan]")
+    
+    # Process files with progress bar
+    scrambled_count = 0
+    with Progress() as progress:
+        task = progress.add_task("[green]Scrambling filenames...", total=len(files))
+        
+        for file_path in files:
+            if file_path.is_file():
+                # Generate random name (10 characters)
+                random_name = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+                new_name = f"{random_name}{file_path.suffix}"
+                new_path = file_path.parent / new_name
+                
+                # Handle name collisions
+                while new_path.exists():
+                    random_name = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+                    new_name = f"{random_name}{file_path.suffix}"
+                    new_path = file_path.parent / new_name
+                
+                try:
+                    # Rename the file
+                    file_path.rename(new_path)
+                    console.print(f"Renamed: {file_path.name} → {new_name}")
+                    scrambled_count += 1
+                    
+                    # Update rename log if provided
+                    if rename_log is not None:
+                        rename_entry = {
+                            "original_path": str(file_path),
+                            "new_path": str(new_path),
+                            "timestamp": datetime.now().isoformat()
+                        }
+                        rename_log["renames"].append(rename_entry)
+                except Exception as e:
+                    console.print(f"[bold red]Error renaming {file_path.name}: {e}[/bold red]")
+            
+            progress.update(task, advance=1)
+    
+    console.print(f"[green]Successfully scrambled {scrambled_count} filenames![/green]")
+    
+    # Save rename log
+    if rename_log is not None:
+        rename_log["timestamp"] = datetime.now().isoformat()
+        save_rename_log(rename_log)
+    
+    return scrambled_count
+
 def interactive_mode():
     console.print("[bold cyan]Welcome to cleanupx (updated)![/bold cyan]")
     console.print("This tool helps organize your files by analyzing their content and renaming them appropriately.\n")
-    questions = [
-        inquirer.Path(
-            'directory',
-            message="Enter the directory path to process",
-            exists=True,
-            path_type=inquirer.Path.DIRECTORY,
-        ),
+    
+    # First, choose the operation mode
+    mode_question = [
         inquirer.List(
-            'scope',
-            message="How would you like to process the directory?",
+            'mode',
+            message="Choose operation mode",
             choices=[
-                ('Current directory only', 'single'),
-                ('Include subdirectories (recursive)', 'recursive')
+                ('Rename files with descriptive names based on content (default)', 'rename'),
+                ('Scramble filenames with random strings for privacy', 'scramble'),
             ],
-        ),
-        inquirer.List(
-            'renamed_files',
-            message="How should previously renamed files be handled?",
-            choices=[
-                ('Skip previously renamed files', 'skip'),
-                ('Process all files', 'all')
-            ],
-        ),
-        inquirer.List(
-            'cache',
-            message="How should the cache be handled?",
-            choices=[
-                ('Use existing cache', 'use'),
-                ('Clear cache before starting', 'clear')
-            ],
-        ),
-        inquirer.Checkbox(
-            'file_types',
-            message="Which file types would you like to process?",
-            choices=[
-                ('Images (jpg, png, etc.)', 'images'),
-                ('Text files (txt, md, etc.)', 'text'),
-                ('Documents (pdf, docx, etc.)', 'documents')
-            ],
-            default=['images', 'text', 'documents']
-        ),
-        inquirer.Confirm(
-            'proceed',
-            message="Ready to start processing?",
-            default=True
         ),
     ]
-    try:
-        answers = inquirer.prompt(questions)
-        if not answers or not answers['proceed']:
-            console.print("\n[yellow]Operation cancelled by user[/yellow]")
-            return 1
-        directory = Path(answers['directory'])
-        recursive = answers['scope'] == 'recursive'
-        skip_renamed = answers['renamed_files'] == 'skip'
-        clear_cache = answers['cache'] == 'clear'
-        selected_types = set(answers['file_types'])
-        if clear_cache and os.path.exists(CACHE_FILE):
-            os.remove(CACHE_FILE)
-            console.print("[yellow]Cache cleared[/yellow]")
-        global IMAGE_EXTENSIONS, TEXT_EXTENSIONS, DOCUMENT_EXTENSIONS
-        if 'images' not in selected_types:
-            IMAGE_EXTENSIONS = set()
-        if 'text' not in selected_types:
-            TEXT_EXTENSIONS = set()
-        if 'documents' not in selected_types:
-            DOCUMENT_EXTENSIONS = set()
-        console.print(f"\n[bold]Processing directory: {directory}[/bold]")
-        console.print(f"Recursive: {recursive}")
-        console.print(f"Skip renamed: {skip_renamed}")
-        console.print(f"Selected file types: {', '.join(selected_types)}\n")
-        stats = process_directory(directory, recursive=recursive, skip_renamed=skip_renamed)
-        console.print("\n[bold green]Processing complete![/bold green]")
-        console.print(f"[cyan]Total files processed:[/cyan] {stats['total']}")
-        console.print(f"[cyan]Images processed:[/cyan] {stats['images']}")
-        console.print(f"[cyan]Text files processed:[/cyan] {stats['text']}")
-        console.print(f"[cyan]Documents processed:[/cyan] {stats['documents']}")
-        console.print(f"[cyan]Files skipped:[/cyan] {stats['skipped']}")
-        console.print(f"[cyan]Files failed:[/cyan] {stats['failed']}")
-        if stats['total'] > 0:
-            show_log = inquirer.confirm(
-                message="Would you like to see the rename log?",
-                default=False
-            )
-            if show_log:
-                rename_log = load_rename_log()
-                if rename_log and rename_log.get("renames"):
-                    console.print("\n[bold]Rename Log:[/bold]")
-                    for entry in rename_log["renames"]:
-                        original = Path(entry["original_path"]).name
-                        new = Path(entry["new_path"]).name
-                        console.print(f"[yellow]{original}[/yellow] → [green]{new}[/green]")
-                else:
-                    console.print("\n[yellow]No rename log entries found[/yellow]")
-        return 0
-    except KeyboardInterrupt:
+    mode_answer = inquirer.prompt(mode_question)
+    if not mode_answer:
         console.print("\n[yellow]Operation cancelled by user[/yellow]")
         return 1
-    except Exception as e:
-        console.print(f"\n[bold red]Error: {e}[/bold red]")
-        return 1
+    
+    if mode_answer['mode'] == 'scramble':
+        # Scramble mode
+        questions = [
+            inquirer.Path(
+                'directory',
+                message="Select directory to scramble filenames",
+                exists=True,
+                path_type=inquirer.Path.DIRECTORY,
+            ),
+            inquirer.Confirm(
+                'confirm',
+                message="This will rename ALL files in the directory with random names. Continue?",
+                default=False
+            )
+        ]
+        
+        answers = inquirer.prompt(questions)
+        if not answers or not answers['confirm']:
+            console.print("\n[yellow]Operation cancelled by user[/yellow]")
+            return 1
+        
+        directory = Path(answers['directory'])
+        rename_log = load_rename_log()
+        scrambled_count = scramble_directory(directory, rename_log)
+        
+        console.print(f"\n[bold green]Scrambling complete![/bold green]")
+        console.print(f"[cyan]Total files scrambled:[/cyan] {scrambled_count}")
+        
+        return 0
+    
+    else:
+        # Original rename mode
+        questions = [
+            inquirer.Path(
+                'directory',
+                message="Enter the directory path to process",
+                exists=True,
+                path_type=inquirer.Path.DIRECTORY,
+            ),
+            inquirer.List(
+                'scope',
+                message="How would you like to process the directory?",
+                choices=[
+                    ('Current directory only', 'single'),
+                    ('Include subdirectories (recursive)', 'recursive')
+                ],
+            ),
+            inquirer.List(
+                'renamed_files',
+                message="How should previously renamed files be handled?",
+                choices=[
+                    ('Skip previously renamed files', 'skip'),
+                    ('Process all files', 'all')
+                ],
+            ),
+            inquirer.List(
+                'cache',
+                message="How should the cache be handled?",
+                choices=[
+                    ('Use existing cache', 'use'),
+                    ('Clear cache before starting', 'clear')
+                ],
+            ),
+            inquirer.Checkbox(
+                'file_types',
+                message="Which file types would you like to process?",
+                choices=[
+                    ('Images (jpg, png, etc.)', 'images'),
+                    ('Text files (txt, md, etc.)', 'text'),
+                    ('Documents (pdf, docx, etc.)', 'documents')
+                ],
+                default=['images', 'text', 'documents']
+            ),
+            inquirer.Confirm(
+                'proceed',
+                message="Ready to start processing?",
+                default=True
+            ),
+        ]
+        
+        try:
+            answers = inquirer.prompt(questions)
+            if not answers or not answers['proceed']:
+                console.print("\n[yellow]Operation cancelled by user[/yellow]")
+                return 1
+            
+            # Rest of the existing code remains unchanged
+            directory = Path(answers['directory'])
+            recursive = answers['scope'] == 'recursive'
+            skip_renamed = answers['renamed_files'] == 'skip'
+            clear_cache = answers['cache'] == 'clear'
+            selected_types = set(answers['file_types'])
+            if clear_cache and os.path.exists(CACHE_FILE):
+                os.remove(CACHE_FILE)
+                console.print("[yellow]Cache cleared[/yellow]")
+            global IMAGE_EXTENSIONS, TEXT_EXTENSIONS, DOCUMENT_EXTENSIONS
+            if 'images' not in selected_types:
+                IMAGE_EXTENSIONS = set()
+            if 'text' not in selected_types:
+                TEXT_EXTENSIONS = set()
+            if 'documents' not in selected_types:
+                DOCUMENT_EXTENSIONS = set()
+            console.print(f"\n[bold]Processing directory: {directory}[/bold]")
+            console.print(f"Recursive: {recursive}")
+            console.print(f"Skip renamed: {skip_renamed}")
+            console.print(f"Selected file types: {', '.join(selected_types)}\n")
+            stats = process_directory(directory, recursive=recursive, skip_renamed=skip_renamed)
+            console.print("\n[bold green]Processing complete![/bold green]")
+            console.print(f"[cyan]Total files processed:[/cyan] {stats['total']}")
+            console.print(f"[cyan]Images processed:[/cyan] {stats['images']}")
+            console.print(f"[cyan]Text files processed:[/cyan] {stats['text']}")
+            console.print(f"[cyan]Documents processed:[/cyan] {stats['documents']}")
+            console.print(f"[cyan]Files skipped:[/cyan] {stats['skipped']}")
+            console.print(f"[cyan]Files failed:[/cyan] {stats['failed']}")
+            if stats['total'] > 0:
+                show_log = inquirer.confirm(
+                    message="Would you like to see the rename log?",
+                    default=False
+                )
+                if show_log:
+                    rename_log = load_rename_log()
+                    if rename_log and rename_log.get("renames"):
+                        console.print("\n[bold]Rename Log:[/bold]")
+                        for entry in rename_log["renames"]:
+                            original = Path(entry["original_path"]).name
+                            new = Path(entry["new_path"]).name
+                            console.print(f"[yellow]{original}[/yellow] → [green]{new}[/green]")
+                    else:
+                        console.print("\n[yellow]No rename log entries found[/yellow]")
+            return 0
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Operation cancelled by user[/yellow]")
+            return 1
+        except Exception as e:
+            console.print(f"\n[bold red]Error: {e}[/bold red]")
+            return 1
 
 def main():
     parser = argparse.ArgumentParser(
@@ -940,20 +1229,50 @@ def main():
         action="store_true",
         help="Run in interactive mode"
     )
+    parser.add_argument(
+        "--scramble", "-s",
+        action="store_true",
+        help="Scramble filenames with random strings instead of content-based renaming"
+    )
     args = parser.parse_args()
+    
+    # Interactive mode
     if not args.directory or args.interactive:
         return interactive_mode()
+    
     directory = Path(args.directory)
     if not directory.is_dir():
         console.print(f"[bold red]Error: {directory} is not a valid directory[/bold red]")
         return 1
+    
+    # Scramble mode
+    if args.scramble:
+        confirm = inquirer.confirm(
+            message=f"This will rename ALL files in {directory} with random names. Continue?",
+            default=False
+        )
+        if not confirm:
+            console.print("[yellow]Operation cancelled by user[/yellow]")
+            return 1
+        
+        rename_log = load_rename_log()
+        scrambled_count = scramble_directory(directory, rename_log)
+        
+        console.print(f"\n[bold green]Scrambling complete![/bold green]")
+        console.print(f"[cyan]Total files scrambled:[/cyan] {scrambled_count}")
+        return 0
+    
+    # Normal renaming mode
     if args.clear_cache and os.path.exists(CACHE_FILE):
         os.remove(CACHE_FILE)
         console.print("[yellow]Cache cleared[/yellow]")
+    
     console.print(f"[bold]Processing directory: {directory}[/bold]")
     console.print(f"Recursive: {args.recursive}")
     console.print(f"Skip renamed: {not args.force}")
+    
     stats = process_directory(directory, recursive=args.recursive, skip_renamed=not args.force)
+    
     console.print("\n[bold green]Processing complete![/bold green]")
     console.print(f"[cyan]Total files processed:[/cyan] {stats['total']}")
     console.print(f"[cyan]Images processed:[/cyan] {stats['images']}")
