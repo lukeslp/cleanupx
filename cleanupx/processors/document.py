@@ -62,7 +62,7 @@ def extract_text_from_pdf_with_pdfminer(file_path: Union[str, Path]) -> str:
         logger.error(f"pdfminer.six extraction failed for {file_path}: {e}")
         return ""
 
-def extract_text_from_pdf_with_ocr(file_path: Union[str, Path]) -> str:
+def extract_text_from_pdf_with_ocr(file_path: Union[str, Path], max_pages: int = 3) -> str:
     """Extract text content from a PDF file using OCR via pdf2image and pytesseract."""
     try:
         from pdf2image import convert_from_path
@@ -71,10 +71,16 @@ def extract_text_from_pdf_with_ocr(file_path: Union[str, Path]) -> str:
         images = convert_from_path(str(file_path))
         text = ""
         
-        for i, image in enumerate(images):
+        # Limit processing to max_pages if specified
+        pages_to_process = images[:max_pages] if max_pages is not None else images
+        
+        for i, image in enumerate(pages_to_process):
             logger.info(f"OCR processing page {i+1} of {file_path}")
             text += pytesseract.image_to_string(image)
             text += "\n\n"
+            
+        if max_pages is not None and len(images) > max_pages:
+            logger.info(f"Only processed {max_pages} of {len(images)} pages in {file_path}")
             
         return text
     except ImportError:
@@ -84,8 +90,18 @@ def extract_text_from_pdf_with_ocr(file_path: Union[str, Path]) -> str:
         logger.error(f"OCR extraction failed for {file_path}: {e}")
         return ""
 
-def extract_text_from_pdf(file_path: Union[str, Path]) -> str:
-    """Extract text content from a PDF file."""
+def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> str:
+    """
+    Extract text content from a PDF file.
+    
+    Args:
+        file_path: Path to the PDF file
+        max_pages: Maximum number of pages to process. Default is 2.
+                  Set to None to process all pages.
+    
+    Returns:
+        Extracted text content
+    """
     file_path = Path(file_path)
     text = ""
     extraction_methods = []
@@ -94,7 +110,7 @@ def extract_text_from_pdf(file_path: Union[str, Path]) -> str:
     try:
         # 1. First try PyPDF2 extraction
         import PyPDF2
-        extraction_methods.append(("PyPDF2 standard", lambda: extract_text_with_pypdf2(file_path)))
+        extraction_methods.append(("PyPDF2 standard", lambda: extract_text_with_pypdf2(file_path, max_pages)))
         
         # 2. Then try pdfminer.six if available
         try:
@@ -109,12 +125,12 @@ def extract_text_from_pdf(file_path: Union[str, Path]) -> str:
             import importlib.util
             if (importlib.util.find_spec("pdf2image") and 
                 importlib.util.find_spec("pytesseract")):
-                extraction_methods.append(("OCR", lambda: extract_text_from_pdf_with_ocr(file_path)))
+                extraction_methods.append(("OCR", lambda: extract_text_from_pdf_with_ocr(file_path, max_pages)))
         except ImportError:
             pass
         
         # 4. Fallback to using pdftotext command line if available
-        extraction_methods.append(("pdftotext", lambda: extract_text_with_pdftotext(file_path)))
+        extraction_methods.append(("pdftotext", lambda: extract_text_with_pdftotext(file_path, max_pages)))
         
         # Try each method until we get some text
         for method_name, method_func in extraction_methods:
@@ -139,7 +155,7 @@ def extract_text_from_pdf(file_path: Union[str, Path]) -> str:
         text = str(file_path.stem).replace("_", " ").replace("-", " ")
         return text
 
-def extract_text_with_pypdf2(file_path: Union[str, Path]) -> str:
+def extract_text_with_pypdf2(file_path: Union[str, Path], max_pages: int = 3) -> str:
     """Extract text using PyPDF2 with fallback options."""
     import PyPDF2
     text = ""
@@ -148,10 +164,18 @@ def extract_text_with_pypdf2(file_path: Union[str, Path]) -> str:
     try:
         with open(file_path, 'rb') as f:
             reader = PyPDF2.PdfReader(f)
-            for page in reader.pages:
-                extracted = page.extract_text()
+            
+            # Determine how many pages to process
+            total_pages = len(reader.pages)
+            pages_to_process = min(total_pages, max_pages) if max_pages is not None else total_pages
+            
+            for i in range(pages_to_process):
+                extracted = reader.pages[i].extract_text()
                 if extracted:
                     text += extracted
+                    
+            if max_pages is not None and total_pages > max_pages:
+                logger.info(f"Only processed {pages_to_process} of {total_pages} pages in {file_path} with PyPDF2")
     except Exception as e:
         logger.warning(f"Standard PyPDF2 extraction failed for {file_path}: {e}")
         
@@ -160,7 +184,12 @@ def extract_text_with_pypdf2(file_path: Union[str, Path]) -> str:
         try:
             with open(file_path, 'rb') as f:
                 reader = PyPDF2.PdfReader(f, strict=False)
-                for i in range(len(reader.pages)):
+                
+                # Determine how many pages to process
+                total_pages = len(reader.pages)
+                pages_to_process = min(total_pages, max_pages) if max_pages is not None else total_pages
+                
+                for i in range(pages_to_process):
                     try:
                         page = reader.pages[i]
                         extracted = page.extract_text()
@@ -169,16 +198,30 @@ def extract_text_with_pypdf2(file_path: Union[str, Path]) -> str:
                     except Exception as page_e:
                         logger.warning(f"Error extracting text from page {i}: {page_e}")
                         continue
+                        
+                if max_pages is not None and total_pages > max_pages:
+                    logger.info(f"Only processed {pages_to_process} of {total_pages} pages in {file_path} with alternative PyPDF2")
         except Exception as alt_e:
             logger.warning(f"Alternative PyPDF2 extraction failed for {file_path}: {alt_e}")
     
     return text
 
-def extract_text_with_pdftotext(file_path: Union[str, Path]) -> str:
+def extract_text_with_pdftotext(file_path: Union[str, Path], max_pages: int = 3) -> str:
     """Extract text using pdftotext command line tool."""
     try:
-        result = subprocess.run(['pdftotext', str(file_path), '-'],
-                              capture_output=True, text=True, check=True)
+        cmd = ['pdftotext']
+        
+        # Add page range if max_pages is specified
+        if max_pages is not None:
+            cmd.extend(['-f', '1', '-l', str(max_pages)])
+            
+        cmd.extend([str(file_path), '-'])
+        
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        
+        if max_pages is not None:
+            logger.info(f"Processed up to {max_pages} pages in {file_path} with pdftotext")
+            
         return result.stdout
     except (subprocess.SubprocessError, FileNotFoundError) as e:
         logger.warning(f"pdftotext extraction failed: {e}")
@@ -218,7 +261,8 @@ def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], re
     if ext == ".docx":
         text_content = extract_text_from_docx(file_path)
     elif ext == ".pdf":
-        text_content = extract_text_from_pdf(file_path)
+        # Limit PDF processing to first few pages for efficiency
+        text_content = extract_text_from_pdf(file_path, max_pages=3)
     else:
         text_content = read_text_file(file_path)
     

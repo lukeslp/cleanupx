@@ -158,7 +158,7 @@ def update_with_ai_analysis(summary: Dict[str, Any], directory: Path) -> Dict[st
         Updated summary dictionary
     """
     try:
-        from cleanupx.config import XAI_MODEL_TEXT
+        from cleanupx.config import XAI_MODEL_TEXT, DIRECTORY_ANALYSIS_SCHEMA
         from cleanupx.api import call_xai_api
         
         # Create a prompt for the AI to analyze the directory
@@ -178,30 +178,12 @@ def update_with_ai_analysis(summary: Dict[str, Any], directory: Path) -> Dict[st
         Keywords found in files:
         {', '.join(summary.get('content_analysis', {}).get('keywords', []))}
         
-        Based on this information, provide the following:
-        1. A brief description of what this directory appears to contain
-        2. Likely topics covered in this directory
-        3. An assessment of the current organization scheme
-        4. Suggestions for better organizing these files (if needed)
-        
-        Provide your response as a JSON object with the following structure:
-        {
-            "description": "Brief description of directory contents",
-            "topics": ["topic1", "topic2", "topic3"],
-            "current_organization_scheme": "Description of current scheme",
-            "organization_suggestions": [
-                {
-                    "type": "suggestion type (e.g., 'create_subdirectory')",
-                    "reason": "Reason for the suggestion",
-                    "priority": "high|medium|low"
-                }
-            ]
-        }
+        Based on this information, provide a description of the directory contents, likely topics, and organization suggestions.
         """
         
         # Call the AI API and parse the result
         try:
-            result = call_xai_api(XAI_MODEL_TEXT, prompt, schema=None, return_json=True)
+            result = call_xai_api(XAI_MODEL_TEXT, prompt, DIRECTORY_ANALYSIS_SCHEMA)
             
             if result and isinstance(result, dict):
                 # Update the summary with AI insights

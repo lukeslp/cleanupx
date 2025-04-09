@@ -1,101 +1,16 @@
 {
-  "inbox/Canpolat - 2017 - Infections, Infestations and Neoplasms of the Scalp - Hair and Scalp Disorders_PAGES23_PAGES23.pdf": {
-    "description": "The document is a chapter from a book titled 'Hair and Scalp Disorders' authored by Filiz Canpolat, published in 2017. It focuses on infections, infestations, and neoplasms of the scalp. The chapter begins with an introduction to scalp diseases, highlighting their prevalence in dermatology clinics. It then delves into detailed descriptions of bacterial infections like folliculitis, folliculitis decalvans, and tufted hair folliculitis, discussing their causes, symptoms, and treatments. The document also mentions fungal infections such as tinea capitis, favus, and kerion celsi, and protozoal infections like syphilitic alopecia. Infestations, specifically pediculosis capitis, are covered, along with neoplasms including trichilemmal cyst, proliferating trichilemmal cyst, nevus sebaceous, and cylindroma. The chapter includes references to other sections for additional information and is licensed under Creative Commons Attribution License.",
-    "document_type": "article",
-    "suggested_filename": "canpolat_2017_scalp_disorders"
-  },
   "inbox/harry_potter_half_blood_prince_split.zip": {
     "suggested_filename": "harry_potter_half_blood_prince_split",
-    "summary_md": "The archive 'harry_potter_half_blood_prince_split.zip' contains three PDF files:\n\n1. **J.K. Rowling - HP 6 - Harry Potter and the Half-Blood Prince [www.thegeniusandherquirks.wordpress.com]-1-250.pdf**\n   - Pages 1 to 250\n\n2. **J.K. Rowling - HP 6 - Harry Potter and the Half-Blood Prince [www.thegeniusandherquirks.wordpress.com]-251-500.pdf**\n   - Pages 251 to 500\n\n3. **J.K. Rowling - HP 6 - Harry Potter and the Half-Blood Prince [www.thegeniusandherquirks.wordpress.com]-501-671.pdf**\n   - Pages 501 to 671\n\nThese files represent a split version of the book 'Harry Potter and the Half-Blood Prince' by J.K. Rowling."
+    "summary_md": "The archive 'harry_potter_half_blood_prince_split.zip' contains three PDF files:\n\n1. **J.K. Rowling - HP 6 - Harry Potter and the Half-Blood Prince [www.thegeniusandherquirks.wordpress.com]-1-250.pdf**\n   - Pages 1 to 250 of the book.\n\n2. **J.K. Rowling - HP 6 - Harry Potter and the Half-Blood Prince [www.thegeniusandherquirks.wordpress.com]-251-500.pdf**\n   - Pages 251 to 500 of the book.\n\n3. **J.K. Rowling - HP 6 - Harry Potter and the Half-Blood Prince [www.thegeniusandherquirks.wordpress.com]-501-671.pdf**\n   - Pages 501 to 671 of the book.\n\nThese files represent a split version of 'Harry Potter and the Half-Blood Prince' by J.K. Rowling."
   },
-  "inbox/Core Accessibility API Mappings 1.2_PAGES86_PAGES86.pdf": {
-    "description": "The document titled 'Core Accessibility API Mappings 1.2' is a W3C Candidate Recommendation Draft published on 13 August 2024. It provides detailed mappings of how user agents should expose the semantics of web content languages to various accessibility APIs, aiding users with disabilities in interacting with web content through assistive technologies. The document includes sections on the status of the document, an abstract, introduction, accessibility APIs, conformance, and extensive mappings of WAI-ARIA roles, states, and properties to different accessibility APIs like ATK/AT-SPI, UIA, and others. It also covers general rules for exposing WAI-ARIA semantics, handling conflicts between native markup and WAI-ARIA, and specific mappings for various roles, states, and properties.",
-    "document_type": "specification",
-    "suggested_filename": "core_accessibility_api_mappings_1_2"
-  },
-  "inbox/Chen, O_Leary - 2018 - Eye Gaze 101 What Speech-Language Pathologists Should Know About Selecting Eye Gaze Augmentative and Alternative_PAGES10_PAGES10.pdf": {
-    "description": "The document discusses the use of eye gaze technology as an effective means of communication for girls and women with Rett Syndrome (RTT). It highlights the work of Judy Lariviere, an Assistive Technology Specialist, who has developed customized eye gaze page layouts for RTT patients. The document details the benefits of eye gaze technology, including its ability to leverage the natural eye movements of RTT patients for communication and literacy learning. It also mentions the development of an online AAC curriculum and the use of less expensive eye gaze systems like the Tobii PCEye Go. The document emphasizes the importance of appropriate page layouts and strategies to support communication beyond basic choice making.",
-    "document_type": "article",
-    "suggested_filename": "eye_gaze_technology_for_rett_syndrome"
-  },
-  "inbox/Heller, Evans - Unknown - Loess Magnetism - Inviversity of Alberta_PAGES31_PAGES31.pdf": {
-    "description": "The document is an article titled 'Loess Magnetism' published in Reviews of Geophysics in May 1995. It discusses the magnetic properties of loess, a type of sediment. The article has been cited 367 times and has 413 reads. The authors, Friedrich Heller from ETH Zurich and Michael E. Evans from the University of Alberta, are also involved in related projects like Cordilleran Cenozoic Volcanics. The document was uploaded by Friedrich Heller on 15 April 2015.",
-    "document_type": "article",
-    "suggested_filename": "loess_magnetism_heller_evans_1995"
-  },
-  "inbox/macos_custom_folder_settings": {
-    "description": "The document appears to be a .DS_Store file, which is used by macOS to store custom folder settings. The content includes various entries related to file metadata, such as file names, types, and possibly some custom attributes. The file contains binary data, which is typical for .DS_Store files, and includes references to files like 'book-1' and 'facebook-100077701761833' with different attributes.",
+  "inbox/macos_folder_settings": {
+    "description": "The document appears to be a .DS_Store file, which is a proprietary file created by macOS to store custom folder settings. The content includes binary data that represents folder-specific settings such as view options, icon positions, and other metadata. The file contains references to various files and folders, including 'book-1', 'facebook-100077701761833', and 'Texts', suggesting it was used in a directory containing these items.",
     "document_type": "configuration",
-    "suggested_filename": "macos_custom_folder_settings"
+    "suggested_filename": "macos_folder_settings"
   },
-  "inbox/Stanford, Harris - 2019 - An Exploratory Study on Augmentative and Alternative Communication Classroom Integration Training for Special.pdf": {
-    "description": "The document is an exploratory study conducted by Stanford and Harris in 2019. It focuses on the integration of Augmentative and Alternative Communication (AAC) in classroom settings, specifically for special education training.",
+  "inbox/Stanford, Harris - 2019 - An Exploratory Study on Augmentative and Alternative Communication Classroom Integration Training for Special_PAGES26.pdf": {
+    "description": "The document is a research article titled 'An Exploratory Study on Augmentative and Alternative Communication Classroom Integration Training for Special Educators Who Work With Children With Complex Communication Needs in the Bahamas' by Shameka Stanford and Ovetta Harris. It discusses the benefits of an exploratory, descriptive, nonexperimental study on augmentative and alternative communication (AAC) classroom integration training for 8 special educators in the Bahamas who work with children with complex communication needs (CCN). The study found that 100% of the participants reported the training to be effective in increasing their knowledge and skill in implementing AAC into their classrooms, enhancing their ability to team teach, and increasing their overall knowledge and skill in AAC and CCN. The article also highlights the limitations in special education training programs in the Bahamas and the need for more inclusive education systems for youth with disabilities in English-speaking Caribbean countries.",
     "document_type": "research article",
-    "suggested_filename": "stanford_harris_2019_aac_classroom_integration"
-  },
-  "inbox/HTML Accessibility API Mappings 1.0_PAGES163_PAGES163.pdf": {
-    "description": "The document titled 'HTML Accessibility API Mappings 1.0' is a W3C Working Draft published on 16 July 2024. It outlines how HTML elements and attributes are mapped to platform accessibility APIs, promoting interoperability and consistent exposure of roles, states, properties, and events. The document includes sections on the status of the document, introduction to accessibility APIs, conformance requirements, and detailed mappings of HTML to various accessibility APIs like MSAA, UI-Automation, ATK/AT-SPI, and macOS Accessibility Protocol. It also covers how to handle conflicts between native markup semantics and WAI-ARIA, and how to expose HTML features that do not directly map to accessibility APIs. The document is part of the WAI-ARIA suite and is maintained by the Accessible Rich Internet Applications Working Group.",
-    "document_type": "specification",
-    "suggested_filename": "html_accessibility_api_mappings_1_0"
-  },
-  "inbox/Augmentative and alternative communication in children with Down_s syndrome_ a systematic review_PAGES12_PAGES12.pdf": {
-    "description": "The document is a research paper presented at the CHI 2020 conference, focusing on the concept of conversational agency in augmentative and alternative communication (AAC) for individuals with severe speech and physical impairments. It discusses how AAC users, referred to as augmented communicators (ACs), face unique conversational constraints due to their devices and social interactions. The paper introduces the concept of conversational agency, detailing how ACs can exercise agency within these constraints. It includes an observational study involving ACs, their close conversational partners (CCPs), and a third party to understand how CCPs facilitate communication and impact ACs' agency. The paper concludes with implications for future AAC research to enhance ACs' conversational agency.",
-    "document_type": "research paper",
-    "suggested_filename": "conversational_agency_in_aac"
-  },
-  "inbox/thanks_for_software_contributions.htm": {
-    "description": "The document is an HTML file expressing gratitude to various individuals and organizations for their contributions to software development, particularly in areas like compression algorithms, file formats, and testing. It lists contributions related to software like p7zip, ARJ, 7-Zip, and various file formats and algorithms.",
-    "document_type": "acknowledgement",
-    "suggested_filename": "thanks_for_software_contributions"
-  },
-  "inbox/Motor Disabilities and What You Need for Accessibility_PAGES7_PAGES7.pdf": {
-    "description": "The document discusses motor disabilities and web accessibility, detailing various conditions like cerebral palsy, muscular dystrophy, multiple sclerosis, spina bifida, ALS, arthritis, Parkinson's disease, essential tremor, spinal cord injuries, and limb loss. It explains the importance of web accessibility for individuals with motor disabilities, describing how the internet can be a lifeline for them. The document also covers assistive technologies such as head wands, mouth sticks, single switches, sip-and-puff switches, oversized trackball mice, adaptive keyboards, eye-tracking devices, and voice recognition software. It provides strategies for improving web accessibility, including effective keyboard navigation, reducing the number of keypresses required, and adding a search field to websites.",
-    "document_type": "article",
-    "suggested_filename": "motor_disabilities_web_accessibility"
-  },
-  "inbox/Chu et al. - 2019 - Pulmonary toxicities from a 90-day chronic inhalation study with carbon black nanoparticles in rats related to the s_PAGES19_PAGES19.pdf": {
-    "description": "The document is an original research article published in the International Journal of Nanomedicine, focusing on the pulmonary toxicities from a 90-day chronic inhalation study with carbon black nanoparticles in rats. It discusses the systemic immune effects, detailing the study's background, purpose, methods, results, and conclusion. The study involved 32 rats divided into exposure and control groups, with various tests conducted to assess lung function, histopathology, cell apoptosis, cytokine levels, and blood cell counts. The results indicate that carbon black induces both localized and systemic immune toxicity, affecting lung function and immune responses.",
-    "document_type": "article",
-    "suggested_filename": "chu_et_al_2019_pulmonary_toxicities_carbon_black_nanoparticles_rats"
-  },
-  "inbox/Roach, Stefaniak, Roberts - 2019 - Metal nanomaterials Immune effects and implications of physicochemical properties on sensitization, e.pdf": {
-    "description": "The document discusses the immune effects of metal nanomaterials and the implications of their physicochemical properties on sensitization. It provides an overview of the current understanding of how metal nanomaterials interact with the immune system, focusing on the potential for sensitization due to their unique properties.",
-    "document_type": "article",
-    "suggested_filename": "metal_nanomaterials_immune_effects"
-  },
-  "inbox/text_messages_sentiment_analysis_december_2020.csv": {
-    "description": "This document is a CSV file containing text messages exchanged between two individuals over the course of December 2020. The messages include timestamps, sender information, the message content, and a sentiment score for each message. The purpose of this document appears to be to analyze the sentiment of the text messages, possibly for research or personal analysis. The content includes various types of messages such as greetings, sharing links, discussing food, and financial transactions.",
-    "document_type": "data",
-    "suggested_filename": "text_messages_sentiment_analysis_december_2020"
-  },
-  "inbox/Studies Comparing Augmentative and Alternative Communication Systems _AAC_ Applications for Individuals with Autism Spectrum Disorder_PAGES133_PAGES133.pdf": {
-    "description": "The document is a journal issue titled 'Education and Training in Autism and Developmental Disabilities' from June 2020, Volume 55, Number 2. It includes various articles focusing on education and training for individuals with autism and developmental disabilities. The journal is published by the Division on Autism and Developmental Disabilities of The Council for Exceptional Children. It contains editorial information, a list of consulting editors, and details about the organization's purposes and membership. The issue also lists several research articles on topics such as augmentative and alternative communication systems for individuals with autism, computer-based editing strategies, app-based manipulatives, and more. Additionally, it mentions manuscripts accepted for future publication.",
-    "document_type": "journal_issue",
-    "suggested_filename": "education_and_training_in_autism_june_2020"
-  },
-  "inbox/cyrus_behavior_intervention_plan.docx": {
-    "description": "The document is a Behavior Intervention Plan for a client named Cyrus, detailing strategies for managing challenging behaviors. It includes sections on supervision levels, safety assessments, proactive interventions like pairing and steam building, replacement behaviors focusing on functional communication and cooperation skills, a reinforcement plan, staff responses to warning signs and challenging behaviors, and guidelines for progress monitoring and data collection. The plan also outlines how to run 'My Way' programming, emphasizing the importance of maintaining a 'Happy, Relaxed, and Engaged' (HRE) state for the client.",
-    "document_type": "report",
-    "suggested_filename": "cyrus_behavior_intervention_plan"
-  },
-  "inbox/DePaepe, Feeley, Wood - 2002 - Augmentative and Alternative Communication Considerations for Adults With Significant Cognitive Disabilit.pdf": {
-    "description": "The document discusses considerations for augmentative and alternative communication for adults with significant cognitive disabilities, authored by DePaepe, Feeley, and Wood in 2002.",
-    "document_type": "article",
-    "suggested_filename": "augmentative_communication_cognitive_disabilities"
-  },
-  "inbox/bipolar_disorder_indicators_analysis.docx": {
-    "description": "The document is a detailed analysis report on bipolar disorder indicators from Bsky posts, including frequency counts of keywords related to mania/hypomania, depression, and suicidal conversations. It also includes attempts to create smoothed graphs and bar charts for visualizing trends over six months, with errors and corrections noted. Additionally, there are discussions about aligning and overlaying data from Facebook posts, Apple Health step data, and text messages for a comprehensive analysis over a common six-month period.",
-    "document_type": "report",
-    "suggested_filename": "bipolar_disorder_indicators_analysis"
-  },
-  "inbox/macos_folder_settings_configuration": {
-    "description": "The document appears to be a binary file containing settings or configuration data for macOS folder settings. It includes various entries with keys like 'book-1', 'facebook-100077701761833', and 'Texts', each associated with different types of data such as 'dsclbool', 'lg1Scomp', 'moDDblob', 'modDblob', and 'ph1Scomp'. These entries suggest that the file is used to store and manage folder settings, possibly for user-specific configurations or system-wide settings.",
-    "document_type": "configuration",
-    "suggested_filename": "macos_folder_settings_configuration"
-  },
-  "inbox/rett_syndrome_apops_alpha_PAGES9_PAGES9.pdf": {
-    "description": "The document provides a comprehensive overview of Rett Syndrome, detailing its genetic basis, symptoms, diagnosis, and management strategies. It includes demographic information, coding for medical classification, medical features and pathophysiology, assistive technology suggestions, access modalities, and care management techniques. The content is structured with headings and subheadings, covering topics such as the incidence and prevalence of the syndrome, the role of the MECP2 gene, typical symptoms like loss of skills and repetitive hand movements, and the necessity of assistive technologies like AAC devices, mobility aids, and environmental control units. The document also discusses therapeutic techniques and the importance of a multidisciplinary approach in managing the syndrome.",
-    "document_type": "report",
-    "suggested_filename": "rett_syndrome_overview_and_management"
+    "suggested_filename": "exploratory_study_aac_integration_bahamas"
   }
 }

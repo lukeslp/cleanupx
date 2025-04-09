@@ -13,9 +13,9 @@ XAI_MODEL_VISION = "grok-2-vision-latest"
 
 # File type constants
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp', '.heic', '.heif', '.ico'}
-TEXT_EXTENSIONS = {'.txt', '.md', '.markdown', '.rst', '.text', '.log', '.csv', '.tsv', '.json', '.xml', '.yaml', '.yml', '.html', '.htm', '.py', '.db', '.sh', 'rtf', 'ics', 'icsv', 'icsx'}
+TEXT_EXTENSIONS = {'.txt', '.md', '.markdown', '.rst', '.text', '.log', '.csv', '.tsv', '.json', '.xml', '.yaml', '.yml', '.html', '.htm', '.py', '.db', '.sh', '.rtf', '.ics', '.icsv', '.icsx'}
 MEDIA_EXTENSIONS = {'.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.m4v'}
-DOCUMENT_EXTENSIONS = {'.pdf', '.docx', '.doc', '.ppt', '.pptx'}
+DOCUMENT_EXTENSIONS = {'.pdf', '.docx', '.doc', '.ppt', '.pptx', 'xlsx', 'xls'}
 ARCHIVE_EXTENSIONS = {'.zip', '.tar', '.tgz', '.tar.gz', '.rar', '.gz', '.apk'}
 
 # Cache and rename log files
@@ -157,5 +157,55 @@ ARCHIVE_FUNCTION_SCHEMA = {
             }
         },
         "required": ["suggested_filename", "summary_md"]
+    }
+}
+
+# Add a schema for directory analysis
+DIRECTORY_ANALYSIS_SCHEMA = {
+    "name": "analyze_directory",
+    "description": "Analyze a directory and its contents to provide insights and organization suggestions",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "description": {
+                "type": "string",
+                "description": "Brief description of directory contents"
+            },
+            "topics": {
+                "type": "array",
+                "description": "Likely topics covered in this directory",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "current_organization_scheme": {
+                "type": "string",
+                "description": "Description of current organization scheme"
+            },
+            "organization_suggestions": {
+                "type": "array",
+                "description": "Suggestions for better organizing these files",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "description": "Type of suggestion (e.g., 'create_subdirectory')"
+                        },
+                        "reason": {
+                            "type": "string",
+                            "description": "Reason for the suggestion"
+                        },
+                        "priority": {
+                            "type": "string",
+                            "description": "Priority level (high, medium, low)",
+                            "enum": ["high", "medium", "low"]
+                        }
+                    },
+                    "required": ["type", "reason"]
+                }
+            }
+        },
+        "required": ["description", "topics", "current_organization_scheme"]
     }
 }

@@ -732,8 +732,6 @@ def display_hidden_summary(directory: Path, console: Console) -> None:
         console.print(f"[bold]Last updated:[/bold] {summary.get('updated')}")
         console.print(f"[bold]File count:[/bold] {summary.get('file_count')}")
         console.print(f"[bold]Directory count:[/bold] {summary.get('directory_count')}")
-        console.print(f"[bold]Update hidden summary:[/bold] {'No' if parsed_args.no_summary else 'Yes'}")
-        console.print(f"[bold]Update citations:[/bold] Yes for document files")
         
         # Display content analysis
         content = summary.get("content_analysis", {})

@@ -346,44 +346,51 @@ def save_markdown_citations(directory: Path) -> Optional[Path]:
         logger.error(f"Error saving markdown citations for {directory}: {e}")
         return None
 
-def process_file_for_citations(file_path: Union[str, Path], directory: Optional[Path] = None) -> List[Dict[str, Any]]:
+def process_file_for_citations(file_path: Union[str, Path], directory: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Process a file to extract citations and update the citations file.
+    Process a file to extract citations.
     
     Args:
-        file_path: Path to the file to process
-        directory: Directory where the citations file should be updated (defaults to file's directory)
+        file_path: Path to the file
+        directory: Directory to store the citations file (defaults to file's directory)
         
     Returns:
-        List of extracted citations
+        Dictionary with processing results
     """
     file_path = Path(file_path)
-    directory = directory or file_path.parent
+    if directory is None:
+        directory = file_path.parent
+        
+    # Check if file exists
+    if not file_path.exists():
+        logger.error(f"File does not exist: {file_path}")
+        return {"success": False, "error": "File not found"}
     
-    # Extract text content from the file
-    from cleanupx.processors.document import extract_text_from_pdf, extract_text_from_docx
-    
-    text_content = ""
+    # Extract text based on file type
     ext = file_path.suffix.lower()
+    text = ""
     
-    try:
-        if ext == ".pdf":
-            text_content = extract_text_from_pdf(file_path)
-        elif ext == ".docx":
-            text_content = extract_text_from_docx(file_path)
-        else:
-            from cleanupx.utils.common import read_text_file
-            text_content = read_text_file(file_path)
-    except Exception as e:
-        logger.error(f"Error extracting text from {file_path}: {e}")
-        return []
+    if ext == ".pdf":
+        # For PDFs, we want to scan potentially more pages for citations
+        # than needed for just file renaming, but still limit for large files
+        from cleanupx.processors.document import extract_text_from_pdf
+        text = extract_text_from_pdf(file_path, max_pages=3)
+    elif ext == ".docx":
+        from cleanupx.processors.document import extract_text_from_docx
+        text = extract_text_from_docx(file_path)
+    elif ext in (".txt", ".md", ".rtf"):
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            text = f.read()
+    else:
+        logger.warning(f"Unsupported file type for citation extraction: {ext}")
+        return {"success": False, "error": "Unsupported file type"}
     
     # Extract citations from the text
-    citations = extract_citations_from_text(text_content)
+    citations = extract_citations_from_text(text)
     
     # Look for DOIs in the text
     doi_pattern = r'\b(10\.\d{4,}(?:\.\d+)*\/(?:(?![\'"])\S)+)\b'
-    dois = re.findall(doi_pattern, text_content)
+    dois = re.findall(doi_pattern, text)
     
     # Extract citation information from DOIs
     for doi in dois:
@@ -398,7 +405,7 @@ def process_file_for_citations(file_path: Union[str, Path], directory: Optional[
         # Also generate and save a markdown version
         save_markdown_citations(directory)
     
-    return citations
+    return {"success": True, "citations": citations}
 
 def get_citation_stats(directory: Path) -> Dict[str, Any]:
     """
