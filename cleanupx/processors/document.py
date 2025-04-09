@@ -10,7 +10,7 @@ import io
 import subprocess
 
 from cleanupx.config import DOCUMENT_EXTENSIONS, DOCUMENT_FUNCTION_SCHEMA, FILE_DOCUMENT_PROMPT, XAI_MODEL_TEXT
-from cleanupx.utils.common import read_text_file, strip_media_suffixes
+from cleanupx.utils.common import read_text_file, strip_media_suffixes, clean_filename
 from cleanupx.utils.cache import save_cache
 from cleanupx.api import call_xai_api
 from cleanupx.processors.base import generate_new_filename, rename_file
@@ -227,7 +227,8 @@ def extract_text_with_pdftotext(file_path: Union[str, Path], max_pages: int = 3)
         logger.warning(f"pdftotext extraction failed: {e}")
         return ""
 
-def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict) -> Tuple[Path, Optional[Path], Optional[Dict]]:
+def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict, 
+                    citation_style_pdfs: bool = False) -> Tuple[Path, Optional[Path], Optional[Dict]]:
     """
     Process a document file (PDF, DOCX, etc.) - extract text, analyze content, and rename.
     
@@ -235,6 +236,7 @@ def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], re
         file_path: Path to the document file
         cache: Cache dictionary for storing/retrieving document descriptions
         rename_log: Log for tracking renames
+        citation_style_pdfs: Whether to use citation-style naming for PDFs
         
     Returns:
         Tuple of (original_path, new_path, description)
@@ -242,22 +244,7 @@ def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], re
     file_path = Path(file_path)
     ext = file_path.suffix.lower()
     
-    # For PDFs, we need to add page count to filename
-    if ext == ".pdf":
-        # First clean the stem to remove any existing metadata
-        clean_stem = strip_media_suffixes(file_path.stem)
-        
-        # Get the page count
-        page_count = get_pdf_page_count(file_path)
-        if page_count is not None:
-            # Create new name with page count
-            new_name = f"{clean_stem}_PAGES{page_count}{ext}"
-            new_path = rename_file(file_path, new_name, rename_log)
-            
-            # After renaming with page count, we can still extract text and process further
-            file_path = new_path or file_path  # Use new path if renaming succeeded
-    
-    # Continue with normal processing
+    # Extract content for analysis
     if ext == ".docx":
         text_content = extract_text_from_docx(file_path)
     elif ext == ".pdf":
@@ -269,7 +256,13 @@ def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], re
     if not text_content.strip():
         logger.error(f"No text could be extracted from {file_path}")
         return file_path, None, None
+    
+    # Get page count for PDFs early (we'll need it for the filename)
+    page_count = None
+    if ext == ".pdf":
+        page_count = get_pdf_page_count(file_path)
         
+    # Analyze content and create description
     prompt = FILE_DOCUMENT_PROMPT.format(name=file_path.name, suffix=ext, text_content=text_content[:10000])
     result = call_xai_api(XAI_MODEL_TEXT, prompt, DOCUMENT_FUNCTION_SCHEMA)
     description = result
@@ -286,17 +279,55 @@ def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], re
         except Exception as e:
             logger.error(f"Error processing citations for {file_path}: {e}")
     
-    # For PDFs, we've already renamed with page count, so only rename if not PDF
-    if ext != ".pdf":
-        new_name = generate_new_filename(file_path, description)
-        new_path = None
-        if new_name:
-            new_path = rename_file(file_path, new_name, rename_log)
-            if new_path and new_path != file_path and cache_key in cache:
-                cache[str(new_path)] = cache[cache_key]
-                del cache[cache_key]
-                save_cache(cache)
-        return file_path, new_path, description
+    # Generate new name
+    new_name = None
+    new_path = None
     
-    # For PDFs, return the already renamed file
-    return file_path, file_path if ext == ".pdf" else None, description
+    if description:
+        # For PDFs, use citation style naming if requested
+        if ext == ".pdf" and citation_style_pdfs and isinstance(description, dict) and description.get("document_type") == "research article":
+            # Extract author, title, year for citation style
+            author = description.get("author", "unknown")
+            title = description.get("title", "")
+            if not title:
+                title = description.get("suggested_filename", "document")
+            year = description.get("year", "")
+            
+            # Clean up author - extract last name of first author
+            if "," in author:
+                author = author.split(",")[0].strip()
+            elif " " in author:
+                author = author.split(" ")[-1].strip()
+            
+            # Format the citation style name with page count
+            if page_count:
+                if year:
+                    new_name = f"{author}_{year}_{title}_{page_count}p{ext}"
+                else:
+                    new_name = f"{author}_{title}_{page_count}p{ext}"
+            else:
+                if year:
+                    new_name = f"{author}_{year}_{title}{ext}"
+                else:
+                    new_name = f"{author}_{title}{ext}"
+        else:
+            # Normal content-based naming
+            new_name = generate_new_filename(file_path, description)
+            
+            # Add page count for PDFs
+            if ext == ".pdf" and page_count and new_name:
+                # Add page count as a suffix with underscore format
+                new_name = new_name.replace(ext, f"_{page_count}p{ext}")
+    
+    # Rename the file if we have a new name
+    if new_name:
+        # First clean the name to ensure it's valid
+        new_name = clean_filename(new_name)
+        
+        new_path = rename_file(file_path, new_name, rename_log)
+        if new_path and new_path != file_path and cache_key in cache:
+            cache[str(new_path)] = cache[cache_key]
+            del cache[cache_key]
+            save_cache(cache)
+    
+    return file_path, new_path, description

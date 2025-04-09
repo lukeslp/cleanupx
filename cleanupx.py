@@ -6,7 +6,11 @@ This is a wrapper script that imports and runs the modular version of CleanupX.
 """
 
 import sys
-from cleanupx.main import main
+import logging
+from cleanupx.ui.cli import run_cli
+
+# Configure basic logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(run_cli())

@@ -216,6 +216,40 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         help="Export directory summary to a DIRECTORY_SUMMARY.md file"
     )
     
+    # Add batch processing option
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=0,
+        help="Number of files to process before asking for confirmation (0 = all files)"
+    )
+    
+    # Add categorization options
+    parser.add_argument(
+        "--categorize",
+        action="store_true",
+        help="Categorize files based on content analysis"
+    )
+    
+    parser.add_argument(
+        "--move-to-categories",
+        action="store_true",
+        help="Move files to folders based on their categories"
+    )
+    
+    # Add PDF naming options
+    parser.add_argument(
+        "--citation-style-pdfs",
+        action="store_true",
+        help="Use citation-style naming for PDFs (based on author, title, year)"
+    )
+    
+    parser.add_argument(
+        "--normal-pdf-naming",
+        action="store_true",
+        help="Use normal content-based naming for PDFs (default)"
+    )
+    
     return parser.parse_args(args)
 
 def run_cli(args: Optional[List[str]] = None) -> int:
@@ -527,18 +561,25 @@ def run_cli(args: Optional[List[str]] = None) -> int:
             config.ARCHIVE_EXTENSIONS = set()
             file_type_selection.remove("archives")
     
-    console.print(Panel(
-        f"[bold]Processing directory:[/bold] {directory}\n"
-        f"[bold]Recursive:[/bold] {'Yes' if parsed_args.recursive else 'No'}\n"
-        f"[bold]Skip renamed:[/bold] {'No' if parsed_args.force else 'Yes'}\n"
-        f"[bold]Ask for preferences:[/bold] {'Yes' if parsed_args.ask_preferences else 'No'}\n"
-        f"[bold]File types:[/bold] {', '.join(file_type_selection) or 'None - no files will be processed'}\n"
-        f"[bold]Update hidden summary:[/bold] {'No' if parsed_args.no_summary else 'Yes'}\n"
-        f"[bold]Update citations:[/bold] Yes for document files",
-        title="Processing Configuration",
-        border_style="cyan"
-    ))
-    
+    # Pass the batch size option to the processing function
+    if parsed_args.directory and not (parsed_args.dedupe or parsed_args.scramble or 
+                                     parsed_args.summary or parsed_args.suggest or 
+                                     parsed_args.citations or parsed_args.hidden_summary or
+                                     parsed_args.reorganize):
+        console.print(Panel(
+            f"[bold]Processing directory:[/bold] {directory}\n"
+            f"[bold]Recursive:[/bold] {'Yes' if parsed_args.recursive else 'No'}\n"
+            f"[bold]Skip renamed:[/bold] {'No' if parsed_args.force else 'Yes'}\n"
+            f"[bold]Ask for preferences:[/bold] {'Yes' if parsed_args.ask_preferences else 'No'}\n"
+            f"[bold]File types:[/bold] {', '.join(file_type_selection) or 'None - no files will be processed'}\n"
+            f"[bold]Update hidden summary:[/bold] {'No' if parsed_args.no_summary else 'Yes'}\n"
+            f"[bold]Update citations:[/bold] Yes for document files\n"
+            f"[bold]Batch size:[/bold] {'All files' if parsed_args.batch_size == 0 else parsed_args.batch_size}\n"
+            f"[bold]PDF naming:[/bold] {'Citation style' if parsed_args.citation_style_pdfs else 'Content-based'}",
+            title="Processing Configuration",
+            border_style="cyan"
+        ))
+        
     # Ask for confirmation before processing
     if INQUIRER_AVAILABLE:
         confirm = inquirer.confirm(
@@ -559,7 +600,9 @@ def run_cli(args: Optional[List[str]] = None) -> int:
         skip_renamed=not parsed_args.force,
         max_size_mb=parsed_args.max_size,
         update_summary=not parsed_args.no_summary,
-        include_user_prefs=parsed_args.ask_preferences
+        include_user_prefs=parsed_args.ask_preferences,
+        batch_size=parsed_args.batch_size,
+        citation_style_pdfs=parsed_args.citation_style_pdfs
     )
     
     console.print(f"\n[bold green]Processing complete![/bold green]")
@@ -680,6 +723,51 @@ def run_cli(args: Optional[List[str]] = None) -> int:
             return 0
         except Exception as e:
             console.print(f"[bold red]Error during reorganization: {e}[/bold red]")
+            return 1
+    
+    # Add categorization functionality
+    if parsed_args.categorize:
+        try:
+            from cleanupx.utils.categorization import categorize_files
+            console.print(f"[bold cyan]Categorizing files in {directory}[/bold cyan]")
+            
+            categories = categorize_files(
+                directory=directory,
+                recursive=parsed_args.recursive
+            )
+            
+            console.print(f"\n[bold green]Categorization complete![/bold green]")
+            
+            # Display category summary
+            table = Table(title="File Categories")
+            table.add_column("Category", style="cyan")
+            table.add_column("Count", style="green")
+            
+            for category, files in categories.items():
+                table.add_row(category, str(len(files)))
+            
+            console.print(table)
+            
+            # Option to move files to category folders
+            if parsed_args.move_to_categories:
+                from cleanupx.utils.categorization import move_to_category_folders
+                
+                if INQUIRER_AVAILABLE:
+                    confirm = inquirer.confirm(
+                        message=f"Move files to category folders in {directory}?",
+                        default=False
+                    )
+                    if confirm:
+                        move_to_category_folders(directory, categories)
+                        console.print("[bold green]Files moved to category folders[/bold green]")
+                else:
+                    confirm = input(f"Move files to category folders in {directory}? (y/N): ").lower().strip() == 'y'
+                    if confirm:
+                        move_to_category_folders(directory, categories)
+                        console.print("[bold green]Files moved to category folders[/bold green]")
+            
+        except Exception as e:
+            console.print(f"[bold red]Error during categorization: {e}[/bold red]")
             return 1
     
     return 0

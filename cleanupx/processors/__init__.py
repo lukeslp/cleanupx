@@ -28,7 +28,7 @@ from cleanupx.processors.citation import process_file_for_citations
 logger = logging.getLogger(__name__)
 
 def process_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict, 
-                max_size_mb: float = 25.0) -> Tuple[Path, Optional[Path], Optional[Dict]]:
+                max_size_mb: float = 25.0, citation_style_pdfs: bool = False) -> Tuple[Path, Optional[Path], Optional[Dict]]:
     """
     Process a file - analyze content, generate description, and possibly rename.
     
@@ -37,6 +37,7 @@ def process_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log:
         cache: Cache dictionary for storing/retrieving descriptions
         rename_log: Log for tracking renames
         max_size_mb: Maximum file size to process in MB
+        citation_style_pdfs: Whether to use citation-style naming for PDFs
         
     Returns:
         Tuple of (original_path, new_path, description)
@@ -97,7 +98,7 @@ def process_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log:
             
             return result
         elif ext in DOCUMENT_EXTENSIONS:
-            result = process_document_file(file_path, cache, rename_log)
+            result = process_document_file(file_path, cache, rename_log, citation_style_pdfs)
             
             # For document files, also extract citations
             try:

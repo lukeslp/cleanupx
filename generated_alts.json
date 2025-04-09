@@ -1,16 +1,94 @@
 {
-  "inbox/harry_potter_half_blood_prince_split.zip": {
-    "suggested_filename": "harry_potter_half_blood_prince_split",
-    "summary_md": "The archive 'harry_potter_half_blood_prince_split.zip' contains three PDF files:\n\n1. **J.K. Rowling - HP 6 - Harry Potter and the Half-Blood Prince [www.thegeniusandherquirks.wordpress.com]-1-250.pdf**\n   - Pages 1 to 250 of the book.\n\n2. **J.K. Rowling - HP 6 - Harry Potter and the Half-Blood Prince [www.thegeniusandherquirks.wordpress.com]-251-500.pdf**\n   - Pages 251 to 500 of the book.\n\n3. **J.K. Rowling - HP 6 - Harry Potter and the Half-Blood Prince [www.thegeniusandherquirks.wordpress.com]-501-671.pdf**\n   - Pages 501 to 671 of the book.\n\nThese files represent a split version of 'Harry Potter and the Half-Blood Prince' by J.K. Rowling."
+  "inbox/spinal_muscular_atrophy_ubiquitin_beta_catenin_14p.pdf": {
+    "description": "The document is a research article published in The Journal of Clinical Investigation in April 2014. It discusses the role of ubiquitin homeostasis and \u03b2-catenin signaling in the pathogenesis of spinal muscular atrophy (SMA). The article details how reduced levels of survival motor neuron (SMN) protein lead to SMA, with a focus on ubiquitin-dependent pathways. It includes findings from mouse, zebrafish, and Drosophila models, showing that ubiquitin homeostasis disruption and \u03b2-catenin accumulation contribute to SMA's neuromuscular pathology. The article also explores the potential of targeting ubiquitin homeostasis and \u03b2-catenin signaling as therapeutic strategies for SMA.",
+    "document_type": "research article",
+    "suggested_filename": "spinal_muscular_atrophy_ubiquitin_beta_catenin"
   },
-  "inbox/macos_folder_settings": {
-    "description": "The document appears to be a .DS_Store file, which is a proprietary file created by macOS to store custom folder settings. The content includes binary data that represents folder-specific settings such as view options, icon positions, and other metadata. The file contains references to various files and folders, including 'book-1', 'facebook-100077701761833', and 'Texts', suggesting it was used in a directory containing these items.",
-    "document_type": "configuration",
-    "suggested_filename": "macos_folder_settings"
+  "inbox/image_assets_with_manifest.zip": {
+    "suggested_filename": "image_assets_with_manifest",
+    "summary_md": "## Archive Contents\n\n- **color.png**: An image file, likely containing color information.\n- **outline.png**: An image file, likely containing outline information.\n- **manifest.json**: A JSON file, likely containing metadata or configuration for the images."
   },
-  "inbox/Stanford, Harris - 2019 - An Exploratory Study on Augmentative and Alternative Communication Classroom Integration Training for Special_PAGES26.pdf": {
-    "description": "The document is a research article titled 'An Exploratory Study on Augmentative and Alternative Communication Classroom Integration Training for Special Educators Who Work With Children With Complex Communication Needs in the Bahamas' by Shameka Stanford and Ovetta Harris. It discusses the benefits of an exploratory, descriptive, nonexperimental study on augmentative and alternative communication (AAC) classroom integration training for 8 special educators in the Bahamas who work with children with complex communication needs (CCN). The study found that 100% of the participants reported the training to be effective in increasing their knowledge and skill in implementing AAC into their classrooms, enhancing their ability to team teach, and increasing their overall knowledge and skill in AAC and CCN. The article also highlights the limitations in special education training programs in the Bahamas and the need for more inclusive education systems for youth with disabilities in English-speaking Caribbean countries.",
+  "inbox/web_accessibility_for_motor_disabilities_7p.pdf": {
+    "description": "The document discusses the importance of web accessibility for individuals with motor disabilities. It defines motor disabilities, lists various conditions like cerebral palsy, muscular dystrophy, multiple sclerosis, spina bifida, ALS, arthritis, Parkinson's disease, essential tremor, spinal cord injuries, and limb loss. It also describes assistive technologies such as head wands, mouth sticks, single switches, sip-and-puff switches, oversized trackball mice, adaptive keyboards, eye-tracking devices, and voice recognition software. The document emphasizes the need for effective keyboard navigation and adherence to WAI-ARIA guidelines to enhance web accessibility.",
+    "document_type": "article",
+    "suggested_filename": "web_accessibility_for_motor_disabilities"
+  },
+  "inbox/cancelled_events_calendar.ics": {
+    "description": "This document is an iCalendar (.ics) file that contains a series of cancelled events related to various activities such as rent payments, social skills groups, conference calls, and school events. The events are organized by different individuals and include details like start and end times, recurrence rules, and participant information. The purpose of this document appears to be to keep track of scheduled events and their cancellations.",
+    "document_type": "calendar",
+    "suggested_filename": "cancelled_events_calendar"
+  },
+  "inbox/binary_data_storage": {
+    "description": "The document appears to be a binary file with a specific structure, possibly related to a database or a data storage system. It contains various sections of data, including headers, metadata, and possibly data records. The purpose of this document could be to store or manage data in a structured format.",
+    "document_type": "data",
+    "suggested_filename": "binary_data_storage"
+  },
+  "inbox/loess_magnetism_article_1995_31p.pdf": {
+    "description": "The document is an article titled 'Loess Magnetism' published in Reviews of Geophysics in May 1995. It discusses the magnetic properties of loess, a type of sediment. The article has been cited 367 times and has 413 reads. The authors, Friedrich Heller from ETH Zurich and Michael E Evans from the University of Alberta, are also involved in related projects like Cordilleran Cenozoic Volcanics. The document was uploaded by Friedrich Heller on 15 April 2015, with a request for enhancement of the downloaded file.",
+    "document_type": "article",
+    "suggested_filename": "loess_magnetism_article_1995"
+  },
+  "inbox/chi_2020_aac_conversational_agency_12p.pdf": {
+    "description": "The document is a research paper presented at the CHI 2020 conference in Honolulu, HI, USA, focusing on conversational agency in augmentative and alternative communication (AAC). It discusses how augmented communicators (ACs) use AAC technologies and the constraints they face in communication, such as when they can speak, what they can say, and who they can address. The paper introduces conversational agency as a framework to study AC communication, detailing a study with four triads of expert ACs, their close conversation partners, and a third party. It defines metrics for analyzing AAC conversational agency and concludes with implications for future research to enhance ACs' conversational agency.",
+    "document_type": "research paper",
+    "suggested_filename": "chi_2020_aac_conversational_agency"
+  },
+  "inbox/citations_from_inbox_2025_04_09.md": {
+    "description": "This document contains a list of citations from various academic sources, generated on 2025-04-09. It includes references from journals and proceedings across multiple fields such as education, health, and environmental science. The purpose of this document appears to be a compilation of research references for further study or citation in academic work.",
+    "document_type": "references",
+    "suggested_filename": "citations_from_inbox_2025_04_09"
+  },
+  "inbox/exploratory_study_aac_integration_bahamas_26p.pdf": {
+    "description": "The document is a research article titled 'An Exploratory Study on Augmentative and Alternative Communication Classroom Integration Training for Special Educators Who Work With Children With Complex Communication Needs in the Bahamas'. It discusses the benefits of a study on AAC classroom integration training for special educators in the Bahamas, focusing on children with complex communication needs (CCN). The study found that all participants reported increased knowledge and skills in implementing AAC in their classrooms. The article also highlights the limitations in special education services and training in the Bahamas and the broader English-speaking Caribbean, emphasizing the need for more inclusive education systems and better training for special educators.",
     "document_type": "research article",
     "suggested_filename": "exploratory_study_aac_integration_bahamas"
+  },
+  "inbox/image_assets_and_manifest.zip": {
+    "suggested_filename": "image_assets_and_manifest",
+    "summary_md": "## Archive Contents\n\n- **color.png**: An image file, likely containing color information.\n- **outline.png**: An image file, likely containing outline information.\n- **manifest.json**: A JSON file, likely containing metadata or configuration for the images."
+  },
+  "inbox/harry_potter_half_blood_prince_split_summary.md": {
+    "description": "This document is an archive summary detailing the contents of 'harry_potter_half_blood_prince_split.zip', which includes three PDF files representing different page ranges of 'Harry Potter and the Half-Blood Prince' by J.K. Rowling. The purpose of this document is to provide a clear overview of the split files within the archive.",
+    "document_type": "notes",
+    "suggested_filename": "harry_potter_half_blood_prince_split_summary"
+  },
+  "inbox/request_to_add_sgd_services_to_medicare_telehealth_68p.pdf": {
+    "description": "The document is a formal request submitted to add specific evaluation and therapeutic services related to speech-generating augmentative and alternative communication devices to the list of Medicare telehealth services. It includes contact information of the requestor, details on the proposed CPT codes, descriptions of the medical professionals involved, and arguments supporting the urgent need for these services to be included in telehealth. The document lists numerous organizations and professionals supporting the request, including their contact details and credentials.",
+    "document_type": "request",
+    "suggested_filename": "request_to_add_sgd_services_to_medicare_telehealth"
+  },
+  "inbox/scalp_infections_and_neoplasms_23p.pdf": {
+    "description": "The document is a detailed chapter from a book published by IntechOpen, focusing on cutaneous infections, infestations, and neoplasms of the scalp. It includes sections on bacterial infections like folliculitis, folliculitis decalvans, and others, fungal infections such as tinea capitis, and neoplasms like trichilemmal cyst. The chapter also provides information on the publisher's statistics, open access policy, and contact details for publishing.",
+    "document_type": "article",
+    "suggested_filename": "scalp_infections_and_neoplasms"
+  },
+  "inbox/human_factors_clinical_data.zip": {
+    "suggested_filename": "human_factors_clinical_data",
+    "summary_md": "## Archive Summary\n\nThe archive contains 409 files and directories, primarily focused on human factors and clinical data. Key documents include:\n\n- **HF Wiki Teardown**: Detailed breakdown of human factors.\n- **Reference Table Clinical and Diagnostic Characteristics**: A comprehensive table for clinical diagnostics.\n- **User Personas and Use Cases**: Documentation on user personas and their use cases.\n- **Acceptance Criterion Human Factors and Clinical Use**: Criteria for acceptance in human factors and clinical settings.\n- **Quick Reference Tables**: For target populations, key characteristics, and other quick references.\n\nAdditional files cover topics like photosensitive epilepsy, behavioral considerations, allergies, visual and structural comorbidities, market data visualization, guiding principles, strategic financials, bibliographies, glossaries, and internal invitations. The archive also includes CSV files for 'Where we're at' and 'Glossary of Terms - Evolving Draft'."
+  },
+  "inbox/metal_nanomaterials_immune_effects_allergic_diseas_39p.pdf": {
+    "description": "The document is a review article from the Journal of Immunotoxicology, discussing the immune effects of metal nanomaterials and their implications on allergic diseases. It covers the potential for metal nanomaterials to induce or exacerbate allergic diseases, focusing on both respiratory and dermal allergies. The article also examines the influence of physicochemical properties of metal nanomaterials on their biological interactions and highlights the need for further research in this area.",
+    "document_type": "article",
+    "suggested_filename": "metal_nanomaterials_immune_effects_allergic_disease"
+  },
+  "inbox/conversational_agency_aac_chi2020_12p.pdf": {
+    "description": "The document is a research paper titled 'Conversational Agency in Augmentative and Alternative Communication' presented at CHI 2020. It discusses the concept of conversational agency in the context of augmented communicators (ACs) who use augmentative and alternative communication (AAC) technologies. The paper explores how different conversational constraints and relationships affect the agency of ACs in communication, using a study involving ACs, their close conversational partners (CCPs), and a third party. It introduces metrics to analyze AAC conversational agency and concludes with implications for future research to enhance ACs' ability to exercise conversational agency.",
+    "document_type": "research paper",
+    "suggested_filename": "conversational_agency_aac_chi2020"
+  },
+  "inbox/proteomic_assessment_of_sma_model_13p.pdf": {
+    "description": "The document is a research article from BMC Neuroscience, published in 2011, focusing on a proteomic assessment of a cell model of spinal muscular atrophy (SMA). It discusses the use of embryonic stem cells from a severe SMA mouse model to study motor neuron differentiation and the effects of SMN deficiency on cellular pathways. The study found that SMN deficiency activates stress pathways, affecting energy metabolism, protein degradation, and cytoskeleton stability. The article includes detailed methods for enhancing motor neuron differentiation efficiency and presents findings on protein expression changes relevant to SMA.",
+    "document_type": "research article",
+    "suggested_filename": "proteomic_assessment_of_sma_model"
+  },
+  "inbox/cyre_support_plan_hard_boundaries.docx": {
+    "description": "The document outlines a support plan for CyRe, detailing procedures for enforcing hard boundaries and safely transporting him from restricted areas to designated safe zones like the gym or game room. It includes specific instructions for two staff members to execute the transport, emphasizing the need for physical coordination and verbal cues. The plan also stresses the importance of never transporting CyRe alone and the continuation of self-regulation activities post-transport.",
+    "document_type": "support plan",
+    "suggested_filename": "cyre_support_plan_hard_boundaries"
+  },
+  "inbox/2gdrtfq7nv.pdf": {
+    "description": "The document is an academic article focused on Augmentative and Alternative Communication (AAC) considerations for adults with significant cognitive disabilities. It discusses challenges in using AAC with people who have aphasia, types of communicators, components of AAC evaluation, and specific AAC considerations for adults with developmental disabilities. The article also covers communication modalities, intervention strategies, and the use of AAC systems to enhance communication for individuals with severe cognitive disabilities.",
+    "document_type": "article",
+    "suggested_filename": "aac_considerations_for_adults_with_cognitive_disabilities"
   }
 }

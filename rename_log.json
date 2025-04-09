@@ -550,17 +550,131 @@
       "original_path": "inbox/Augmentative and alternative communication in children with Down_s syndrome_ a systematic review_PAGES12_PAGES12.pdf",
       "new_path": "inbox/60eckxda4x.pdf",
       "timestamp": "2025-04-09T16:00:42.692802"
+    },
+    {
+      "original_path": "inbox/cisd4wvkxf.pdf",
+      "new_path": "inbox/spinal_muscular_atrophy_ubiquitin_beta_catenin_14p.pdf",
+      "timestamp": "2025-04-09T16:09:33.719748",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/sffwoeg34o.zip",
+      "new_path": "inbox/image_assets_with_manifest.zip",
+      "timestamp": "2025-04-09T16:09:35.575086",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/woutrgm4bn.pdf",
+      "new_path": "inbox/web_accessibility_for_motor_disabilities_7p.pdf",
+      "timestamp": "2025-04-09T16:09:38.677799",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/vi3n4lvg8t.ics",
+      "new_path": "inbox/cancelled_events_calendar.ics",
+      "timestamp": "2025-04-09T16:09:40.830018",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/w0fml7ct4y",
+      "new_path": "inbox/binary_data_storage",
+      "timestamp": "2025-04-09T16:09:43.348000",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/ydyy6w8uj7.pdf",
+      "new_path": "inbox/loess_magnetism_article_1995_31p.pdf",
+      "timestamp": "2025-04-09T16:09:49.985073",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/yuq4jnzo17.pdf",
+      "new_path": "inbox/chi_2020_aac_conversational_agency_12p.pdf",
+      "timestamp": "2025-04-09T16:09:54.602970",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/64i3lovad9.md",
+      "new_path": "inbox/citations_from_inbox_2025_04_09.md",
+      "timestamp": "2025-04-09T16:09:56.946256",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/df2e2ilj43.pdf",
+      "new_path": "inbox/exploratory_study_aac_integration_bahamas_26p.pdf",
+      "timestamp": "2025-04-09T16:10:21.079599",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/33jkkmba5w.zip",
+      "new_path": "inbox/image_assets_and_manifest.zip",
+      "timestamp": "2025-04-09T16:10:23.140498",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/j0hkbtke24.md",
+      "new_path": "inbox/harry_potter_half_blood_prince_split_summary.md",
+      "timestamp": "2025-04-09T16:10:25.812801",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/a4kgj5o0bv.pdf",
+      "new_path": "inbox/request_to_add_sgd_services_to_medicare_telehealth_68p.pdf",
+      "timestamp": "2025-04-09T16:10:45.657212",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/mey6ywoe4h.pdf",
+      "new_path": "inbox/scalp_infections_and_neoplasms_23p.pdf",
+      "timestamp": "2025-04-09T16:10:48.643696",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/1o7r4kt94p.zip",
+      "new_path": "inbox/human_factors_clinical_data.zip",
+      "timestamp": "2025-04-09T16:10:53.298191",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/cm9br2vp3y.mp4",
+      "new_path": "inbox/cm9br2vp3y_888x1920_00:00:09.mp4",
+      "timestamp": "2025-04-09T16:10:53.403517",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/pc53qedwq0.pdf",
+      "new_path": "inbox/metal_nanomaterials_immune_effects_allergic_diseas_39p.pdf",
+      "timestamp": "2025-04-09T16:11:13.799725",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/60eckxda4x.pdf",
+      "new_path": "inbox/conversational_agency_aac_chi2020_12p.pdf",
+      "timestamp": "2025-04-09T16:11:16.478526",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/ccvddvswhm.pdf",
+      "new_path": "inbox/proteomic_assessment_of_sma_model_13p.pdf",
+      "timestamp": "2025-04-09T16:11:19.802899",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/ilb34bz3zn.docx",
+      "new_path": "inbox/cyre_support_plan_hard_boundaries.docx",
+      "timestamp": "2025-04-09T16:11:22.958381",
+      "status": "success"
     }
   ],
   "errors": [],
-  "timestamp": "2025-04-09T16:00:42.693366",
+  "timestamp": "2025-04-09T16:09:28.366163",
   "stats": {
-    "total_files": 532,
-    "successful_renames": 51,
+    "total_files": 49,
+    "successful_renames": 70,
     "failed_renames": 0,
     "skipped_files": 5
   },
   "directory": "inbox",
-  "recursive": true,
+  "recursive": false,
   "skip_renamed": false
 }

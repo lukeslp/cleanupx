@@ -21,6 +21,13 @@ except ImportError:
     RICH_AVAILABLE = False
     logger.warning("Rich not installed. Install with: pip install rich")
 
+try:
+    import inquirer
+    INQUIRER_AVAILABLE = True
+except ImportError:
+    INQUIRER_AVAILABLE = False
+    logger.warning("Inquirer not installed. Install with: pip install inquirer")
+
 from cleanupx.utils.cache import load_cache, load_rename_log, save_rename_log
 from cleanupx.processors import process_file
 from cleanupx.utils.directory_summary import update_directory_summary, get_directory_summary, suggest_reorganization
@@ -29,7 +36,8 @@ from cleanupx.utils.hidden_summary import update_hidden_summary, get_reorganizat
 
 def process_directory(directory: Union[str, Path], recursive: bool = False, skip_renamed: bool = True, 
                      max_size_mb: float = 25.0, update_summary: bool = True, 
-                     include_user_prefs: bool = False) -> Dict[str, int]:
+                     include_user_prefs: bool = False, batch_size: int = 0,
+                     citation_style_pdfs: bool = False) -> Dict[str, int]:
     """
     Process files in a directory, optionally recursively.
     
@@ -40,6 +48,8 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
         max_size_mb: Maximum file size to process in MB
         update_summary: Whether to create/update a directory summary file
         include_user_prefs: Whether to prompt for user preferences for organization
+        batch_size: Number of files to process before asking for confirmation (0 = all)
+        citation_style_pdfs: Whether to use citation-style naming for PDFs
         
     Returns:
         Dictionary with processing statistics
@@ -100,8 +110,109 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
     if RICH_AVAILABLE:
         with Progress() as progress:
             task = progress.add_task("[cyan]Processing files...", total=len(files))
-            for file_path in files:
-                progress.update(task, advance=1, description=f"Processing {file_path.name}")
+            
+            # Process files in batches if batch_size > 0
+            batch_files = files
+            current_batch = 0
+            
+            while batch_files:
+                if batch_size > 0:
+                    # Get current batch
+                    current_batch_files = batch_files[:batch_size]
+                    batch_files = batch_files[batch_size:]
+                    current_batch += 1
+                    
+                    if current_batch > 1:
+                        # Ask for confirmation to process next batch
+                        progress.stop()
+                        if INQUIRER_AVAILABLE:
+                            confirm = inquirer.confirm(
+                                message=f"Processed batch {current_batch-1}. Continue with next batch ({len(current_batch_files)} files)?",
+                                default=True
+                            )
+                            if not confirm:
+                                logger.info("Processing stopped by user after batch %s", current_batch-1)
+                                break
+                        else:
+                            confirm = input(f"Processed batch {current_batch-1}. Continue with next batch ({len(current_batch_files)} files)? (Y/n): ").lower().strip() != 'n'
+                            if not confirm:
+                                logger.info("Processing stopped by user after batch %s", current_batch-1)
+                                break
+                        progress.start()
+                else:
+                    # Process all files at once
+                    current_batch_files = batch_files
+                    batch_files = []
+                
+                for file_path in current_batch_files:
+                    progress.update(task, advance=1, description=f"Processing {file_path.name}")
+                    if skip_renamed and str(file_path) in renamed_paths:
+                        stats["skipped"] += 1
+                        rename_log["stats"]["skipped_files"] += 1
+                        continue
+                    ext = file_path.suffix.lower()
+                    stats["total"] += 1
+                    try:
+                        orig_path, new_path, description = process_file(file_path, cache, rename_log, max_size_mb, citation_style_pdfs)
+                        
+                        # Update stats based on file type
+                        from cleanupx.config import IMAGE_EXTENSIONS, TEXT_EXTENSIONS, DOCUMENT_EXTENSIONS
+                        if new_path:
+                            if ext in IMAGE_EXTENSIONS:
+                                stats["images"] += 1
+                            elif ext in TEXT_EXTENSIONS:
+                                stats["text"] += 1
+                            elif ext in DOCUMENT_EXTENSIONS:
+                                stats["documents"] += 1
+                        else:
+                            # Check if it was skipped due to size
+                            try:
+                                if file_path.stat().st_size / (1024 * 1024) > max_size_mb:
+                                    stats["skipped_large"] += 1
+                                else:
+                                    stats["failed"] += 1
+                            except:
+                                stats["failed"] += 1
+                    except Exception as e:
+                        logger.error(f"Error processing {file_path}: {e}")
+                        stats["failed"] += 1
+                        from cleanupx.utils.cache import add_error_to_log
+                        add_error_to_log(rename_log, file_path, str(e), "processing_error")
+                    save_rename_log(rename_log)
+    else:
+        # Non-rich version with batch processing
+        batch_files = files
+        current_batch = 0
+        
+        while batch_files:
+            if batch_size > 0:
+                # Get current batch
+                current_batch_files = batch_files[:batch_size]
+                batch_files = batch_files[batch_size:]
+                current_batch += 1
+                
+                if current_batch > 1:
+                    # Ask for confirmation to process next batch
+                    if INQUIRER_AVAILABLE:
+                        confirm = inquirer.confirm(
+                            message=f"Processed batch {current_batch-1}. Continue with next batch ({len(current_batch_files)} files)?",
+                            default=True
+                        )
+                        if not confirm:
+                            logger.info("Processing stopped by user after batch %s", current_batch-1)
+                            break
+                    else:
+                        confirm = input(f"Processed batch {current_batch-1}. Continue with next batch ({len(current_batch_files)} files)? (Y/n): ").lower().strip() != 'n'
+                        if not confirm:
+                            logger.info("Processing stopped by user after batch %s", current_batch-1)
+                            break
+            else:
+                # Process all files at once
+                current_batch_files = batch_files
+                batch_files = []
+            
+            for i, file_path in enumerate(current_batch_files):
+                print(f"Processing {i+1}/{len(current_batch_files)}: {file_path.name}")
                 if skip_renamed and str(file_path) in renamed_paths:
                     stats["skipped"] += 1
                     rename_log["stats"]["skipped_files"] += 1
@@ -109,7 +220,7 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
                 ext = file_path.suffix.lower()
                 stats["total"] += 1
                 try:
-                    orig_path, new_path, description = process_file(file_path, cache, rename_log, max_size_mb)
+                    orig_path, new_path, description = process_file(file_path, cache, rename_log, max_size_mb, citation_style_pdfs)
                     
                     # Update stats based on file type
                     from cleanupx.config import IMAGE_EXTENSIONS, TEXT_EXTENSIONS, DOCUMENT_EXTENSIONS
@@ -134,44 +245,8 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
                     stats["failed"] += 1
                     from cleanupx.utils.cache import add_error_to_log
                     add_error_to_log(rename_log, file_path, str(e), "processing_error")
-                save_rename_log(rename_log)
-    else:
-        for i, file_path in enumerate(files):
-            print(f"Processing {i+1}/{len(files)}: {file_path.name}")
-            if skip_renamed and str(file_path) in renamed_paths:
-                stats["skipped"] += 1
-                rename_log["stats"]["skipped_files"] += 1
-                continue
-            ext = file_path.suffix.lower()
-            stats["total"] += 1
-            try:
-                orig_path, new_path, description = process_file(file_path, cache, rename_log, max_size_mb)
-                
-                # Update stats based on file type
-                from cleanupx.config import IMAGE_EXTENSIONS, TEXT_EXTENSIONS, DOCUMENT_EXTENSIONS
-                if new_path:
-                    if ext in IMAGE_EXTENSIONS:
-                        stats["images"] += 1
-                    elif ext in TEXT_EXTENSIONS:
-                        stats["text"] += 1
-                    elif ext in DOCUMENT_EXTENSIONS:
-                        stats["documents"] += 1
-                else:
-                    # Check if it was skipped due to size
-                    try:
-                        if file_path.stat().st_size / (1024 * 1024) > max_size_mb:
-                            stats["skipped_large"] += 1
-                        else:
-                            stats["failed"] += 1
-                    except:
-                        stats["failed"] += 1
-            except Exception as e:
-                logger.error(f"Error processing {file_path}: {e}")
-                stats["failed"] += 1
-                from cleanupx.utils.cache import add_error_to_log
-                add_error_to_log(rename_log, file_path, str(e), "processing_error")
-            if i % 10 == 0:
-                save_rename_log(rename_log)
+                if i % 10 == 0:
+                    save_rename_log(rename_log)
     
     # Update final stats in the rename log
     rename_log["stats"].update({
