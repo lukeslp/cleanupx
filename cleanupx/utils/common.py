@@ -23,13 +23,25 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 def clean_filename(text: str, max_length: int = 50) -> str:
-    """Clean text to make a valid filename."""
+    """
+    Clean text to make a valid filename.
+    Ensures the filename doesn't start with a dot to prevent hidden files.
+    """
+    # First, remove any leading dots
+    text = text.lstrip('.')
+    
+    # Then apply standard filename cleaning
     clean = re.sub(r'[^\w\s-]', '', text.lower())
     clean = re.sub(r'[-\s]+', '_', clean).strip('_')
+    
+    # Truncate if too long
     if len(clean) > max_length:
         clean = clean[:max_length]
-    if not clean:
+    
+    # Ensure we have a valid name
+    if not clean or clean.startswith('.'):
         clean = "unnamed_file"
+    
     return clean
 
 def strip_media_suffixes(stem: str) -> str:

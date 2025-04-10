@@ -8,6 +8,7 @@ import sys
 import logging
 from pathlib import Path
 from typing import Dict, Union, Tuple, Optional
+import inspect
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -33,13 +34,15 @@ from cleanupx.processors import process_file
 from cleanupx.utils.directory_summary import update_directory_summary, get_directory_summary, suggest_reorganization
 from cleanupx.processors.dedupe import dedupe_directory
 from cleanupx.utils.hidden_summary import update_hidden_summary, get_reorganization_suggestions
+from cleanupx.utils.dashboard_generator import generate_dashboard as generate_html_dashboard
 
 def process_directory(directory: Union[str, Path], recursive: bool = False, skip_renamed: bool = True, 
                      max_size_mb: float = 25.0, update_summary: bool = True, 
                      include_user_prefs: bool = False, batch_size: int = 0,
                      citation_style_pdfs: bool = False,
                      generate_image_md: bool = True,
-                     generate_archive_md: bool = True) -> Dict[str, int]:
+                     generate_archive_md: bool = True,
+                     generate_dashboard: bool = False) -> Dict[str, int]:
     """
     Process files in a directory, optionally recursively.
     
@@ -54,6 +57,7 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
         citation_style_pdfs: Whether to use citation-style naming for PDFs
         generate_image_md: Whether to generate image metadata
         generate_archive_md: Whether to generate archive metadata
+        generate_dashboard: Whether to generate a dashboard after processing
         
     Returns:
         Dictionary with processing statistics
@@ -110,6 +114,9 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
     
     rename_log["stats"]["total_files"] = len(files)
     
+    process_file_sig = inspect.signature(process_file)
+    supports_new_keywords = 'generate_image_md' in process_file_sig.parameters
+    
     if RICH_AVAILABLE:
         with Progress() as progress:
             task = progress.add_task("[cyan]Processing files...", total=len(files))
@@ -156,7 +163,10 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
                     ext = file_path.suffix.lower()
                     stats["total"] += 1
                     try:
-                        orig_path, new_path, description = process_file(file_path, cache, rename_log, max_size_mb, citation_style_pdfs, generate_image_md=generate_image_md, generate_archive_md=generate_archive_md)
+                        if supports_new_keywords:
+                            orig_path, new_path, description = process_file(file_path, cache, rename_log, max_size_mb, citation_style_pdfs, generate_image_md=generate_image_md, generate_archive_md=generate_archive_md)
+                        else:
+                            orig_path, new_path, description = process_file(file_path, cache, rename_log, max_size_mb, citation_style_pdfs)
                         
                         # Update stats based on file type
                         from cleanupx.config import IMAGE_EXTENSIONS, TEXT_EXTENSIONS, DOCUMENT_EXTENSIONS
@@ -223,7 +233,10 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
                 ext = file_path.suffix.lower()
                 stats["total"] += 1
                 try:
-                    orig_path, new_path, description = process_file(file_path, cache, rename_log, max_size_mb, citation_style_pdfs, generate_image_md=generate_image_md, generate_archive_md=generate_archive_md)
+                    if supports_new_keywords:
+                        orig_path, new_path, description = process_file(file_path, cache, rename_log, max_size_mb, citation_style_pdfs, generate_image_md=generate_image_md, generate_archive_md=generate_archive_md)
+                    else:
+                        orig_path, new_path, description = process_file(file_path, cache, rename_log, max_size_mb, citation_style_pdfs)
                     
                     # Update stats based on file type
                     from cleanupx.config import IMAGE_EXTENSIONS, TEXT_EXTENSIONS, DOCUMENT_EXTENSIONS
@@ -302,6 +315,15 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
                 if priority:
                     priority = f"[{priority}] "
                 logger.info(f"- {suggestion_type}: {priority}{reason}")
+        
+        # Generate dashboard if requested
+        if generate_dashboard:
+            try:
+                dashboard_path = generate_html_dashboard(directory)
+                if dashboard_path:
+                    logger.info(f"Dashboard generated at: {dashboard_path}")
+            except Exception as e:
+                logger.error(f"Error generating dashboard: {e}")
     
     return stats
 

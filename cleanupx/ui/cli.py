@@ -251,6 +251,13 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         help="Use normal content-based naming for PDFs (default)"
     )
     
+    # Add the option for generating a dashboard to the process command arguments
+    parser.add_argument(
+        "--dashboard",
+        action="store_true",
+        help="Generate HTML dashboard after processing"
+    )
+    
     return parser.parse_args(args)
 
 def run_cli(args: Optional[List[str]] = None) -> int:
@@ -600,7 +607,8 @@ def run_cli(args: Optional[List[str]] = None) -> int:
             f"[bold]Update hidden summary:[/bold] {'No' if parsed_args.no_summary else 'Yes'}\n"
             f"[bold]Update citations:[/bold] Yes for document files\n"
             f"[bold]Batch size:[/bold] {'All files' if parsed_args.batch_size == 0 else parsed_args.batch_size}\n"
-            f"[bold]PDF naming:[/bold] {'Citation style' if parsed_args.citation_style_pdfs else 'Content-based'}",
+            f"[bold]PDF naming:[/bold] {'Citation style' if parsed_args.citation_style_pdfs else 'Content-based'}\n"
+            f"[bold]Generate dashboard:[/bold] {'Yes' if parsed_args.dashboard else 'No'}",
             title="Processing Configuration",
             border_style="cyan"
         ))
@@ -640,7 +648,8 @@ def run_cli(args: Optional[List[str]] = None) -> int:
         update_summary=not parsed_args.no_summary,
         include_user_prefs=parsed_args.ask_preferences,
         batch_size=parsed_args.batch_size,
-        citation_style_pdfs=parsed_args.citation_style_pdfs
+        citation_style_pdfs=parsed_args.citation_style_pdfs,
+        generate_dashboard=parsed_args.dashboard
     )
     
     console.print(f"\n[bold green]Processing complete![/bold green]")

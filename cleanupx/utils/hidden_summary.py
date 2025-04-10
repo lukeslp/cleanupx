@@ -13,12 +13,19 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Union, Any
 from datetime import datetime
+import shutil
+
+from cleanupx.config import IGNORE_PATTERNS
+from cleanupx.utils.common import count_by_extension, is_ignored_file
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
 # Constants
 HIDDEN_SUMMARY_FILE = ".cleanupx"
+
+# Global in-memory storage for directory summaries
+_MEMORY_SUMMARIES = {}
 
 def create_hidden_summary(directory: Path) -> Dict[str, Any]:
     """
@@ -123,6 +130,11 @@ def create_hidden_summary(directory: Path) -> Dict[str, Any]:
         
     except Exception as e:
         logger.error(f"Error creating directory summary for {directory}: {e}")
+    
+    # Store summary in memory
+    directory_key = str(directory.resolve())
+    _MEMORY_SUMMARIES[directory_key] = summary
+    logger.info(f"Created in-memory summary for {directory}")
     
     return summary
 
@@ -273,24 +285,11 @@ def get_hidden_summary(directory: Path) -> Dict[str, Any]:
     Returns:
         Dictionary containing the summary data
     """
-    summary_file = directory / HIDDEN_SUMMARY_FILE
+    directory_key = str(directory.resolve())
+    if directory_key not in _MEMORY_SUMMARIES:
+        return None
     
-    # If the summary file exists, load it
-    if summary_file.exists():
-        try:
-            with open(summary_file, 'r', encoding='utf-8') as f:
-                summary = json.load(f)
-            return summary
-        except Exception as e:
-            logger.error(f"Error reading hidden summary file {summary_file}: {e}")
-    
-    # If it doesn't exist, create a new one
-    summary = create_hidden_summary(directory)
-    summary = analyze_directory_content(directory, summary)
-    summary = update_with_ai_analysis(summary, directory)
-    save_hidden_summary(directory, summary)
-    
-    return summary
+    return _MEMORY_SUMMARIES[directory_key]
 
 def update_hidden_summary(directory: Path, changes: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -303,7 +302,9 @@ def update_hidden_summary(directory: Path, changes: Dict[str, Any]) -> Dict[str,
     Returns:
         Updated summary dictionary
     """
-    summary = get_hidden_summary(directory)
+    directory_key = str(directory.resolve())
+    summary = _MEMORY_SUMMARIES.get(directory_key)
+    
     if not summary:
         return create_hidden_summary(directory)
     
@@ -380,6 +381,10 @@ def update_hidden_summary(directory: Path, changes: Dict[str, Any]) -> Dict[str,
         summary["ongoing_summary"] = generate_ongoing_summary(summary)
     except Exception as e:
         logger.error(f"Error generating ongoing summary: {e}")
+    
+    # Update in-memory storage
+    _MEMORY_SUMMARIES[directory_key] = summary
+    logger.info(f"Updated in-memory summary for {directory}")
     
     return summary
 

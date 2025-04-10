@@ -12,7 +12,7 @@ import sys
 
 from cleanupx.config import DOCUMENT_EXTENSIONS, DOCUMENT_FUNCTION_SCHEMA, FILE_DOCUMENT_PROMPT, XAI_MODEL_TEXT
 from cleanupx.utils.common import read_text_file, strip_media_suffixes, clean_filename
-from cleanupx.utils.cache import save_cache
+from cleanupx.utils.cache import save_cache, _MEMORY_CACHE
 from cleanupx.api import call_xai_api
 from cleanupx.processors.base import generate_new_filename, rename_file
 
@@ -134,17 +134,12 @@ def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> st
     text = ""
     extraction_methods = []
     
-    # Check if we have a text extraction cache - used to avoid re-extracting the same PDF
-    cache_file = file_path.parent / f".{file_path.stem}_text_cache.txt"
-    if cache_file.exists() and cache_file.stat().st_mtime > file_path.stat().st_mtime:
-        try:
-            with open(cache_file, 'r', encoding='utf-8') as f:
-                cached_text = f.read()
-            if cached_text.strip():
-                logger.info(f"Using cached text extraction for {file_path}")
-                return cached_text
-        except Exception as e:
-            logger.warning(f"Failed to read text extraction cache: {e}")
+    # Use in-memory cache for extracted text
+    # The key in the dictionary will be the file path and mtime for versioning
+    cache_key = f"text_extraction_{str(file_path)}_{file_path.stat().st_mtime}"
+    if cache_key in _MEMORY_CACHE:
+        logger.info(f"Using in-memory cached text extraction for {file_path}")
+        return _MEMORY_CACHE[cache_key]
     
     # Try different extraction methods in order
     try:
@@ -206,13 +201,9 @@ def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> st
             text = str(file_path.stem).replace("_", " ").replace("-", " ")
             logger.info(f"All extraction methods including text scan failed. Using filename as fallback text for {file_path}")
         else:
-            # Cache the extracted text to avoid re-extraction
-            try:
-                with open(cache_file, 'w', encoding='utf-8') as f:
-                    f.write(text)
-                logger.debug(f"Cached text extraction for {file_path}")
-            except Exception as e:
-                logger.warning(f"Failed to cache text extraction: {e}")
+            # Cache the extracted text in memory
+            _MEMORY_CACHE[cache_key] = text
+            logger.debug(f"Cached text extraction in memory for {file_path}")
             
         return text
     except Exception as e:

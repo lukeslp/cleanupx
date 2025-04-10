@@ -197,6 +197,11 @@ def process_files_menu(console: Console) -> Dict:
             default=True
         ),
         inquirer.Confirm(
+            'generate_dashboard',
+            message="Generate HTML dashboard after processing?",
+            default=False
+        ),
+        inquirer.Confirm(
             'proceed',
             message="Ready to start processing?",
             default=True
@@ -393,7 +398,8 @@ def interactive_mode() -> int:
                 f"[bold]Skip renamed:[/bold] {'Yes' if skip_renamed else 'No'}\n"
                 f"[bold]Maximum file size:[/bold] {max_size}MB\n"
                 f"[bold]Generate Image MD:[/bold] {'Yes' if answers.get('generate_image_md') else 'No'}\n"
-                f"[bold]Generate Archive MD:[/bold] {'Yes' if answers.get('generate_archive_md') else 'No'}",
+                f"[bold]Generate Archive MD:[/bold] {'Yes' if answers.get('generate_archive_md') else 'No'}\n"
+                f"[bold]Generate Dashboard:[/bold] {'Yes' if answers.get('generate_dashboard') else 'No'}",
                 title="Processing Configuration",
                 border_style="cyan"
             )
@@ -403,7 +409,7 @@ def interactive_mode() -> int:
             try:
                 from cleanupx.main import process_directory
                 with console.status("[bold green]Processing files...[/bold green]", spinner="dots") as status:
-                    stats = process_directory(directory, recursive=recursive, skip_renamed=skip_renamed, max_size_mb=max_size, generate_image_md=answers.get('generate_image_md', True), generate_archive_md=answers.get('generate_archive_md', True))
+                    stats = process_directory(directory, recursive=recursive, skip_renamed=skip_renamed, max_size_mb=max_size, generate_image_md=answers.get('generate_image_md', True), generate_archive_md=answers.get('generate_archive_md', True), generate_dashboard=answers.get('generate_dashboard', False))
 
                 detail_table = Table(title="File Processing Details", style="bright_yellow")
                 detail_table.add_column("Metric", style="bold cyan")
