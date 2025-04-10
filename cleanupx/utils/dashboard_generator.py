@@ -15,7 +15,7 @@ from datetime import datetime
 
 from cleanupx.utils.cache import load_rename_log, load_cache
 from cleanupx.utils.hidden_summary import get_hidden_summary, update_hidden_summary
-from cleanupx.config import DOCUMENT_EXTENSIONS, IMAGE_EXTENSIONS, VIDEO_EXTENSIONS, AUDIO_EXTENSIONS
+from cleanupx.config import DOCUMENT_EXTENSIONS, IMAGE_EXTENSIONS, MEDIA_EXTENSIONS
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -130,8 +130,11 @@ def generate_dashboard_html(directory: Path, rename_log: Dict[str, Any],
         "narrativeSummary": narrative_summary
     }
     
-    # Generate HTML
-    html_content = f"""<!DOCTYPE html>
+    # Serialize JSON data
+    js_data_json = json.dumps(js_data)
+    
+    # Generate HTML - starting portion
+    html_content_start = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -420,8 +423,13 @@ def generate_dashboard_html(directory: Path, rename_log: Dict[str, Any],
     
     <script>
         // Data from the Python generator
-        const dashboardData = {js_data_placeholder};
-        
+"""
+
+    # Middle portion - adding the JavaScript data
+    html_content_middle = f"const dashboardData = {js_data_json};\n"
+    
+    # End portion
+    html_content_end = """
         document.addEventListener('DOMContentLoaded', function() {
             // Update folder information
             document.getElementById('folder-path').textContent = dashboardData.folderPath;
@@ -537,11 +545,11 @@ def generate_dashboard_html(directory: Path, rename_log: Dict[str, Any],
         });
     </script>
 </body>
-</html>
-"""
+</html>"""
 
-    # Replace the placeholder with the actual JSON data
-    html_content = html_content.replace('{js_data_placeholder}', json.dumps(js_data, indent=2))
+    # Combine all parts of the HTML content
+    html_content = html_content_start + html_content_middle + html_content_end
+    
     return html_content
 
 def calculate_statistics(rename_log: Dict[str, Any]) -> Dict[str, int]:
@@ -703,10 +711,8 @@ def get_narrative_summary(summary: Dict[str, Any]) -> str:
                 file_types.append(f"{count} image files")
             elif ext in DOCUMENT_EXTENSIONS:
                 file_types.append(f"{count} document files")
-            elif ext in VIDEO_EXTENSIONS:
-                file_types.append(f"{count} video files")
-            elif ext in AUDIO_EXTENSIONS:
-                file_types.append(f"{count} audio files")
+            elif ext in MEDIA_EXTENSIONS:
+                file_types.append(f"{count} media files")
         
         if file_types:
             parts.append(f"It includes {', '.join(file_types)}.")

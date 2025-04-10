@@ -9,6 +9,8 @@ from typing import Dict, Optional, Tuple, Union, Any
 import io
 import subprocess
 import sys
+import os
+import hashlib
 
 from cleanupx.config import DOCUMENT_EXTENSIONS, DOCUMENT_FUNCTION_SCHEMA, FILE_DOCUMENT_PROMPT, XAI_MODEL_TEXT
 from cleanupx.utils.common import read_text_file, strip_media_suffixes, clean_filename
@@ -51,43 +53,31 @@ def get_pdf_page_count(file_path: Union[str, Path]) -> Optional[int]:
         
         return None
 
-def extract_text_from_pdf_with_pdfminer(file_path: Union[str, Path]) -> str:
-    """Extract text content from a PDF file using pdfminer.six."""
+def extract_text_from_pdf_with_pdfminer(file_path: Union[str, Path], max_pages: int = 3) -> str:
+    """Extract text using pdfminer.six."""
     try:
-        from pdfminer.high_level import extract_text
-        return extract_text(str(file_path))
+        from pdfminer.high_level import extract_text as pm_extract_text
+        text = pm_extract_text(file_path)
+        
+        if max_pages is not None:
+            # Since pdfminer doesn't support page limiting directly,
+            # we'll extract the text and then try to limit it to approximately
+            # the number of pages requested by looking for page breaks
+            page_breaks = text.count('\f')  # Form feed character typically separates pages
+            
+            if page_breaks > max_pages:
+                # Roughly split by form feeds to get number of pages
+                pages = text.split('\f')
+                limited_text = '\f'.join(pages[:max_pages])
+                logger.info(f"Only processed {max_pages} of approximately {page_breaks+1} pages in {file_path} with pdfminer")
+                return limited_text
+        
+        return text
     except ImportError:
-        logger.warning("pdfminer.six not installed, can't use alternative PDF extraction")
+        logger.warning("pdfminer.six not installed, skipping this extraction method")
         return ""
     except Exception as e:
-        # Check for specific "No /Root object" error that indicates a corrupted PDF
-        if "No /Root object" in str(e):
-            logger.error(f"pdfminer.six extraction failed for {file_path}: {e} - File appears to be corrupted or not a valid PDF")
-            # For these specific corrupted files, we should immediately try OCR
-            try:
-                if 'pdf2image' in sys.modules and 'pytesseract' in sys.modules:
-                    logger.info(f"Attempting OCR as fallback for corrupted PDF: {file_path}")
-                    from pdf2image import convert_from_path
-                    import pytesseract
-                    
-                    try:
-                        images = convert_from_path(str(file_path))
-                        text = ""
-                        
-                        for i, image in enumerate(images[:3]):  # Process up to 3 pages
-                            logger.info(f"OCR processing page {i+1} of corrupted PDF")
-                            text += pytesseract.image_to_string(image)
-                            text += "\n\n"
-                            
-                        if text.strip():
-                            logger.info(f"Successfully extracted text from corrupted PDF using OCR")
-                            return text
-                    except Exception as ocr_e:
-                        logger.error(f"OCR fallback for corrupted PDF failed: {ocr_e}")
-            except ImportError:
-                logger.warning("OCR fallback unavailable for corrupted PDF")
-        
-        logger.error(f"pdfminer.six extraction failed for {file_path}: {e}")
+        logger.warning(f"pdfminer.six extraction failed for {file_path}: {e}")
         return ""
 
 def extract_text_from_pdf_with_ocr(file_path: Union[str, Path], max_pages: int = 3) -> str:
@@ -134,12 +124,36 @@ def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> st
     text = ""
     extraction_methods = []
     
-    # Use in-memory cache for extracted text
-    # The key in the dictionary will be the file path and mtime for versioning
+    # Use in-memory cache for extracted text during this session
     cache_key = f"text_extraction_{str(file_path)}_{file_path.stat().st_mtime}"
     if cache_key in _MEMORY_CACHE:
         logger.info(f"Using in-memory cached text extraction for {file_path}")
         return _MEMORY_CACHE[cache_key]
+    
+    # Check for disk cache
+    # Create a standardized cache filename using hash of the path to avoid illegal chars in filenames
+    cache_dir = file_path.parent
+    file_hash = hashlib.md5(str(file_path).encode()).hexdigest()[:8]
+    cache_file = cache_dir / f"text_cache_{file_hash}_{file_path.stem}.txt"
+    
+    # Try to load from disk cache if it exists
+    if not os.environ.get('CLEANUPX_NO_CACHE') and cache_file.exists():
+        try:
+            # Check if cache file is newer than the actual file
+            if cache_file.stat().st_mtime >= file_path.stat().st_mtime:
+                with open(cache_file, 'r', encoding='utf-8') as f:
+                    text = f.read()
+                if text.strip():
+                    logger.info(f"Using disk cached text extraction for {file_path}")
+                    # Also store in memory cache
+                    _MEMORY_CACHE[cache_key] = text
+                    return text
+                else:
+                    logger.debug(f"Disk cache for {file_path} exists but is empty, re-extracting")
+            else:
+                logger.debug(f"Disk cache for {file_path} is outdated, re-extracting")
+        except Exception as e:
+            logger.warning(f"Failed to read cache file for {file_path}: {e}")
     
     # Try different extraction methods in order
     try:
@@ -151,7 +165,7 @@ def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> st
         try:
             import importlib.util
             if importlib.util.find_spec("pdfminer"):
-                extraction_methods.append(("pdfminer.six", lambda: extract_text_from_pdf_with_pdfminer(file_path)))
+                extraction_methods.append(("pdfminer.six", lambda: extract_text_from_pdf_with_pdfminer(file_path, max_pages)))
         except ImportError:
             pass
         
@@ -200,10 +214,27 @@ def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> st
         if not text.strip():
             text = str(file_path.stem).replace("_", " ").replace("-", " ")
             logger.info(f"All extraction methods including text scan failed. Using filename as fallback text for {file_path}")
+            # We don't cache fallback text since it's just the filename
         else:
-            # Cache the extracted text in memory
-            _MEMORY_CACHE[cache_key] = text
-            logger.debug(f"Cached text extraction in memory for {file_path}")
+            # Cache the extracted text to avoid re-extraction
+            # Skip caching if NO_CACHE is set
+            if os.environ.get('CLEANUPX_NO_CACHE'):
+                logger.debug(f"Skipping text cache creation for {file_path} due to NO_CACHE setting")
+            else:
+                # Cache to disk
+                try:
+                    # Create parent directories if they don't exist
+                    cache_file.parent.mkdir(parents=True, exist_ok=True)
+                    
+                    with open(cache_file, 'w', encoding='utf-8') as f:
+                        f.write(text)
+                    logger.debug(f"Cached text extraction to disk for {file_path} at {cache_file}")
+                except Exception as e:
+                    logger.warning(f"Failed to cache text extraction to disk: {e}")
+                
+                # Cache to memory
+                _MEMORY_CACHE[cache_key] = text
+                logger.debug(f"Cached text extraction in memory for {file_path}")
             
         return text
     except Exception as e:
@@ -282,6 +313,68 @@ def extract_text_with_pdftotext(file_path: Union[str, Path], max_pages: int = 3)
     except (subprocess.SubprocessError, FileNotFoundError) as e:
         logger.warning(f"pdftotext extraction failed: {e}")
         return ""
+
+def extract_text_from_txt(file_path: Union[str, Path]) -> str:
+    """Extract text from a plain text file with encoding detection."""
+    file_path = Path(file_path)
+    
+    # Use in-memory cache for extracted text during this session
+    cache_key = f"text_extraction_{str(file_path)}_{file_path.stat().st_mtime}"
+    if cache_key in _MEMORY_CACHE:
+        logger.info(f"Using in-memory cached text extraction for {file_path}")
+        return _MEMORY_CACHE[cache_key]
+    
+    # Check for disk cache
+    # Create a standardized cache filename using hash of the path
+    cache_dir = file_path.parent
+    file_hash = hashlib.md5(str(file_path).encode()).hexdigest()[:8]
+    cache_file = cache_dir / f"text_cache_{file_hash}_{file_path.stem}.txt"
+    
+    # Try to load from disk cache if it exists
+    if not os.environ.get('CLEANUPX_NO_CACHE') and cache_file.exists():
+        try:
+            # Check if cache file is newer than the actual file
+            if cache_file.stat().st_mtime >= file_path.stat().st_mtime:
+                with open(cache_file, 'r', encoding='utf-8') as f:
+                    text = f.read()
+                if text.strip():
+                    logger.info(f"Using disk cached text extraction for {file_path}")
+                    # Also store in memory cache
+                    _MEMORY_CACHE[cache_key] = text
+                    return text
+        except Exception as e:
+            logger.warning(f"Failed to read cache file for {file_path}: {e}")
+    
+    # Try to read the text with different encodings
+    text = ""
+    encodings = ['utf-8', 'latin-1', 'cp1252', 'ascii']
+    
+    for enc in encodings:
+        try:
+            with open(file_path, 'r', encoding=enc, errors='replace') as f:
+                text = f.read()
+            if text.strip():
+                logger.info(f"Successfully read text file with {enc} encoding")
+                break
+        except Exception as e:
+            logger.debug(f"Failed to read with {enc} encoding: {e}")
+    
+    # Cache the result if we got text
+    if text.strip() and not os.environ.get('CLEANUPX_NO_CACHE'):
+        try:
+            # Create parent directories if they don't exist
+            cache_file.parent.mkdir(parents=True, exist_ok=True)
+            
+            with open(cache_file, 'w', encoding='utf-8') as f:
+                f.write(text)
+            logger.debug(f"Cached text extraction to disk for {file_path}")
+            
+            # Also cache in memory
+            _MEMORY_CACHE[cache_key] = text
+        except Exception as e:
+            logger.warning(f"Failed to cache text extraction: {e}")
+    
+    return text
 
 def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict, 
                     citation_style_pdfs: bool = False) -> Tuple[Path, Optional[Path], Optional[Dict]]:

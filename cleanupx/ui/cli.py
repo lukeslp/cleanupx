@@ -73,7 +73,12 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "--clear-cache",
         action="store_true",
-        help="Clear cache before processing"
+        help="Clear cache files before processing"
+    )
+    parser.add_argument(
+        "--list-cache",
+        action="store_true",
+        help="List all cache files and exit"
     )
     parser.add_argument(
         "--interactive", "-i",
@@ -173,6 +178,25 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         help="Prompt for organization preferences before processing"
     )
     
+    # Add new options for developer tools
+    parser.add_argument(
+        "--dev-crawl",
+        action="store_true",
+        help="Comprehensively crawl a directory to extract code snippets, credentials, and generate documentation"
+    )
+    
+    parser.add_argument(
+        "--code-docs",
+        action="store_true",
+        help="Generate comprehensive documentation for code in a directory"
+    )
+    
+    parser.add_argument(
+        "--dedupe-text",
+        action="store_true",
+        help="Find and merge similar text files (like README files) into comprehensive documents"
+    )
+    
     # Add options for citations and hidden summary
     parser.add_argument(
         "--citations",
@@ -258,6 +282,20 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         help="Generate HTML dashboard after processing"
     )
     
+    # Add cache management options
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable caching (no files will be saved)"
+    )
+    
+    # Add new options for text deduplication
+    parser.add_argument(
+        "--edit-report",
+        action="store_true",
+        help="Edit the report file after processing"
+    )
+    
     return parser.parse_args(args)
 
 def run_cli(args: Optional[List[str]] = None) -> int:
@@ -280,16 +318,36 @@ def run_cli(args: Optional[List[str]] = None) -> int:
     
     parsed_args = parse_args(args)
     
-    # Interactive mode
-    if parsed_args.interactive:
-        return interactive_mode()
-    
     # Ensure console is available for UI
     if not RICH_AVAILABLE:
         print("Rich library not available. Install with: pip install rich")
         return 1
         
     console = Console()
+    
+    # Handle cache options first
+    if parsed_args.no_cache:
+        os.environ['CLEANUPX_NO_CACHE'] = "1"
+        console.print("[cyan]Running in no-cache mode - no files will be saved[/cyan]")
+    
+    if parsed_args.clear_cache:
+        try:
+            from cleanupx.utils.cache import clear_cache
+            directory = Path(parsed_args.directory) if hasattr(parsed_args, 'directory') else None
+            stats = clear_cache(directory)
+            console.print("[bold green]Cache cleared successfully[/bold green]")
+            console.print(f"[cyan]Global cache files removed:[/cyan] {stats['global_cache']}")
+            console.print(f"[cyan]Rename log files removed:[/cyan] {stats['rename_log']}")
+            console.print(f"[cyan]Text cache files removed:[/cyan] {stats['text_cache']}")
+            if parsed_args.list_cache:
+                return 0
+        except Exception as e:
+            console.print(f"[bold red]Error clearing cache: {e}[/bold red]")
+            return 1
+    
+    # Interactive mode
+    if parsed_args.interactive:
+        return interactive_mode()
     
     directory = Path(parsed_args.directory)
     if not directory.is_dir():
@@ -537,6 +595,7 @@ def run_cli(args: Optional[List[str]] = None) -> int:
             console.print("[yellow]Inquirer not installed. Proceeding without confirmation.[/yellow]")
         
         rename_log = load_rename_log()
+        # Ensure directory is properly passed as a Path object
         scrambled_count = scramble_directory(directory, rename_log)
         
         console.print(f"\n[bold green]Scrambling complete![/bold green]")
@@ -597,7 +656,8 @@ def run_cli(args: Optional[List[str]] = None) -> int:
     if parsed_args.directory and not (parsed_args.dedupe or parsed_args.scramble or 
                                      parsed_args.summary or parsed_args.suggest or 
                                      parsed_args.citations or parsed_args.hidden_summary or
-                                     parsed_args.reorganize):
+                                     parsed_args.reorganize or parsed_args.dev_crawl or
+                                     parsed_args.code_docs or parsed_args.dedupe_text):
         console.print(Panel(
             f"[bold]Processing directory:[/bold] {directory}\n"
             f"[bold]Recursive:[/bold] {'Yes' if parsed_args.recursive else 'No'}\n"
@@ -815,6 +875,132 @@ def run_cli(args: Optional[List[str]] = None) -> int:
             
         except Exception as e:
             console.print(f"[bold red]Error during categorization: {e}[/bold red]")
+            return 1
+    
+    # Dedupe text mode
+    if parsed_args.dedupe_text:
+        try:
+            from cleanupx.utils.text_deduper import dedupe_text_files
+            console.print(f"[bold cyan]Deduplicating text files in {directory}[/bold cyan]")
+            
+            # Confirm before proceeding
+            if INQUIRER_AVAILABLE:
+                confirm = inquirer.confirm(
+                    message=f"This will analyze text files in {directory} and merge similar ones. Continue?",
+                    default=False
+                )
+                if not confirm:
+                    console.print("[yellow]Operation cancelled by user[/yellow]")
+                    return 0
+            else:
+                console.print("[yellow]This will analyze text files and merge similar ones.[/yellow]")
+                confirm = input("Continue? (y/N): ").lower() == 'y'
+                if not confirm:
+                    console.print("[yellow]Operation cancelled by user[/yellow]")
+                    return 0
+            
+            with console.status("[bold cyan]Analyzing and merging text files..."):
+                merged_files, report_path = dedupe_text_files(directory)
+            
+            console.print("[bold green]Text deduplication complete![/bold green]")
+            console.print(f"[cyan]Merged files created:[/cyan] {len(merged_files)}")
+            console.print(f"[cyan]Report saved to:[/cyan] {report_path}")
+            
+            # Open the report in a text editor if requested
+            if parsed_args.edit_report:
+                try:
+                    import subprocess
+                    subprocess.run(['open', report_path])
+                except Exception as e:
+                    console.print(f"[yellow]Could not open report file: {e}[/yellow]")
+            
+            return 0
+        except Exception as e:
+            console.print(f"[bold red]Error during text deduplication: {e}[/bold red]")
+            return 1
+    
+    # Developer code crawler mode
+    if parsed_args.dev_crawl:
+        try:
+            from cleanupx.utils.dev_crawler import crawl_directory_for_developers
+            console.print(f"[bold cyan]Comprehensively analyzing code in {directory}[/bold cyan]")
+            
+            # Confirm before proceeding
+            if INQUIRER_AVAILABLE:
+                confirm = inquirer.confirm(
+                    message=f"This will analyze code in {directory}, extract snippets, and generate developer documentation. Continue?",
+                    default=False
+                )
+                if not confirm:
+                    console.print("[yellow]Operation cancelled by user[/yellow]")
+                    return 0
+            else:
+                console.print("[yellow]This will analyze code, extract snippets, and generate developer documentation.[/yellow]")
+                confirm = input("Continue? (y/N): ").lower() == 'y'
+                if not confirm:
+                    console.print("[yellow]Operation cancelled by user[/yellow]")
+                    return 0
+            
+            with console.status("[bold cyan]Crawling and analyzing code..."):
+                snippets_dir, credentials_file, readme_file = crawl_directory_for_developers(directory)
+            
+            console.print("[bold green]Developer documentation generation complete![/bold green]")
+            console.print(f"[cyan]Snippets saved to:[/cyan] {snippets_dir}")
+            console.print(f"[cyan]Credentials report:[/cyan] {credentials_file}")
+            console.print(f"[cyan]README generated:[/cyan] {readme_file}")
+            
+            # Open the README in a text editor if requested
+            if parsed_args.edit_report:
+                try:
+                    import subprocess
+                    subprocess.run(['open', readme_file])
+                except Exception as e:
+                    console.print(f"[yellow]Could not open README file: {e}[/yellow]")
+            
+            return 0
+        except Exception as e:
+            console.print(f"[bold red]Error during developer code analysis: {e}[/bold red]")
+            return 1
+    
+    # Code documentation mode
+    if parsed_args.code_docs:
+        try:
+            from cleanupx.utils.code_documenter import generate_code_documentation
+            console.print(f"[bold cyan]Generating code documentation for {directory}[/bold cyan]")
+            
+            # Confirm before proceeding
+            if INQUIRER_AVAILABLE:
+                confirm = inquirer.confirm(
+                    message=f"This will analyze code and generate comprehensive documentation. Continue?",
+                    default=False
+                )
+                if not confirm:
+                    console.print("[yellow]Operation cancelled by user[/yellow]")
+                    return 0
+            else:
+                console.print("[yellow]This will analyze code and generate comprehensive documentation.[/yellow]")
+                confirm = input("Continue? (y/N): ").lower() == 'y'
+                if not confirm:
+                    console.print("[yellow]Operation cancelled by user[/yellow]")
+                    return 0
+            
+            with console.status("[bold cyan]Analyzing code and generating documentation..."):
+                docs_file = generate_code_documentation(directory)
+            
+            console.print("[bold green]Code documentation complete![/bold green]")
+            console.print(f"[cyan]Documentation saved to:[/cyan] {docs_file}")
+            
+            # Open the documentation in a text editor if requested
+            if parsed_args.edit_report:
+                try:
+                    import subprocess
+                    subprocess.run(['open', docs_file])
+                except Exception as e:
+                    console.print(f"[yellow]Could not open documentation file: {e}[/yellow]")
+            
+            return 0
+        except Exception as e:
+            console.print(f"[bold red]Error generating code documentation: {e}[/bold red]")
             return 1
     
     return 0

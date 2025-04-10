@@ -8,9 +8,13 @@ import re
 import logging
 import random
 import string
+import importlib.util
+import hashlib
 from pathlib import Path
-from typing import Optional, Union, Tuple, Dict, Any
+from typing import Optional, Union, Tuple, Dict, Any, List
 from datetime import datetime
+
+from cleanupx.utils.cache import _MEMORY_CACHE
 
 try:
     from PIL import Image
@@ -58,10 +62,65 @@ def strip_media_suffixes(stem: str) -> str:
     return stem.strip('_')
 
 def read_text_file(file_path: Union[str, Path], max_chars: int = 10000) -> str:
-    """Read content from a text file."""
+    """
+    Read content from a text file with caching support.
+    
+    Args:
+        file_path: Path to the text file
+        max_chars: Maximum number of characters to read
+        
+    Returns:
+        Text content of the file, or empty string if reading fails
+    """
+    file_path = Path(file_path)
+    
+    # Create a memory cache key
     try:
+        cache_key = f"text_read_{str(file_path)}_{file_path.stat().st_mtime}"
+        
+        # Check for in-memory cache first (faster)
+        if cache_key in _MEMORY_CACHE:
+            return _MEMORY_CACHE[cache_key][:max_chars]
+        
+        # Check for disk cache
+        cache_dir = file_path.parent
+        file_hash = hashlib.md5(str(file_path).encode()).hexdigest()[:8]
+        cache_file = cache_dir / f"text_cache_{file_hash}_{file_path.stem}.txt"
+        
+        # Try to load from disk cache if file hasn't changed
+        if not os.environ.get('CLEANUPX_NO_CACHE') and cache_file.exists():
+            try:
+                if cache_file.stat().st_mtime >= file_path.stat().st_mtime:
+                    with open(cache_file, 'r', encoding='utf-8', errors='replace') as f:
+                        content = f.read()
+                    
+                    # Store in memory cache
+                    _MEMORY_CACHE[cache_key] = content
+                    
+                    return content[:max_chars]
+            except Exception as e:
+                logger.debug(f"Failed to read from cache file {cache_file}: {e}")
+        
+        # Read from the actual file
         with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
-            return f.read(max_chars)
+            content = f.read(max_chars)
+        
+        # Cache the content if caching is enabled
+        if not os.environ.get('CLEANUPX_NO_CACHE'):
+            try:
+                # Ensure the cache directory exists
+                cache_file.parent.mkdir(parents=True, exist_ok=True)
+                
+                # Write to disk cache
+                with open(cache_file, 'w', encoding='utf-8') as f:
+                    f.write(content)
+                
+                # Store in memory cache
+                _MEMORY_CACHE[cache_key] = content
+            except Exception as e:
+                logger.debug(f"Failed to cache text file content: {e}")
+        
+        return content
     except Exception as e:
         logger.error(f"Error reading text file {file_path}: {e}")
         return ""
@@ -245,3 +304,65 @@ def convert_webp_to_jpeg(file_path: Union[str, Path]) -> Optional[Path]:
     except Exception as e:
         logger.error(f"Error converting WebP image: {e}")
         return file_path
+
+def is_ignored_file(file_path: Union[str, Path]) -> bool:
+    """
+    Check if a file should be ignored based on IGNORE_PATTERNS.
+    
+    Args:
+        file_path: Path to the file to check
+        
+    Returns:
+        True if file should be ignored, False otherwise
+    """
+    try:
+        from cleanupx.config import IGNORE_PATTERNS
+        file_path = Path(file_path)
+        
+        # Check if file matches any ignore patterns
+        for pattern in IGNORE_PATTERNS:
+            if pattern.startswith('*.'):
+                # Extension-based pattern
+                ext = pattern[1:]  # Remove leading *
+                if file_path.name.endswith(ext):
+                    return True
+            elif pattern.startswith('.'):
+                # Hidden files/directories
+                if file_path.name.startswith('.'):
+                    return True
+            else:
+                # Exact filename or glob pattern
+                if file_path.name == pattern or file_path.match(pattern):
+                    return True
+        
+        return False
+    except Exception as e:
+        logger.error(f"Error checking if file should be ignored: {e}")
+        return False
+
+def count_by_extension(directory: Path) -> Dict[str, int]:
+    """
+    Count files in a directory grouped by extension.
+    
+    Args:
+        directory: Directory to analyze
+        
+    Returns:
+        Dictionary mapping file extensions to counts
+    """
+    extension_counts = {}
+    
+    try:
+        for item in directory.iterdir():
+            if item.is_file() and not is_ignored_file(item):
+                ext = item.suffix.lower()
+                if not ext:
+                    ext = "(no extension)"
+                    
+                if ext not in extension_counts:
+                    extension_counts[ext] = 0
+                extension_counts[ext] += 1
+    except Exception as e:
+        logger.error(f"Error counting files by extension: {e}")
+    
+    return extension_counts

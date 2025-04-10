@@ -8,7 +8,7 @@ from pathlib import Path
 
 # API Configuration
 XAI_API_KEY = "xai-8zAk5VIaL3Vxpu3fO3r2aiWqqeVAZ173X04VK2R1m425uYpWOIOQJM3puq1Q38xJ2sHfbq3mX4PBxJXC"
-XAI_MODEL_TEXT = "grok-2-latest"
+XAI_MODEL_TEXT = "grok-3-mini-latest"
 XAI_MODEL_VISION = "grok-2-vision-latest"
 
 # File type constants
@@ -53,6 +53,9 @@ PROTECTED_PATTERNS = [
     ".dir_summary.json",
     ".cleanupx-citations"
 ]
+
+# Alias for backward compatibility
+IGNORE_PATTERNS = PROTECTED_PATTERNS
 
 # Function schemas for API calls
 IMAGE_FUNCTION_SCHEMA = {
