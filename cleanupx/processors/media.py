@@ -12,7 +12,7 @@ from datetime import datetime
 
 from cleanupx.config import MEDIA_EXTENSIONS
 from cleanupx.utils.common import get_media_dimensions, get_media_duration, format_duration, strip_media_suffixes
-from cleanupx.processors.base import rename_file
+from cleanupx.processors.base import rename_file, generate_new_filename
 from cleanupx.utils.cache import save_cache
 
 # Configure logging

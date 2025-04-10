@@ -374,7 +374,7 @@ def extract_text_from_txt(file_path: Union[str, Path]) -> str:
     
     return text
 
-def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Optional[Dict] = None) -> Tuple[Path, Optional[Path], Optional[Dict[str, Any]]]:
+def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Optional[Dict] = None, web_search: bool = False) -> Tuple[Path, Optional[Path], Optional[Dict[str, Any]]]:
     """
     Process a document file - extract text, analyze content, and rename.
     
@@ -382,6 +382,7 @@ def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], re
         file_path: Path to the document file
         cache: Cache dictionary for storing/retrieving document descriptions
         rename_log: Optional log for tracking renames
+        web_search: Whether to incorporate web search results (if available)
         
     Returns:
         Tuple of (original_path, new_path, description)

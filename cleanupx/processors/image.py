@@ -275,16 +275,10 @@ def process_image_file(file_path: Union[str, Path], cache: Dict[str, Any], renam
             try:
                 with timeout(process_timeout):
                     response = call_xai_api(
-                        model=XAI_MODEL_VISION,
-                        messages=[
-                            {"role": "system", "content": FILE_IMAGE_PROMPT},
-                            {"role": "user", "content": [
-                                {"type": "text", "text": "Describe this image in detail."},
-                                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"}}
-                            ]}
-                        ],
-                        functions=[IMAGE_FUNCTION_SCHEMA],
-                        function_call={"name": "describe_image"}
+                        XAI_MODEL_VISION,  # model
+                        "Describe this image in detail.",  # prompt
+                        IMAGE_FUNCTION_SCHEMA,  # function_schema
+                        encoded_image  # image_data
                     )
                     
                     if response and "function_call" in response:
