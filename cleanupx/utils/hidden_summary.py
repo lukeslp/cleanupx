@@ -17,6 +17,7 @@ import shutil
 
 from cleanupx.config import IGNORE_PATTERNS
 from cleanupx.utils.common import count_by_extension, is_ignored_file
+from cleanupx.utils.cache import ensure_metadata_dir, HIDDEN_SUMMARY_FILE
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -262,10 +263,13 @@ def save_hidden_summary(directory: Path, summary: Dict[str, Any]) -> Path:
     Returns:
         Path to the saved summary file
     """
-    summary_file = directory / HIDDEN_SUMMARY_FILE
+    summary_file = HIDDEN_SUMMARY_FILE(directory)
     summary["updated"] = datetime.now().isoformat()
     
     try:
+        # Ensure .cleanupx directory exists
+        summary_file.parent.mkdir(parents=True, exist_ok=True)
+        
         with open(summary_file, 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=2)
         logger.info(f"Saved hidden summary file to {summary_file}")

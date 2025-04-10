@@ -1,0 +1,47 @@
+# pollination (Code)
+
+**File:** soon/tools_pending/pollination.py  
+**Language:** Python  
+**Lines:** 164  
+
+**Description:** **: This code defines a class named Tools, which includes an inner class Valves for storing configuration like the API base URL. The primary functionality is an asynchronous method called create_image, which interacts with the Pollinations.ai API to generate images from text prompts. It supports various parameters such as image format, model selection, random seed for reproducibility, and options to remove logos, ensure privacy, and enhance image quality. The method handles API requests, error handling for timeouts and exceptions, and uses an event emitter to update status. Its purpose is to provide a structured way to generate and process images programmatically.
+
+```python
+import requests
+import base64
+from typing import Dict, Any, Optional
+from pydantic import BaseModel, Field
+import logging
+from requests.exceptions import Timeout, RequestException
+from urllib.parse import quote
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+class Tools:
+    class Valves(BaseModel):
+        BASE_URL: str = Field(
+            default="https://image.pollinations.ai/prompt/",
+            description="Pollinations API URL for text to image generation",
+        )
+
+    def __init__(self):
+        self.valves = self.Valves()
+
+    async def create_image(
+        self,
+        prompt: str,
+        image_format: str = "default",
+        model: Optional[str] = "flux-realism",
+        seed: Optional[int] = None,
+        nologo: bool = True,
+        private: bool = True,
+        enhance: bool = True,
+        __user__: dict = {},
+        __event_emitter__=None,
+    ) -> str:
+        """
+        Creates visually stunning images using the Pollinations.a
+```
+

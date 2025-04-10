@@ -1,0 +1,50 @@
+# start_servers (Code)
+
+**File:** moe/servers/start_servers.py  
+**Language:** Python  
+**Lines:** 123  
+
+**Description:** **: This script is a Python executable designed to start multiple server processes concurrently for a Mixture of Experts (MoE) agent system. It launches and manages background servers for Caminaå (Coordinator), Belters (File Manipulation), Drummers (Information Gathering), and DeepSeek (Background Reasoning). The script loads configuration from a YAML file, sets up logging, starts servers using subprocess in a new process group, monitors them for unexpected termination, and provides a graceful shutdown mechanism via Ctrl+C. Its purpose is to simplify the startup and management of these interdependent servers in a project environment.
+
+```python
+#!/usr/bin/env python3
+"""
+Script to start all MoE agent servers concurrently.
+
+This script launches:
+  - Caminaå (Coordinator) Server
+  - Belters (File Manipulation) Server
+  - Drummers (Information Gathering) Server
+  - DeepSeek (Background Reasoning) Server
+
+The servers are started as background processes. Press Ctrl+C to stop all servers.
+"""
+
+import subprocess
+import os
+import signal
+import sys
+import time
+import yaml
+import logging
+from pathlib import Path
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger('start_servers')
+
+# Get the project root directory
+PROJECT_ROOT = Path(__file__).parent.parent.absolute()
+
+def load_server_config():
+    """Load server configuration from YAML file."""
+    config_path = PROJECT_ROOT / 'config' / 'server_configs' / 'servers.yaml'
+    try:
+        with open(config_path, 'r') as f:
+            return ya
+```
+

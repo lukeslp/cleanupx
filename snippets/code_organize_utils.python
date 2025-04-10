@@ -1,0 +1,53 @@
+# organize_utils (Code)
+
+**File:** src/cleanupx/utils/organize_utils.py  
+**Language:** Python  
+**Lines:** 280  
+
+**Description:** **: This module provides utilities for organizing files based on various criteria such as topics, projects, and persons. It includes functions to analyze file content, extract metadata like topics and keywords, and perform file organization tasks. The code uses caching to improve efficiency, handles different file types (e.g., documents and images), and logs activities for debugging. It also includes error handling for robustness.  
+
+```python
+"""
+Organization utilities for cleanupx.
+Handles file organization by topic, project, person, etc.
+"""
+
+import logging
+import os
+import re
+import shutil
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Any, Union, Set
+from datetime import datetime
+import json
+
+from ..core.config import (
+    DOCUMENT_EXTENSIONS,
+    IMAGE_EXTENSIONS,
+    MEDIA_EXTENSIONS,
+    ARCHIVE_EXTENSIONS
+)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def analyze_file_content(file_path: Path, cache: Dict) -> Dict[str, Any]:
+    """
+    Analyze a file's content to extract topics, projects, people, etc.
+    
+    Args:
+        file_path: Path to the file
+        cache: Cache dictionary to store/retrieve analysis
+        
+    Returns:
+        Dictionary with analysis results
+    """
+    try:
+        # Check cache first
+        cache_key = f"{file_path.name}_{file_path.stat().st_m
+```
+

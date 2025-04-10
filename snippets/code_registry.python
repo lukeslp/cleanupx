@@ -1,0 +1,48 @@
+# registry (Code)
+
+**File:** moe/core/registry.py  
+**Language:** Python  
+**Lines:** 149  
+
+**Description:** **: This module implements a registry system for managing model configurations in a Python application. It includes a custom exception (ModelNotFoundError) for handling missing models and a main class (ModelRegistry) that handles initialization with optional configuration loading, model retrieval, registration, filtering by type or capability, and saving configurations. The purpose is to centralize model management, making it easier to access and manipulate model details like types, endpoints, and capabilities, which could be used in applications involving AI or machine learning models.  
+
+```python
+"""
+Model registry for managing available models and their configurations.
+"""
+
+import os
+from pathlib import Path
+from typing import Dict, Any, Optional
+import yaml
+import logging
+
+logger = logging.getLogger(__name__)
+
+class ModelNotFoundError(Exception):
+    """Raised when a requested model is not found in the registry"""
+    pass
+
+class ModelRegistry:
+    """Registry for managing model configurations"""
+    
+    def __init__(self, config_path: Optional[Path] = None):
+        """
+        Initialize the model registry.
+        
+        Args:
+            config_path: Path to models.yaml configuration file
+        """
+        self.models: Dict[str, Dict[str, Any]] = {}
+        self.config_path = config_path
+        
+        if config_path and config_path.exists():
+            self.load_config(config_path)
+        else:
+            # Use default configuration
+            self.models = {
+                'camina': {
+                    'type': 'primary',
+                    'base_model': '
+```
+

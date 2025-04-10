@@ -1,0 +1,43 @@
+# styles (Code)
+
+**File:** styles/styles.css  
+**Language:** CSS  
+**Lines:** 169  
+
+**Description:** **: This CSS code sets up a comprehensive theme for a web application, including custom CSS variables for colors, typography, gradients, and transitions. It includes a `:root` selector for defining global variables, a media query for adapting to dark mode preferences, and specific styles to hide scrollbars across various elements. The purpose is to ensure consistent visual styling, improve user experience by supporting themes like dark mode, and apply basic layout to elements like the body for a full-page design.
+
+```css
+      /* No font-size values to modify in this section. 
+         This section contains CSS variables and basic styling setup. */
+
+      :root {
+        /* Colors - Base Theme */
+        --color-primary: #2c1810;
+        --color-accent: #5558bcc3;
+        --color-attention: #a3a124;
+        --color-background: #f7f2e8;
+        --color-surface: #ffffff;
+        --color-border: #e0d9c8;
+        --color-bg-secondary: #f9f7f3;
+        
+        /* Text Colors */
+        --color-text-primary: #2c1810;
+        --color-text-secondary: #666;
+        --color-text-tertiary: #94a3b8;
+        --color-text-system: #00000036;
+        --color-text-code: #fff;
+        
+        /* Error States */
+        --color-bg-error: #fef2f2;
+        --color-text-error: #dc2626;
+        --color-border-error: #f87171;
+        
+        /* Code */
+        --color-bg-code: #000;
+        
+        /* Effects */
+        --color-shadow-primary: rgba(0, 0, 0, 0.2);
+        --color-shadow-secondary: rgba(0, 0, 0, 0.15);
+    
+```
+

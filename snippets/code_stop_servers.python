@@ -1,0 +1,45 @@
+# stop_servers (Code)
+
+**File:** moe/servers/stop_servers.py  
+**Language:** Python  
+**Lines:** 75  
+
+**Description:** **: This script is designed to stop all running MoE agent servers gracefully. It searches for and terminates Python processes that are running specific server scripts like caminaa_server.py, belters_server.py, drummers_server.py, and deepseek_server.py. The script uses subprocess to find processes, os and signal modules to send termination signals, and includes logging for tracking actions. It first attempts to stop processes gracefully with SIGTERM and, if necessary, forces termination with SIGKILL.
+
+```python
+#!/usr/bin/env python3
+"""
+Script to stop all running MoE agent servers gracefully.
+This script finds and terminates all running server processes.
+"""
+
+import os
+import signal
+import subprocess
+import logging
+import sys
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger('stop_servers')
+
+def find_server_processes():
+    """Find all running MoE server processes."""
+    try:
+        # Use ps to find Python processes running our server scripts
+        cmd = "ps aux | grep 'python.*server.py' | grep -v grep"
+        output = subprocess.check_output(cmd, shell=True).decode()
+        
+        processes = []
+        for line in output.splitlines():
+            parts = line.split()
+            pid = int(parts[1])
+            cmd = ' '.join(parts[10:])  # Full command
+            if any(x in cmd for x in ['caminaa_server.py', 'belters_server.py', 
+   
+```
+

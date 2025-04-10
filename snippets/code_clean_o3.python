@@ -1,0 +1,31 @@
+# clean_o3 (Code)
+
+**File:** clean_o3.py  
+**Language:** Python  
+**Lines:** 277  
+
+**Description:** **: This script is an interactive CLI tool that crawls folders and renames files using the xAI API (Grok models). It handles various file types: images (converting formats like HEIC/WEBP if needed, analyzing via Grok-2 Vision, and appending resolution); videos and audio (extracting metadata like resolution and duration using ffprobe and appending it); text files (extracting text and requesting descriptive filenames from the API); PDFs (extracting text via PyPDF2 and requesting new filenames); and archives (peeking into contents and suggesting new filenames). The script includes configuration for API keys, logging, error handling, and modularity.
+
+```python
+#!/usr/bin/env python3
+"""
+Interactive CLI tool to crawl folders and rename files using the xAI API (Grok models).
+This tool will:
+  • Process images: convert HEIC/WEBP if needed, send image data to Grok‑2 Vision with a prompt,
+    and rename the image by appending its resolution.
+  • Process video/audio: extract metadata (resolution and duration) via ffprobe and append that info.
+  • Process text files: extract text and request a descriptive filename from the xAI API.
+  • Process PDFs: extract text via PyPDF2 and request a new filename.
+  • Process archives: peek into the archive and ask for a new filename and description.
+  
+Ensure you have the required Python packages installed:
+  pip install Pillow pillow-heif PyPDF2 requests
+
+Also ensure ffmpeg is installed and accessible (for ffprobe).
+
+Configuration:
+  • Set XAI_API_URL and XAI_API_KEY appropriately (e.g. via environment variables for production).
+
+Best practices (modularity, error handling, logging, interactive CLI) are followe
+```
+

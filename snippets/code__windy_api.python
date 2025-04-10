@@ -1,0 +1,47 @@
+# _windy_api (Code)
+
+**File:** soon/tools_pending/_windy_api.py  
+**Language:** Python  
+**Lines:** 104  
+
+**Description:** **: This code defines a class named WindyWebcamsClient that serves as a client for the Windy Webcams API. Its primary purpose is to fetch and display live webcam information based on a specified latitude and longitude. The class includes an asynchronous method `fetch_webcams` that makes an HTTP GET request to the API, processes the JSON response, and formats the results into a string containing webcam details like title, status, image, and stream URLs. It also supports optional event emitting for status updates and handles errors gracefully. Additionally, it uses a nested Pydantic model for validating the API key. The code includes an example usage in the `if __name__ == "__main__":` block to demonstrate how to instantiate the class and call the method.
+
+```python
+import requests
+from typing import Dict, Any, Optional, Callable, Awaitable
+from pydantic import BaseModel
+
+
+class WindyWebcamsClient:
+    class UserValves(BaseModel):
+        """Requires WINDY_WEBCAMS API Key"""
+        WINDY_WEBCAMS: str
+
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = "https://api.windy.com/api/webcams/v2/list"
+
+    async def fetch_webcams(
+        self,
+        lat: float,
+        lon: float,
+        __user__: dict = {},
+        __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None,
+    ) -> str:
+        """
+        Fetch live webcams for a given location.
+
+        Args:
+            lat (float): Latitude of the location.
+            lon (float): Longitude of the location.
+
+        Returns:
+            str: Formatted response with webcam details and links.
+        """
+        if __event_emitter__:
+            await __event_emitter__(
+                {
+                    "type": "status",
+                  
+```
+

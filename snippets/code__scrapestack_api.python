@@ -1,0 +1,47 @@
+# _scrapestack_api (Code)
+
+**File:** soon/tools_pending/_scrapestack_api.py  
+**Language:** Python  
+**Lines:** 82  
+
+**Description:** **: This code defines a class named ScrapestackClient that serves as a client for the Scrapestack API, used for web scraping. It includes an inner Pydantic model (UserValves) for validating the API key. The class has an __init__ method to set up the API key and base URL. The primary method, scrape_url, is an asynchronous function that takes a URL and an optional flag to render JavaScript, then uses the requests library to send a GET request to the Scrapestack API to retrieve the HTML content of the webpage. It also supports an event emitter for status updates. Error handling is included for request exceptions. The code ends with an example usage block that demonstrates how to instantiate the class and scrape a URL using asyncio.
+
+```python
+import requests
+from typing import Dict, Any, Optional, Callable, Awaitable
+from pydantic import BaseModel
+
+
+class ScrapestackClient:
+    class UserValves(BaseModel):
+        """Requires SCRAPESTACK API Key"""
+        SCRAPESTACK: str
+
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = "https://api.scrapestack.com/scrape"
+
+    async def scrape_url(
+        self,
+        url: str,
+        render_js: bool = False,
+        __user__: dict = {},
+        __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None,
+    ) -> str:
+        """
+        Scrape a webpage and retrieve its HTML content.
+
+        Args:
+            url (str): The webpage URL to scrape.
+            render_js (bool): Whether to enable JavaScript rendering (default: False).
+
+        Returns:
+            str: Scraped HTML content.
+        """
+        if __event_emitter__:
+            await __event_emitter__(
+                {
+                    "type": "status",
+         
+```
+

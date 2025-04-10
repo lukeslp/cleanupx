@@ -98,6 +98,20 @@ class DevCrawler:
         self.credentials_file = self.output_dir / "CREDENTIALS.md"
         self.readme_file = self.output_dir / "README.md"
         
+        # Create cache directory
+        self.cache_dir = Path.home() / ".cleanupx" / "cache"
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        self.global_cache_file = self.cache_dir / "global_cache.json"
+        self.rename_log_file = self.cache_dir / "rename_log.json"
+        
+        # Initialize cache files if they don't exist
+        if not self.global_cache_file.exists():
+            with open(self.global_cache_file, 'w') as f:
+                json.dump({}, f)
+        if not self.rename_log_file.exists():
+            with open(self.rename_log_file, 'w') as f:
+                json.dump({}, f)
+        
         # Track discovered information
         self.credentials: Dict[str, List[Dict[str, str]]] = {}
         self.snippets: List[Dict[str, Any]] = []
@@ -110,6 +124,9 @@ class DevCrawler:
         # Ensure output directories exist
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.snippets_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Set maximum file size for processing (in bytes)
+        self.max_file_size = 25 * 1024 * 1024  # 25 MB
     
     def should_ignore_path(self, path: Path) -> bool:
         """
@@ -217,8 +234,8 @@ class DevCrawler:
                 content=content[:10000]  # Limit content length
             )
             
-            # Call xAI API
-            result = call_xai_api(XAI_MODEL_TEXT, prompt, CODE_FUNCTION_SCHEMA)
+            # Call xAI API safely
+            result = self._call_xai_api_safely(XAI_MODEL_TEXT, prompt, CODE_FUNCTION_SCHEMA)
             if not result:
                 logger.warning(f"Failed to analyze code: {file_path.name}")
                 return None
@@ -631,8 +648,8 @@ The README should be:
 - Include code examples where relevant
 """
 
-            # Call xAI API for README generation
-            result = call_xai_api(
+            # Call xAI API safely
+            result = self._call_xai_api_safely(
                 XAI_MODEL_TEXT,
                 prompt,
                 {
@@ -695,8 +712,8 @@ The README should be:
                 "security_notes": result.get("security_notes", "")
             }
             
-            with open(self.output_dir / "README_STRUCTURE.json", 'w', encoding='utf-8') as f:
-                json.dump(structured_data, f, indent=2)
+            # Save to cache
+            self._save_to_cache(structured_data, self.output_dir / "README_STRUCTURE.json")
             
             logger.info("Successfully generated README with xAI")
             return self.readme_file
@@ -864,8 +881,8 @@ The README should be:
             for file in files:
                 file_path = Path(root) / file
                 
-                # Skip ignored files
-                if self.should_ignore_path(file_path):
+                # Skip ignored files and check file size/type
+                if self.should_ignore_path(file_path) or not self._should_process_file(file_path):
                     continue
                 
                 # Update counters
@@ -890,6 +907,9 @@ The README should be:
                         if credentials:
                             rel_path = str(file_path.relative_to(self.directory))
                             self.credentials[rel_path] = credentials
+                            
+                            # Save to cache
+                            self._save_to_cache(self.credentials, self.global_cache_file)
                         
                         # Extract code snippets
                         snippet = self.extract_code_snippet(file_path, content)
@@ -908,6 +928,416 @@ The README should be:
         
         logger.info(f"Developer documentation generation complete! Output in {self.output_dir}")
         return self.snippets_dir, self.credentials_file, self.readme_file
+    
+    def merge_and_optimize(self) -> Dict[str, Any]:
+        """
+        Merge and optimize files in the directory, creating optimal versions and archiving extras.
+        
+        Returns:
+            Dictionary containing optimization results
+        """
+        results = {
+            "merged_files": [],
+            "archived_files": [],
+            "optimized_files": [],
+            "total_files_processed": 0
+        }
+        
+        # Create archive directory
+        archive_dir = self.output_dir / "archive"
+        archive_dir.mkdir(exist_ok=True)
+        
+        # Process snippets first
+        if self.snippets_dir.exists():
+            self._optimize_snippets(archive_dir, results)
+        
+        # Process documentation files
+        self._optimize_documentation(archive_dir, results)
+        
+        # Process other files
+        self._optimize_other_files(archive_dir, results)
+        
+        return results
+    
+    def _optimize_snippets(self, archive_dir: Path, results: Dict[str, Any]) -> None:
+        """Optimize code snippets, merging similar implementations."""
+        # Group snippets by type and name
+        snippet_groups = {}
+        for file in self.snippets_dir.glob("*"):
+            if not file.is_file():
+                continue
+                
+            try:
+                with open(file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    metadata = self._extract_snippet_metadata(content)
+                    
+                    # Create group key
+                    group_key = f"{metadata.get('type', 'unknown')}_{metadata.get('name', 'unknown')}"
+                    if group_key not in snippet_groups:
+                        snippet_groups[group_key] = []
+                    snippet_groups[group_key].append((file, metadata))
+            except Exception as e:
+                logger.warning(f"Error processing snippet {file}: {e}")
+        
+        # Process each group
+        for group_key, files in snippet_groups.items():
+            if len(files) <= 1:
+                continue
+                
+            # Find the best implementation
+            best_file, best_metadata = self._find_best_snippet(files)
+            
+            # Create optimized version
+            optimized_content = self._create_optimized_snippet(best_metadata, files)
+            
+            # Save optimized version
+            optimized_path = self.snippets_dir / f"optimized_{best_metadata['name']}.{best_metadata['language'].lower()}"
+            with open(optimized_path, 'w', encoding='utf-8') as f:
+                f.write(optimized_content)
+            
+            # Archive other versions
+            archive_group_dir = archive_dir / "snippets" / group_key
+            archive_group_dir.mkdir(parents=True, exist_ok=True)
+            
+            for file, _ in files:
+                if file != best_file:
+                    shutil.move(str(file), str(archive_group_dir / file.name))
+                    results["archived_files"].append(str(file))
+            
+            results["merged_files"].append(str(optimized_path))
+            results["optimized_files"].append(str(optimized_path))
+            results["total_files_processed"] += len(files)
+    
+    def _find_best_snippet(self, files: List[Tuple[Path, Dict[str, Any]]]) -> Tuple[Path, Dict[str, Any]]:
+        """Find the best implementation among similar snippets."""
+        best_score = -1
+        best_file = None
+        best_metadata = None
+        
+        for file, metadata in files:
+            score = self._calculate_snippet_quality(metadata)
+            if score > best_score:
+                best_score = score
+                best_file = file
+                best_metadata = metadata
+        
+        return best_file, best_metadata
+    
+    def _calculate_snippet_quality(self, metadata: Dict[str, Any]) -> float:
+        """Calculate quality score for a snippet."""
+        score = 0.0
+        
+        # Code quality factors
+        if 'content' in metadata:
+            content = metadata['content']
+            
+            # Check for documentation
+            if 'description' in metadata and metadata['description']:
+                score += 0.3
+            
+            # Check for proper formatting
+            if '\n' in content and not content.startswith(' '):
+                score += 0.2
+            
+            # Check for error handling
+            if 'try' in content and 'except' in content:
+                score += 0.2
+            
+            # Check for type hints (Python)
+            if metadata.get('language', '').lower() == 'python':
+                if '->' in content or ': ' in content:
+                    score += 0.2
+            
+            # Check for test coverage
+            if 'test' in metadata.get('file', '').lower():
+                score += 0.1
+        
+        return score
+    
+    def _create_optimized_snippet(self, best_metadata: Dict[str, Any], 
+                                all_files: List[Tuple[Path, Dict[str, Any]]]) -> str:
+        """Create an optimized version combining the best aspects of all implementations."""
+        optimized = best_metadata.copy()
+        
+        # Combine descriptions
+        descriptions = set()
+        descriptions.add(best_metadata.get('description', ''))
+        for _, metadata in all_files:
+            if 'description' in metadata:
+                descriptions.add(metadata['description'])
+        
+        optimized['description'] = '\n\n'.join(filter(None, descriptions))
+        
+        # Combine code with improvements
+        code_blocks = []
+        code_blocks.append(f"# Primary Implementation\n{best_metadata.get('content', '')}")
+        
+        for _, metadata in all_files:
+            if metadata != best_metadata and 'content' in metadata:
+                code_blocks.append(f"\n# Alternative Implementation\n{metadata['content']}")
+        
+        optimized['content'] = '\n\n'.join(code_blocks)
+        
+        # Add metadata about the optimization
+        optimized['optimized'] = True
+        optimized['source_files'] = [str(f) for f, _ in all_files]
+        
+        return self._format_snippet_markdown(optimized)
+    
+    def _optimize_documentation(self, archive_dir: Path, results: Dict[str, Any]) -> None:
+        """Optimize documentation files, merging similar content."""
+        doc_files = []
+        for ext in ['.md', '.txt', '.rst']:
+            doc_files.extend(self.directory.glob(f"**/*{ext}"))
+        
+        # Group similar documentation
+        doc_groups = {}
+        for file in doc_files:
+            try:
+                with open(file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    # Create a signature based on content structure
+                    signature = self._create_doc_signature(content)
+                    if signature not in doc_groups:
+                        doc_groups[signature] = []
+                    doc_groups[signature].append((file, content))
+            except Exception as e:
+                logger.warning(f"Error processing documentation {file}: {e}")
+        
+        # Process each group
+        for signature, files in doc_groups.items():
+            if len(files) <= 1:
+                continue
+            
+            # Find the best documentation
+            best_file, best_content = self._find_best_documentation(files)
+            
+            # Create optimized version
+            optimized_content = self._create_optimized_documentation(best_content, files)
+            
+            # Save optimized version
+            optimized_path = best_file.parent / f"optimized_{best_file.name}"
+            with open(optimized_path, 'w', encoding='utf-8') as f:
+                f.write(optimized_content)
+            
+            # Archive other versions
+            archive_group_dir = archive_dir / "docs" / signature
+            archive_group_dir.mkdir(parents=True, exist_ok=True)
+            
+            for file, _ in files:
+                if file != best_file:
+                    shutil.move(str(file), str(archive_group_dir / file.name))
+                    results["archived_files"].append(str(file))
+            
+            results["merged_files"].append(str(optimized_path))
+            results["optimized_files"].append(str(optimized_path))
+            results["total_files_processed"] += len(files)
+    
+    def _create_doc_signature(self, content: str) -> str:
+        """Create a signature for documentation based on its structure."""
+        # Extract headings
+        headings = re.findall(r'^#+\s+(.*)$', content, re.MULTILINE)
+        return '_'.join(headings[:3])  # Use first 3 headings as signature
+    
+    def _find_best_documentation(self, files: List[Tuple[Path, str]]) -> Tuple[Path, str]:
+        """Find the best documentation among similar files."""
+        best_score = -1
+        best_file = None
+        best_content = None
+        
+        for file, content in files:
+            score = self._calculate_doc_quality(content)
+            if score > best_score:
+                best_score = score
+                best_file = file
+                best_content = content
+        
+        return best_file, best_content
+    
+    def _calculate_doc_quality(self, content: str) -> float:
+        """Calculate quality score for documentation."""
+        score = 0.0
+        
+        # Check for proper structure
+        if re.search(r'^#\s+.*$', content, re.MULTILINE):
+            score += 0.3
+        
+        # Check for code examples
+        if '```' in content:
+            score += 0.2
+        
+        # Check for links
+        if re.search(r'\[.*\]\(.*\)', content):
+            score += 0.2
+        
+        # Check for lists
+        if re.search(r'^\s*[-*]\s+', content, re.MULTILINE):
+            score += 0.2
+        
+        # Check for length
+        if len(content.split()) > 100:
+            score += 0.1
+        
+        return score
+    
+    def _create_optimized_documentation(self, best_content: str, 
+                                      all_files: List[Tuple[Path, str]]) -> str:
+        """Create an optimized version of documentation."""
+        # Extract sections from best content
+        sections = self._extract_doc_sections(best_content)
+        
+        # Add improvements from other versions
+        for _, content in all_files:
+            other_sections = self._extract_doc_sections(content)
+            for section in other_sections:
+                if section not in sections:
+                    sections.append(section)
+        
+        # Combine sections
+        return '\n\n'.join(sections)
+    
+    def _extract_doc_sections(self, content: str) -> List[str]:
+        """Extract sections from documentation."""
+        sections = []
+        current_section = []
+        
+        for line in content.split('\n'):
+            if line.startswith('#'):
+                if current_section:
+                    sections.append('\n'.join(current_section))
+                current_section = [line]
+            else:
+                current_section.append(line)
+        
+        if current_section:
+            sections.append('\n'.join(current_section))
+        
+        return sections
+    
+    def _optimize_other_files(self, archive_dir: Path, results: Dict[str, Any]) -> None:
+        """Optimize other types of files."""
+        # Process configuration files
+        config_files = []
+        for ext in ['.json', '.yaml', '.yml', '.ini', '.conf']:
+            config_files.extend(self.directory.glob(f"**/*{ext}"))
+        
+        for file in config_files:
+            try:
+                # For now, just archive duplicate config files
+                if self._is_duplicate_config(file):
+                    archive_path = archive_dir / "config" / file.name
+                    archive_path.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.move(str(file), str(archive_path))
+                    results["archived_files"].append(str(file))
+                    results["total_files_processed"] += 1
+            except Exception as e:
+                logger.warning(f"Error processing config file {file}: {e}")
+    
+    def _is_duplicate_config(self, file: Path) -> bool:
+        """Check if a configuration file is a duplicate."""
+        try:
+            content = file.read_text(encoding='utf-8')
+            # Look for similar files in the same directory
+            for other_file in file.parent.glob(f"*{file.suffix}"):
+                if other_file != file:
+                    other_content = other_file.read_text(encoding='utf-8')
+                    if self._calculate_content_similarity(content, other_content) > 0.8:
+                        return True
+        except Exception:
+            return False
+        return False
+
+    def _call_xai_api_safely(self, model: str, prompt: str, function_schema: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Safely call the xAI API with proper error handling.
+        
+        Args:
+            model: The model to use
+            prompt: The prompt to send
+            function_schema: The function schema for the API call
+            
+        Returns:
+            The API response or None if the call failed
+        """
+        try:
+            # Ensure the function schema is properly formatted
+            if "messages" in function_schema:
+                del function_schema["messages"]
+            
+            # Add proper function calling parameters
+            function_schema["function_call"] = {
+                "name": function_schema.get("name", "default"),
+                "description": function_schema.get("description", "")
+            }
+            
+            return call_xai_api(model, prompt, function_schema)
+        except Exception as e:
+            logger.error(f"Error calling xAI API: {e}")
+            return None
+
+    def _should_process_file(self, file_path: Path) -> bool:
+        """
+        Determine if a file should be processed based on size and type.
+        
+        Args:
+            file_path: Path to the file to check
+            
+        Returns:
+            True if the file should be processed, False otherwise
+        """
+        try:
+            # Check file size
+            if file_path.stat().st_size > self.max_file_size:
+                logger.warning(f"File {file_path} exceeds maximum size ({file_path.stat().st_size / 1024 / 1024:.2f} MB > {self.max_file_size / 1024 / 1024} MB). Skipping.")
+                return False
+            
+            # Check file type
+            if file_path.suffix.lower() in ['.pdf', '.zip', '.tar', '.gz']:
+                logger.warning(f"Large file type {file_path.suffix} detected. Skipping {file_path}")
+                return False
+            
+            return True
+        except Exception as e:
+            logger.error(f"Error checking file {file_path}: {e}")
+            return False
+
+    def _save_to_cache(self, data: Dict[str, Any], cache_file: Path) -> bool:
+        """
+        Save data to a cache file with error handling.
+        
+        Args:
+            data: Data to save
+            cache_file: Path to the cache file
+            
+        Returns:
+            True if save was successful, False otherwise
+        """
+        try:
+            with open(cache_file, 'w') as f:
+                json.dump(data, f, indent=2)
+            return True
+        except Exception as e:
+            logger.error(f"Error saving to cache {cache_file}: {e}")
+            return False
+
+    def _load_from_cache(self, cache_file: Path) -> Dict[str, Any]:
+        """
+        Load data from a cache file with error handling.
+        
+        Args:
+            cache_file: Path to the cache file
+            
+        Returns:
+            The loaded data or an empty dict if loading failed
+        """
+        try:
+            if cache_file.exists():
+                with open(cache_file, 'r') as f:
+                    return json.load(f)
+        except Exception as e:
+            logger.error(f"Error loading from cache {cache_file}: {e}")
+        return {}
 
 def crawl_directory_for_developers(directory: Path, output_dir: Optional[Path] = None) -> Tuple[Path, Path, Path]:
     """

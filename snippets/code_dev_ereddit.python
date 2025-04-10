@@ -1,0 +1,52 @@
+# dev_ereddit (Code)
+
+**File:** soon/tools_pending/unprocessed/dev_ereddit.py  
+**Language:** Python  
+**Lines:** 199  
+
+**Description:** **: This module is designed to interact with Reddit's API to retrieve and process data from subreddits and user profiles. It includes utility functions like `parse_reddit_page` for extracting raw data from API responses, `parse_posts` for filtering and formatting post data, and `parse_comments` for handling comment data. The core functionality is encapsulated in the `Tools` class, which has asynchronous methods (`get_subreddit_feed` and `get_user_feed`) that fetch feeds using HTTP GET requests, validate inputs (e.g., subreddit or username formats), handle errors, and return JSON-formatted data. It also uses an event emitter for status updates and relies on Pydantic models for configuration. The purpose is to provide a structured way to access Reddit content programmatically, making it useful for applications like bots, data scraping, or integrations.  
+
+```python
+"""
+title: Reddit
+author: @nathanwindisch
+author_url: https://git.wnd.sh/owui-tools/reddit
+funding_url: https://patreon.com/NathanWindisch
+version: 0.0.1
+changelog:
+- 0.0.1 - Initial upload to openwebui community.
+- 0.0.2 - Renamed from "Reddit Feeds" to just "Reddit".
+- 0.0.3 - Updated author_url in docstring to point to 
+          git repo.
+"""
+
+
+import re
+import json
+import requests
+from typing import Awaitable, Callable
+from pydantic import BaseModel, Field
+from requests.models import Response
+
+
+def parse_reddit_page(response: Response):
+	data = json.loads(response.content)
+	output = []
+	if "data" not in data: return output
+	if "children" not in data["data"]: return output
+	for item in data["data"]["children"]: output.append(item)
+	return output
+
+
+def parse_posts(data: list):
+	posts = []
+	for item in data:
+		if item["kind"] != "t3": continue
+		item = item["data"]
+		posts.append({
+			"id": item["name"],
+			"title": item["title"],
+			"description": item["selftext"],
+			"link": item["
+```
+

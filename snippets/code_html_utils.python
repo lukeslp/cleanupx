@@ -1,0 +1,53 @@
+# html_utils (Code)
+
+**File:** src/cleanupx/utils/html_utils.py  
+**Language:** Python  
+**Lines:** 302  
+
+**Description:** **: This module is designed to handle HTML generation utilities for summarizing folder contents and generating reports. It includes functions to process directory information, generate HTML content with file summaries, previews, and statistics, and handle file metadata. The primary functions are `generate_folder_summary`, which creates an HTML file summarizing a folder's contents using renamed files and descriptions, and `generate_html_content`, which constructs the HTML string itself. It manages file types, generates previews for different media, and ensures error logging.  
+
+```python
+"""
+HTML generation utilities for cleanupx.
+Handles HTML summary creation and report generation.
+"""
+
+import logging
+import os
+from pathlib import Path
+from typing import Dict, List, Optional, Any
+from datetime import datetime
+
+from .metadata_utils import (
+    get_file_type_info
+)
+from ..core.config import (
+    IMAGE_EXTENSIONS,
+    HTML_TEMPLATE_DIR,
+    OUTPUT_DIR
+)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def generate_folder_summary(
+    directory: Path,
+    renamed_files: Dict[str, str],
+    descriptions: Dict[str, str]
+) -> Optional[str]:
+    """
+    Generate an HTML file summarizing the contents of a folder.
+    
+    Args:
+        directory: Directory path
+        renamed_files: Dictionary mapping original paths to new paths
+        descriptions: Dictionary mapping file paths to descriptions
+        
+    Returns:
+        Path to the generated HTML file or None
+```
+

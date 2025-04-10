@@ -1,0 +1,48 @@
+# drummers_server (Code)
+
+**File:** moe/servers/drummers_server.py  
+**Language:** Python  
+**Lines:** 56  
+
+**Description:** **: This script is a Flask-based server application designed to handle information gathering tasks. It sets up a web server that listens for POST requests at the /chat endpoint. When a request is received, it processes the JSON payload containing instructions for information gathering, simulates the gathering using a model (based on mistral:7b), and returns a response. The server includes logging and CORS configuration for cross-origin requests.  
+
+```python
+'''
+Drummers Server (Information Gathering)
+Based on the mistral:7b model.
+This server accepts POST requests at the /chat endpoint and processes information gathering tasks.
+'''
+
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import logging
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+app = Flask(__name__)
+CORS(app)  # Enable CORS
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('drummers_server')
+
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    '''
+    Endpoint to receive information gathering tasks.
+    Expected JSON payload:
+    {
+      "content": "instruction for information gathering",
+      "task_id": "optional_task_id"
+    }
+    '''
+    try:
+        data = request.get_json()
+        content = data.get('content', '')
+        task_id = data.get('task_id', '')
+        logger.info(f"Received information gathering request with task_id: {task_id} and content: {content}")
+      
+```
+

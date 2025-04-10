@@ -14,6 +14,7 @@ import re
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Union, Any
 import hashlib
+from cleanupx.utils.cache import ensure_metadata_dir, SUMMARY_FILE
 
 try:
     import inquirer
@@ -433,8 +434,8 @@ def generate_directory_summary(directory: Path, include_user_prefs: bool = False
     Generate a comprehensive summary of the directory contents.
     
     Args:
-        directory (Path): Directory to analyze
-        include_user_prefs (bool): Whether to prompt for user preferences
+        directory: Directory to analyze
+        include_user_prefs: Whether to prompt for user preferences
         
     Returns:
         Dict: Summary data
@@ -450,7 +451,7 @@ def generate_directory_summary(directory: Path, include_user_prefs: bool = False
         subdirs = [d for d in directory.iterdir() if d.is_dir()]
         
         # Get summary file if it exists
-        summary_path = directory / SUMMARY_FILENAME
+        summary_path = SUMMARY_FILE(directory)
         existing_summary = {}
         if summary_path.exists():
             try:
@@ -518,14 +519,14 @@ def update_directory_summary(directory: Path, include_user_prefs: bool = False) 
     Create or update a summary file for a directory.
     
     Args:
-        directory (Path): Directory to update summary for
-        include_user_prefs (bool): Whether to prompt for user preferences
+        directory: Directory to update summary for
+        include_user_prefs: Whether to prompt for user preferences
         
     Returns:
         Dict: Updated summary data
     """
     directory = Path(directory)
-    summary_path = directory / SUMMARY_FILENAME
+    summary_path = SUMMARY_FILE(directory)
     
     # Generate fresh summary
     summary = generate_directory_summary(directory, include_user_prefs)
@@ -580,6 +581,9 @@ def update_directory_summary(directory: Path, include_user_prefs: bool = False) 
     
     # Save summary to the hidden file
     try:
+        # Ensure .cleanupx directory exists
+        summary_path.parent.mkdir(parents=True, exist_ok=True)
+        
         with open(summary_path, 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=2)
         logger.info(f"Updated directory summary: {summary_path}")
@@ -608,7 +612,7 @@ def get_directory_summary(directory: Path, include_user_prefs: bool = False) -> 
         Dict: Directory summary
     """
     directory = Path(directory)
-    summary_path = directory / SUMMARY_FILENAME
+    summary_path = SUMMARY_FILE(directory)
     
     if summary_path.exists():
         try:

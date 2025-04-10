@@ -1,0 +1,48 @@
+# test_heic (Code)
+
+**File:** src/storage/test_heic.py  
+**Language:** Python  
+**Lines:** 48  
+
+**Description:** **: This script is a test utility for handling HEIC files in the cleanupx project. It sets up logging, adds the src directory to the system path, and defines a function `test_heic_file` that takes a file path as input. The function checks if the file exists, logs its extension, and uses an external utility to get the image dimensions. If run as the main program, it processes a command-line argument as the file path and executes the test; otherwise, it provides usage instructions.
+
+```python
+#!/usr/bin/env python3
+"""
+Test script for HEIC file handling in cleanupx
+"""
+
+import os
+import sys
+import logging
+from pathlib import Path
+
+# Setup logging
+logging.basicConfig(level=logging.INFO, 
+                   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger('heic_test')
+
+# Add the src directory to the path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from cleanupx.utils.file_utils import get_image_dimensions
+
+def test_heic_file(file_path):
+    """Test the HEIC file handling with the provided file"""
+    logger.info(f"Testing HEIC file: {file_path}")
+    
+    # Check if file exists
+    if not os.path.exists(file_path):
+        logger.error(f"File not found: {file_path}")
+        return
+    
+    # Get file extension
+    ext = Path(file_path).suffix.lower()
+    logger.info(f"File extension: {ext}")
+    
+    # Try to get dimensions
+    dimensions = get_image_dimensions(file_path)
+    if dimensions:
+       
+```
+

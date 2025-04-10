@@ -1,0 +1,47 @@
+# pixabay_api (Code)
+
+**File:** moe/archive/old_tools/inbox/processed/pixabay_api.py  
+**Language:** Python  
+**Lines:** 98  
+
+**Description:** **: This code defines a class named PixabayClient that serves as a client for interacting with the Pixabay API. Its primary purpose is to fetch and display image search results based on a user-provided query string. The class includes an initializer to set the API key and base URL, and an asynchronous method called fetch_images that handles the API request, processes the response to extract image details (such as URLs and photographer information), and emits status updates via an optional event emitter. It also includes error handling for network issues and other exceptions. The code is designed for asynchronous use, making it suitable for applications that require non-blocking operations.  
+
+```python
+import requests
+from typing import Dict, Any, Optional, Callable, Awaitable
+from pydantic import BaseModel
+
+
+class PixabayClient:
+    class UserValves(BaseModel):
+        """Requires PIXABAY API Key"""
+        PIXABAY: str
+
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = "https://pixabay.com/api/"
+
+    async def fetch_images(
+        self,
+        query: str,
+        __user__: dict = {},
+        __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None,
+    ) -> str:
+        """
+        Fetch image results based on a search query.
+
+        Args:
+            query (str): The search term (e.g., "AI", "nature").
+
+        Returns:
+            str: Formatted list of image URLs.
+        """
+        if __event_emitter__:
+            await __event_emitter__(
+                {
+                    "type": "status",
+                    "data": {
+                        "description": f"Searching images for '{query}'...",
+                    
+```
+

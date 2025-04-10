@@ -1,0 +1,45 @@
+# smart_router (Code)
+
+**File:** moe/core/smart_router.py  
+**Language:** Python  
+**Lines:** 171  
+
+**Description:** **: This module defines an enhanced router class called SmartRouter, which extends the base ToolRouter. Its primary purpose is to handle natural language queries by intelligently routing them to the appropriate tools based on registered capabilities, pattern matching, and keyword analysis. It includes features like registering tool capabilities, generating regex patterns from examples for matching queries, routing requests by prioritizing patterns or falling back to keyword matching, extracting parameters from queries, and executing the routed requests. This setup is designed for applications involving natural language understanding and dynamic tool selection, such as in AI assistants or automated systems.  
+
+```python
+"""
+Enhanced router with natural language understanding and automatic tool selection.
+Extends the base ToolRouter with intelligent routing capabilities.
+"""
+
+from typing import Dict, Any, Optional, List, Tuple, Set
+from pydantic import BaseModel, Field
+import asyncio
+import logging
+from pathlib import Path
+import re
+from dataclasses import dataclass
+try:
+    from .router import ToolRouter, ToolRequest, ToolResponse, RouterError
+except ImportError:
+    from router import ToolRouter, ToolRequest, ToolResponse, RouterError
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+@dataclass
+class ToolCapability:
+    """Represents a tool's capabilities"""
+    name: str
+    description: str
+    keywords: Set[str]
+    examples: List[str]
+    priority: int = 1
+
+class ToolPattern(BaseModel):
+    """Pattern for matching tool requirements"""
+    pattern: str = Field(..., description="Regex pattern to match")
+    tool_id: str = Field(..., description="Tool to use when pattern matches")
+    prior
+```
+

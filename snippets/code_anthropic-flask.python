@@ -1,0 +1,40 @@
+# anthropic-flask (Code)
+
+**File:** WORKING/flask-alt/anthropic-flask.py  
+**Language:** Python  
+**Lines:** 255  
+
+**Description:** **: This module is a Python script that implements interactions with the Anthropic API, primarily for the Claude AI models. It defines a class called `AnthropicChat` that handles initialization with an API key, manages conversation history, and provides methods for listing models with filtering and sorting, creating test images and files, processing images for API use, and streaming chat responses. The code supports features like image handling, pagination for model lists, and error handling for API calls. Its purpose is to facilitate building applications that integrate with Anthropic's services, such as chatbots or AI-driven interfaces, potentially using Flask for web applications.  
+
+```python
+#!/usr/bin/env python
+import os
+import sys
+import tempfile
+import io
+from flask import Flask, request, render_template_string, Response
+from typing import Generator, List, Dict, Optional
+from datetime import datetime
+from base64 import b64encode
+from PIL import Image, ImageDraw, ImageFont
+import anthropic
+
+# -------------------------------------------------------------------
+# Anthropic API Chat Implementation (Model)
+# -------------------------------------------------------------------
+
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY") or "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"
+
+class AnthropicChat:
+    def __init__(self, api_key: str):
+        """Initialize the Anthropic client with the provided API key."""
+        self.client = anthropic.Client(api_key=api_key)
+        self.conversation_history = []
+        
+    def list_models(
+        self,
+        sort_by: str = "created",
+        reverse: bool = True,
+      
+```
+

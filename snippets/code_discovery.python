@@ -1,0 +1,51 @@
+# discovery (Code)
+
+**File:** moe/core/discovery.py  
+**Language:** Python  
+**Lines:** 196  
+
+**Description:** **: This code defines a class called ToolDiscovery that is part of a tool discovery system. Its primary purpose is to scan a specified directory for Python files, import modules, identify and instantiate subclasses of ToolHandler, and register these tools with a ToolRouter. It handles recursive directory scanning, skips excluded or private directories, manages tool metadata like categories, and provides methods to retrieve tools by ID, category, or all categories. The class initializes with parameters for the tools directory, router, registry, and excluded directories, and it logs various operations for debugging and error handling.
+
+```python
+"""
+Tool discovery system for finding and registering available tools.
+"""
+
+import os
+import sys
+import importlib
+import logging
+import traceback
+from pathlib import Path
+from typing import Dict, List, Set, Any, Optional, Type
+try:
+    from .router import ToolRouter, ToolHandler
+    from .registry import ModelRegistry
+except ImportError:
+    from router import ToolRouter, ToolHandler
+    from registry import ModelRegistry
+
+logger = logging.getLogger(__name__)
+
+class ToolDiscovery:
+    """Discovers and registers available tools"""
+    
+    def __init__(
+        self,
+        tools_dir: str,
+        router: ToolRouter,
+        registry: ModelRegistry,
+        excluded_dirs: Optional[List[str]] = None
+    ):
+        """
+        Initialize tool discovery.
+        
+        Args:
+            tools_dir: Directory containing tools
+            router: Tool router instance
+            registry: Model registry instance
+            excluded_dirs: List of directories to exclude
+        """
+        
+```
+

@@ -1,0 +1,50 @@
+# test_simplified (Code)
+
+**File:** src/test_simplified.py  
+**Language:** Python  
+**Lines:** 140  
+
+**Description:** **: This script is a test suite designed to demonstrate and verify the functionality of simplified API utility functions for file analysis. It includes tests for creating an API client, analyzing text files, and analyzing images. The script sets up logging for output, creates temporary files for testing, executes the tests, parses and logs results, and cleans up resources. Its purpose is to ensure the API utilities work correctly in a streamlined manner.  
+
+```python
+#!/usr/bin/env python3
+"""
+Test script to demonstrate the simplified API utility functions.
+This script shows how the streamlined approach works for analyzing different file types.
+"""
+
+import os
+import sys
+import json
+import logging
+from pathlib import Path
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Import the simplified functions
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+
+from cleanupx.utils.api_utils import (
+    analyze_text_file,
+    analyze_image,
+    analyze_archive,
+    get_api_client
+)
+
+def test_api_client():
+    """Test that we can create an API client."""
+    client = get_api_client()
+    if client:
+        logger.info("Successfully created API client")
+        return True
+    else:
+        logger.error("Failed to create API client")
+        return False
+
+def test_text_file():
+    """Test the text file analysis with a sa
+```
+

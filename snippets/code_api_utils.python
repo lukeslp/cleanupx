@@ -1,0 +1,60 @@
+# api_utils (Code)
+
+**File:** src/cleanupx/utils/api_utils.py  
+**Language:** Python  
+**Lines:** 320  
+
+**Description:** **: This module is a collection of utility functions and classes designed to handle interactions with APIs, particularly OpenAI and X.AI, within the context of a cleanupx application. It manages API configurations, error handling for imports, image processing (e.g., encoding, resizing, and converting HEIC/HEIF formats), file reading, and analysis of text files. The code includes functions for encoding images, initializing API clients, reading file contents, and analyzing text files by sending them to an AI model for structured descriptions. It also incorporates logging, dependency checks, and fallbacks for missing imports, making it robust for API-based operations.
+
+```python
+"""
+API utility functions for cleanupx.
+Handles interactions with OpenAI, X.AI and other APIs.
+"""
+
+import logging
+import os
+import sys
+import time
+import base64
+from pathlib import Path
+from typing import Optional, Dict, Any, Union, List, Tuple
+import re
+import json
+import tempfile
+import shutil
+import requests
+
+# Make OpenAI import optional with improved error handling
+OPENAI_AVAILABLE = False
+OPENAI_IMPORT_ERROR = None
+try:
+    import openai
+    from openai import OpenAI
+    OPENAI_AVAILABLE = True
+except ImportError as e:
+    OPENAI_IMPORT_ERROR = str(e)
+
+# Import other required packages
+try:
+    from PIL import Image
+    PIL_AVAILABLE = True
+except ImportError:
+    PIL_AVAILABLE = False
+
+# Try to import HEIC support
+HEIC_AVAILABLE = False
+try:
+    import pyheif
+    HEIC_AVAILABLE = True
+except ImportError:
+    try:
+        from pillow_heif import register_heif_opener
+        register_heif_opener()
+        HEIC_AVAILABLE = True
+    except ImportError:
+        pass
+
+# Try to import 
+```
+

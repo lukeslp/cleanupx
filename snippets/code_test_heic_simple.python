@@ -1,0 +1,45 @@
+# test_heic_simple (Code)
+
+**File:** src/storage/test_heic_simple.py  
+**Language:** Python  
+**Lines:** 125  
+
+**Description:** **: This script is designed to handle HEIC (High Efficiency Image Container) files. It includes functions to read the dimensions of an HEIC file, convert it to JPEG format, and process the file by checking its existence and validity. The script uses logging for tracking operations and errors. The main function serves as the entry point, accepting a command-line argument for the HEIC file path, and it orchestrates the processing workflow.  
+
+```python
+#!/usr/bin/env python3
+"""
+Simple test for HEIC file processing using pillow_heif
+"""
+
+import os
+import sys
+import logging
+from pathlib import Path
+from PIL import Image
+import pillow_heif
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+def get_heic_dimensions(file_path):
+    """Get dimensions from a HEIC file using pillow-heif"""
+    try:
+        # Register HEIF opener with Pillow
+        pillow_heif.register_heif_opener()
+        
+        # Read HEIC file using Pillow
+        logger.info(f"Reading HEIC file: {file_path}")
+        with Image.open(file_path) as img:
+            width, height = img.size
+            logger.info(f"HEIC dimensions: {width}x{height}")
+            return width, height
+    except Exception as e:
+        logger.error(f"Error reading HEIC file: {e}")
+        return None, None
+
+def convert_heic_to_jpeg(heic_path, jpeg_path=None):
+    """Convert HEIC file to JPEG u
+```
+

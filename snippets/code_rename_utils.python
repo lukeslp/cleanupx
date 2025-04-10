@@ -1,0 +1,58 @@
+# rename_utils (Code)
+
+**File:** src/cleanupx/utils/rename_utils.py  
+**Language:** Python  
+**Lines:** 268  
+
+**Description:** **: This module provides utilities for renaming files in a cleanupx system. It includes functions to clean filenames by removing invalid characters and standardizing them, and to generate new filenames based on file types (e.g., images, videos, audio, archives, documents) and optional descriptions. The purpose is to automate file renaming for better organization, handle edge cases like invalid characters or duplicates, and integrate with other cleanupx components for metadata and configuration.
+
+```python
+"""
+Rename utilities for cleanupx.
+Handles file renaming operations and new filename generation.
+"""
+
+import logging
+import os
+import re
+import shutil
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Any, Union
+from datetime import datetime
+import json
+
+from ..core.config import (
+    RENAME_PROMPT_TEMPLATE,
+    DEFAULT_MAX_RENAME_ATTEMPTS
+)
+from .file_utils import (
+    get_file_extension
+)
+from .api_utils import (
+    APIError
+)
+from .metadata_utils import (
+    get_file_type_info
+)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def clean_filename(filename: str) -> str:
+    """
+    Clean a filename by removing invalid characters and controlling spaces.
+    
+    Args:
+        filename: Original filename
+        
+    Returns:
+        Cleaned filename
+    """
+    # Replace invalid characters with underscores
+    invalid_chars = r'[<>:"/\\|?*\x00-\x1F]
+```
+

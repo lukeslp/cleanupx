@@ -1,0 +1,44 @@
+# ollama_infinite (Code)
+
+**File:** finished/ollama_infinite.py  
+**Language:** Python  
+**Lines:** 239  
+
+**Description:** **: This Python script integrates the Ollama AI model with Infinite Search tools to enable web searches (via Google, Bing, or Baidu) and URL reading capabilities. It includes a class `OllamaInfiniteUser` that initializes the model, handles prompt generation, executes tools asynchronously, formats search results, and runs an interactive command-line interface for users to input queries. The purpose is to create a tool-using setup for AI interactions with real-time web data, allowing users to perform searches or read web content while handling errors and formatting outputs for better usability.
+
+```python
+"""
+Tool-using setup for Ollama with Infinite Search integration
+"""
+
+import json
+import requests
+from typing import Dict, Any, List
+from tools.llm_tool_infinite_search import Tools
+import re
+import asyncio
+from bs4 import BeautifulSoup
+
+class OllamaInfiniteUser:
+    def __init__(self, model: str = "belter-infinite"):
+        self.model = model
+        self.search_tool = Tools()
+        # Configure search engine URL and settings
+        self.search_tool.valves.SEARXNG_URL = "https://searx.be/search"
+        self.search_tool.valves.TIMEOUT = 60
+        print(f"\nInitialized with search URL: {self.search_tool.valves.SEARXNG_URL}")
+        self.base_url = "http://localhost:11434/api/chat"
+        
+    def generate(self, prompt: str) -> str:
+        """Generate a response from Ollama"""
+        data = {
+            "model": self.model,
+            "messages": [
+                {"role": "user", "content": prompt}
+            ],
+            "stream": False
+        }
+        try:
+            
+```
+

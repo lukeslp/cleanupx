@@ -1,0 +1,41 @@
+# test_text_files (Code)
+
+**File:** src/storage/test_text_files.py  
+**Language:** Python  
+**Lines:** 129  
+
+**Description:** **: This script is a test utility for processing text files in the cleanupx project. It takes a file path as input, checks if the file exists, retrieves file type information, previews the file's content, generates a description of the document using external utilities, and suggests a new filename based on metadata or the generated description. It handles errors gracefully, logs activities using the logging module, and includes a main entry point to run the processing from the command line.
+
+```python
+#!/usr/bin/env python3
+"""
+Test script for text file processing in cleanupx
+"""
+
+import os
+import sys
+import logging
+from pathlib import Path
+import json
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Import required modules directly
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Import functions directly
+from cleanupx.utils.api_utils import generate_document_description
+from cleanupx.utils.rename_utils import generate_document_filename
+from cleanupx.utils.metadata_utils import peek_file_content, get_file_type_info
+
+# If the above imports fail, try direct imports
+if 'generate_document_description' not in globals():
+    try:
+        # Try direct imports
+        from utils.api_utils import generate_document_description
+        from utils.rename_utils import generate_document_filename
+        from utils.metadata_utils import peek_file_content, get_file
+```
+

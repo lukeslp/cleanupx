@@ -1,0 +1,49 @@
+# test_api (Code)
+
+**File:** storage/test_api.py  
+**Language:** Python  
+**Lines:** 62  
+
+**Description:** **: This script is designed to test an API endpoint by sending a POST request to "https://actuallyusefulai.com/api/v1/prod/chat/drummer" with a JSON payload containing a model specification and a user message (e.g., "why is the sky blue?"). It prints the request data for debugging, handles the API response by checking the status code, headers, and content type. If the response is in text/event-stream format, it parses and prints streaming chunks; otherwise, it attempts to parse the response as JSON. The script includes error handling to catch and display any exceptions, and it runs the test_api function when executed directly.
+
+```python
+import requests
+import json
+
+def test_api():
+    url = "https://actuallyusefulai.com/api/v1/prod/chat/drummer"
+    
+    # Test message
+    data = {
+        "model": "llama3.2:3b",
+        "messages": [
+            {
+                "role": "user",
+                "content": "why is the sky blue?"
+            }
+        ],
+        # "stream": False
+    }
+    
+    print("\n🚀 Sending request...")
+    print(f"Request data: {json.dumps(data, indent=2)}")
+    
+    try:
+        response = requests.post(
+            url,
+            json=data,
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            timeout=30
+        )
+        
+        print(f"\n📡 Response status: {response.status_code}")
+        print(f"Response headers: {dict(response.headers)}")
+        print(f"\nRaw response text:\n{response.text[:1000]}")
+        
+        if 'text/event-stream' in response.headers.get('Content-Type', ''):
+            
+```
+

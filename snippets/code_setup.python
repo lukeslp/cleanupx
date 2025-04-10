@@ -1,0 +1,39 @@
+# setup (Code)
+
+**File:** setup.py  
+**Language:** Python  
+**Lines:** 51  
+
+**Description:** **: This script is a setup file for a Python package named 'toollama-moe'. It uses the setuptools library to define the package metadata, including name, version, author, description, and more. It reads the README.md for a long description and requirements.txt for dependencies. The setup function configures the package for distribution, specifying classifiers, required Python version, install requirements, and extra requirements for development and documentation.  
+
+```python
+"""Setup file for the MoE system."""
+
+from setuptools import setup, find_packages
+
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
+with open("requirements.txt", "r", encoding="utf-8") as fh:
+    requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
+
+setup(
+    name="toollama-moe",
+    version="0.1.0",
+    author="Luke Steuber",
+    author_email="luke@actuallyuseful.ai",
+    description="A Mixture of Experts system for AI model coordination",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/luketools/toollama",
+    packages=find_packages(),
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Progr
+```
+

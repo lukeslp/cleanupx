@@ -1,0 +1,44 @@
+# ollama_document (Code)
+
+**File:** finished/ollama_document.py  
+**Language:** Python  
+**Lines:** 239  
+
+**Description:** **: This code defines a class named OllamaDocumentUser that serves as a router for document management tasks integrated with Ollama. It handles operations such as generating responses from the Ollama model, formatting outputs for enhanced accessibility, and executing various asynchronous tools for tasks like OCR processing, document search, file management, transfers, archiving, and deletion. The class includes methods for initialization, response generation with error handling, output formatting based on different result types, and tool execution.
+
+```python
+"""
+Tool-using setup for Ollama with Document Management integration
+Enhanced with accessibility features and improved formatting
+"""
+
+import json
+import requests
+from typing import Dict, Any, Optional
+from tools.llm_tool_document import Tools
+import asyncio
+import sys
+from pathlib import Path
+import os
+import re
+from collections import defaultdict
+
+class OllamaDocumentUser:
+    """Routes document management requests to appropriate handlers with enhanced accessibility"""
+    
+    def __init__(self, model: str = "drummer-document"):
+        """Initialize the document management router"""
+        self.model = model
+        self.base_url = "http://localhost:11434/api/chat"
+        self.document_tool = Tools()
+        
+    def generate(self, prompt: str) -> str:
+        """Generate a response from Ollama with enhanced error handling"""
+        data = {
+            "model": self.model,
+            "messages": [
+                {"role": "user", "content": prompt}
+            ],
+            "
+```
+

@@ -5,11 +5,23 @@ Configuration settings for the CleanupX file organization tool.
 
 import os
 from pathlib import Path
+import logging
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # API Configuration
-XAI_API_KEY = "xai-8zAk5VIaL3Vxpu3fO3r2aiWqqeVAZ173X04VK2R1m425uYpWOIOQJM3puq1Q38xJ2sHfbq3mX4PBxJXC"
-XAI_MODEL_TEXT = "grok-3-mini-latest"
-XAI_MODEL_VISION = "grok-2-vision-latest"
+XAI_API_KEY = os.getenv('XAI_API_KEY')
+XAI_MODEL_TEXT = os.getenv('XAI_MODEL_TEXT', 'grok-3-mini-latest')
+XAI_MODEL_VISION = os.getenv('XAI_MODEL_VISION', 'grok-2-vision-latest')
+
+# Validate API configuration
+if not XAI_API_KEY:
+    logger.warning("XAI_API_KEY not found in environment variables. API calls will fail.")
 
 # File type constants
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp', '.heic', '.heif', '.ico'}

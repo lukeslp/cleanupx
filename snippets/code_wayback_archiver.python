@@ -1,0 +1,40 @@
+# wayback_archiver (Code)
+
+**File:** moe/tools/document/content/wayback_archiver.py  
+**Language:** Python  
+**Lines:** 130  
+
+**Description:** **: This code defines a class named WaybackArchiver that inherits from BaseTool. It is designed to interact with the Wayback Machine API from the Internet Archive to archive URLs. The class includes methods like submit_url_to_archive for checking if a URL is already archived and saving it if not, execute for running the archiving process, and properties for tool metadata. Its purpose is to provide a tool for preserving web pages by submitting URLs for archiving, handling network requests, error logging, and returning results in a structured format.
+
+```python
+from typing import Optional, Dict, Any
+import requests
+import logging
+import time
+import json
+from ...base import BaseTool
+
+class WaybackArchiver(BaseTool):
+    """Tool for archiving URLs using the Wayback Machine (Internet Archive)."""
+    
+    WAYBACK_SAVE_URL = "https://web.archive.org/save/"
+    WAYBACK_AVAIL_URL = "https://archive.org/wayback/available?url="
+    
+    def __init__(self):
+        super().__init__()
+        self.headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+        }
+
+    def submit_url_to_archive(self, url: str) -> Optional[str]:
+        """
+        Submit a URL to the Wayback Machine and retrieve the archived page link.
+        
+        Args:
+            url (str): The URL to archive
+            
+        Return
+```
+

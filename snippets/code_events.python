@@ -1,0 +1,43 @@
+# events (Code)
+
+**File:** moe/core/events.py  
+**Language:** Python  
+**Lines:** 289  
+
+**Description:** **: This module implements an event system for real-time feedback in the MoE system. It defines enums for event types and progress stages, a Pydantic model for events, and classes like EventManager and EventBus for managing event subscriptions, emissions, and broadcasting. It handles task progress tracking, subscriptions, and asynchronous event processing.
+
+```python
+"""
+Event system for real-time feedback in the MoE system.
+"""
+
+import asyncio
+import json
+import logging
+from typing import Dict, Any, Optional, List, Set, Callable, Awaitable
+from datetime import datetime
+from enum import Enum
+from pydantic import BaseModel, Field
+from dataclasses import dataclass
+
+logger = logging.getLogger(__name__)
+
+class EventType(str, Enum):
+    """Types of events that can be emitted"""
+    TASK_STARTED = "task_started"
+    TASK_COMPLETED = "task_completed"
+    TASK_FAILED = "task_failed"
+    BELTER_ASSIGNED = "belter_assigned"
+    BELTER_STARTED = "belter_started"
+    BELTER_COMPLETED = "belter_completed"
+    BELTER_FAILED = "belter_failed"
+    DRUMMER_ASSIGNED = "drummer_assigned"
+    DRUMMER_STARTED = "drummer_started"
+    DRUMMER_COMPLETED = "drummer_completed"
+    DRUMMER_FAILED = "drummer_failed"
+    DATA_GATHERING = "data_gathering"
+    DATA_PROCESSING = "data_processing"
+    ANALYSIS_STARTED = "analysis_started"
+    ANALYSIS_COMPLETED = "analysis_complet
+```
+

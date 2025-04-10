@@ -1,0 +1,47 @@
+# data_analyzer (Code)
+
+**File:** moe/tools/data/analysis/data_analyzer.py  
+**Language:** Python  
+**Lines:** 92  
+
+**Description:** **: This code defines a class named TisaneClient that serves as a client for the Tisane AI API. Its primary purpose is to analyze input text for sentiment, key entities, and offensive content. The class includes an asynchronous method `analyze_text` that handles API requests, processes responses, and optionally emits status events. It also features a nested Pydantic model for configuration and includes an example usage in the main block to demonstrate how to instantiate the class and perform text analysis.  
+
+```python
+import requests
+from typing import Dict, Any, Optional, Callable, Awaitable
+from pydantic import BaseModel
+
+
+class TisaneClient:
+    class UserValves(BaseModel):
+        """Requires TISANE_PRIMARY API Key"""
+        TISANE_PRIMARY: str
+
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = "https://api.tisane.ai/parse"
+
+    async def analyze_text(
+        self,
+        text: str,
+        language: str = "en",
+        __user__: dict = {},
+        __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None,
+    ) -> str:
+        """
+        Analyze text for sentiment, key entities, and offensive content.
+
+        Args:
+            text (str): The input text to analyze.
+            language (str): The language code (default: "en" for English).
+
+        Returns:
+            str: Formatted analysis results.
+        """
+        if __event_emitter__:
+            await __event_emitter__(
+                {
+                    "type": "status",
+   
+```
+

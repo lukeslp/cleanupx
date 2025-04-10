@@ -13,6 +13,12 @@ from contextlib import contextmanager
 import signal
 import time
 from typing import Union
+import backoff
+import requests
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 try:
     from openai import OpenAI
@@ -26,8 +32,20 @@ from cleanupx.config import XAI_API_KEY, XAI_MODEL_TEXT, XAI_MODEL_VISION
 # Configure logging
 logger = logging.getLogger(__name__)
 
-class TimeoutError(Exception):
+class APIError(Exception):
+    """Base exception for API-related errors."""
+    pass
+
+class TimeoutError(APIError):
     """Exception raised when a function times out."""
+    pass
+
+class InvalidResponseError(APIError):
+    """Exception raised when API response is invalid."""
+    pass
+
+class ConfigurationError(APIError):
+    """Exception raised when API configuration is invalid."""
     pass
 
 @contextmanager
@@ -47,6 +65,9 @@ def timeout(seconds: int):
 
 def get_api_client():
     """Get an OpenAI client configured for X.AI API."""
+    if not XAI_API_KEY:
+        raise ConfigurationError("XAI_API_KEY not found in environment variables. Please check your .env file.")
+        
     try:
         client = OpenAI(
             api_key=XAI_API_KEY,
@@ -55,8 +76,11 @@ def get_api_client():
         return client
     except Exception as e:
         logger.error(f"Error initializing API client: {e}")
-        return None
+        raise ConfigurationError(f"Failed to initialize API client: {e}")
 
+@backoff.on_exception(backoff.expo, 
+                     (requests.exceptions.RequestException, APIError),
+                     max_tries=3)
 def call_xai_api(model: str, prompt: str, function_schema: dict, image_data: Optional[str] = None) -> dict:
     """
     Call the X.AI API using OpenAI's function calling with structured output.
@@ -69,10 +93,16 @@ def call_xai_api(model: str, prompt: str, function_schema: dict, image_data: Opt
         
     Returns:
         Dictionary containing the structured response.
+        
+    Raises:
+        ConfigurationError: If API configuration is invalid
+        APIError: If the API call fails or returns invalid response
+        TimeoutError: If the call times out
     """
+    if not OPENAI_AVAILABLE:
+        raise ConfigurationError("OpenAI package not installed. Install with: pip install openai")
+        
     client = get_api_client()
-    if not client:
-        return {}
     
     try:
         messages = []
@@ -82,8 +112,7 @@ def call_xai_api(model: str, prompt: str, function_schema: dict, image_data: Opt
             
             # Verify the image data looks valid
             if len(image_data) < 100:
-                logger.error("Image data too small, likely invalid")
-                return {}
+                raise InvalidResponseError("Image data too small, likely invalid")
                 
             # For vision models with images
             messages = [{
@@ -100,13 +129,14 @@ def call_xai_api(model: str, prompt: str, function_schema: dict, image_data: Opt
         # Log before making API call
         logger.info(f"HTTP Request: POST https://api.x.ai/v1/chat/completions")
         
-        # Make the API call
-        response = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            tools=[{"type": "function", "function": function_schema}],
-            tool_choice={"type": "function", "function": {"name": function_schema["name"]}}
-        )
+        # Make the API call with timeout
+        with timeout(30):  # 30 second timeout
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                tools=[{"type": "function", "function": function_schema}],
+                tool_choice={"type": "function", "function": {"name": function_schema["name"]}}
+            )
         
         # Log success
         logger.info(f"HTTP Request: POST https://api.x.ai/v1/chat/completions \"HTTP/1.1 200 OK\"")
@@ -114,16 +144,15 @@ def call_xai_api(model: str, prompt: str, function_schema: dict, image_data: Opt
         # Parse the response
         if hasattr(response.choices[0].message, 'tool_calls') and response.choices[0].message.tool_calls:
             tool_call = response.choices[0].message.tool_calls[0]
-            # Check for valid JSON
             try:
                 result = json.loads(tool_call.function.arguments)
                 # Validate required fields
                 for field in function_schema["parameters"].get("required", []):
                     if field not in result:
-                        logger.warning(f"Missing required field '{field}' in API response")
+                        raise InvalidResponseError(f"Missing required field '{field}' in API response")
                 return result
             except json.JSONDecodeError as e:
-                logger.error(f"Invalid JSON in API response: {e}")
+                raise InvalidResponseError(f"Invalid JSON in API response: {e}")
         
         logger.warning("Function call response not found, attempting to parse message content")
         if hasattr(response.choices[0].message, 'content'):
@@ -143,7 +172,6 @@ def call_xai_api(model: str, prompt: str, function_schema: dict, image_data: Opt
                 from cleanupx.utils.common import clean_filename
                 
                 # Filter out any AI thinking process statements
-                # Look for patterns like "I have analyzed..." or "I will create..."
                 filtered_content = re.sub(r'^I\s+(have|will|am)\s+.+?[\.\n]', '', content, flags=re.IGNORECASE|re.MULTILINE)
                 
                 if "title" in function_schema["parameters"]["properties"]:
@@ -181,10 +209,15 @@ def call_xai_api(model: str, prompt: str, function_schema: dict, image_data: Opt
                     
                     result["suggested_filename"] = clean_filename(suggested_name)
             
+            if not result:
+                raise InvalidResponseError("Could not extract structured result from API response")
+                
             return result
         
-        logger.error("Could not extract structured result from API response")
-        return {}
+        raise InvalidResponseError("Could not extract structured result from API response")
+    except TimeoutError as e:
+        logger.error(f"API call timed out: {e}")
+        raise
     except Exception as e:
         logger.error(f"Error calling X.AI API: {e}")
-        return {}
+        raise APIError(f"API call failed: {e}")

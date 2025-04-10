@@ -1,0 +1,48 @@
+# test_cleanupx_text (Code)
+
+**File:** src/test_cleanupx_text.py, src/storage/test_cleanupx_text.py  
+**Language:** Python  
+**Lines:** 82  
+
+**Description:** **: This script is a test file designed to verify the functionality of text file processing features from the enhanced cleanupx module. It imports necessary modules, sets up argument parsing, and defines a main function to test a single text file. The script checks if the file exists, previews its content, generates a description and suggested filename, processes the file, and handles metadata. It serves as a diagnostic tool to ensure the cleanupx functions work correctly, outputting results and exiting with appropriate status codes.
+
+Additional implementation:
+**: This script is a test file designed to verify the functionality of text file processing features from the enhanced cleanupx module. It imports necessary modules, sets up argument parsing, and defines a main function to test operations like peeking into file content, generating file descriptions, and processing text files. The script checks if the specified file exists, previews its content, generates and prints descriptions, handles metadata, and processes the file to suggest a new filename. It exits with a status code based on the test outcome.
+
+```python
+#!/usr/bin/env python3
+"""
+Test script for text file processing in the enhanced cleanupx.py
+"""
+
+import os
+import sys
+import argparse
+from pathlib import Path
+
+# Add parent directory to path so we can import cleanupx
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+try:
+    # Import required functions
+    from cleanupx import peek_file_content, generate_text_file_description, process_text_file
+except ImportError:
+    print("Error: Could not import from cleanupx. Make sure cleanupx.py is accessible.")
+    sys.exit(1)
+
+def test_text_file(file_path):
+    """Test processing a single text file using the enhanced cleanupx functionality"""
+    print(f"Testing text file processing for: {file_path}")
+    
+    # Ensure file exists
+    if not os.path.exists(file_path):
+        print(f"Error: File {file_path} does not exist.")
+        return False
+        
+    # Get file extension
+    ext = os.path.splitext(file_path)[1].lower()
+    
+    # Get content preview
+    co
+```
+

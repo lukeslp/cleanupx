@@ -1,0 +1,44 @@
+# _football_api (Code)
+
+**File:** soon/tools_pending/_football_api.py  
+**Language:** Python  
+**Lines:** 95  
+
+**Description:** **: This code defines a class named FootballDataClient that serves as a client for interacting with the Football Data API. Its primary purpose is to fetch and format recent finished football matches for a specified league (e.g., "PL" for Premier League). The class includes an asynchronous method `fetch_matches` that handles API requests, processes JSON responses, and returns a string with match details such as team names and scores. It also incorporates error handling for network issues and supports an optional event emitter for status updates during the process. Additionally, there's an example usage in the if __name__ == "__main__" block to demonstrate how to instantiate the class and call the method.  
+
+```python
+import requests
+from typing import Dict, Any, Optional, Callable, Awaitable
+from pydantic import BaseModel
+
+
+class FootballDataClient:
+    class UserValves(BaseModel):
+        """Requires FOOTBALL_DATA API Key"""
+        FOOTBALL_DATA: str
+
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = "https://api.football-data.org/v4/matches"
+
+    async def fetch_matches(
+        self,
+        league_code: str = "PL",  # English Premier League default
+        __user__: dict = {},
+        __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None,
+    ) -> str:
+        """
+        Fetch recent football matches for a given league.
+
+        Args:
+            league_code (str): The league code (e.g., "PL" for Premier League, "SA" for Serie A).
+
+        Returns:
+            str: Formatted match results including teams, scores, and match status.
+        """
+        if __event_emitter__:
+            await __event_emitter__(
+                {
+         
+```
+

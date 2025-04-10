@@ -1,0 +1,45 @@
+# dev_efactory (Code)
+
+**File:** soon/tools_pending/unprocessed/dev_efactory.py  
+**Language:** Python  
+**Lines:** 69  
+
+**Description:** **: This class is a factory for creating and managing AI providers. It implements the Singleton pattern to ensure only one instance exists, which helps in managing shared resources. It maintains a dictionary of provider classes and instances, allowing registration of new providers, retrieval of provider instances based on configuration checks, and clearing of instances. The class interacts with a configuration system to determine available providers.
+
+```python
+from typing import Dict, Optional, Type
+from .base import BaseProvider
+from .coze import CozeProvider
+from .mistral import MistralProvider
+from ..utils.config import Config
+
+class ProviderFactory:
+    """Factory class for creating and managing AI providers."""
+    
+    _instance = None
+    _providers: Dict[str, Type[BaseProvider]] = {
+        'coze': CozeProvider,
+        'mistral': MistralProvider
+    }
+    _instances: Dict[str, BaseProvider] = {}
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+    
+    def __init__(self):
+        if self._initialized:
+            return
+        self.config = Config()
+        self._initialized = True
+    
+    def register_provider(self, name: str, provider_class: Type[BaseProvider]) -> None:
+        """Register a new provider class.
+        
+        Args:
+            name: Provider name
+            provider_class: P
+```
+

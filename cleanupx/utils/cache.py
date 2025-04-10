@@ -20,10 +20,14 @@ from cleanupx.config import CACHE_FILE, RENAME_LOG_FILE
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Default cache locations
-DEFAULT_CACHE_DIR = os.path.expanduser("~/.cleanupx/cache")
-CACHE_FILE = os.path.join(DEFAULT_CACHE_DIR, "global_cache.json")
-RENAME_LOG_FILE = os.path.join(DEFAULT_CACHE_DIR, "rename_log.json")
+# Constants for cache locations
+DEFAULT_CACHE_DIR = os.path.expanduser("~/.cleanupx")
+METADATA_DIR = lambda root: Path(root) / ".cleanupx"
+CACHE_FILE = lambda root: METADATA_DIR(root) / "global_cache.json"
+RENAME_LOG_FILE = lambda root: METADATA_DIR(root) / "rename_log.json"
+CITATIONS_FILE = lambda root: METADATA_DIR(root) / "citations.json"
+SUMMARY_FILE = lambda root: METADATA_DIR(root) / "directory_summary.json"
+HIDDEN_SUMMARY_FILE = lambda root: METADATA_DIR(root) / "hidden_summary.json"
 
 # Global cache storage
 _CACHE: Dict[str, Dict[str, Any]] = {}
@@ -53,22 +57,38 @@ _CACHE_CONFIG = {
 _LEGACY_CACHE: Dict[str, Any] = {}
 _RENAME_LOGS: Dict[str, List[Dict[str, Any]]] = {}
 
-def ensure_cache_dir() -> Path:
+def ensure_metadata_dir(root: Union[str, Path]) -> Path:
     """
-    Ensure the cache directory exists and is properly structured.
+    Ensure the .cleanupx metadata directory exists in the given root.
     
+    Args:
+        root: Root directory path
+        
     Returns:
-        Path to the cache directory
+        Path to the metadata directory
     """
-    cache_dir = Path(_CACHE_CONFIG["cache_dir"])
-    cache_dir.mkdir(parents=True, exist_ok=True)
+    metadata_dir = METADATA_DIR(root)
+    metadata_dir.mkdir(parents=True, exist_ok=True)
     
-    # Create subdirectories for different cache types
-    (cache_dir / "text").mkdir(exist_ok=True)
-    (cache_dir / "images").mkdir(exist_ok=True)
-    (cache_dir / "documents").mkdir(exist_ok=True)
+    # Create subdirectories for different types of metadata
+    (metadata_dir / "cache").mkdir(exist_ok=True)
+    (metadata_dir / "descriptions").mkdir(exist_ok=True)
+    (metadata_dir / "summaries").mkdir(exist_ok=True)
     
-    return cache_dir
+    return metadata_dir
+
+def get_description_path(file_path: Path) -> Path:
+    """
+    Get the path for a file's description markdown file.
+    
+    Args:
+        file_path: Path to the source file
+        
+    Returns:
+        Path to the description markdown file
+    """
+    metadata_dir = ensure_metadata_dir(file_path.parent)
+    return metadata_dir / "descriptions" / f"{file_path.stem}.md"
 
 def get_cache_path(file_path: Union[str, Path], cache_type: str = "text") -> Path:
     """
@@ -82,7 +102,7 @@ def get_cache_path(file_path: Union[str, Path], cache_type: str = "text") -> Pat
         Path to the cache file
     """
     file_path = Path(file_path)
-    cache_dir = ensure_cache_dir()
+    cache_dir = ensure_metadata_dir(file_path.parent)
     
     # Create a hash of the absolute path to ensure unique cache files
     file_hash = hashlib.md5(str(file_path.absolute()).encode()).hexdigest()[:8]
@@ -122,7 +142,7 @@ def configure_cache(
     
     if cache_dir is not None:
         _CACHE_CONFIG["cache_dir"] = os.path.expanduser(cache_dir)
-        ensure_cache_dir()
+        ensure_metadata_dir(Path(cache_dir))
     
     if cleanup_interval is not None:
         _CACHE_CONFIG["cleanup_interval"] = cleanup_interval
@@ -251,14 +271,13 @@ def remove_from_cache(key: str) -> bool:
     
     return False
 
-def clear_cache(directory: Optional[Path] = None) -> Dict[str, int]:
+def clear_cache(root: Union[str, Path] = None) -> Dict[str, int]:
     """
     Clear cache files from the system.
     
     Args:
-        directory: If provided, only clear cache files in this directory.
-                  If None, clear all cache files.
-    
+        root: Optional root directory (uses home directory if not specified)
+        
     Returns:
         Stats dictionary with count of files cleared
     """
@@ -267,42 +286,45 @@ def clear_cache(directory: Optional[Path] = None) -> Dict[str, int]:
     stats = {
         "global_cache": 0,
         "rename_log": 0,
-        "text_cache": 0,
-        "image_cache": 0,
-        "document_cache": 0,
-        "memory_cache": 0
+        "descriptions": 0,
+        "summaries": 0
     }
     
-    # Clear global cache files if no specific directory
-    if directory is None:
-        cache_dir = ensure_cache_dir()
+    try:
+        if root is None:
+            metadata_dir = Path(DEFAULT_CACHE_DIR)
+        else:
+            metadata_dir = METADATA_DIR(root)
         
-        # Clear global cache files
-        if os.path.exists(CACHE_FILE):
-            os.remove(CACHE_FILE)
-            stats["global_cache"] = 1
+        if metadata_dir.exists():
+            # Clear global cache
+            cache_file = metadata_dir / "global_cache.json"
+            if cache_file.exists():
+                os.remove(cache_file)
+                stats["global_cache"] = 1
             
-        if os.path.exists(RENAME_LOG_FILE):
-            os.remove(RENAME_LOG_FILE)
-            stats["rename_log"] = 1
-        
-        # Clear all cache subdirectories
-        for cache_type in ["text", "images", "documents"]:
-            cache_type_dir = cache_dir / cache_type
-            if cache_type_dir.exists():
-                for cache_file in cache_type_dir.glob("*.cache"):
-                    try:
-                        os.remove(cache_file)
-                        stats[f"{cache_type}_cache"] += 1
-                    except Exception as e:
-                        logger.error(f"Failed to remove cache file {cache_file}: {e}")
+            # Clear rename log
+            log_file = metadata_dir / "rename_log.json"
+            if log_file.exists():
+                os.remove(log_file)
+                stats["rename_log"] = 1
+            
+            # Clear descriptions
+            desc_dir = metadata_dir / "descriptions"
+            if desc_dir.exists():
+                for file in desc_dir.glob("*.md"):
+                    os.remove(file)
+                    stats["descriptions"] += 1
+            
+            # Clear summaries
+            sum_dir = metadata_dir / "summaries"
+            if sum_dir.exists():
+                for file in sum_dir.glob("*.json"):
+                    os.remove(file)
+                    stats["summaries"] += 1
+    except Exception as e:
+        logger.error(f"Error clearing cache: {e}")
     
-    # Clear the in-memory cache
-    cache_items = len(_MEMORY_CACHE)
-    _MEMORY_CACHE.clear()
-    stats["memory_cache"] = cache_items
-    
-    logger.info(f"Cache cleanup: {stats}")
     return stats
 
 def cleanup_old_cache() -> None:
@@ -315,7 +337,7 @@ def cleanup_old_cache() -> None:
     if current_time - _CACHE_CONFIG["last_cleanup"] < _CACHE_CONFIG["cleanup_interval"]:
         return
     
-    cache_dir = ensure_cache_dir()
+    cache_dir = ensure_metadata_dir(Path(_CACHE_CONFIG["cache_dir"]))
     stats = {
         "text": 0,
         "images": 0,
@@ -428,75 +450,59 @@ def load_cache() -> Dict[str, Any]:
     logger.info("Using backward compatibility load_cache() function")
     return _LEGACY_CACHE
 
-def save_cache(cache_data: Dict[str, Any]) -> None:
+def save_cache(cache_data: Dict[str, Any], root: Union[str, Path] = None) -> None:
     """
-    Backward compatibility function to save cache from previous API.
+    Save cache data to the appropriate location.
     
     Args:
         cache_data: The cache data to save
+        root: Optional root directory (uses home directory if not specified)
     """
-    global _LEGACY_CACHE
-    logger.info("Using backward compatibility save_cache() function")
-    _LEGACY_CACHE = cache_data
-
-def save_rename_log(rename_log: List[Dict], log_file: Optional[Union[str, Any]] = None) -> None:
-    """
-    Backward compatibility function for saving rename logs.
-    Now stores logs in memory instead of writing to disk.
-    
-    Args:
-        rename_log: List of rename operations
-        log_file: Identifier for the log (previously a file path)
-    """
-    global _RENAME_LOGS
-    log_key = str(log_file) if log_file else "default_rename_log"
-    _RENAME_LOGS[log_key] = rename_log
-    logger.info(f"Saved rename log to in-memory cache with key: {log_key}")
-
-def load_rename_log(log_file: Optional[Union[str, Any]] = None) -> List[Dict]:
-    """
-    Backward compatibility function for loading rename logs.
-    Now retrieves logs from memory instead of reading from disk.
-    
-    Args:
-        log_file: Identifier for the log (previously a file path)
+    try:
+        if root is None:
+            cache_file = Path(DEFAULT_CACHE_DIR) / "global_cache.json"
+        else:
+            cache_file = CACHE_FILE(root)
         
-    Returns:
-        List of rename operations
-    """
-    log_key = str(log_file) if log_file else "default_rename_log"
-    result = _RENAME_LOGS.get(log_key, [])
-    logger.info(f"Loaded rename log from in-memory cache with key: {log_key}")
-    return result
-
-def load_cache() -> Dict[str, Any]:
-    """Load the cache file if it exists, otherwise return an empty dictionary."""
-    try:
-        if os.path.exists(CACHE_FILE):
-            with open(CACHE_FILE, 'r') as f:
-                return json.load(f)
-    except Exception as e:
-        logger.error(f"Error loading cache: {e}")
-    return {}
-
-def save_cache(cache: Dict[str, Any]) -> None:
-    """Save the cache dictionary to the cache file."""
-    # Skip saving if NO_CACHE is set
-    if os.environ.get('CLEANUPX_NO_CACHE'):
-        logger.debug("Skipping cache save due to CLEANUPX_NO_CACHE environment variable")
-        return
-    
-    try:
-        with open(CACHE_FILE, 'w') as f:
-            json.dump(cache, f, indent=2)
+        # Ensure parent directory exists
+        cache_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(cache_file, 'w') as f:
+            json.dump(cache_data, f, indent=2)
     except Exception as e:
         logger.error(f"Error saving cache: {e}")
 
-def load_rename_log() -> Dict:
-    """Load the rename log file if it exists, otherwise return an empty log."""
+def save_rename_log(log_data: Dict[str, Any], root: Union[str, Path]) -> None:
+    """
+    Save rename log data to the appropriate location.
+    
+    Args:
+        log_data: The log data to save
+        root: Root directory path
+    """
     try:
-        if os.path.exists(RENAME_LOG_FILE):
-            with open(RENAME_LOG_FILE, 'r') as f:
+        log_file = RENAME_LOG_FILE(root)
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(log_file, 'w') as f:
+            json.dump(log_data, f, indent=2)
+    except Exception as e:
+        logger.error(f"Error saving rename log: {e}")
+
+def load_rename_log(root: Union[str, Path]) -> Dict[str, Any]:
+    """
+    Load rename log data from the appropriate location.
+    
+    Args:
+        root: Root directory path
+        
+    Returns:
+        The loaded rename log data
+    """
+    try:
+        log_file = RENAME_LOG_FILE(root)
+        if log_file.exists():
+            with open(log_file, 'r') as f:
                 return json.load(f)
     except Exception as e:
         logger.error(f"Error loading rename log: {e}")
@@ -511,19 +517,6 @@ def load_rename_log() -> Dict:
             "skipped_files": 0
         }
     }
-
-def save_rename_log(log: Dict) -> None:
-    """Save the rename log to the log file."""
-    # Skip saving if NO_CACHE is set
-    if os.environ.get('CLEANUPX_NO_CACHE'):
-        logger.debug("Skipping rename log save due to CLEANUPX_NO_CACHE environment variable")
-        return
-    
-    try:
-        with open(RENAME_LOG_FILE, 'w') as f:
-            json.dump(log, f, indent=2)
-    except Exception as e:
-        logger.error(f"Error saving rename log: {e}")
 
 def add_error_to_log(rename_log: Dict, file_path: Path, error: str, error_type: str = "rename_error") -> None:
     """Add an error entry to the rename log."""

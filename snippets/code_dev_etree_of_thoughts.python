@@ -1,0 +1,66 @@
+# dev_etree_of_thoughts (Code)
+
+**File:** soon/tools_pending/unprocessed/dev_etree_of_thoughts.py  
+**Language:** Python  
+**Lines:** 376  
+
+**Description:** **: This module implements a Monte Carlo Tree Search (MCTS) algorithm, primarily for iterative problem-solving, such as improving answers to questions by generating and evaluating multiple thoughts. It includes classes like `Node` and `MCTS` for tree-based exploration, functions for text modifications (e.g., to simulate variations), logging, and integration with an external LLM (via `Pipe` and `ollama`) to generate, score, and refine responses. The purpose is to enhance decision-making or answer generation through simulation, selection, expansion, and backpropagation, making it useful for AI-driven optimization tasks.  
+
+```python
+"""
+title: mcts
+author: av
+author_url: https://github.com/av
+description: mcts - Monte Carlo Tree Search
+version: 0.0.5
+"""
+
+import logging
+import random
+import math
+import asyncio
+import json
+import re
+
+from typing import (
+  List,
+  Optional,
+  AsyncGenerator,
+  Callable,
+  Awaitable,
+  Generator,
+  Iterator,
+)
+from open_webui.constants import TASKS
+from open_webui.apps.ollama import main as ollama
+
+# ==============================================================================
+
+name = "mcts"
+default_max_children = 2
+default_exploration_weight = 1.414
+default_max_iterations = 2
+default_max_simulations = 2
+default_thoughts = 2
+
+# ==============================================================================
+
+thoughts_prompt = """
+<instruction>
+Give a suggestion on how this answer can be improved.
+WRITE ONLY AN IMPROVEMENT SUGGESTION AND NOTHING ELSE.
+YOUR REPLY SHOULD BE A SINGLE SENTENCE.
+</instruction>
+
+<question>
+{question}
+</question>
+
+<draft>
+{answer}
+</draft>
+""".strip()
+
+eval_
+```
+

@@ -1,0 +1,49 @@
+# dev_eOpenStreetMap (Code)
+
+**File:** soon/tools_pending/unprocessed/dev_eOpenStreetMap.py  
+**Language:** Python  
+**Lines:** 257  
+
+**Description:** **: This script is a Python tool designed for interacting with OpenStreetMap (OSM) services. It handles tasks such as searching for locations, generating navigation routes, and retrieving points of interest. The script includes utility functions for data processing, merging OSM data with Nominatim results, formatting JSON output as HTML, and ensuring compliance with OSM policies (e.g., handling user agents and avoiding incorrect results). It also defines constants for CSS styling, error messages, and instructions for result presentation. The purpose is to provide an integrated tool for OSM-based queries, likely for use in a web application like OpenWebUI, with features to prevent hallucinations and ensure accurate, relevant responses.
+
+```python
+"""
+title: OpenStreetMap Tool
+author: projectmoon
+author_url: https://git.agnos.is/projectmoon/open-webui-filters
+version: 2.2.1
+license: AGPL-3.0+
+required_open_webui_version: 0.4.3
+requirements: openrouteservice, pygments
+"""
+import itertools
+import json
+import math
+import requests
+
+from pygments import highlight
+from pygments.lexers import JsonLexer
+from pygments.formatters import HtmlFormatter
+
+import openrouteservice
+from openrouteservice.directions import directions as ors_directions
+
+from urllib.parse import urljoin
+from operator import itemgetter
+from typing import List, Optional
+from pydantic import BaseModel, Field
+
+# Yoinked from the OpenWebUI CSS
+FONTS = ",".join([
+    "-apple-system", "BlinkMacSystemFont", "Inter",
+    "ui-sans-serif", "system-ui", "Segoe UI",
+    "Roboto", "Ubuntu", "Cantarell", "Noto Sans",
+    "sans-serif", "Helvetica Neue", "Arial",
+    "\"Apple Color Emoji\"", "\"Segoe UI Emoji\"",
+    "Segoe UI Symbol", "\"Noto Color Emoji\""
+])
+
+FONT_CSS = f"""
+html
+```
+

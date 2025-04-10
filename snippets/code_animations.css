@@ -1,0 +1,60 @@
+# animations (Code)
+
+**File:** styles/animations.css  
+**Language:** CSS  
+**Lines:** 82  
+
+**Description:** **: This code defines a series of CSS keyframes for various animations, including fade effects, message fading, sliding transitions, spinning rotations, gradient rotations, gradient flows, futuristic glows, and gradient border changes. It also applies these animations to base classes like .gradient-animate, .gradient-border-animate, and .gradient-border-rotate. The purpose is to provide reusable animation effects for web elements, enhancing user interfaces with smooth transitions, visual feedback, and dynamic styling without relying on JavaScript.  
+
+```css
+/* Core animations for transitions and effects */
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes message-fade {
+  0%, 25% { opacity: 1; }
+  33%, 100% { opacity: 0; }
+}
+
+@keyframes slide {
+  from {
+    opacity: 0;
+    transform: translate(var(--slide-x, 0), var(--slide-y, 100%));
+  }
+  to {
+    opacity: 1;
+    transform: translate(0);
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes gradientRotate {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 50% 100%; }
+  75% { background-position: 0% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes futuristicGlow {
+  0% {
+    filter: blur(8px) brightness(1);
+    opacity: 0.5;
+  }
+  50% {
+    filter: blur(12px) brightness(1.2);
+    opacity: 0.
+```
+

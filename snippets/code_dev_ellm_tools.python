@@ -1,0 +1,41 @@
+# dev_ellm_tools (Code)
+
+**File:** soon/tools_pending/unprocessed/dev_ellm_tools.py  
+**Language:** Python  
+**Lines:** 107  
+
+**Description:** **: This code defines a class named LLMTools that serves as a collection of utility tools for interactions with Large Language Models (LLMs). It includes methods for fetching citation data from the CrossRef API using a DOI, generating HTML embeds for different file types, retrieving a list of supported MIME types for file processing, and initializing configurations for a markdown parser. The class is designed to handle tasks like API requests, file type handling, and markdown processing, making it useful for applications involving content generation, data fetching, and file embedding in LLM workflows.
+
+```python
+from typing import Dict, Optional, List, Union
+import requests
+import json
+import os
+from datetime import datetime
+
+class LLMTools:
+    """Collection of utility tools for LLM interactions."""
+    
+    def __init__(self, api_key: Optional[str] = None):
+        self.api_key = api_key or os.getenv("API_KEY")
+        
+    async def fetch_citation(self, doi: str) -> Dict:
+        """
+        Fetch citation data from CrossRef API.
+        Referenced from from_markdown.js lines 96-105
+        """
+        try:
+            response = await requests.get(f"https://api.crossref.org/works/{doi}")
+            return response.json()["message"]
+        except Exception as e:
+            print(f"Citation fetch failed: {e}")
+            return None
+
+    def process_file_embed(self, file: Dict, file_url: str) -> str:
+        """
+        Generate appropriate embed HTML based on file type.
+        Referenced from from_utils.js lines 1388-1415
+        """
+        file_ext = file["name"].split(".")[-1].lower
+```
+

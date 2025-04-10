@@ -1,0 +1,48 @@
+# api_analyzer (Code)
+
+**File:** prompts/api_analyzer.py  
+**Language:** Python  
+**Lines:** 215  
+
+**Description:** **: This script analyzes API keys by extracting them from HTML content, categorizing them based on predefined patterns, determining if they require payment, and identifying associated accessibility features. It uses a class-based structure to manage API services, generates a Markdown report summarizing the analysis, and saves it to a file. The primary purpose is to help manage and leverage free/public APIs, especially those with accessibility features, for applications like research, healthcare, and media processing.
+
+```python
+#!/usr/bin/env python3
+"""
+API Key Analyzer
+==============
+
+This script analyzes available API keys and matches them with bot categories,
+focusing on accessibility features and free/public APIs that can be leveraged.
+
+Author: Luke Steuber
+License: MIT
+"""
+
+import json
+from typing import Dict, List, Optional
+from dataclasses import dataclass
+from bs4 import BeautifulSoup
+import re
+
+@dataclass
+class APIService:
+    """Represents an API service"""
+    name: str
+    key: str
+    category: str
+    requires_payment: bool
+    accessibility_features: List[str]
+    documentation_url: Optional[str] = None
+
+class APIAnalyzer:
+    def __init__(self):
+        self.services: Dict[str, APIService] = {}
+        self.free_apis = {
+            "semantic_scholar": "https://api.semanticscholar.org/",
+            "arxiv": "https://arxiv.org/help/api/",
+            "unpaywall": "https://unpaywall.org/products/api",
+            "open_library": "https://openlibrary.org/developers/api",
+            "gutendex":
+```
+

@@ -1,0 +1,45 @@
+# _carbon_api (Code)
+
+**File:** soon/tools_pending/_carbon_api.py  
+**Language:** Python  
+**Lines:** 95  
+
+**Description:** **: This code defines a class named CarbonMarketplaceClient that serves as a client for interacting with the Carbon Marketplace API. Its primary purpose is to fetch and display available carbon credit programs based on a specified region (e.g., "global", "US", "EU"). It uses an API key for authentication, makes asynchronous HTTP GET requests using the requests library, processes the JSON response to format and return credit details, and handles exceptions for errors like network issues. Additionally, it supports an optional event emitter for status updates, making it suitable for asynchronous or event-driven applications. The code also includes an example usage in the if __name__ == "__main__" block to demonstrate how to instantiate the class and call its method.
+
+```python
+import requests
+from typing import Dict, Any, Optional, Callable, Awaitable
+from pydantic import BaseModel
+
+
+class CarbonMarketplaceClient:
+    class UserValves(BaseModel):
+        """Requires CARBON_MARKETPLACE API Key"""
+        CARBON_MARKETPLACE: str
+
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = "https://api.carbonmarketplace.com/offsets"
+
+    async def fetch_carbon_credits(
+        self,
+        region: str = "global",
+        __user__: dict = {},
+        __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None,
+    ) -> str:
+        """
+        Fetch available carbon credits for purchase.
+
+        Args:
+            region (str): Region for carbon credits (e.g., "US", "EU", "global").
+
+        Returns:
+            str: List of available carbon credit programs and pricing.
+        """
+        if __event_emitter__:
+            await __event_emitter__(
+                {
+                    "type": "status",
+                 
+```
+

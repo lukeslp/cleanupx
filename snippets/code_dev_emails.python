@@ -1,0 +1,64 @@
+# dev_emails (Code)
+
+**File:** soon/tools_pending/unprocessed/dev_emails.py  
+**Language:** Python  
+**Lines:** 125  
+
+**Description:** **: This Python module is designed to facilitate email sending via SMTP, primarily for AI or automated systems. It includes a main class called Tools, which has a nested Pydantic model Valves for managing email credentials like sender email and password. The module features a method to extract user details from a provided user object and a primary method, send_email, which constructs and sends emails using Gmail's SMTP server. It stresses the importance of user consent before sending emails to ensure ethical use. The code appears to be part of a larger toolkit for AI applications, as indicated by metadata like title and author.  
+
+```python
+Open WebUI
+Whitepaper
+Docs
+Leaderboard
+coolhand
+Sign out
+NOTICE
+Open WebUI Community is currently undergoing a major revamp to improve user experience and performance ✨
+
+Back
+Tool
+v1.0
+Email Tools
+
+
+Get
+A toolkit allowing the AI to send emails with smtp
+Tool ID
+email_tools
+Creator
+@cvaz1306
+Downloads
+2.3K+
+Tool Content
+python
+Copied
+"""
+title: EmailSender Pipeline
+author: Christopher Vaz
+date: 2024-07-01
+version: 1.0
+license: MIT
+description: A pipeline for sending arbitrary emails using SMTP.
+requirements: smtplib, email, os, json
+"""
+
+import smtplib
+from email.mime.text import MIMEText
+from typing import List, Dict, Any
+import os
+import json
+from pydantic import BaseModel, Field
+
+
+class Tools:
+    class Valves(BaseModel):
+        FROM_EMAIL: str = Field(
+            default="someone@example.com",
+            description="The email a LLM can use",
+        )
+        PASSWORD: str = Field(
+            default="password",
+            description="The password for the provided email addre
+```
+

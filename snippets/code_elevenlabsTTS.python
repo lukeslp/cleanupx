@@ -1,0 +1,50 @@
+# elevenlabsTTS (Code)
+
+**File:** soon/tools_pending/elevenlabsTTS.py  
+**Language:** Python  
+**Lines:** 268  
+
+**Description:** **: This module is a Python script that integrates with the ElevenLabs Text-to-Speech (TTS) API to convert text into speech audio. It includes a class named `Tools` with nested models and methods for handling API requests, fetching available voices, and generating audio files. The primary function, `elevenlabs_text_to_speech`, processes user input to either generate speech using a specified voice or list available voices. It incorporates error handling, user authentication checks, and file management for saving generated audio. The module relies on configuration settings like API keys and supports asynchronous event emissions for status updates.
+
+```python
+"""
+title: ElevenLabs Text-to-Speech Tool
+author: justinh-rahb
+author_url: https://github.com/justinh-rahb
+funding_url: https://github.com/open-webui
+version: 0.2.3
+license: MIT
+"""
+
+import requests
+import uuid
+import os
+from pydantic import BaseModel, Field
+from typing import Callable, Union, Any
+from open_webui.config import UPLOAD_DIR
+from open_webui.apps.webui.models.files import Files
+
+DEBUG = False
+
+
+class Tools:
+    class Valves(BaseModel):
+        ELEVENLABS_API_KEY: str = Field(
+            default=None, description="Your ElevenLabs API key."
+        )
+        ELEVENLABS_MODEL_ID: str = Field(
+            default="eleven_multilingual_v2",
+            description="ID of the ElevenLabs TTS model to use.",
+        )
+
+    def __init__(self):
+        self.valves = self.Valves()
+        self.voice_id_cache = {}
+
+    def fetch_available_voices(self) -> str:
+        """
+        Fetches the list of available voices from the ElevenLabs API.
+
+        :return: A formatted string containin
+```
+

@@ -1,0 +1,12 @@
+# __init__ (Code)
+
+**File:** tests/__init__.py  
+**Language:** Python  
+**Lines:** 1  
+
+**Description:** **: This is an __init__.py file in a Python package. It is used to indicate that a directory should be treated as a package. In this case, the file is empty, so it doesn't execute any code or perform specific actions; it simply exists to enable package imports and structure.  
+
+```python
+
+```
+

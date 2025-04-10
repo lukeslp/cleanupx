@@ -1,0 +1,45 @@
+# llm_mistral (Code)
+
+**File:** moe/tools/llm/mistral/llm_mistral.py  
+**Language:** Python  
+**Lines:** 131  
+
+**Description:** **: This code defines a class named MistralTool, which is a subclass of BaseTool. It provides an interface for interacting with Mistral's language models, allowing users to perform tasks such as chat completions and text embeddings. The class handles API key management, asynchronous execution of requests, error handling, and status event emissions. It supports parameters like model selection, temperature, and max tokens for customization.
+
+```python
+"""
+Mistral LLM tool for the MoE system.
+Provides access to Mistral's language models.
+"""
+
+import os
+import logging
+import mistralai
+from mistralai.client import MistralClient
+from mistralai.models.chat_completion import ChatMessage
+from typing import Dict, Any, Optional, List
+from ...base import BaseTool
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class MistralTool(BaseTool):
+    """Tool for interacting with Mistral's language models"""
+    
+    def __init__(self, api_key: Optional[str] = None):
+        """
+        Initialize the Mistral tool.
+        
+        Args:
+            api_key: Mistral API key. If not provided, will look for MISTRAL_API_KEY env variable.
+        """
+        super().__init__()
+        self.api_key = api_key or os.getenv("MISTRAL_API_KEY")
+        if not self.api_key:
+            raise ValueError("Mistral API key must be provided")
+            
+        self.client = MistralClient(api_key=self.api_key)
+    
+```
+

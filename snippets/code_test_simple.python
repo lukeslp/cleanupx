@@ -1,0 +1,49 @@
+# test_simple (Code)
+
+**File:** src/storage/test_simple.py  
+**Language:** Python  
+**Lines:** 182  
+
+**Description:** ": "This script is designed to process text files by reading their content, analyzing it to generate a description and a suggested filename using a simulated X.AI API, and optionally renaming the file. It sets up logging for error handling and includes utility functions for file peeking, description generation, and file processing. The main function serves as the entry point, taking a file path as an argument, processing the file, and handling user input for renaming.",
+
+```python
+#!/usr/bin/env python3
+"""
+Simple test for text file processing
+"""
+
+import os
+import sys
+import logging
+from pathlib import Path
+import json
+import re
+import base64
+from datetime import datetime
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+def peek_file_content(file_path, max_size=5000):
+    """Get a preview of file content"""
+    try:
+        with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+            content = f.read(max_size)
+        return content
+    except Exception as e:
+        logger.error(f"Error reading file: {e}")
+        return ""
+
+def generate_description_with_xai(content, filename):
+    """
+    Generate a description and filename using X.AI's API
+    
+    This is a simulated version for standalone testing.
+    In production, use the actual X.AI API client.
+    """
+    try:
+        # This is where we would call the X.AI API
+        # For demonstratio
+```
+

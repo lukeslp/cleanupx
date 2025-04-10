@@ -1,0 +1,45 @@
+# proxy_anthropic_chat (Code)
+
+**File:** storage/proxy_anthropic_chat.py  
+**Language:** Python  
+**Lines:** 266  
+
+**Description:** **: This code defines a class named AnthropicChat that serves as a proxy for interacting with Anthropic AI models. It facilitates communication with a Flask server for operations like listing models and streaming chat responses, with fallbacks to direct API calls or hardcoded data if the server is unavailable. The class includes methods for model listing with filtering and sorting, image processing, creating test images and files, and handling chat responses, making it a comprehensive wrapper for Anthropic API interactions.
+
+```python
+"""
+Proxy implementation for Anthropic Chat that communicates with the Flask server
+"""
+
+import os
+import sys
+import requests
+from typing import Generator, List, Dict, Optional
+from datetime import datetime
+from base64 import b64encode
+from PIL import Image, ImageDraw, ImageFont
+import io
+import json
+
+ANTHROPIC_API_KEY = "test-key-local-dev-2024"
+
+
+class AnthropicChat:
+    def __init__(self, api_key: str):
+        """Initialize the proxy client with API key for server authentication."""
+        self.api_key = api_key
+        self.base_url = "http://api.assisted.space"  # Update this to match your server
+        self.headers = {
+            "X-API-Key": "test-key-local-dev-2024",
+            "Content-Type": "application/json"
+        }
+        self.conversation_history = []
+        # Create fallback direct client
+        self.direct_client = None
+        try:
+            import anthropic
+            self.direct_client = anthropic.Client(api_key=api_key)
+        except ImportError:
+     
+```
+

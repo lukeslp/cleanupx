@@ -1,0 +1,47 @@
+# status_emitter (Code)
+
+**File:** soon/tools_pending/status_emitter.py  
+**Language:** Python  
+**Lines:** 55  
+
+**Description:** **: This code defines a class named Tools with an asynchronous method called run. The run method simulates a multi-step processing task, emitting status updates via an event emitter to inform the user about progress. It starts by sending a "started" status, then loops through simulated steps with delays, updating the status for each step, and finally sends a "completed" status. The purpose is to handle asynchronous operations while providing real-time feedback on progress, making it useful for applications like task runners or workflows that require user notifications.
+
+```python
+"""
+title: status_emitter
+author: stefanpietrusky
+author_url: https://downchurch.studio/
+version: 0.1
+"""
+
+import asyncio
+
+
+class Tools:
+    def __init__(self):
+        pass
+
+    async def run(self, prompt: str, __user__: dict, __event_emitter__=None) -> str:
+        """
+        The user is informed about the progress through an event emitter.
+        """
+        # Show start status
+        if __event_emitter__:
+            await __event_emitter__(
+                {
+                    "type": "status",
+                    "data": {"description": "Processing started...", "done": False},
+                }
+            )
+
+        # Simulate multiple processing steps
+        for i in range(1, 6):  # Simulate 5 steps
+            await asyncio.sleep(1)  # Simulates a time-consuming step
+            if __event_emitter__:
+                await __event_emitter__(
+                    {
+                        "type": "status",
+                        "data": {
+                            "descri
+```
+

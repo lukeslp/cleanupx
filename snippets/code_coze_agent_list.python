@@ -1,0 +1,49 @@
+# coze_agent_list (Code)
+
+**File:** soon/snippets/coze_agent_list.py  
+**Language:** Python  
+**Lines:** 73  
+
+**Description:** **: This script is designed to interact with the Coze API to retrieve a paginated list of bots (agents) from a specified space ID. It uses the requests library to send HTTP GET requests with authentication headers and parameters. The script handles pagination by looping through pages until no more agents are available, collects all agents into a list, and then writes this data to a JSON file. Its purpose is to automate the fetching and saving of agent data for further use, such as in data processing or analysis.
+
+```python
+import requests
+import json
+
+# API Details
+API_URL = "https://api.coze.com/v1/space/published_bots_list"
+API_TOKEN = "pat_JF8Lre4IgXOABlmf383x7GyLF6cj6yn6E4ElRKtvYP3DXpYmB9gJpoMyw2qfwjX4"
+SPACE_ID = "7345427862138912773"
+PAGE_SIZE = 100
+OUTPUT_FILE = "agents_list.json"
+
+def fetch_agents():
+    print("\n=== Starting agent fetch process ===")
+    print(f"API URL: {API_URL}")
+    print(f"Space ID: {SPACE_ID}")
+    
+    headers = {
+        "Authorization": f"Bearer {API_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    print("Headers configured:", headers)
+
+    params = {
+        "space_id": SPACE_ID,
+    }
+    print("Initial params:", params)
+
+    all_agents = []
+    page = 1
+    
+    print("\n=== Beginning pagination loop ===")
+    while True:
+        print(f"\nFetching page {page}...")
+        print("Current params:", params)
+        
+        response = requests.get(API_URL, headers=headers, params=params)
+        print(f"Response status code: {response.status_code}")
+
+     
+```
+

@@ -1,0 +1,54 @@
+# image_gen (Code)
+
+**File:** soon/tools_pending/image_gen.py  
+**Language:** Python  
+**Lines:** 67  
+
+**Description:** **: This code defines a class named Tools with an asynchronous method called generate_image. The method generates an image based on a user-provided prompt by calling the image_generations function from an external module. It integrates user authentication via the Users model and uses an event emitter to send status updates (e.g., "Generating an image" or error messages) and display the generated image URL. The purpose is to handle image generation in a web application, likely for an AI-driven interface, while managing asynchronous operations and error handling to provide a smooth user experience.  
+
+```python
+"""
+title: Image Gen
+author: open-webui
+version: 0.1
+"""
+
+import os
+import requests
+from datetime import datetime
+from typing import Callable
+
+from open_webui.apps.images.main import image_generations, GenerateImageForm
+from open_webui.apps.webui.models.users import Users
+
+
+class Tools:
+    def __init__(self):
+        pass
+
+    async def generate_image(
+        self, prompt: str, __user__: dict, __event_emitter__=None
+    ) -> str:
+        """
+        Generate an image given a prompt
+
+        :param prompt: prompt to use for image generation
+        """
+
+        await __event_emitter__(
+            {
+                "type": "status",
+                "data": {"description": "Generating an image", "done": False},
+            }
+        )
+
+        try:
+            images = await image_generations(
+                GenerateImageForm(**{"prompt": prompt}),
+                Users.get_user_by_id(__user__["id"]),
+            )
+            await __event_emitter__(
+                {
+               
+```
+

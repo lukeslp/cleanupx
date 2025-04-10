@@ -1,0 +1,49 @@
+# web_search (Code)
+
+**File:** soon/tools_pending/web_search.py  
+**Language:** Python  
+**Lines:** 280  
+
+**Description:** **: This module is designed for web searching and content scraping, primarily using the SearXNG search engine. It includes helper functions for URL parsing, text formatting, emoji removal, and content truncation. The core functionality is in the Tools class, which manages configurations via a Pydantic model (Valves) and provides asynchronous methods like search_web for querying the web, processing results, and scraping pages, as well as get_website for fetching and parsing individual website content. It handles error management, event emissions for status updates, and options for ignoring websites or limiting content. The purpose is to enable automated web searches, content extraction, and integration with event-driven systems, likely for applications like chatbots or data aggregation.
+
+```python
+"""
+title: Web Search using SearXNG and Scrape first N Pages
+author: constLiakos with enhancements by justinh-rahb and ther3zz
+funding_url: https://github.com/open-webui
+version: 0.1.12
+license: MIT
+"""
+
+import os
+import requests
+from datetime import datetime
+import json
+from requests import get
+from bs4 import BeautifulSoup
+import concurrent.futures
+from html.parser import HTMLParser
+from urllib.parse import urlparse, urljoin
+import re
+import unicodedata
+from pydantic import BaseModel, Field
+import asyncio
+from typing import Callable, Any
+
+
+class HelpFunctions:
+    def __init__(self):
+        pass
+
+    def get_base_url(self, url):
+        parsed_url = urlparse(url)
+        base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+        return base_url
+
+    def generate_excerpt(self, content, max_length=200):
+        return content[:max_length] + "..." if len(content) > max_length else content
+
+    def format_text(self, original_text):
+        soup = BeautifulSoup(original_text, "html.
+```
+

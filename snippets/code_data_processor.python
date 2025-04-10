@@ -1,0 +1,47 @@
+# data_processor (Code)
+
+**File:** moe/tools/data/processing/data_processor.py  
+**Language:** Python  
+**Lines:** 306  
+
+**Description:** **: This module is designed for comprehensive data processing tasks. It includes utility functions for converting data between formats like JSON, YAML, TOML, XML, and CSV. Additionally, it features OCR (Optical Character Recognition) capabilities to extract text from images and PDFs using libraries like pytesseract and PyMuPDF (fitz). It also supports audio transcription via the Whisper model, allowing for tasks such as transcribing audio files into text or other formats. The code is organized around a class `Tools` that handles configurations (via a nested Pydantic model `Valves`), error handling, and method calls for conversions, OCR processing, and transcription. The purpose is to provide an accessible, enhanced toolkit for handling various data types, with options for formatting and customization.  
+
+```python
+"""
+Data Processing tools combining JSON conversion, OCR, and audio transcription
+Enhanced with accessibility features and improved formatting
+"""
+
+import json
+import yaml
+import toml
+import xml.dom.minidom
+import csv
+import io
+import pytesseract
+from PIL import Image
+import fitz  # PyMuPDF
+import whisper
+from pydantic import BaseModel, Field
+from typing import Dict, Any, Optional, Union, List
+import os
+import tempfile
+
+def _convert_to_json(data: Any, indent: Optional[int] = None) -> str:
+    """Convert data to JSON format"""
+    return json.dumps(data, indent=indent)
+
+def _convert_to_yaml(data: Any) -> str:
+    """Convert data to YAML format"""
+    return yaml.dump(data, sort_keys=False, allow_unicode=True)
+
+def _convert_to_toml(data: Any) -> str:
+    """Convert data to TOML format"""
+    return toml.dumps(data)
+
+def _convert_to_xml(data: Any) -> str:
+    """Convert data to XML format"""
+    def dict_to_xml(data: Dict, root_name: str = "root") -> str:
+        doc = xml.dom.minidom.Doc
+```
+

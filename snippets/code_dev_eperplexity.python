@@ -1,0 +1,44 @@
+# dev_eperplexity (Code)
+
+**File:** soon/tools_pending/unprocessed/dev_eperplexity.py  
+**Language:** Python  
+**Lines:** 175  
+
+**Description:** **: This Python module implements a pipeline for interacting with the Perplexity AI API. It defines a `Pipe` class that manages API calls for chat completions using various Llama models. The module handles tasks such as preparing API payloads, processing messages, streaming responses, and handling errors. It includes configurations like API keys and model IDs, and supports both streaming and non-streaming modes for generating responses.
+
+```python
+"""
+title: Perplexity Manifold Pipe
+author: nikolaskn, justinh-rahb, moblangeois
+author_url: https://github.com/open-webui
+funding_url: https://github.com/open-webui
+version: 0.2.1
+license: MIT
+"""
+
+from pydantic import BaseModel, Field
+from typing import Optional, Union, Generator, Iterator
+from open_webui.utils.misc import get_last_user_message
+from open_webui.utils.misc import pop_system_message
+
+import os
+import json
+import time
+import requests
+
+
+class Pipe:
+    class Valves(BaseModel):
+        NAME_PREFIX: str = Field(
+            default="Perplexity/",
+            description="The prefix applied before the model names.",
+        )
+        PERPLEXITY_API_BASE_URL: str = Field(
+            default="https://api.perplexity.ai",
+            description="The base URL for Perplexity API endpoints.",
+        )
+        PERPLEXITY_API_KEY: str = Field(
+            default="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",
+            description="Required API key to access Perplexity
+```
+

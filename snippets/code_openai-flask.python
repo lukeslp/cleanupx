@@ -1,0 +1,44 @@
+# openai-flask (Code)
+
+**File:** WORKING/flask-alt/openai-flask.py  
+**Language:** Python  
+**Lines:** 260  
+
+**Description:** **: This code defines a class named OpenAIChat that serves as a wrapper for interacting with the OpenAI API. It initializes an OpenAI client with an API key, fetches and manages available models (with fallbacks to default models if API calls fail), maintains chat history, and provides utility methods for tasks like listing models with sorting and pagination, encoding images and files to base64, and creating test images and files. The purpose is to simplify and enhance interactions with OpenAI services, particularly for chat-based applications, by handling model details, error management, and data encoding.  
+
+```python
+#!/usr/bin/env python
+import sys
+import os
+import base64
+import io
+from datetime import datetime
+from typing import Generator, List, Dict, Optional, Union
+from PIL import Image
+import tempfile
+
+# -------------------------------------------------------------------
+# OpenAI Chat Implementation
+# -------------------------------------------------------------------
+
+from openai import OpenAI
+
+class OpenAIChat:
+    # Default models in case API fetch fails
+    DEFAULT_MODELS = {
+        "gpt-4o-2024-11-20": {
+            "id": "gpt-4o-2024-11-20",
+            "context_length": 128000,
+            "description": "GPT-4 Omega model",
+            "capabilities": ["text", "function"]
+        },
+        "gpt-4-vision-preview": {
+            "id": "gpt-4-vision-preview",
+            "context_length": 128000,
+            "description": "GPT-4 model with vision capabilities",
+            "capabilities": ["text", "vision", "function"]
+        },
+        "gpt-4-0125-preview": {
+            "id": "gpt-4
+```
+

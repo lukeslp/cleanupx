@@ -1,0 +1,47 @@
+# ollama_knowledge (Code)
+
+**File:** finished/ollama_knowledge.py  
+**Language:** Python  
+**Lines:** 245  
+
+**Description:** **: This code defines a class named OllamaKnowledgeUser that serves as a router for knowledge base requests. It integrates with Ollama to generate responses and handles tools for querying Wikidata, Wolfram Alpha, Perplexity Search, and fetching YouTube transcripts. The class includes methods for initialization, generating responses with error handling, formatting outputs for better accessibility, executing tools asynchronously, and running complete user interactions. Its primary purpose is to provide an enhanced, user-friendly interface for accessing various external knowledge sources, with features like JSON validation, error handling, and formatted results to improve usability.  
+
+```python
+"""
+Tool-using setup for Ollama with Knowledge Base integration
+Enhanced with accessibility features and improved formatting
+"""
+
+import json
+import requests
+from typing import Dict, Any, Optional
+from tools.llm_tool_knowledge import Tools
+import asyncio
+import sys
+from pathlib import Path
+import os
+import re
+
+class OllamaKnowledgeUser:
+    """Routes knowledge base requests to appropriate handlers with enhanced accessibility"""
+    
+    def __init__(self, model: str = "drummer-knowledge"):
+        """Initialize the knowledge base router"""
+        self.model = model
+        self.base_url = "http://localhost:11434/api/chat"
+        self.knowledge_tool = Tools()
+        
+    def generate(self, prompt: str) -> str:
+        """Generate a response from Ollama with enhanced error handling"""
+        data = {
+            "model": self.model,
+            "messages": [
+                {"role": "user", "content": prompt}
+            ],
+            "stream": False
+        }
+        
+        try:
+
+```
+

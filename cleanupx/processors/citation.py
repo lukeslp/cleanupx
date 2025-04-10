@@ -13,12 +13,10 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union, Any
 import re
 from datetime import datetime
+from cleanupx.utils.cache import ensure_metadata_dir, CITATIONS_FILE
 
 # Configure logging
 logger = logging.getLogger(__name__)
-
-# Constants
-CITATIONS_FILE = ".cleanupx-citations"
 
 def extract_citations_from_text(text: str) -> List[Dict[str, str]]:
     """
@@ -155,7 +153,7 @@ def update_citations_file(directory: Path, new_citations: List[Dict[str, Any]]) 
     Returns:
         Path to the updated citations file
     """
-    citations_file = directory / CITATIONS_FILE
+    citations_file = CITATIONS_FILE(directory)
     citations = []
     
     # Load existing citations if the file exists
@@ -180,6 +178,9 @@ def update_citations_file(directory: Path, new_citations: List[Dict[str, Any]]) 
     
     # Write updated citations to file
     try:
+        # Ensure .cleanupx directory exists
+        citations_file.parent.mkdir(parents=True, exist_ok=True)
+        
         with open(citations_file, 'w', encoding='utf-8') as f:
             json.dump(citations, f, indent=2)
         logger.info(f"Updated citations file {citations_file} with {len(new_citations)} new citations")
@@ -335,7 +336,8 @@ def save_markdown_citations(directory: Path) -> Optional[Path]:
     """
     try:
         markdown = generate_markdown_citation_list(directory)
-        output_file = directory / "CITATIONS.md"
+        metadata_dir = ensure_metadata_dir(directory)
+        output_file = metadata_dir / "CITATIONS.md"
         
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(markdown)

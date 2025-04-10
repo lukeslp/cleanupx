@@ -1,0 +1,46 @@
+# _phone_verify (Code)
+
+**File:** soon/tools_pending/_phone_verify.py  
+**Language:** Python  
+**Lines:** 89  
+
+**Description:** **: This code defines a class named NumberVerificationClient that handles phone number verification using an external API (from numberverify.com). It initializes with an API key and includes an asynchronous method `verify_number` to check a phone number's validity, retrieve details such as international format, country, carrier, and line type, and handle errors. The class also supports event emitting for status updates during the verification process.  
+
+```python
+import requests
+from typing import Dict, Any, Optional, Callable, Awaitable
+from pydantic import BaseModel
+
+
+class NumberVerificationClient:
+    class UserValves(BaseModel):
+        """Requires NUMBER_VERIFICATION API Key"""
+        NUMBER_VERIFICATION: str
+
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = "https://api.numberverify.com/validate"
+
+    async def verify_number(
+        self,
+        phone_number: str,
+        __user__: dict = {},
+        __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None,
+    ) -> str:
+        """
+        Verify a phone number's validity and retrieve details.
+
+        Args:
+            phone_number (str): The phone number to verify.
+
+        Returns:
+            str: Formatted phone number verification details.
+        """
+        if __event_emitter__:
+            await __event_emitter__(
+                {
+                    "type": "status",
+                    "data": {
+                     
+```
+

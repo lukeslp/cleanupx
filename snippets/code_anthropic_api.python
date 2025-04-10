@@ -1,0 +1,39 @@
+# anthropic_api (Code)
+
+**File:** WORKING/cli/anthropic_api.py  
+**Language:** Python  
+**Lines:** 260  
+
+**Description:** **: This module implements an interface for interacting with the Anthropic Claude API, focusing on streaming chat responses. It supports text-based and multimodal conversations (e.g., image analysis). Key features include initializing the API client, listing available models with sorting, pagination, and filtering options, creating and processing test images and files, streaming chat responses with optional image inputs, and managing conversation history. It also includes utility functions for date formatting and displaying models.
+
+```python
+"""
+Anthropic API Chat Implementation
+This module provides a simple interface to the Anthropic Claude API for streaming chat responses.
+Supports both text-only and multimodal (image analysis) conversations with streaming responses.
+Requires the 'anthropic' package to be installed (pip install anthropic)
+"""
+
+import os
+import sys
+import anthropic
+from typing import Generator, List, Dict, Optional
+from datetime import datetime
+from base64 import b64encode
+from PIL import Image, ImageDraw, ImageFont
+import io
+
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY") or "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"
+
+class AnthropicChat:
+    def __init__(self, api_key: str):
+        """Initialize the Anthropic client with the provided API key."""
+        self.client = anthropic.Client(api_key=api_key)
+        self.conversation_history = []
+        
+    def list_models(
+        self,
+        sort_by: str = "created",
+        reverse:
+```
+

@@ -1,0 +1,42 @@
+# knowledge_search (Code)
+
+**File:** moe/tools/knowledge/search/knowledge_search.py  
+**Language:** Python  
+**Lines:** 241  
+
+**Description:** **: This module is designed for web searching and content extraction. It includes a class called `Tools` that encapsulates methods for performing searches via different engines (Google, Bing, and Baidu), reading content from URLs using an external API, and emitting events for status updates. The code handles asynchronous operations, error management, and integrates with an event emitter for real-time feedback. Its primary purpose is to facilitate content fetching and summarization for applications like infinite search, while adhering to specific processing instructions for results.
+
+```python
+"""
+title: Infinite Search
+author: Cook Sleep
+author_urls: https://github.com/cooksleep
+description: Fetches and summarizes content using the Reader API from URLs or web searches.
+required_open_webui_version: 0.3.15
+version: 0.3
+licence: MIT
+"""
+
+import requests
+from pydantic import BaseModel, Field
+from typing import Callable, Any, Optional
+
+
+class Valves(BaseModel):
+    SEARXNG_URL: str = Field(
+        default="https://paulgo.io/search",
+        description="SearXNG search URL. You can find available SearXNG instances at https://searx.space/. The URL should end with '/search'.",
+    )
+    BAIDU_URL: str = Field(
+        default="https://www.baidu.com/s", description="Baidu search URL"
+    )
+    TIMEOUT: int = Field(default=30, description="Request timeout in seconds")
+
+
+class EventEmitter:
+    def __init__(self, event_emitter: Callable[[dict], Any] = None):
+        self.event_emitter = event_emitter
+
+    async def emit(self, description="Unknown State", status="in_progress", done=Fa
+```
+

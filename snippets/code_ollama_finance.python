@@ -1,0 +1,44 @@
+# ollama_finance (Code)
+
+**File:** finished/ollama_finance.py  
+**Language:** Python  
+**Lines:** 141  
+
+**Description:** **: This code defines a class named OllamaFinanceUser that serves as a router for finance-related requests using the Ollama model. It initializes with a specified model, handles interactions by generating responses from Ollama, executes finance tools (e.g., analyzing assets like stocks or cryptocurrencies), and includes enhanced error handling, accessibility features, and output formatting. The script also includes an asynchronous main function to run an interactive command-line interface for users to input requests, process them, and display results, making it a complete tool for finance analysis.
+
+```python
+"""
+Tool-using setup for Ollama with Finance integration
+Enhanced with accessibility features and improved formatting
+"""
+
+import json
+import requests
+import asyncio
+from typing import Dict, Any
+from tools.llm_tool_finance import Tools
+
+class OllamaFinanceUser:
+    """Routes finance requests to appropriate handlers with enhanced accessibility"""
+    
+    def __init__(self, model: str = "drummer-finance"):
+        """Initialize the finance router"""
+        self.model = model
+        self.base_url = "http://localhost:11434/api/chat"
+        self.finance_tool = Tools()
+        
+    def generate(self, prompt: str) -> str:
+        """Generate a response from Ollama with enhanced error handling"""
+        data = {
+            "model": self.model,
+            "messages": [
+                {"role": "user", "content": prompt}
+            ],
+            "stream": False
+        }
+        
+        try:
+            response = requests.post(self.base_url, json=data, timeout=30)
+            response
+```
+

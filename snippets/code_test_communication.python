@@ -1,0 +1,54 @@
+# test_communication (Code)
+
+**File:** moe/tests/test_communication.py  
+**Language:** Python  
+**Lines:** 214  
+
+**Description:** **: This script is a test suite for the MoE (Mixture of Experts) communication layer. It includes various unit tests to verify the functionality of components like sending messages, handling errors (e.g., timeouts, model not found), broadcasting messages to multiple models, implementing retry logic for failing requests, and validating message and response structures. The tests use pytest fixtures for setup, mocking for HTTP interactions, and asynchronous testing to simulate real-world scenarios in a controlled environment. Its purpose is to ensure the reliability and correctness of the ModelCommunicator class and related models in the moe.core.communication module.  
+
+```python
+"""Tests for the MoE communication layer."""
+
+import pytest
+import asyncio
+import json
+from datetime import datetime
+from unittest.mock import AsyncMock, patch
+from moe.core.communication import (
+    ModelMessage,
+    ModelResponse,
+    ModelError,
+    ModelTimeoutError,
+    ModelNotFoundError,
+    ModelCommunicator
+)
+
+@pytest.fixture
+def test_config():
+    """Test configuration fixture"""
+    return {
+        'model_endpoints': {
+            'test_model': 'http://localhost:8000/test',
+            'another_model': 'http://localhost:8000/another'
+        },
+        'timeouts': {
+            'test_model': 10,
+            'another_model': 20
+        },
+        'retry_config': {
+            'max_retries': 2,
+            'backoff_factor': 1.0,
+            'max_backoff': 5
+        }
+    }
+
+@pytest.fixture
+def communicator(test_config):
+    """ModelCommunicator fixture"""
+    return ModelCommunicator(test_config)
+
+@pytest.mark.asyncio
+async def test_send_message_success(communicator):
+    ""
+```
+

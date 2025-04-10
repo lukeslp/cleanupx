@@ -1,0 +1,44 @@
+# ollama_wayback (Code)
+
+**File:** finished/ollama_wayback.py  
+**Language:** Python  
+**Lines:** 134  
+
+**Description:** **: This script is a Python program that integrates Ollama (a local AI model) with the Wayback Machine tools to allow users to interact with archived web content. It defines a class called OllamaToolUser, which initializes with a model name and handles tasks such as generating AI responses, normalizing URLs, executing tools (e.g., retrieving archived snapshots or capture history), formatting results, and running user interactions. The script includes a main function that provides a command-line interface for users to input queries like searching for URLs, getting history, or viewing snapshots. Its purpose is to facilitate easy access to Wayback Machine features via an AI-powered tool, handling errors, JSON parsing, and user inputs in a loop until the user quits.
+
+```python
+"""
+Tool-using setup for Ollama with Wayback Machine integration
+"""
+
+import json
+import requests
+from typing import Dict, Any, List
+from tools.llm_tool_wayback import Tools
+import re
+
+class OllamaToolUser:
+    def __init__(self, model: str = "drummer-wayback"):
+        self.model = model
+        self.wayback_tool = Tools()
+        self.base_url = "http://localhost:11434/api/chat"
+        
+    def generate(self, prompt: str) -> str:
+        """Generate a response from Ollama"""
+        data = {
+            "model": self.model,
+            "messages": [
+                {"role": "user", "content": prompt}
+            ],
+            "stream": False
+        }
+        try:
+            response = requests.post(self.base_url, json=data)
+            response.raise_for_status()
+            content = response.json().get("message", {}).get("content", "").strip()
+            
+            # Ensure we have a complete JSON object
+            if not content.startswith("{"):
+                content = "
+```
+

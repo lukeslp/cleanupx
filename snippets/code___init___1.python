@@ -1,0 +1,36 @@
+# __init__ (Code)
+
+**File:** moe/__init__.py  
+**Language:** Python  
+**Lines:** 25  
+
+**Description:** **: This module acts as the entry point for the ToolLama MoE (Mixture of Experts) system. It imports essential components from the `moe.core` submodule, such as `ModelRegistry` for managing models, `SmartRouter` for intelligent routing, `ToolDiscovery` for detecting tools, `ModelCommunicator` for inter-model communication, `TaskManager` for handling tasks, and `tool_capabilities` for defining tool features. It also sets metadata like version ("0.1.0"), author, and email, and defines `__all__` to control what gets imported when using `from package import *`. The purpose is to provide a clean interface for users to access the core functionalities of the MoE system without directly interacting with the internal modules.  
+
+```python
+"""
+ToolLama MoE - Mixture of Experts System
+"""
+
+from moe.core import (
+    ModelRegistry,
+    SmartRouter,
+    ToolDiscovery,
+    ModelCommunicator,
+    TaskManager,
+    tool_capabilities
+)
+
+__version__ = "0.1.0"
+__author__ = "Luke Steuber"
+__email__ = "luke@actuallyuseful.ai"
+
+__all__ = [
+    "ModelRegistry",
+    "SmartRouter",
+    "ToolDiscovery",
+    "ModelCommunicator",
+    "TaskManager",
+    "tool_capabilities"
+] 
+```
+

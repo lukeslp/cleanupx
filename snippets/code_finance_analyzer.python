@@ -1,0 +1,43 @@
+# finance_analyzer (Code)
+
+**File:** moe/tools/finance/finance_analyzer.py  
+**Language:** Python  
+**Lines:** 270  
+
+**Description:** **: This module is designed for financial analysis, integrating data from Yahoo Finance and Finnhub. It includes various helper functions for fetching asset information, current prices, news, historical data, and performing technical analyses such as sentiment analysis, simple moving averages (SMA), Relative Strength Index (RSI), and Moving Average Convergence Divergence (MACD). It supports both stocks and cryptocurrencies, incorporates asynchronous operations for efficiency, and compiles detailed reports. The purpose is to provide enhanced stock analysis tools with accessibility features and improved formatting.  
+
+```python
+"""
+Finance tools combining Yahoo Finance and Finnhub stock analysis capabilities
+Enhanced with accessibility features and improved formatting
+"""
+
+import yfinance as yf
+import finnhub
+import pandas as pd
+import numpy as np
+import aiohttp
+import asyncio
+from transformers import pipeline
+from pydantic import BaseModel, Field
+from typing import Dict, Any, List, Union, Callable, Awaitable
+from functools import lru_cache
+from datetime import datetime, timedelta
+
+# Helper functions for sentiment analysis
+@lru_cache(maxsize=128)
+def _get_sentiment_model():
+    return pipeline("sentiment-analysis", model="ProsusAI/finbert")
+
+async def _async_sentiment_analysis(content: str, model) -> Dict[str, Union[str, float]]:
+    result = model(content)[0]
+    return {"sentiment": result["label"], "confidence": result["score"]}
+
+# Yahoo Finance functions
+def _get_asset_info(ticker: str) -> Dict[str, Any]:
+    asset = yf.Ticker(ticker)
+    info = asset.info
+
+    if info.get("quoteType") == "CRYPTOCURRENCY"
+```
+

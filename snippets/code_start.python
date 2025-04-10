@@ -1,0 +1,62 @@
+# start (Code)
+
+**File:** moe/servers/start.py  
+**Language:** Python  
+**Lines:** 194  
+
+**Description:** **: This script is designed to start multiple MoE (Mixture of Experts) model servers. It begins by configuring logging for output and error tracking. It defines a list of server configurations, including names, modules, ports, and models. The script includes functions to start individual servers, either in the foreground or background, with options for debug mode. It also features asynchronous monitoring to detect and restart crashed servers, writes PID files for process management, and includes cleanup functions to terminate servers gracefully. The main entry point parses command-line arguments and runs the asynchronous logic to initiate and manage the servers.
+
+```python
+"""
+Script to start all MoE model servers.
+"""
+
+import os
+import sys
+import logging
+import asyncio
+import argparse
+import subprocess
+from pathlib import Path
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# Server configurations
+SERVERS = [
+    {
+        "name": "Camina",
+        "module": "camina",
+        "port": 6000,
+        "model": "camina-moe"
+    },
+    {
+        "name": "Belter",
+        "module": "belter",
+        "port": 6001,
+        "model": "belter-base"
+    },
+    {
+        "name": "Drummer",
+        "module": "drummer",
+        "port": 6002,
+        "model": "drummer-base"
+    },
+    {
+        "name": "Observer",
+        "module": "observer",
+        "port": 6003,
+        "model": "deepseek-observer"
+    }
+]
+
+def start_server(server: dict, debug: bool = False, background: bool = False) -> subproce
+```
+

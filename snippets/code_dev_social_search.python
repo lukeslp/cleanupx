@@ -1,0 +1,33 @@
+# dev_social_search (Code)
+
+**File:** soon/tools_pending/dev_social_search.py  
+**Language:** Python  
+**Lines:** 191  
+
+**Description:** **: This code is a Python script designed to search for a specified username across a wide range of social media and online platforms. It initializes a class called `Drummer` with a username and a dictionary of platforms and their base URLs. The script uses HTTP requests to check if the username exists on each platform, employs BeautifulSoup for HTML parsing to verify account existence based on specific page content, and handles errors gracefully. It leverages concurrent processing with `ThreadPoolExecutor` to perform checks in parallel for efficiency. The script outputs results indicating whether accounts exist, along with URLs or error messages. There's also a secondary, incomplete class `SherlockDrummer` that appears to be an extension or replacement, expanding the list of platforms.
+
+```python
+import requests
+from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+class Drummer:
+    def __init__(self, username):
+        self.username = str(username).strip()
+        self.networks = {
+            "facebook.com": "https://www.facebook.com/",
+            "twitter.com": "https://twitter.com/",
+            "instagram.com": "https://www.instagram.com/",
+            "linkedin.com": "https://www.linkedin.com/in/",
+            "github.com": "https://github.com/",
+            "twitch.tv": "https://www.twitch.tv/",
+            "reddit.com": "https://www.reddit.com/user/",
+            "pinterest.com": "https://www.pinterest.com/",
+            "tumblr.com": "https://www.tumblr.com/blog/view/",
+            "flickr.com": "https://www.flickr.com/people/",
+            "soundcloud.com": "https://soundcloud.com/",
+            "snapchat.com": "https://www.snapchat.com/add/",
+            "vimeo.com": "https://vimeo.com/",
+            "medium.com": "https://m
+```
+

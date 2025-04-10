@@ -1,0 +1,40 @@
+# wizarding_world (Code)
+
+**File:** soon/tools_pending/wizarding_world.py  
+**Language:** Python  
+**Lines:** 86  
+
+**Description:** **: This module is designed to interact with the Wizard World API (hosted at https://wizard-world-api.herokuapp.com) to retrieve data related to various elements of the wizarding world. It includes multiple functions for fetching data on elixirs, houses, spells, and wizards, with optional parameters for filtering. The module handles API requests, validates inputs (e.g., UUID for wizards), manages errors (like invalid endpoints or HTTP status codes), and returns structured outputs. The central function, `handler`, acts as a router to direct requests to the appropriate function based on the specified endpoint.
+
+```python
+import requests
+from runtime import Args
+from typings.getPottered.getPottered import Input, Output
+from typing import Optional, Dict, Any, Union
+import uuid
+
+BASE_URL = "https://wizard-world-api.herokuapp.com"
+
+def get_elixirs(args: Args[Input]) -> Output:
+    endpoint = f"{BASE_URL}/Elixirs"
+    params = {
+        "Name": args.Name if hasattr(args, 'Name') else None,
+        "Difficulty": args.Difficulty if hasattr(args, 'Difficulty') else None,
+        "Ingredient": args.Ingredient if hasattr(args, 'Ingredient') else None
+    }
+    return make_request(endpoint, params)
+
+def get_houses() -> Output:
+    endpoint = f"{BASE_URL}/Houses"
+    return make_request(endpoint)
+
+def get_spells(args: Args[Input]) -> Output:
+    endpoint = f"{BASE_URL}/Spells"
+    params = {
+        "Name": args.Name if hasattr(args, 'Name') else None,
+        "Type": args.Type if hasattr(args, 'Type') else None,
+        "Incantation": args.Incantation if hasattr(args, 'Incantation') else None
+    }
+    return mak
+```
+

@@ -1,0 +1,59 @@
+# containers (Code)
+
+**File:** styles/containers.css  
+**Language:** CSS  
+**Lines:** 122  
+
+**Description:** **: This CSS file provides styling rules for layout containers and elements in a web application. It sets up responsive design elements, including widths, paddings, margins, backgrounds with gradients and animations, positioning (e.g., fixed headers and inputs), and media queries for mobile adjustments. The purpose is to create a visually consistent and user-friendly interface, likely for a chat or tab-based application, by managing element alignment, borders, shadows, and animations while ensuring compatibility across different screen sizes.
+
+```css
+/* Container styles */
+.shared-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.chat-container,
+.message {
+  background: linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
+              var(--gradient-border) border-box;
+  background-origin: border-box;
+  border: 2px solid transparent;
+  background-size: 200% 200%;
+}
+
+.chat-container {
+  flex: 1;
+  margin: 80px auto 100px;
+  padding: 16px;
+  background: linear-gradient(rgb(32, 32, 32), rgb(32, 32, 32)) padding-box,
+              var(--gradient-border) border-box;
+  background-origin: border-box;
+  background-size: 200% 200%;
+  animation: gradientFlow 15s ease infinite;
+  box-shadow: 0 0 20px var(--color-shadow-primary);
+  border-radius: 12px;
+  overflow-y: auto;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 16px;
+}
+
+.model-selector {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Input st
+```
+

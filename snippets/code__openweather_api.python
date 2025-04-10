@@ -1,0 +1,46 @@
+# _openweather_api (Code)
+
+**File:** soon/tools_pending/_openweather_api.py  
+**Language:** Python  
+**Lines:** 96  
+
+**Description:** **: This code defines a class named OpenWeatherAirQualityClient that serves as a client for the OpenWeather API to retrieve real-time air quality data. It requires an API key for initialization and includes an asynchronous method, fetch_air_quality, which takes latitude and longitude as inputs. The method makes an HTTP GET request to the API, processes the response to extract air quality metrics (such as AQI, PM2.5, PM10, CO, NO2, and SO2), and returns a formatted string report. It also supports optional event emitting for status updates and includes error handling for network and other exceptions. The code includes an example usage in the if __name__ == "__main__" block to demonstrate how to use the class.
+
+```python
+import requests
+from typing import Dict, Any, Optional, Callable, Awaitable
+from pydantic import BaseModel
+
+
+class OpenWeatherAirQualityClient:
+    class UserValves(BaseModel):
+        """Requires AIR_QUALITY_OPEN_DATA API Key"""
+        AIR_QUALITY_OPEN_DATA: str
+
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = "https://api.openweathermap.org/data/2.5/air_pollution"
+
+    async def fetch_air_quality(
+        self,
+        lat: float,
+        lon: float,
+        __user__: dict = {},
+        __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None,
+    ) -> str:
+        """
+        Fetch real-time air quality data for a given location.
+
+        Args:
+            lat (float): Latitude of the location.
+            lon (float): Longitude of the location.
+
+        Returns:
+            str: Formatted air quality report.
+        """
+        if __event_emitter__:
+            await __event_emitter__(
+                {
+                    "
+```
+

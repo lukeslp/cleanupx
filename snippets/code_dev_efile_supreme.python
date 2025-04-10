@@ -1,0 +1,48 @@
+# dev_efile_supreme (Code)
+
+**File:** soon/tools_pending/unprocessed/dev_efile_supreme.py  
+**Language:** Python  
+**Lines:** 233  
+
+**Description:** ": "This code defines a class named 'Tools' that provides a comprehensive set of methods for file and folder management. It includes functionalities for creating and deleting folders, creating, deleting, reading, and writing files, handling JSON files specifically, listing directory contents, and copying or moving files and folders. The class initializes with an optional base path and uses logging for tracking operations. Its purpose is to offer a centralized utility for file system interactions in a Python script.",
+
+```python
+"""
+title: Supreme File Management
+author: Wes Caldwell
+email: Musicheardworldwide@gmail.com
+date: 2024-07-19
+version: 1.0
+license: MIT
+description: Big set of file management tools.
+"""
+import os
+import json
+import shutil
+import logging
+import hashlib
+import datetime
+import zipfile
+import tarfile
+from collections import defaultdict
+
+logging.basicConfig(level=logging.INFO)
+
+
+class Tools:
+    def __init__(self, base_path=None):
+        self.base_path = base_path if base_path else os.getcwd()
+
+    def create_folder(self, folder_name: str, path: str = None) -> str:
+        """
+        Create a new folder.
+        :param folder_name: The name of the folder to create.
+        :param path: The path where the folder should be created.
+        :return: A success message if the folder is created successfully.
+        """
+        folder_path = os.path.join(path if path else self.base_path, folder_name)
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+            l
+```
+

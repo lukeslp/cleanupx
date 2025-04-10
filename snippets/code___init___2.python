@@ -1,0 +1,30 @@
+# __init__ (Code)
+
+**File:** moe/tools/__init__.py, moe/tools/location/__init__.py  
+**Language:** Python  
+**Lines:** 7  
+
+**Description:** ": "This module is part of the Tools package for the MoE system. It imports the LocationFinder from the .location submodule and exposes it via __all__ for easy access when the package is imported.",
+
+Additional implementation:
+**: This code is an __init__.py file that serves as the entry point for a Python package. It imports the LocationFinder class from a submodule (finder.py) and adds it to the __all__ list, making it available for import when users import the package. Its purpose is to organize and expose key components of the package without executing complex logic directly.  
+
+```python
+"""
+Tools package for the MoE system.
+"""
+
+from .location import LocationFinder
+
+__all__ = ["LocationFinder"]
+
+# Alternative Implementation
+"""
+Location-based tools package.
+"""
+
+from .finder import LocationFinder
+
+__all__ = ["LocationFinder"] 
+```
+

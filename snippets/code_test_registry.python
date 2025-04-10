@@ -1,0 +1,50 @@
+# test_registry (Code)
+
+**File:** moe/tests/test_registry.py  
+**Language:** Python  
+**Lines:** 241  
+
+**Description:** **: This module is a test suite for the MoE (Mixture of Experts) model registry system. It uses pytest to write and run unit tests that verify various aspects of the ModelRegistry class, including loading and validating configurations, registering and removing models, retrieving models, searching models by capabilities or type, updating model configurations, and ensuring proper error handling for invalid inputs. The tests utilize fixtures to create temporary YAML configuration files and registry instances, making the tests isolated and repeatable. The purpose is to ensure the reliability, correctness, and robustness of the model registry components in a larger application, likely related to AI or machine learning model management.  
+
+```python
+"""Tests for the MoE model registry."""
+
+import pytest
+import yaml
+import tempfile
+from pathlib import Path
+from moe.core.registry import (
+    ModelRegistry,
+    ModelConfig,
+    ModelCapabilities,
+    GlobalSettings,
+    ModelNotFoundError,
+    InvalidConfigError
+)
+
+@pytest.fixture
+def test_config():
+    """Test configuration fixture"""
+    return {
+        'models': {
+            'test_model': {
+                'model_id': 'test_model',
+                'model_type': 'belter',
+                'base_model': 'mistral:7b',
+                'endpoint': 'http://localhost:8001/test',
+                'capabilities': {
+                    'capabilities': ['test_capability'],
+                    'max_tokens': 2048,
+                    'temperature': 0.4,
+                    'timeout': 30
+                }
+            }
+        },
+        'settings': {
+            'retry_config': {
+                'max_retries': 3,
+                'backoff_factor': 1.5,
+                'max_backoff': 30
+       
+```
+

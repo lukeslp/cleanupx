@@ -1,0 +1,38 @@
+# patreon_api (Code)
+
+**File:** soon/tools_pending/patreon_api.py  
+**Language:** Python  
+**Lines:** 194  
+
+**Description:** **: This module is a Python script that serves as an interface for the Patreon API v2. It defines a dataclass for handling credentials and a main class that manages authentication and API requests. The class includes methods to fetch user identity, campaigns, posts, and members, with support for pagination. It also provides utility functions to format data into readable tables. The purpose is to simplify interactions with the Patreon API for applications, handling HTTP requests, error management, and data formatting.
+
+```python
+#!/usr/bin/env python3
+import os
+import json
+import requests
+from datetime import datetime
+from typing import Dict, List, Optional, Union
+from dataclasses import dataclass
+from tabulate import tabulate
+
+@dataclass
+class PatreonCredentials:
+    client_id: str = "mrqWf4Kz2qZ4UkMxUlkT5F8fCq5lJQBIo5UZnrMzrh6v4xan7Ssx1SzE0PVhdD9J"
+    client_secret: str = "96l1mu67Oy3w3OrN5gv4cjZjLFZ7J-eDbVzYeI_lVnWvIWz0qwGHhDbE7rwQBNue"
+    access_token: str = "IjkcOLwTs7-IUcKF4r-F1x8tgQP_cPNAUkc8EVVzdL8"
+    refresh_token: str = "nXmPAs6IGfhVds5cRT5z2RoiT64pFWBo5njNyJQOVpE"
+    redirect_uri: str = "https://ai.assisted.space/oauth/callback"
+
+class PatreonAPI:
+    """A Python interface for the Patreon API v2"""
+    
+    BASE_URL = "https://www.patreon.com/api/oauth2/v2"
+    
+    def __init__(self, credentials: PatreonCredentials = None):
+        self.credentials = credentials or PatreonCredentials()
+        self.session = requests.Session()
+        self.session.headers.update({
+            "Authorization": 
+```
+
