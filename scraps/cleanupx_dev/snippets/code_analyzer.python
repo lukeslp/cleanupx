@@ -1,0 +1,41 @@
+# analyzer (Code)
+
+**File:** analyzer.py  
+**Language:** Python  
+**Lines:** 180  
+
+```python
+from typing import Dict, Any, Optional
+import aiohttp
+import json
+from ...base import BaseTool
+
+class FinanceAnalyzer(BaseTool):
+    """Tool for analyzing financial assets and market data."""
+    
+    def __init__(self):
+        super().__init__()
+        self.base_urls = {
+            'stock': 'https://query1.finance.yahoo.com/v8/finance/chart/',
+            'crypto': 'https://api.coingecko.com/api/v3/simple/price'
+        }
+
+    async def analyze_stock(self, symbol: str) -> Dict[str, Any]:
+        """
+        Analyze a stock symbol using Yahoo Finance data.
+        
+        Args:
+            symbol (str): The stock symbol to analyze
+            
+        Returns:
+            Dict[str, Any]: Analysis results including price and basic metrics
+        """
+        url = f"{self.base_urls['stock']}{symbol}"
+        
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    if response.status != 200:
+
+```
+

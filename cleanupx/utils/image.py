@@ -13,6 +13,8 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union, Any, Set
+import json
+import time
 
 import imagehash
 import numpy as np
@@ -32,103 +34,67 @@ IMAGE_SIMILARITY_CACHE_PREFIX = "image_similarity:"
 SIMILAR_IMAGES_CACHE_PREFIX = "similar_images:"
 IMAGE_SUMMARY_CACHE_PREFIX = "image_summary:"
 
-def analyze_image(image_path: Union[str, Path]) -> Dict[str, Any]:
+def analyze_image(file_path: Union[str, Path]) -> Dict[str, Any]:
     """
-    Analyze an image file and return metadata and analysis results.
+    Analyze an image file and cache the results.
     
     Args:
-        image_path: Path to the image file
+        file_path: Path to the image file
         
     Returns:
-        Dictionary containing image metadata and analysis results
+        Dictionary containing image analysis results
     """
-    image_path = Path(image_path)
+    file_path = Path(file_path)
     
-    # Generate a cache key based on the file path and modification time
-    # This ensures the cache is invalidated if the file changes
-    mtime = os.path.getmtime(image_path)
-    cache_key = f"{IMAGE_ANALYSIS_CACHE_PREFIX}{image_path}:{mtime}"
+    # Create a memory cache key
+    cache_key = f"image_analysis_{str(file_path)}_{file_path.stat().st_mtime}"
     
-    # Check if result is cached
-    if is_cached(cache_key):
-        logger.debug(f"Using cached analysis for {image_path}")
-        return get_from_cache(cache_key)
+    # Check in-memory cache first
+    if cache_key in _MEMORY_CACHE:
+        return _MEMORY_CACHE[cache_key]
     
-    logger.info(f"Analyzing image: {image_path}")
+    # Get cache file path from centralized cache system
+    cache_file = get_cache_path(file_path, "images")
     
-    # Get basic file metadata
-    file_metadata = get_file_metadata(image_path)
+    # Try to load from disk cache
+    if not os.environ.get('CLEANUPX_NO_CACHE') and cache_file.exists():
+        try:
+            if cache_file.stat().st_mtime >= file_path.stat().st_mtime:
+                with open(cache_file, 'r', encoding='utf-8') as f:
+                    analysis = json.load(f)
+                if analysis:
+                    # Store in memory cache
+                    _MEMORY_CACHE[cache_key] = analysis
+                    return analysis
+        except Exception as e:
+            logger.warning(f"Failed to read image cache file: {e}")
     
-    # Initialize analysis result with basic metadata
+    # Perform image analysis
     analysis = {
-        "path": str(image_path),
-        "filename": image_path.name,
-        "size_bytes": file_metadata["size_bytes"],
-        "size_human": file_metadata["size_human"],
-        "created": file_metadata["created"],
-        "modified": file_metadata["modified"],
-        "format": None,
-        "mode": None,
-        "width": None,
-        "height": None,
-        "aspect_ratio": None,
-        "exif": {},
-        "hashes": {},
-        "error": None
+        "width": 0,
+        "height": 0,
+        "format": "",
+        "size": 0,
+        "created_at": time.time()
     }
     
     try:
-        # Open the image
-        with Image.open(image_path) as img:
-            # Basic image properties
+        with Image.open(file_path) as img:
+            analysis["width"] = img.width
+            analysis["height"] = img.height
             analysis["format"] = img.format
-            analysis["mode"] = img.mode
-            analysis["width"], analysis["height"] = img.size
-            analysis["aspect_ratio"] = analysis["width"] / analysis["height"] if analysis["height"] > 0 else 0
-            
-            # Extract EXIF data if available
-            if hasattr(img, "_getexif") and img._getexif():
-                exif = {
-                    ExifTags.TAGS.get(tag, tag): value
-                    for tag, value in img._getexif().items()
-                    if tag in ExifTags.TAGS
-                }
-                
-                # Process EXIF data to ensure it's serializable
-                clean_exif = {}
-                for key, value in exif.items():
-                    if isinstance(value, (str, int, float, bool, list, dict)):
-                        clean_exif[key] = value
-                    elif isinstance(value, bytes):
-                        clean_exif[key] = f"<{len(value)} bytes>"
-                    elif isinstance(value, datetime):
-                        clean_exif[key] = value.isoformat()
-                    else:
-                        clean_exif[key] = str(value)
-                
-                analysis["exif"] = clean_exif
-            
-            # Calculate image hashes for later comparison
-            try:
-                analysis["hashes"] = {
-                    "md5": hashlib.md5(img.tobytes()).hexdigest(),
-                    "phash": str(imagehash.phash(img)),
-                    "dhash": str(imagehash.dhash(img)),
-                    "average_hash": str(imagehash.average_hash(img))
-                }
-            except Exception as e:
-                logger.warning(f"Failed to calculate hashes for {image_path}: {e}")
-                analysis["hashes"] = {}
-    
-    except UnidentifiedImageError:
-        analysis["error"] = f"Not a valid image file: {image_path}"
-        logger.warning(analysis["error"])
+            analysis["size"] = os.path.getsize(file_path)
     except Exception as e:
-        analysis["error"] = f"Error analyzing image {image_path}: {str(e)}"
-        logger.error(analysis["error"])
+        logger.error(f"Failed to analyze image {file_path}: {e}")
     
-    # Cache the result
-    save_to_cache(cache_key, analysis)
+    # Cache the results
+    if not os.environ.get('CLEANUPX_NO_CACHE'):
+        try:
+            with open(cache_file, 'w', encoding='utf-8') as f:
+                json.dump(analysis, f)
+            _MEMORY_CACHE[cache_key] = analysis
+        except Exception as e:
+            logger.warning(f"Failed to cache image analysis: {e}")
     
     return analysis
 
@@ -183,8 +149,8 @@ def calculate_image_similarity(
     
     try:
         # Calculate size ratio
-        size1 = image1_analysis["size_bytes"]
-        size2 = image2_analysis["size_bytes"]
+        size1 = image1_analysis["size"]
+        size2 = image2_analysis["size"]
         size_ratio = min(size1, size2) / max(size1, size2)
         similarity["size_ratio"] = size_ratio
         
@@ -198,8 +164,8 @@ def calculate_image_similarity(
         similarity["dimension_ratio"] = dimension_ratio
         
         # Calculate aspect ratio similarity
-        aspect1 = image1_analysis["aspect_ratio"]
-        aspect2 = image2_analysis["aspect_ratio"]
+        aspect1 = width1 / height1 if height1 > 0 else 0
+        aspect2 = width2 / height2 if height2 > 0 else 0
         aspect_similarity = 1.0 - min(abs(aspect1 - aspect2) / max(aspect1, aspect2), 1.0)
         similarity["aspect_ratio_similarity"] = aspect_similarity
         
@@ -513,7 +479,7 @@ def generate_image_summary(
             continue
         
         # Update total size
-        summary["total_size_bytes"] += analysis["size_bytes"]
+        summary["total_size_bytes"] += analysis["size"]
         
         # Update formats
         format_key = analysis["format"] or "Unknown"
@@ -525,10 +491,11 @@ def generate_image_summary(
             summary["resolutions"][resolution] = summary["resolutions"].get(resolution, 0) + 1
         
         # Update aspect ratios
-        if analysis["aspect_ratio"]:
-            # Round to 2 decimal places
-            aspect_key = round(analysis["aspect_ratio"], 2)
-            summary["aspect_ratios"][str(aspect_key)] = summary["aspect_ratios"].get(str(aspect_key), 0) + 1
+        if analysis["width"] and analysis["height"]:
+            aspect_ratio = analysis["width"] / analysis["height"]
+            if aspect_ratio > 0:
+                aspect_key = round(aspect_ratio, 2)
+                summary["aspect_ratios"][str(aspect_key)] = summary["aspect_ratios"].get(str(aspect_key), 0) + 1
         
         # Update cameras
         camera_model = analysis["exif"].get("Model", "Unknown")
@@ -556,14 +523,14 @@ def generate_image_summary(
     # Find largest and smallest images
     sorted_by_size = sorted(
         [a for a in analyses.values() if not a.get("error")],
-        key=lambda x: x["size_bytes"]
+        key=lambda x: x["size"]
     )
     
     if sorted_by_size:
         summary["smallest_images"] = [
             {
                 "path": img["path"],
-                "size": img["size_human"],
+                "size": img["size"],
                 "dimensions": f"{img['width']}x{img['height']}"
             }
             for img in sorted_by_size[:5]
@@ -572,7 +539,7 @@ def generate_image_summary(
         summary["largest_images"] = [
             {
                 "path": img["path"],
-                "size": img["size_human"],
+                "size": img["size"],
                 "dimensions": f"{img['width']}x{img['height']}"
             }
             for img in sorted_by_size[-5:]
@@ -609,11 +576,15 @@ def generate_image_summary(
 def clear_image_cache() -> None:
     """
     Clear the image analysis cache.
-    This is now just a placeholder, as cache management is handled by the cache module.
     """
-    # Clear all caches with our prefixes
-    clear_cache(IMAGE_ANALYSIS_CACHE_PREFIX)
-    clear_cache(IMAGE_SIMILARITY_CACHE_PREFIX)
-    clear_cache(SIMILAR_IMAGES_CACHE_PREFIX)
-    clear_cache(IMAGE_SUMMARY_CACHE_PREFIX)
+    cache_dir = ensure_cache_dir()
+    images_cache_dir = cache_dir / "images"
+    
+    if images_cache_dir.exists():
+        for cache_file in images_cache_dir.glob("*.cache"):
+            try:
+                os.remove(cache_file)
+            except Exception as e:
+                logger.error(f"Failed to remove image cache file {cache_file}: {e}")
+    
     logger.info("Image cache cleared") 

@@ -5,7 +5,7 @@ Developer directory crawler utility for CleanupX.
 This module provides functionality to:
 1. Crawl a directory structure to extract useful code snippets
 2. Identify and securely record credentials
-3. Generate comprehensive README documentation
+3. Generate comprehensive README documentation using xAI
 """
 
 import os
@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Dict, List, Set, Any, Optional, Tuple
 
 from cleanupx.utils.common import read_text_file, is_ignored_file
+from cleanupx.api import call_xai_api
+from cleanupx.config import XAI_MODEL_TEXT, CODE_FUNCTION_SCHEMA, FILE_CODE_PROMPT
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -196,6 +198,38 @@ class DevCrawler:
         
         return "\n".join(lines[start:end])
     
+    def analyze_code_with_xai(self, file_path: Path, content: str) -> Optional[Dict[str, Any]]:
+        """
+        Analyze code content using xAI API.
+        
+        Args:
+            file_path: Path to the code file
+            content: Content of the code file
+            
+        Returns:
+            Dictionary with code analysis or None if analysis failed
+        """
+        try:
+            # Prepare prompt for xAI
+            prompt = FILE_CODE_PROMPT.format(
+                name=file_path.name,
+                suffix=file_path.suffix,
+                content=content[:10000]  # Limit content length
+            )
+            
+            # Call xAI API
+            result = call_xai_api(XAI_MODEL_TEXT, prompt, CODE_FUNCTION_SCHEMA)
+            if not result:
+                logger.warning(f"Failed to analyze code: {file_path.name}")
+                return None
+                
+            logger.info(f"Successfully analyzed code: {file_path.name}")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error analyzing code with xAI: {e}")
+            return None
+    
     def extract_code_snippet(self, file_path: Path, content: str) -> Optional[Dict[str, Any]]:
         """
         Extract a useful code snippet from the file.
@@ -211,189 +245,29 @@ class DevCrawler:
         if ext not in SNIPPET_EXTENSIONS:
             return None
             
-        language = SNIPPET_EXTENSIONS[ext]
-        relative_path = file_path.relative_to(self.directory)
+        # Analyze code with xAI
+        analysis = self.analyze_code_with_xai(file_path, content)
+        if not analysis:
+            return None
+            
+        # Create snippet from analysis
+        snippet = {
+            "file": str(file_path.relative_to(self.directory)),
+            "language": SNIPPET_EXTENSIONS[ext],
+            "type": analysis.get("code_type", "Code"),
+            "name": analysis.get("name", file_path.stem),
+            "content": content[:1000],  # Limit content length
+            "line_count": content.count('\n') + 1,
+            "description": analysis.get("description", ""),
+            "dependencies": analysis.get("dependencies", []),
+            "complexity": analysis.get("complexity", "unknown")
+        }
         
-        # Determine if file contains a class, function, or other useful code
-        if ext == '.py':
-            return self._extract_python_snippet(relative_path, content, language)
-        elif ext in ['.js', '.ts', '.jsx', '.tsx']:
-            return self._extract_js_snippet(relative_path, content, language)
-        else:
-            # For other languages, just extract the first non-empty 20 lines as a sample
-            lines = content.splitlines()
-            non_empty_lines = [line for line in lines if line.strip()]
-            if len(non_empty_lines) >= 5:  # Only save if we have at least 5 non-empty lines
-                snippet_content = "\n".join(non_empty_lines[:min(20, len(non_empty_lines))])
-                return {
-                    "file": str(relative_path),
-                    "language": language,
-                    "type": "Code Sample",
-                    "name": file_path.name,
-                    "content": snippet_content,
-                    "line_count": len(lines)
-                }
-        
-        return None
-    
-    def _extract_python_snippet(self, relative_path: Path, content: str, language: str) -> Optional[Dict[str, Any]]:
-        """Extract useful Python code snippets."""
-        # Look for classes
-        class_matches = re.finditer(r"class\s+(\w+)(?:\(([^)]*)\))?:", content)
-        for match in class_matches:
-            class_name = match.group(1)
-            parent_class = match.group(2) if match.group(2) else ""
-            start_pos = match.start()
-            
-            # Find the class content (naive approach, but works for most cases)
-            class_content = self._extract_block_content(content, start_pos)
-            
-            return {
-                "file": str(relative_path),
-                "language": language,
-                "type": "Class",
-                "name": class_name,
-                "parent": parent_class,
-                "content": class_content,
-                "line_count": class_content.count('\n') + 1
-            }
-        
-        # Look for functions
-        function_matches = re.finditer(r"def\s+(\w+)\s*\(([^)]*)\)(?:\s*->\s*([^:]*))?\s*:", content)
-        for match in function_matches:
-            function_name = match.group(1)
-            params = match.group(2) if match.group(2) else ""
-            return_type = match.group(3) if match.group(3) else ""
-            start_pos = match.start()
-            
-            # Extract the function content
-            function_content = self._extract_block_content(content, start_pos)
-            
-            return {
-                "file": str(relative_path),
-                "language": language,
-                "type": "Function",
-                "name": function_name,
-                "parameters": params,
-                "return_type": return_type,
-                "content": function_content,
-                "line_count": function_content.count('\n') + 1
-            }
-        
-        return None
-    
-    def _extract_js_snippet(self, relative_path: Path, content: str, language: str) -> Optional[Dict[str, Any]]:
-        """Extract useful JavaScript/TypeScript code snippets."""
-        # Look for classes
-        class_matches = re.finditer(r"class\s+(\w+)(?:\s+extends\s+([^\s{]+))?", content)
-        for match in class_matches:
-            class_name = match.group(1)
-            parent_class = match.group(2) if match.group(2) else ""
-            start_pos = match.start()
-            
-            # Find the class content
-            class_content = self._extract_block_content(content, start_pos)
-            
-            return {
-                "file": str(relative_path),
-                "language": language,
-                "type": "Class",
-                "name": class_name,
-                "parent": parent_class,
-                "content": class_content,
-                "line_count": class_content.count('\n') + 1
-            }
-        
-        # Look for functions and arrow functions
-        function_patterns = [
-            r"function\s+(\w+)\s*\(([^)]*)\)",  # Named functions
-            r"(?:const|let|var)\s+(\w+)\s*=\s*function\s*\(([^)]*)\)",  # Function expressions
-            r"(?:const|let|var)\s+(\w+)\s*=\s*\(([^)]*)\)\s*=>",  # Arrow functions
-        ]
-        
-        for pattern in function_patterns:
-            function_matches = re.finditer(pattern, content)
-            for match in function_matches:
-                function_name = match.group(1)
-                params = match.group(2) if match.group(2) else ""
-                start_pos = match.start()
-                
-                # Extract the function content
-                function_content = self._extract_block_content(content, start_pos)
-                
-                return {
-                    "file": str(relative_path),
-                    "language": language,
-                    "type": "Function",
-                    "name": function_name,
-                    "parameters": params,
-                    "content": function_content,
-                    "line_count": function_content.count('\n') + 1
-                }
-        
-        return None
-    
-    def _extract_block_content(self, content: str, start_pos: int, max_lines: int = 50) -> str:
-        """Extract a code block starting from a given position."""
-        # Get content from start position
-        remaining = content[start_pos:]
-        lines = remaining.splitlines()
-        
-        # Handle both brace-style and indentation-style blocks
-        if '{' in remaining:
-            # Handle brace-style blocks (like JS, Java)
-            block_content = []
-            brace_count = 0
-            in_block = False
-            
-            for i, line in enumerate(lines):
-                if i >= max_lines:
-                    block_content.append("... (truncated)")
-                    break
-                    
-                block_content.append(line)
-                
-                if '{' in line:
-                    in_block = True
-                    brace_count += line.count('{')
-                
-                if '}' in line:
-                    brace_count -= line.count('}')
-                
-                if in_block and brace_count == 0:
-                    break
-            
-            return "\n".join(block_content)
-        else:
-            # Handle indentation-style blocks (like Python)
-            block_content = [lines[0]]
-            base_indent = None
-            
-            for i, line in enumerate(lines[1:], 1):
-                if i >= max_lines:
-                    block_content.append("... (truncated)")
-                    break
-                    
-                # Skip empty lines
-                if not line.strip():
-                    block_content.append(line)
-                    continue
-                
-                # Determine indentation of the first non-empty line
-                current_indent = len(line) - len(line.lstrip())
-                if base_indent is None:
-                    base_indent = current_indent
-                    block_content.append(line)
-                elif current_indent >= base_indent:
-                    block_content.append(line)
-                else:
-                    break
-            
-            return "\n".join(block_content)
+        return snippet
     
     def save_snippet(self, snippet: Dict[str, Any]) -> Path:
         """
-        Save a code snippet to a file.
+        Save a code snippet to a file, handling deduplication and merging of similar implementations.
         
         Args:
             snippet: Snippet data
@@ -401,45 +275,255 @@ class DevCrawler:
         Returns:
             Path to the saved snippet file
         """
+        # Create base filename
         ext = "." + snippet["language"].lower().replace(" ", "_").replace("+", "p").replace("#", "sharp")
-        filename = f"{snippet['type'].lower()}_{snippet['name']}{ext}"
+        base_filename = f"{snippet['type'].lower()}_{snippet['name']}"
         
-        # Create a safe filename
-        safe_filename = re.sub(r'[^\w\-_\.]', '_', filename)
+        # Check for existing similar snippets
+        existing_snippets = []
+        for file in self.snippets_dir.glob(f"{base_filename}*{ext}"):
+            try:
+                with open(file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    # Extract metadata from existing snippet
+                    metadata = self._extract_snippet_metadata(content)
+                    existing_snippets.append((file, metadata))
+            except Exception as e:
+                logger.warning(f"Error reading existing snippet {file}: {e}")
         
-        # If file exists, append a number
-        counter = 1
-        snippet_path = self.snippets_dir / safe_filename
-        while snippet_path.exists():
-            snippet_path = self.snippets_dir / f"{safe_filename.rsplit('.', 1)[0]}_{counter}.{safe_filename.rsplit('.', 1)[1]}"
-            counter += 1
+        # Analyze similarity with existing snippets
+        similar_snippet = None
+        for file, metadata in existing_snippets:
+            if self._are_snippets_similar(snippet, metadata):
+                similar_snippet = (file, metadata)
+                break
         
-        # Format snippet markdown
-        snippet_md = f"""# {snippet['name']} ({snippet['type']})
+        if similar_snippet:
+            # Merge with existing snippet
+            existing_file, existing_metadata = similar_snippet
+            merged_snippet = self._merge_snippets(snippet, existing_metadata)
+            
+            # Update the existing file
+            with open(existing_file, 'w', encoding='utf-8') as f:
+                f.write(self._format_snippet_markdown(merged_snippet))
+            
+            return existing_file
+        else:
+            # Create a new snippet file
+            safe_filename = re.sub(r'[^\w\-_\.]', '_', base_filename + ext)
+            snippet_path = self.snippets_dir / safe_filename
+            
+            # If file exists, append a number
+            counter = 1
+            while snippet_path.exists():
+                snippet_path = self.snippets_dir / f"{base_filename}_{counter}{ext}"
+                counter += 1
+            
+            # Write new snippet
+            with open(snippet_path, 'w', encoding='utf-8') as f:
+                f.write(self._format_snippet_markdown(snippet))
+            
+            return snippet_path
+    
+    def _extract_snippet_metadata(self, content: str) -> Dict[str, Any]:
+        """
+        Extract metadata from an existing snippet file.
+        
+        Args:
+            content: Content of the snippet file
+            
+        Returns:
+            Dictionary containing extracted metadata
+        """
+        metadata = {}
+        
+        # Extract name and type from header
+        header_match = re.match(r'#\s*(.*?)\s*\((.*?)\)', content)
+        if header_match:
+            metadata['name'] = header_match.group(1)
+            metadata['type'] = header_match.group(2)
+        
+        # Extract file path
+        file_match = re.search(r'\*\*File:\*\*\s*(.*?)\s*\n', content)
+        if file_match:
+            metadata['file'] = file_match.group(1)
+        
+        # Extract language
+        lang_match = re.search(r'\*\*Language:\*\*\s*(.*?)\s*\n', content)
+        if lang_match:
+            metadata['language'] = lang_match.group(1)
+        
+        # Extract line count
+        lines_match = re.search(r'\*\*Lines:\*\*\s*(\d+)', content)
+        if lines_match:
+            metadata['line_count'] = int(lines_match.group(1))
+        
+        # Extract code content
+        code_match = re.search(r'```.*?\n(.*?)```', content, re.DOTALL)
+        if code_match:
+            metadata['content'] = code_match.group(1).strip()
+        
+        # Extract description
+        desc_match = re.search(r'\*\*Description:\*\*\s*(.*?)(?=\n\*\*|\n\n|$)', content, re.DOTALL)
+        if desc_match:
+            metadata['description'] = desc_match.group(1).strip()
+        
+        return metadata
+    
+    def _are_snippets_similar(self, snippet1: Dict[str, Any], snippet2: Dict[str, Any]) -> bool:
+        """
+        Determine if two snippets are similar enough to be merged.
+        
+        Args:
+            snippet1: First snippet metadata
+            snippet2: Second snippet metadata
+            
+        Returns:
+            True if snippets are similar, False otherwise
+        """
+        # Check basic similarity
+        if snippet1.get('type') != snippet2.get('type'):
+            return False
+        
+        if snippet1.get('language') != snippet2.get('language'):
+            return False
+        
+        # Compare names (allowing for slight variations)
+        name1 = snippet1.get('name', '').lower()
+        name2 = snippet2.get('name', '').lower()
+        if name1 != name2:
+            # Check for common variations
+            if not (name1 in name2 or name2 in name1):
+                return False
+        
+        # Compare content similarity
+        content1 = snippet1.get('content', '')
+        content2 = snippet2.get('content', '')
+        
+        # Calculate similarity ratio
+        similarity = self._calculate_content_similarity(content1, content2)
+        return similarity > 0.7  # 70% similarity threshold
+    
+    def _calculate_content_similarity(self, content1: str, content2: str) -> float:
+        """
+        Calculate similarity ratio between two code snippets.
+        
+        Args:
+            content1: First code snippet
+            content2: Second code snippet
+            
+        Returns:
+            Similarity ratio between 0 and 1
+        """
+        # Normalize content
+        content1 = self._normalize_code(content1)
+        content2 = self._normalize_code(content2)
+        
+        # Calculate similarity using Levenshtein distance
+        from difflib import SequenceMatcher
+        return SequenceMatcher(None, content1, content2).ratio()
+    
+    def _normalize_code(self, code: str) -> str:
+        """
+        Normalize code for comparison by removing:
+        - Comments
+        - Whitespace
+        - Variable names
+        - String literals
+        """
+        # Remove comments
+        code = re.sub(r'#.*$', '', code, flags=re.MULTILINE)
+        code = re.sub(r'/\*.*?\*/', '', code, flags=re.DOTALL)
+        
+        # Remove string literals
+        code = re.sub(r'[\'"].*?[\'"]', '""', code)
+        
+        # Remove variable names (replace with generic names)
+        code = re.sub(r'\b[a-zA-Z_][a-zA-Z0-9_]*\b', 'var', code)
+        
+        # Remove whitespace
+        code = re.sub(r'\s+', ' ', code)
+        
+        return code.strip()
+    
+    def _merge_snippets(self, new_snippet: Dict[str, Any], existing_snippet: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Merge two similar snippets into one.
+        
+        Args:
+            new_snippet: New snippet to merge
+            existing_snippet: Existing snippet to merge with
+            
+        Returns:
+            Merged snippet data
+        """
+        merged = existing_snippet.copy()
+        
+        # Update file paths
+        if 'file' in new_snippet:
+            if 'file' in merged:
+                if new_snippet['file'] not in merged['file']:
+                    merged['file'] = f"{merged['file']}, {new_snippet['file']}"
+            else:
+                merged['file'] = new_snippet['file']
+        
+        # Update line count
+        merged['line_count'] = max(
+            merged.get('line_count', 0),
+            new_snippet.get('line_count', 0)
+        )
+        
+        # Merge descriptions
+        if 'description' in new_snippet:
+            if 'description' in merged:
+                if new_snippet['description'] not in merged['description']:
+                    merged['description'] = f"{merged['description']}\n\nAdditional implementation:\n{new_snippet['description']}"
+            else:
+                merged['description'] = new_snippet['description']
+        
+        # Merge code content
+        if 'content' in new_snippet:
+            if 'content' in merged:
+                if new_snippet['content'] not in merged['content']:
+                    merged['content'] = f"{merged['content']}\n\n# Alternative Implementation\n{new_snippet['content']}"
+            else:
+                merged['content'] = new_snippet['content']
+        
+        return merged
+    
+    def _format_snippet_markdown(self, snippet: Dict[str, Any]) -> str:
+        """
+        Format snippet data as markdown.
+        
+        Args:
+            snippet: Snippet data to format
+            
+        Returns:
+            Formatted markdown string
+        """
+        markdown = f"""# {snippet['name']} ({snippet['type']})
 
-**File:** {snippet['file']}  
-**Language:** {snippet['language']}  
-**Lines:** {snippet['line_count']}  
-
-```{snippet['language'].lower()}
-{snippet['content']}
-```
+**File:** {snippet.get('file', '')}  
+**Language:** {snippet.get('language', '')}  
+**Lines:** {snippet.get('line_count', 0)}  
 
 """
         
+        if 'description' in snippet:
+            markdown += f"**Description:** {snippet['description']}\n\n"
+        
+        if 'content' in snippet:
+            markdown += f"```{snippet.get('language', '').lower()}\n{snippet['content']}\n```\n\n"
+        
         # Add additional metadata if available
         if 'parameters' in snippet:
-            snippet_md += f"**Parameters:** `{snippet['parameters']}`  \n"
+            markdown += f"**Parameters:** `{snippet['parameters']}`  \n"
         if 'return_type' in snippet and snippet['return_type']:
-            snippet_md += f"**Returns:** `{snippet['return_type']}`  \n"
+            markdown += f"**Returns:** `{snippet['return_type']}`  \n"
         if 'parent' in snippet and snippet['parent']:
-            snippet_md += f"**Extends:** `{snippet['parent']}`  \n"
+            markdown += f"**Extends:** `{snippet['parent']}`  \n"
         
-        # Write to file
-        with open(snippet_path, 'w', encoding='utf-8') as f:
-            f.write(snippet_md)
-        
-        return snippet_path
+        return markdown
     
     def save_credentials(self) -> Path:
         """
@@ -492,11 +576,137 @@ class DevCrawler:
     
     def generate_readme(self) -> Path:
         """
-        Generate a comprehensive README with project information.
+        Generate a comprehensive README with project information using xAI.
         
         Returns:
             Path to the generated README file
         """
+        try:
+            # Prepare project overview for xAI
+            project_overview = {
+                "name": self.directory.name,
+                "file_count": self.file_count,
+                "directory_count": self.directory_count,
+                "languages": self.languages,
+                "file_extensions": self.file_extensions,
+                "snippets": self.snippets,
+                "credentials": self.credentials,
+                "structure": self._format_directory_structure(self.project_structure)
+            }
+            
+            # Create prompt for xAI
+            prompt = f"""Generate a comprehensive README for a code project with the following information:
+
+Project Name: {project_overview['name']}
+Total Files: {project_overview['file_count']}
+Total Directories: {project_overview['directory_count']}
+
+Languages Used:
+{json.dumps(project_overview['languages'], indent=2)}
+
+File Types:
+{json.dumps(project_overview['file_extensions'], indent=2)}
+
+Project Structure:
+{project_overview['structure']}
+
+Code Snippets: {len(project_overview['snippets'])}
+Security Issues Found: {sum(len(creds) for creds in project_overview['credentials'].values())}
+
+Please generate a well-structured README that includes:
+1. Project overview and purpose
+2. Installation instructions
+3. Usage guide with examples
+4. Project structure explanation
+5. Code documentation and snippets
+6. Security considerations
+7. Development guidelines
+8. Contributing guidelines
+
+The README should be:
+- Professional and well-formatted
+- Include proper markdown syntax
+- Be comprehensive but concise
+- Focus on practical information
+- Include code examples where relevant
+"""
+
+            # Call xAI API for README generation
+            result = call_xai_api(
+                XAI_MODEL_TEXT,
+                prompt,
+                {
+                    "name": "generate_readme",
+                    "description": "Generate a comprehensive README for a code project",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "readme_content": {
+                                "type": "string",
+                                "description": "The complete README content in markdown format"
+                            },
+                            "project_overview": {
+                                "type": "string",
+                                "description": "Brief overview of the project's purpose and main features"
+                            },
+                            "installation_steps": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Step-by-step installation instructions"
+                            },
+                            "usage_examples": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                                "description": "Code examples showing how to use the project"
+                            },
+                            "security_notes": {
+                                "type": "string",
+                                "description": "Security considerations and best practices"
+                            }
+                        },
+                        "required": ["readme_content"]
+                    }
+                }
+            )
+            
+            if not result:
+                logger.error("xAI API returned no result")
+                return self._generate_basic_readme()
+            
+            if "readme_content" not in result:
+                logger.error("xAI API response missing readme_content")
+                return self._generate_basic_readme()
+            
+            # Validate the generated content
+            readme_content = result["readme_content"]
+            if not readme_content.strip():
+                logger.error("Generated README content is empty")
+                return self._generate_basic_readme()
+            
+            # Write the xAI-generated README
+            with open(self.readme_file, 'w', encoding='utf-8') as f:
+                f.write(readme_content)
+            
+            # Also save the structured data for potential future use
+            structured_data = {
+                "project_overview": result.get("project_overview", ""),
+                "installation_steps": result.get("installation_steps", []),
+                "usage_examples": result.get("usage_examples", []),
+                "security_notes": result.get("security_notes", "")
+            }
+            
+            with open(self.output_dir / "README_STRUCTURE.json", 'w', encoding='utf-8') as f:
+                json.dump(structured_data, f, indent=2)
+            
+            logger.info("Successfully generated README with xAI")
+            return self.readme_file
+            
+        except Exception as e:
+            logger.error(f"Error generating README with xAI: {e}")
+            return self._generate_basic_readme()
+    
+    def _generate_basic_readme(self) -> Path:
+        """Generate a basic README when xAI generation fails."""
         content = f"# {self.directory.name} Code Documentation\n\n"
         content += f"Automatically generated documentation by CleanupX for `{self.directory}`.\n\n"
         
@@ -544,17 +754,18 @@ class DevCrawler:
             
             for snippet_type, type_snippets in snippets_by_type.items():
                 content += f"### {snippet_type}s\n\n"
-                content += "| Name | File | Language | Lines |\n"
-                content += "|------|------|----------|-------|\n"
+                content += "| Name | File | Language | Lines | Description |\n"
+                content += "|------|------|----------|-------|-------------|\n"
                 
                 for snippet in type_snippets:
                     name = snippet.get("name", "Unknown")
                     file_path = snippet.get("file", "")
                     language = snippet.get("language", "")
                     line_count = snippet.get("line_count", 0)
+                    description = snippet.get("description", "")
                     
                     snippet_file = re.sub(r'[^\w\-_\.]', '_', f"{snippet_type.lower()}_{name}")
-                    content += f"| [{name}](./snippets/{snippet_file}) | {file_path} | {language} | {line_count} |\n"
+                    content += f"| [{name}](./snippets/{snippet_file}) | {file_path} | {language} | {line_count} | {description} |\n"
                 
                 content += "\n"
         

@@ -307,38 +307,53 @@ def convert_webp_to_jpeg(file_path: Union[str, Path]) -> Optional[Path]:
 
 def is_ignored_file(file_path: Union[str, Path]) -> bool:
     """
-    Check if a file should be ignored based on IGNORE_PATTERNS.
+    Check if a file should be ignored based on its name or attributes.
     
     Args:
-        file_path: Path to the file to check
+        file_path: Path to the file
         
     Returns:
-        True if file should be ignored, False otherwise
+        True if the file should be ignored, False otherwise
+    """
+    # Convert to Path if needed
+    path = Path(file_path) if isinstance(file_path, str) else file_path
+    
+    # Ignore hidden files/directories starting with '.'
+    if path.name.startswith('.'):
+        return True
+        
+    # Ignore common system files
+    ignored_names = {
+        'thumbs.db', 'desktop.ini', '.ds_store', 'icon\r', '.localized',
+        '.gitignore', '.gitkeep', 'readme.md', 'license'
+    }
+    if path.name.lower() in ignored_names:
+        return True
+        
+    # Ignore .renamed_* files
+    if path.name.startswith(".renamed_"):
+        return True
+    
+    return False
+
+def get_file_size_mb(file_path: Union[str, Path]) -> float:
+    """
+    Get the size of a file in megabytes.
+    
+    Args:
+        file_path: Path to the file
+        
+    Returns:
+        File size in megabytes (MB)
     """
     try:
-        from cleanupx.config import IGNORE_PATTERNS
-        file_path = Path(file_path)
-        
-        # Check if file matches any ignore patterns
-        for pattern in IGNORE_PATTERNS:
-            if pattern.startswith('*.'):
-                # Extension-based pattern
-                ext = pattern[1:]  # Remove leading *
-                if file_path.name.endswith(ext):
-                    return True
-            elif pattern.startswith('.'):
-                # Hidden files/directories
-                if file_path.name.startswith('.'):
-                    return True
-            else:
-                # Exact filename or glob pattern
-                if file_path.name == pattern or file_path.match(pattern):
-                    return True
-        
-        return False
+        path = Path(file_path) if isinstance(file_path, str) else file_path
+        size_bytes = path.stat().st_size
+        size_mb = size_bytes / (1024 * 1024)
+        return size_mb
     except Exception as e:
-        logger.error(f"Error checking if file should be ignored: {e}")
-        return False
+        logger.error(f"Error getting file size for {file_path}: {e}")
+        return 0.0
 
 def count_by_extension(directory: Path) -> Dict[str, int]:
     """

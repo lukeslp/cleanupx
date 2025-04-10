@@ -15,8 +15,8 @@ XAI_MODEL_VISION = "grok-2-vision-latest"
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp', '.heic', '.heif', '.ico'}
 TEXT_EXTENSIONS = {'.txt', '.md', '.markdown', '.rst', '.text', '.log', '.csv', '.tsv', '.json', '.xml', '.yaml', '.yml', '.html', '.htm', '.py', '.db', '.sh', '.rtf', '.ics', '.icsv', '.icsx'}
 MEDIA_EXTENSIONS = {'.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.m4v'}
-DOCUMENT_EXTENSIONS = {'.pdf', '.docx', '.doc', '.ppt', '.pptx', 'xlsx', 'xls'}
-ARCHIVE_EXTENSIONS = {'.zip', '.tar', '.tgz', '.tar.gz', '.rar', '.gz', '.apk'}
+DOCUMENT_EXTENSIONS = {'.pdf', '.docx', '.doc', '.ppt', '.pptx', 'xlsx', '.xls'}
+ARCHIVE_EXTENSIONS = {'.zip', '.tar', '.tgz', '.tar.gz', '.rar', '.gz', '.pkg'}
 
 # Cache and rename log files
 CACHE_FILE = "generated_alts.json"
@@ -208,3 +208,53 @@ DIRECTORY_ANALYSIS_SCHEMA = {
     },
     "required": ["description", "topics", "organization_suggestions"]
 }
+
+# Code analysis configuration
+CODE_FUNCTION_SCHEMA = {
+    "name": "analyze_code",
+    "description": "Analyze code content and provide structured information about its purpose, structure, and components.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "code_type": {
+                "type": "string",
+                "description": "Type of code (e.g., Class, Function, Module, Script)"
+            },
+            "name": {
+                "type": "string",
+                "description": "Name of the code component (class name, function name, etc.)"
+            },
+            "description": {
+                "type": "string",
+                "description": "Detailed description of what the code does and its purpose"
+            },
+            "dependencies": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "List of dependencies or imports used by this code"
+            },
+            "complexity": {
+                "type": "string",
+                "enum": ["low", "medium", "high"],
+                "description": "Estimated complexity of the code"
+            }
+        },
+        "required": ["code_type", "name", "description"]
+    }
+}
+
+FILE_CODE_PROMPT = """Analyze this code file and provide structured information.
+File name: {name}
+File type: {suffix}
+
+Content:
+```
+{content}
+```
+
+Based on the above code, please provide:
+1. The type of code (Class, Function, Module, Script)
+2. The name of the main component
+3. A detailed description of what the code does and its purpose
+4. Any dependencies or imports used
+5. An estimate of the code's complexity (low, medium, high)"""

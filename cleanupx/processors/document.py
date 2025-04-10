@@ -11,10 +11,11 @@ import subprocess
 import sys
 import os
 import hashlib
+from datetime import datetime
 
 from cleanupx.config import DOCUMENT_EXTENSIONS, DOCUMENT_FUNCTION_SCHEMA, FILE_DOCUMENT_PROMPT, XAI_MODEL_TEXT
 from cleanupx.utils.common import read_text_file, strip_media_suffixes, clean_filename
-from cleanupx.utils.cache import save_cache, _MEMORY_CACHE
+from cleanupx.utils.cache import save_cache, _MEMORY_CACHE, get_cache_path
 from cleanupx.api import call_xai_api
 from cleanupx.processors.base import generate_new_filename, rename_file
 
@@ -130,11 +131,8 @@ def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> st
         logger.info(f"Using in-memory cached text extraction for {file_path}")
         return _MEMORY_CACHE[cache_key]
     
-    # Check for disk cache
-    # Create a standardized cache filename using hash of the path to avoid illegal chars in filenames
-    cache_dir = file_path.parent
-    file_hash = hashlib.md5(str(file_path).encode()).hexdigest()[:8]
-    cache_file = cache_dir / f"text_cache_{file_hash}_{file_path.stem}.txt"
+    # Get cache file path from centralized cache system
+    cache_file = get_cache_path(file_path, "documents")
     
     # Try to load from disk cache if it exists
     if not os.environ.get('CLEANUPX_NO_CACHE') and cache_file.exists():
@@ -376,116 +374,132 @@ def extract_text_from_txt(file_path: Union[str, Path]) -> str:
     
     return text
 
-def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict, 
-                    citation_style_pdfs: bool = False) -> Tuple[Path, Optional[Path], Optional[Dict]]:
+def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Optional[Dict] = None) -> Tuple[Path, Optional[Path], Optional[Dict[str, Any]]]:
     """
-    Process a document file (PDF, DOCX, etc.) - extract text, analyze content, and rename.
+    Process a document file - extract text, analyze content, and rename.
     
     Args:
         file_path: Path to the document file
         cache: Cache dictionary for storing/retrieving document descriptions
-        rename_log: Log for tracking renames
-        citation_style_pdfs: Whether to use citation-style naming for PDFs
+        rename_log: Optional log for tracking renames
         
     Returns:
         Tuple of (original_path, new_path, description)
     """
-    file_path = Path(file_path)
-    ext = file_path.suffix.lower()
-    cache_key = str(file_path)
-    
-    # Check if we already have processed this file in this session
-    # This prevents redundant processing of the same file multiple times
-    if cache.get(f"{cache_key}_processed") == True:
-        logger.info(f"Skipping already processed file in this session: {file_path}")
-        description = cache.get(cache_key)
-        return file_path, None, description
-    
-    # Extract content for analysis
-    if ext == ".docx":
-        text_content = extract_text_from_docx(file_path)
-    elif ext == ".pdf":
-        # Limit PDF processing to first few pages for efficiency
-        text_content = extract_text_from_pdf(file_path, max_pages=3)
-    else:
-        text_content = read_text_file(file_path)
-    
-    if not text_content.strip():
-        logger.error(f"No text could be extracted from {file_path}")
-        return file_path, None, None
-    
-    # Get page count for PDFs early (we'll need it for the filename)
-    page_count = None
-    if ext == ".pdf":
-        page_count = get_pdf_page_count(file_path)
+    try:
+        file_path = Path(file_path)
+        ext = file_path.suffix.lower()
         
-    # Analyze content and create description
-    prompt = FILE_DOCUMENT_PROMPT.format(name=file_path.name, suffix=ext, text_content=text_content[:10000])
-    result = call_xai_api(XAI_MODEL_TEXT, prompt, DOCUMENT_FUNCTION_SCHEMA)
-    description = result
-    
-    if description:
-        cache[cache_key] = description
-        # Mark file as processed in this session to avoid redundant processing
-        cache[f"{cache_key}_processed"] = True
-        save_cache(cache)
-        
-        # Also process for citations if there's content
-        try:
-            from cleanupx.processors.citation import process_file_for_citations
-            process_file_for_citations(file_path)
-        except Exception as e:
-            logger.error(f"Error processing citations for {file_path}: {e}")
-    
-    # Generate new name
-    new_name = None
-    new_path = None
-    
-    if description:
-        # For PDFs, use citation style naming if requested
-        if ext == ".pdf" and citation_style_pdfs and isinstance(description, dict) and description.get("document_type") == "research article":
-            # Extract author, title, year for citation style
-            author = description.get("author", "unknown")
-            title = description.get("title", "")
-            if not title:
-                title = description.get("suggested_filename", "document")
-            year = description.get("year", "")
-            
-            # Clean up author - extract last name of first author
-            if "," in author:
-                author = author.split(",")[0].strip()
-            elif " " in author:
-                author = author.split(" ")[-1].strip()
-            
-            # Format the citation style name with page count
-            if page_count:
-                if year:
-                    new_name = f"{author}_{year}_{title}_{page_count}p{ext}"
-                else:
-                    new_name = f"{author}_{title}_{page_count}p{ext}"
-            else:
-                if year:
-                    new_name = f"{author}_{year}_{title}{ext}"
-                else:
-                    new_name = f"{author}_{title}{ext}"
+        # Check if already processed
+        cache_key = str(file_path)
+        if cache_key in cache:
+            logger.info(f"Using cached description for {file_path.name}")
+            data = cache[cache_key]
         else:
-            # Normal content-based naming
-            new_name = generate_new_filename(file_path, description)
+            # Extract text based on file type
+            if ext == '.docx':
+                text_content = extract_text_from_docx(file_path)
+            elif ext == '.pdf':
+                text_content = extract_text_from_pdf(file_path)
+            else:
+                text_content = read_text_file(file_path)
             
-            # Add page count for PDFs
-            if ext == ".pdf" and page_count and new_name:
-                # Add page count as a suffix with underscore format
-                new_name = new_name.replace(ext, f"_{page_count}p{ext}")
-    
-    # Rename the file if we have a new name
-    if new_name:
-        # First clean the name to ensure it's valid
-        new_name = clean_filename(new_name)
-        
-        new_path = rename_file(file_path, new_name, rename_log)
-        if new_path and new_path != file_path and cache_key in cache:
-            cache[str(new_path)] = cache[cache_key]
-            del cache[cache_key]
+            if not text_content.strip():
+                logger.warning(f"No text content extracted from {file_path.name}")
+                return file_path, None, None
+            
+            # Analyze content
+            prompt = FILE_DOCUMENT_PROMPT.format(
+                name=file_path.name,
+                suffix=ext,
+                text_content=text_content[:10000]  # Limit content length
+            )
+            
+            data = call_xai_api(XAI_MODEL_TEXT, prompt, DOCUMENT_FUNCTION_SCHEMA)
+            if not data:
+                logger.warning(f"Failed to analyze document: {file_path.name}")
+                return file_path, None, None
+            
+            # Cache the result
+            cache[cache_key] = data
             save_cache(cache)
+        
+        # Generate new filename
+        new_filename = generate_new_filename(file_path, data)
+        if not new_filename:
+            logger.warning(f"Failed to generate new filename for {file_path.name}")
+            return file_path, None, data
+        
+        try:
+            new_path = file_path.parent / new_filename
+            if new_path != file_path:
+                file_path.rename(new_path)
+                logger.info(f"Renamed {file_path.name} to {new_filename}")
+                if cache_key in cache:
+                    cache[str(new_path)] = cache.pop(cache_key)
+                    save_cache(cache)
+            
+            # Create markdown file with the document description
+            md_base_name = os.path.splitext(new_filename)[0] if new_path != file_path else os.path.splitext(file_path.name)[0]
+            md_filename = f"{md_base_name}.md"
+            md_path = (new_path if new_path != file_path else file_path).parent / md_filename
+            
+            with open(md_path, 'w', encoding='utf-8') as md_file:
+                title = data.get("title", "Document Description")
+                md_file.write(f"# {title}\n\n")
+                
+                # Add document type and description
+                doc_type = data.get("document_type", "unknown")
+                md_file.write(f"**Type:** {doc_type}\n\n")
+                
+                description = data.get("description", "")
+                if description:
+                    md_file.write(f"## Description\n\n{description}\n\n")
+                
+                # Add file information
+                md_file.write("## File Information\n\n")
+                md_file.write(f"- **Original Name:** {file_path.name}\n")
+                md_file.write(f"- **Current Name:** {new_filename if new_path != file_path else file_path.name}\n")
+                md_file.write(f"- **File Size:** {file_path.stat().st_size / 1024:.1f} KB\n")
+                md_file.write(f"- **Last Modified:** {datetime.fromtimestamp(file_path.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S')}\n")
+            
+            logger.info(f"Created markdown description file: {md_path}")
+            
+            return file_path, new_path, data
+            
+        except Exception as e:
+            logger.warning(f"Failed to rename file {file_path.name}: {e}")
+            return file_path, None, data
+            
+    except Exception as e:
+        logger.warning(f"Error processing document {file_path.name}: {e}")
+        return file_path, None, None
+
+def clear_document_cache(file_path: Optional[Union[str, Path]] = None) -> None:
+    """
+    Clear document analysis cache for a specific file or all files.
     
-    return file_path, new_path, description
+    Args:
+        file_path: Path to the document to clear cache for, or None for all documents
+    """
+    cache_dir = ensure_cache_dir()
+    documents_cache_dir = cache_dir / "documents"
+    
+    if file_path is not None:
+        # Clear cache for specific file
+        cache_file = get_cache_path(file_path, "documents")
+        if cache_file.exists():
+            try:
+                os.remove(cache_file)
+                logger.info(f"Cleared document cache for {file_path}")
+            except Exception as e:
+                logger.error(f"Failed to clear document cache for {file_path}: {e}")
+    else:
+        # Clear all document caches
+        if documents_cache_dir.exists():
+            for cache_file in documents_cache_dir.glob("*.cache"):
+                try:
+                    os.remove(cache_file)
+                except Exception as e:
+                    logger.error(f"Failed to remove document cache file {cache_file}: {e}")
+            logger.info("Cleared all document caches")

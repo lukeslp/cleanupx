@@ -1123,24 +1123,156 @@
       "new_path": "inbox/directory_content_analysis_summary",
       "timestamp": "2025-04-09T22:14:32.506226",
       "status": "success"
+    },
+    {
+      "original_path": "inbox/list_of_academic_references_and_citations.json",
+      "new_path": "inbox/this_document_json_array_containing.json",
+      "timestamp": "2025-04-09T22:18:41.843942",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/t3rt3gcxpz_DURATION_DURATION.mp3",
+      "new_path": "inbox/t3rt3gcxpz_DURATION_DURATION_00:01:16.mp3",
+      "timestamp": "2025-04-09T22:18:42.066067",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/0ktxxmopwd_DURATION_DURATION.mp3",
+      "new_path": "inbox/0ktxxmopwd_DURATION_DURATION_00:04:50.mp3",
+      "timestamp": "2025-04-09T22:18:52.600132",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/list_of_academic_references_and_citations_1.json",
+      "new_path": "inbox/list_of_academic_references_and_citations.json",
+      "timestamp": "2025-04-09T22:22:00.862357",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/Balance-of-Payments-Federal-2024.pdf",
+      "new_path": "inbox/new_york_federal_balance_of_payments_analysis_64pp.pdf",
+      "timestamp": "2025-04-09T22:22:03.347948",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/data-1iMrb.csv",
+      "new_path": "inbox/this_document_csv_file_containing.csv",
+      "timestamp": "2025-04-09T22:22:05.172885",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/this_document_appears_json_structure.json",
+      "new_path": "inbox/inbox_directory_file_inventory.json",
+      "timestamp": "2025-04-09T22:22:07.117238",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/global_wealth_inequality_visualization_800x800.md",
+      "new_path": "inbox/this_document_describes_infographic_global.md",
+      "timestamp": "2025-04-09T22:22:08.901872",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/text_cache_013d826c_directory_content_analysis_summary.txt",
+      "new_path": "inbox/this_document_summary_directory_content.txt",
+      "timestamp": "2025-04-09T22:22:10.394983",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/this_document_appears_list_references.json",
+      "new_path": "inbox/this_json_file_contains_array.json",
+      "timestamp": "2025-04-09T22:22:12.502581",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/evolution_of_alphabet.mp3",
+      "new_path": "inbox/evolution_of_alphabet_00:01:16.mp3",
+      "timestamp": "2025-04-09T22:22:12.599227",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/directory_file_analysis_report.json",
+      "new_path": "inbox/this_json_file_contains_analysis.json",
+      "timestamp": "2025-04-09T22:22:14.190572",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/historical_evolution_us_state_boundaries_1525x1018.md",
+      "new_path": "inbox/this_document_describes_detailed_map.md",
+      "timestamp": "2025-04-09T22:22:15.826716",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/corrupted_binary_file_with_patterns.bin",
+      "new_path": "inbox/corrupted_binary_with_text_patterns_and_compressed.bin",
+      "timestamp": "2025-04-09T22:22:17.822042",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/text_cache_f5fbabcb_list_of_academic_references_and_citations.txt",
+      "new_path": "inbox/list_of_academic_references_and_citations.txt",
+      "timestamp": "2025-04-09T22:22:19.771245",
+      "status": "success"
     }
   ],
   "errors": [],
-  "timestamp": "2025-04-09T22:14:08.923699",
+  "timestamp": "2025-04-09T22:21:56.774752",
   "stats": {
-    "total_files": 18,
-    "successful_renames": 129,
+    "total_files": 29,
+    "successful_renames": 144,
     "failed_renames": 0,
-    "skipped_files": 2,
-    "images_processed": 0,
-    "text_processed": 5,
-    "documents_processed": 0,
-    "total_processed": 17,
+    "skipped_files": 17,
+    "images_processed": 2,
+    "text_processed": 12,
+    "documents_processed": 1,
+    "total_processed": 28,
     "total_skipped": 1,
     "skipped_large_files": 2,
-    "total_failed": 0
+    "total_failed": 2
   },
   "directory": "inbox",
   "recursive": false,
-  "skip_renamed": true
+  "skip_renamed": true,
+  "inbox/directory_content_analysis_summary.json": {
+    "original_path": "inbox/directory_content_analysis_summary.json",
+    "new_path": "inbox/directory_content_analysis_summary.json",
+    "timestamp": "1744257133.789797",
+    "status": "success (extension added)"
+  },
+  "inbox/list_of_academic_references_and_citations.json": {
+    "original_path": "inbox/list_of_academic_references_and_citations.json",
+    "new_path": "inbox/list_of_academic_references_and_citations.json",
+    "timestamp": "1744244467.5840445",
+    "status": "success (extension added)"
+  },
+  "inbox/list_of_academic_references_and_citations_1.json": {
+    "original_path": "inbox/list_of_academic_references_and_citations_1.json",
+    "new_path": "inbox/list_of_academic_references_and_citations_1.json",
+    "timestamp": "1744260975.746831",
+    "status": "success (extension added)"
+  },
+  "inbox/this_document_appears_json_structure.json": {
+    "original_path": "inbox/this_document_appears_json_structure.json",
+    "new_path": "inbox/this_document_appears_json_structure.json",
+    "timestamp": "1744241691.2409236",
+    "status": "success (extension added)"
+  },
+  "inbox/this_document_appears_list_references.json": {
+    "original_path": "inbox/this_document_appears_list_references.json",
+    "new_path": "inbox/this_document_appears_list_references.json",
+    "timestamp": "1744242522.786087",
+    "status": "success (extension added)"
+  },
+  "inbox/directory_file_analysis_report.json": {
+    "original_path": "inbox/directory_file_analysis_report.json",
+    "new_path": "inbox/directory_file_analysis_report.json",
+    "timestamp": "1744244144.208491",
+    "status": "success (extension added)"
+  },
+  "inbox/corrupted_binary_file_with_patterns.bin": {
+    "original_path": "inbox/corrupted_binary_file_with_patterns.bin",
+    "new_path": "inbox/corrupted_binary_file_with_patterns.bin",
+    "timestamp": "1744258704.118393",
+    "status": "success (extension added)"
+  }
 }

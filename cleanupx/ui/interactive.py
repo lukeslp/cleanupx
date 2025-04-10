@@ -288,7 +288,7 @@ def main_menu(console: Console) -> str:
                 ('Generate Bibliography', 'bibliography'),
                 ('Generate HTML Report', 'report'),
                 ('Manage Citations', 'citations'),
-                ('Code Documentation', 'code_docs'),  # New option for code documentation
+                ('Code Documentation', 'code_docs'),
                 
                 # Utilities options
                 ('Scramble Filenames', 'scramble'),
@@ -377,6 +377,11 @@ def process_files_menu(console: Console) -> Dict:
             default=True
         ),
         Confirm(
+            'extract_citations',
+            message="Extract and manage citations from documents?",
+            default=True
+        ),
+        Confirm(
             'generate_dashboard',
             message="Generate HTML dashboard after processing?",
             default=False
@@ -424,6 +429,7 @@ def process_files_menu(console: Console) -> Dict:
                 "File Types": answers['file_types'],
                 "Generate Image MD": "Yes" if answers['generate_image_md'] else "No",
                 "Generate Archive MD": "Yes" if answers['generate_archive_md'] else "No",
+                "Extract Citations": "Yes" if answers['extract_citations'] else "No",
                 "Generate Dashboard": "Yes" if answers['generate_dashboard'] else "No",
                 "Cache Option": cache_option
             }

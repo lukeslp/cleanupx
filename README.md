@@ -1,6 +1,6 @@
 # CleanupX
 
-An intelligent file organization and renaming tool with AI-powered content analysis.
+An intelligent file organization and academic content management tool with AI-powered content analysis and citation management.
 
 ## Features
 
@@ -10,10 +10,13 @@ An intelligent file organization and renaming tool with AI-powered content analy
 - **Batch Processing**: Processes entire directories of files recursively
 - **Privacy Mode**: Scrambles filenames with random strings for privacy
 - **Comprehensive Logging**: Maintains detailed logs of all rename operations
-- **Interactive CLI**: User-friendly command-line interface with progress indicators
-- **Directory Insights**: Creates hidden summary files with content analysis and organization suggestions
-- **Citation Management**: Extracts and maintains APA citations from academic papers
+- **Interactive CLI**: Rich command-line interface with progress indicators
+- **Directory Insights**: Creates hidden summary files with content analysis
+- **Citation Management**: Extracts and manages citations from academic papers
 - **Intelligent Reorganization**: Offers AI-powered suggestions to better organize files
+- **Markdown Descriptions**: Generates detailed markdown files for all processed content
+- **Metadata Embedding**: Embeds metadata directly into files when possible
+- **Cache Management**: Comprehensive caching system for better performance
 
 ## Installation
 
@@ -57,11 +60,11 @@ python cleanupx.py
 - `--skip-documents`: Skip processing of document files
 - `--skip-archives`: Skip processing of archive files
 - `--dedupe`: Find and remove duplicate files
-- `--dry-run`: Show what would be done without making changes (works with --dedupe)
+- `--dry-run`: Show what would be done without making changes
 - `--auto-delete`: Automatically delete duplicates without confirmation
-- `--summary`: Generate or update a directory summary without processing files
-- `--suggest`: Suggest organization improvements based on directory summary
-- `--citations`: Display APA citations extracted from documents in the directory
+- `--summary`: Generate or update a directory summary
+- `--suggest`: Suggest organization improvements
+- `--citations`: Display citations extracted from documents
 - `--hidden-summary`: Display the hidden directory summary
 - `--reorganize`: Interactively reorganize files based on suggestions
 
@@ -121,16 +124,31 @@ When processing document files (PDF, DOCX, etc.), CleanupX automatically:
 2. Identifies DOIs and retrieves complete citation information
 3. Maintains a `.cleanupx-citations` file in each directory
 4. Generates formatted citation lists for reference
+5. Supports export to multiple formats (markdown, BibTeX, CSL-JSON)
 
 Access the citation list with:
 ```bash
 python cleanupx.py [directory] --citations
 ```
 
+## Markdown Descriptions
+
+For each processed file, CleanupX generates a markdown description file containing:
+
+- File title and type
+- Content description
+- Original and new filenames
+- File metadata (size, dimensions, duration, etc.)
+- Last modified date
+- Related citations (for academic documents)
+
 ## Dependencies
 
 - OpenAI/X.AI API for content analysis
 - Python 3.7+
+- Rich for CLI interface
+- PIL/Pillow for image processing
+- FFmpeg for media processing
 - See requirements.txt for full list of dependencies
 
 ## Project Structure
@@ -175,6 +193,7 @@ This tool enhances file accessibility by:
 4. Using descriptive, content-based filenames
 5. Maintaining organized directories with clear structure
 6. Providing citation management for academic content
+7. Supporting multiple export formats for citations
 
 ## License
 

@@ -153,9 +153,20 @@ def _extract_image_text(file_path: Path) -> str:
     return text
 
 def clear_text_cache() -> None:
-    """Clear the in-memory text cache."""
+    """Clear the in-memory text cache and text cache files."""
     global _TEXT_CACHE
     _TEXT_CACHE = {}
+    
+    # Clear text cache files from centralized cache
+    cache_dir = ensure_cache_dir()
+    text_cache_dir = cache_dir / "text"
+    if text_cache_dir.exists():
+        for cache_file in text_cache_dir.glob("*.cache"):
+            try:
+                os.remove(cache_file)
+            except Exception as e:
+                logger.error(f"Failed to remove text cache file {cache_file}: {e}")
+    
     logger.info("Text cache cleared")
 
 def extract_keywords(text: str, max_keywords: int = 10) -> List[str]:
@@ -292,4 +303,63 @@ def calculate_information_density(text: str) -> float:
         return len(meaningful_tokens) / len(tokens) if tokens else 0.0
     except Exception as e:
         logger.error(f"Error calculating information density: {e}")
-        return 0.0 
+        return 0.0
+
+def read_text_file(file_path: Union[str, Path], max_chars: int = 10000) -> str:
+    """
+    Read content from a text file with caching support.
+    
+    Args:
+        file_path: Path to the text file
+        max_chars: Maximum number of characters to read
+        
+    Returns:
+        Text content of the file, or empty string if reading fails
+    """
+    file_path = Path(file_path)
+    
+    # Create a memory cache key
+    try:
+        cache_key = f"text_read_{str(file_path)}_{file_path.stat().st_mtime}"
+        
+        # Check for in-memory cache first (faster)
+        if cache_key in _MEMORY_CACHE:
+            return _MEMORY_CACHE[cache_key][:max_chars]
+        
+        # Get cache file path from centralized cache system
+        cache_file = get_cache_path(file_path, "text")
+        
+        # Try to load from disk cache if file hasn't changed
+        if not os.environ.get('CLEANUPX_NO_CACHE') and cache_file.exists():
+            try:
+                if cache_file.stat().st_mtime >= file_path.stat().st_mtime:
+                    with open(cache_file, 'r', encoding='utf-8', errors='replace') as f:
+                        content = f.read()
+                    
+                    # Store in memory cache
+                    _MEMORY_CACHE[cache_key] = content
+                    
+                    return content[:max_chars]
+            except Exception as e:
+                logger.debug(f"Failed to read from cache file {cache_file}: {e}")
+        
+        # Read from the actual file
+        with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+            content = f.read(max_chars)
+        
+        # Cache the content if caching is enabled
+        if not os.environ.get('CLEANUPX_NO_CACHE'):
+            try:
+                # Write to disk cache
+                with open(cache_file, 'w', encoding='utf-8') as f:
+                    f.write(content)
+                
+                # Store in memory cache
+                _MEMORY_CACHE[cache_key] = content
+            except Exception as e:
+                logger.debug(f"Failed to cache text file content: {e}")
+        
+        return content
+    except Exception as e:
+        logger.error(f"Error reading text file {file_path}: {e}")
+        return "" 

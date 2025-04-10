@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Caching utilities for cleanupx.
-This module provides a simple in-memory caching system for storing analysis results
+This module provides a simple in-memory and disk-based caching system for storing analysis results
 and other computationally expensive data.
 """
 
@@ -10,6 +10,7 @@ import time
 import os
 import json
 import glob
+import hashlib
 from typing import Any, Dict, List, Optional, Set, Union
 from datetime import datetime
 from pathlib import Path
@@ -18,6 +19,11 @@ from cleanupx.config import CACHE_FILE, RENAME_LOG_FILE
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+# Default cache locations
+DEFAULT_CACHE_DIR = os.path.expanduser("~/.cleanupx/cache")
+CACHE_FILE = os.path.join(DEFAULT_CACHE_DIR, "global_cache.json")
+RENAME_LOG_FILE = os.path.join(DEFAULT_CACHE_DIR, "rename_log.json")
 
 # Global cache storage
 _CACHE: Dict[str, Dict[str, Any]] = {}
@@ -37,14 +43,62 @@ _CACHE_STATS = {
 _CACHE_CONFIG = {
     "max_size": 10000,  # Maximum number of items to store
     "ttl": 3600,  # Default TTL in seconds (1 hour)
-    "enabled": True  # Global cache enable/disable flag
+    "enabled": True,  # Global cache enable/disable flag
+    "cache_dir": DEFAULT_CACHE_DIR,  # Cache directory
+    "cleanup_interval": 86400,  # Cleanup interval in seconds (24 hours)
+    "last_cleanup": time.time()  # Last cleanup timestamp
 }
 
 # Backward compatibility storage
 _LEGACY_CACHE: Dict[str, Any] = {}
 _RENAME_LOGS: Dict[str, List[Dict[str, Any]]] = {}
 
-def configure_cache(max_size: Optional[int] = None, ttl: Optional[int] = None, enabled: Optional[bool] = None) -> None:
+def ensure_cache_dir() -> Path:
+    """
+    Ensure the cache directory exists and is properly structured.
+    
+    Returns:
+        Path to the cache directory
+    """
+    cache_dir = Path(_CACHE_CONFIG["cache_dir"])
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Create subdirectories for different cache types
+    (cache_dir / "text").mkdir(exist_ok=True)
+    (cache_dir / "images").mkdir(exist_ok=True)
+    (cache_dir / "documents").mkdir(exist_ok=True)
+    
+    return cache_dir
+
+def get_cache_path(file_path: Union[str, Path], cache_type: str = "text") -> Path:
+    """
+    Get the cache path for a given file.
+    
+    Args:
+        file_path: Path to the source file
+        cache_type: Type of cache (text, images, documents)
+        
+    Returns:
+        Path to the cache file
+    """
+    file_path = Path(file_path)
+    cache_dir = ensure_cache_dir()
+    
+    # Create a hash of the absolute path to ensure unique cache files
+    file_hash = hashlib.md5(str(file_path.absolute()).encode()).hexdigest()[:8]
+    
+    # Create a cache filename that includes the original filename for debugging
+    cache_filename = f"{file_hash}_{file_path.stem}.cache"
+    
+    return cache_dir / cache_type / cache_filename
+
+def configure_cache(
+    max_size: Optional[int] = None,
+    ttl: Optional[int] = None,
+    enabled: Optional[bool] = None,
+    cache_dir: Optional[str] = None,
+    cleanup_interval: Optional[int] = None
+) -> None:
     """
     Configure cache settings.
     
@@ -52,6 +106,8 @@ def configure_cache(max_size: Optional[int] = None, ttl: Optional[int] = None, e
         max_size: Maximum number of items to store in cache
         ttl: Default time-to-live for cache items in seconds
         enabled: Enable or disable caching globally
+        cache_dir: Directory to store cache files
+        cleanup_interval: Interval in seconds between cache cleanups
     """
     global _CACHE_CONFIG
     
@@ -63,6 +119,13 @@ def configure_cache(max_size: Optional[int] = None, ttl: Optional[int] = None, e
     
     if enabled is not None:
         _CACHE_CONFIG["enabled"] = enabled
+    
+    if cache_dir is not None:
+        _CACHE_CONFIG["cache_dir"] = os.path.expanduser(cache_dir)
+        ensure_cache_dir()
+    
+    if cleanup_interval is not None:
+        _CACHE_CONFIG["cleanup_interval"] = cleanup_interval
     
     logger.info(f"Cache configured: {_CACHE_CONFIG}")
 
@@ -193,8 +256,8 @@ def clear_cache(directory: Optional[Path] = None) -> Dict[str, int]:
     Clear cache files from the system.
     
     Args:
-        directory: If provided, only clear text cache files in this directory.
-                  If None, clear global cache and rename log.
+        directory: If provided, only clear cache files in this directory.
+                  If None, clear all cache files.
     
     Returns:
         Stats dictionary with count of files cleared
@@ -205,63 +268,77 @@ def clear_cache(directory: Optional[Path] = None) -> Dict[str, int]:
         "global_cache": 0,
         "rename_log": 0,
         "text_cache": 0,
+        "image_cache": 0,
+        "document_cache": 0,
         "memory_cache": 0
     }
     
     # Clear global cache files if no specific directory
     if directory is None:
+        cache_dir = ensure_cache_dir()
+        
+        # Clear global cache files
         if os.path.exists(CACHE_FILE):
             os.remove(CACHE_FILE)
             stats["global_cache"] = 1
-            logger.info(f"Cleared global cache file: {CACHE_FILE}")
             
         if os.path.exists(RENAME_LOG_FILE):
             os.remove(RENAME_LOG_FILE)
             stats["rename_log"] = 1
-            logger.info(f"Cleared rename log file: {RENAME_LOG_FILE}")
         
-        # Clear the in-memory cache
-        cache_items = len(_MEMORY_CACHE)
-        _MEMORY_CACHE.clear()
-        stats["memory_cache"] = cache_items
-        logger.info(f"Cleared {cache_items} items from memory cache")
+        # Clear all cache subdirectories
+        for cache_type in ["text", "images", "documents"]:
+            cache_type_dir = cache_dir / cache_type
+            if cache_type_dir.exists():
+                for cache_file in cache_type_dir.glob("*.cache"):
+                    try:
+                        os.remove(cache_file)
+                        stats[f"{cache_type}_cache"] += 1
+                    except Exception as e:
+                        logger.error(f"Failed to remove cache file {cache_file}: {e}")
     
-    # Find and clear text cache files
-    text_cache_pattern = "text_cache*.txt"
-    if directory:
-        # Find all text cache files in the given directory recursively
-        pattern = os.path.join(str(directory), "**", text_cache_pattern)
-        text_cache_files = glob.glob(pattern, recursive=True)
-        
-        # If clearing directory-specific cache, also clear related memory cache entries
-        if directory:
-            dir_str = str(directory)
-            cache_keys_to_remove = [k for k in list(_MEMORY_CACHE.keys()) if dir_str in k]
-            removed_count = len(cache_keys_to_remove)
-            for key in cache_keys_to_remove:
-                del _MEMORY_CACHE[key]
-            stats["memory_cache"] = removed_count
-            logger.info(f"Cleared {removed_count} directory-specific items from memory cache")
-    else:
-        # Find all text cache files in the system
-        pattern = os.path.join("**", text_cache_pattern)
-        text_cache_files = glob.glob(pattern, recursive=True)
+    # Clear the in-memory cache
+    cache_items = len(_MEMORY_CACHE)
+    _MEMORY_CACHE.clear()
+    stats["memory_cache"] = cache_items
     
-    # Delete each text cache file
-    for cache_file in text_cache_files:
-        try:
-            os.remove(cache_file)
-            stats["text_cache"] += 1
-            logger.debug(f"Cleared text cache file: {cache_file}")
-        except Exception as e:
-            logger.error(f"Failed to remove text cache file {cache_file}: {e}")
-    
-    logger.info(f"Cache cleanup: {stats['global_cache']} global cache, "
-              f"{stats['rename_log']} rename log, "
-              f"{stats['text_cache']} text cache files, "
-              f"{stats['memory_cache']} memory cache items")
-              
+    logger.info(f"Cache cleanup: {stats}")
     return stats
+
+def cleanup_old_cache() -> None:
+    """
+    Clean up old cache files based on TTL and last access time.
+    """
+    current_time = time.time()
+    
+    # Check if it's time for cleanup
+    if current_time - _CACHE_CONFIG["last_cleanup"] < _CACHE_CONFIG["cleanup_interval"]:
+        return
+    
+    cache_dir = ensure_cache_dir()
+    stats = {
+        "text": 0,
+        "images": 0,
+        "documents": 0
+    }
+    
+    for cache_type in stats.keys():
+        cache_type_dir = cache_dir / cache_type
+        if not cache_type_dir.exists():
+            continue
+            
+        for cache_file in cache_type_dir.glob("*.cache"):
+            try:
+                # Check file modification time
+                file_mtime = cache_file.stat().st_mtime
+                if current_time - file_mtime > _CACHE_CONFIG["ttl"]:
+                    os.remove(cache_file)
+                    stats[cache_type] += 1
+            except Exception as e:
+                logger.error(f"Failed to remove old cache file {cache_file}: {e}")
+    
+    _CACHE_CONFIG["last_cleanup"] = current_time
+    logger.info(f"Cleaned up old cache files: {stats}")
 
 def get_cache_stats() -> Dict[str, Any]:
     """
