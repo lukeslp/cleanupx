@@ -129,25 +129,58 @@ def call_xai_api(model: str, prompt: str, function_schema: dict, image_data: Opt
         if hasattr(response.choices[0].message, 'content'):
             content = response.choices[0].message.content
             result = {}
+            
+            # Try to extract JSON from the content
             json_match = re.search(r'```json\s*(.*?)\s*```', content, re.DOTALL)
             if json_match:
                 try:
                     result = json.loads(json_match.group(1))
                 except json.JSONDecodeError:
                     pass
+                    
+            # If no valid JSON was found, try to extract relevant fields
             if not result:
+                from cleanupx.utils.common import clean_filename
+                
+                # Filter out any AI thinking process statements
+                # Look for patterns like "I have analyzed..." or "I will create..."
+                filtered_content = re.sub(r'^I\s+(have|will|am)\s+.+?[\.\n]', '', content, flags=re.IGNORECASE|re.MULTILINE)
+                
                 if "title" in function_schema["parameters"]["properties"]:
-                    title_match = re.search(r'[Tt]itle:?\s*(.*?)(?:\n|$)', content)
+                    # For image analysis
+                    title_match = re.search(r'[Tt]itle:?\s*(.*?)(?:\n|$)', filtered_content)
                     result["title"] = title_match.group(1) if title_match else "Untitled image"
-                    result["alt_text"] = content
-                    from cleanupx.utils.common import clean_filename
-                    result["suggested_filename"] = clean_filename(result["title"])
+                    
+                    # For alt text, use the filtered content but remove "Title:" and "Suggested filename:" lines
+                    alt_text = re.sub(r'[Tt]itle:.*?\n', '', filtered_content)
+                    alt_text = re.sub(r'[Ss]uggested [Ff]ilename:.*?\n', '', alt_text)
+                    result["alt_text"] = alt_text.strip()
+                    
+                    # For suggested filename, extract from content or use cleaned title
+                    filename_match = re.search(r'[Ss]uggested [Ff]ilename:?\s*(.*?)(?:\n|$)', filtered_content)
+                    suggested_name = filename_match.group(1) if filename_match else result["title"]
+                    result["suggested_filename"] = clean_filename(suggested_name)
+                    
                 elif "description" in function_schema["parameters"]["properties"]:
-                    desc_match = re.search(r'[Dd]escription:?\s*(.*?)(?:\n|$)', content)
-                    result["description"] = desc_match.group(1) if desc_match else content
-                    result["document_type"] = "document"
-                    from cleanupx.utils.common import clean_filename
-                    result["suggested_filename"] = clean_filename(Path(content).stem)
+                    # For document analysis
+                    desc_match = re.search(r'[Dd]escription:?\s*(.*?)(?:\n|$)', filtered_content)
+                    result["description"] = desc_match.group(1) if desc_match else filtered_content.strip()
+                    
+                    # Extract document type if present
+                    type_match = re.search(r'[Dd]ocument [Tt]ype:?\s*(.*?)(?:\n|$)', filtered_content)
+                    result["document_type"] = type_match.group(1) if type_match else "document"
+                    
+                    # Extract suggested filename or generate from file stem
+                    filename_match = re.search(r'[Ss]uggested [Ff]ilename:?\s*(.*?)(?:\n|$)', filtered_content)
+                    if filename_match:
+                        suggested_name = filename_match.group(1)
+                    else:
+                        # Extract meaningful words from description to create a filename
+                        words = re.findall(r'\b[a-zA-Z]{3,}\b', result["description"][:100])
+                        suggested_name = "_".join(words[:5]) if words else "document"
+                    
+                    result["suggested_filename"] = clean_filename(suggested_name)
+            
             return result
         
         logger.error("Could not extract structured result from API response")

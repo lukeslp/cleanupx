@@ -1039,24 +1039,108 @@
       "original_path": "inbox/text_message_log_december_2020.csv",
       "new_path": "inbox/o3u2zvbdm8.csv",
       "timestamp": "2025-04-09T22:10:21.621052"
+    },
+    {
+      "original_path": "inbox/i_have_analyzed_the_provided_db_file_content_using.db",
+      "new_path": "inbox/this_file_appears_binary_database.db",
+      "timestamp": "2025-04-09T22:14:10.989816",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/i_have_analyzed_the_provided_file_content_using_th",
+      "new_path": "inbox/directory_file_analysis_report",
+      "timestamp": "2025-04-09T22:14:12.796862",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/i_have_processed_your_request_to_analyze_the_provi",
+      "new_path": "inbox/this_document_appears_json_structure",
+      "timestamp": "2025-04-09T22:14:14.962828",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/los_angeles_indicating_its_for_managing_reminders.ics",
+      "new_path": "inbox/professional_calendar_events_and_reminders.ics",
+      "timestamp": "2025-04-09T22:14:16.966426",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/i_have_processed_your_request_by_calling_the_appro_1",
+      "new_path": "inbox/this_document_appears_list_references",
+      "timestamp": "2025-04-09T22:14:18.896512",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/i_have_analyzed_the_provided_file_content_based_on",
+      "new_path": "inbox/corrupted_binary_file_with_patterns",
+      "timestamp": "2025-04-09T22:14:20.748704",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/i_have_processed_your_request_by_calling_the_appro.json",
+      "new_path": "inbox/this_json_file_contains_metadata.json",
+      "timestamp": "2025-04-09T22:14:22.758038",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/i_have_analyzed_the_provided_file_content_based_on_1",
+      "new_path": "inbox/list_of_academic_references_and_citations",
+      "timestamp": "2025-04-09T22:14:24.594713",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/i_have_analyzed_the_provided_csv_file_content_usin.csv",
+      "new_path": "inbox/this_csv_file_contains_log.csv",
+      "timestamp": "2025-04-09T22:14:26.201722",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/i_have_analyzed_the_provided_rtf_file_content_base.rtf",
+      "new_path": "inbox/comprehensive_bibliography_on_communication_disord.rtf",
+      "timestamp": "2025-04-09T22:14:28.120954",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/i_have_processed_your_request_by_calling_the_appro",
+      "new_path": "inbox/list_of_academic_references_and_citations_1",
+      "timestamp": "2025-04-09T22:14:30.330301",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/0ktxxmopwd_DURATION.mp3",
+      "new_path": "inbox/0ktxxmopwd_DURATION_DURATION.mp3",
+      "timestamp": "2025-04-09T22:14:30.375033",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/t3rt3gcxpz_DURATION.mp3",
+      "new_path": "inbox/t3rt3gcxpz_DURATION_DURATION.mp3",
+      "timestamp": "2025-04-09T22:14:30.379431",
+      "status": "success"
+    },
+    {
+      "original_path": "inbox/i_have_analyzed_the_provided_content_using_the_ava",
+      "new_path": "inbox/directory_content_analysis_summary",
+      "timestamp": "2025-04-09T22:14:32.506226",
+      "status": "success"
     }
   ],
   "errors": [],
-  "timestamp": "2025-04-09T22:10:21.621894",
+  "timestamp": "2025-04-09T22:14:08.923699",
   "stats": {
-    "total_files": 0,
-    "successful_renames": 115,
+    "total_files": 18,
+    "successful_renames": 129,
     "failed_renames": 0,
-    "skipped_files": 0,
+    "skipped_files": 2,
     "images_processed": 0,
-    "text_processed": 0,
+    "text_processed": 5,
     "documents_processed": 0,
-    "total_processed": 0,
-    "total_skipped": 0,
-    "skipped_large_files": 0,
+    "total_processed": 17,
+    "total_skipped": 1,
+    "skipped_large_files": 2,
     "total_failed": 0
   },
-  "directory": "<inquirer.questions.Path object at 0x10365ecc0>",
-  "recursive": true,
+  "directory": "inbox",
+  "recursive": false,
   "skip_renamed": true
 }
