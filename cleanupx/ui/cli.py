@@ -698,7 +698,7 @@ def run_cli(args: Optional[List[str]] = None) -> int:
         else:
             console.print("[yellow]Inquirer not installed. Proceeding without confirmation.[/yellow]")
         
-        rename_log = load_rename_log(Path.cwd())
+        rename_log = load_rename_log(directory)
         # Ensure directory is properly passed as a Path object
         scrambled_count = scramble_directory(directory, rename_log)
         
@@ -831,7 +831,7 @@ def run_cli(args: Optional[List[str]] = None) -> int:
     console.print(f"[cyan]Files failed:[/cyan] {stats.get('failed', 0)}")
     
     # Display the comprehensive report
-    rename_log = load_rename_log(Path.cwd())
+    rename_log = load_rename_log(directory)
     display_rename_report(rename_log)
     
     # Show organization suggestions if available and summaries were generated

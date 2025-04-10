@@ -58,6 +58,10 @@ class FileProcessor:
         Returns:
             bool: Whether file type is supported
         """
+        # Ignore hidden files (files that start with '.')
+        if file_path.name.startswith('.'):
+            return False
+            
         ext = file_path.suffix.lower()
         return any(ext in exts for exts in self.SUPPORTED_EXTENSIONS.values())
 
@@ -88,10 +92,13 @@ class FileProcessor:
             
             # Create backup if requested
             if create_backup and not dry_run:
-                backup_path = self._create_backup(file_path)
-                self.logger.info(f"Created backup: {backup_path}")
+                backup_path = await self._create_backup_async(file_path)
+                # Logging moved inside _create_backup_async
             
             # Extract content
+            # If extract_text is async, use:
+            # content = await self.content_extractor.extract_text(file_path)
+            # Otherwise use:
             content = self.content_extractor.extract_text(file_path)
             
             # Initialize metadata with basic file info
@@ -104,6 +111,9 @@ class FileProcessor:
             
             # Enrich metadata
             try:
+                # If enrich_metadata is async, use:
+                # metadata = await self.metadata_enricher.enrich_metadata(content, initial_metadata)
+                # Otherwise use:
                 metadata = self.metadata_enricher.enrich_metadata(content, initial_metadata)
             except Exception as e:
                 self.logger.error(f"Failed to enrich metadata: {str(e)}")
@@ -111,6 +121,9 @@ class FileProcessor:
             
             # Generate new filename
             try:
+                # If generate_filename is async, use:
+                # new_filename = await self.filename_generator.generate_filename(metadata, file_path)
+                # Otherwise use:
                 new_filename = self.filename_generator.generate_filename(metadata, file_path)
                 new_path = file_path.parent / new_filename
                 
@@ -130,6 +143,16 @@ class FileProcessor:
                     try:
                         file_path.rename(new_path)
                         self.logger.info(f"Renamed to: {new_filename}")
+                    except FileExistsError:
+                        # Handle file already exists
+                        self.logger.warning(f"File {new_path} already exists, creating unique name")
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        new_filename = f"{new_path.stem}_{timestamp}{new_path.suffix}"
+                        new_path = file_path.parent / new_filename
+                        file_path.rename(new_path)
+                        self.logger.info(f"Renamed to: {new_filename}")
+                    except PermissionError as e:
+                        raise ProcessingError(f"Permission denied when renaming file: {str(e)}")
                     except Exception as e:
                         raise ProcessingError(f"Failed to rename file: {str(e)}")
                 
@@ -144,11 +167,14 @@ class FileProcessor:
             except Exception as e:
                 raise ProcessingError(f"Failed to generate filename: {str(e)}")
             
+        except ProcessingError:
+            # Re-raise ProcessingError without wrapping
+            raise
         except Exception as e:
             raise ProcessingError(f"Failed to process {file_path}: {str(e)}")
 
     def _create_backup(self, file_path: Path) -> Path:
-        """Create a backup of the file.
+        """Create a backup of the file (synchronous version).
         
         Args:
             file_path: Path to file to backup
@@ -193,6 +219,27 @@ class FileProcessor:
             
             return backup_path
             
+        except OSError as e:
+            raise ProcessingError(f"IO Error creating backup of {file_path}: {str(e)}")
+        except Exception as e:
+            raise ProcessingError(f"Failed to create backup of {file_path}: {str(e)}")
+    
+    async def _create_backup_async(self, file_path: Path) -> Path:
+        """Create a backup of the file (async version that runs in executor).
+        
+        Args:
+            file_path: Path to file to backup
+            
+        Returns:
+            Path to backup file
+            
+        Raises:
+            ProcessingError: If backup fails
+        """
+        # Run backup in a thread executor since file operations are blocking
+        try:
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(None, self._create_backup, file_path)
         except Exception as e:
             raise ProcessingError(f"Failed to create backup of {file_path}: {str(e)}")
 
@@ -202,7 +249,9 @@ class FileProcessor:
         file_pattern: str = "*.*",
         recursive: bool = True,
         dry_run: bool = False,
-        create_backup: bool = True
+        create_backup: bool = True,
+        max_concurrent: int = 5,
+        ignore_hidden: bool = True
     ) -> List[Dict]:
         """Process all matching files in a directory.
         
@@ -212,6 +261,8 @@ class FileProcessor:
             recursive: If True, process subdirectories
             dry_run: If True, don't actually rename
             create_backup: If True, create backups
+            max_concurrent: Maximum number of concurrent file processing tasks
+            ignore_hidden: If True, ignore hidden files and directories
             
         Returns:
             List of processing results
@@ -228,8 +279,13 @@ class FileProcessor:
             else:
                 files = list(directory.glob(file_pattern))
                 
-            # Filter for supported files
-            files = [f for f in files if self.is_supported_file(f)]
+            # Filter for supported files and exclude hidden files
+            files = [
+                f for f in files 
+                if self.is_supported_file(f) and 
+                # Exclude files in hidden directories if ignore_hidden is True
+                not (ignore_hidden and any(part.startswith('.') for part in f.parts))
+            ]
                 
             if not files:
                 self.logger.warning(f"No matching files found in {directory}")
@@ -237,24 +293,42 @@ class FileProcessor:
                 
             self.logger.info(f"Found {len(files)} files to process")
             
-            # Process each file
+            # Process files concurrently in batches
             results = []
-            for file_path in files:
-                try:
-                    result = await self.process_file(
+            for i in range(0, len(files), max_concurrent):
+                batch = files[i:i+max_concurrent]
+                batch_tasks = [
+                    self._safe_process_file(
                         file_path=file_path,
                         dry_run=dry_run,
                         create_backup=create_backup
                     )
-                    results.append(result)
-                except Exception as e:
-                    self.logger.error(f"Error processing {file_path}: {str(e)}")
-                    results.append({
-                        "original_path": str(file_path),
-                        "error": str(e)
-                    })
+                    for file_path in batch
+                ]
+                batch_results = await asyncio.gather(*batch_tasks)
+                results.extend(batch_results)
             
             return results
             
         except Exception as e:
-            raise ProcessingError(f"Failed to process directory {directory}: {str(e)}") 
+            raise ProcessingError(f"Failed to process directory {directory}: {str(e)}")
+            
+    async def _safe_process_file(self, file_path: Path, dry_run: bool, create_backup: bool) -> Dict[str, Any]:
+        """Safely process a file, capturing any errors.
+        
+        This is a helper method for process_directory to safely handle
+        exceptions during parallel processing.
+        """
+        try:
+            return await self.process_file(
+                file_path=file_path,
+                dry_run=dry_run,
+                create_backup=create_backup
+            )
+        except Exception as e:
+            self.logger.error(f"Error processing {file_path}: {str(e)}")
+            return {
+                "original_path": str(file_path),
+                "error": str(e),
+                "status": "error"
+            } 

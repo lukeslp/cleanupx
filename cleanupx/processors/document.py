@@ -503,3 +503,48 @@ def clear_document_cache(file_path: Optional[Union[str, Path]] = None) -> None:
                 except Exception as e:
                     logger.error(f"Failed to remove document cache file {cache_file}: {e}")
             logger.info("Cleared all document caches")
+
+def read_text_file(file_path: Union[str, Path]) -> str:
+    """
+    Read text content from a file, with caching.
+    
+    Args:
+        file_path: Path to the text file
+        
+    Returns:
+        The text content
+    """
+    file_path = Path(file_path)
+    
+    # Check memory cache first
+    cache_key = f"text_extraction_{str(file_path)}_{file_path.stat().st_mtime}"
+    if cache_key in _MEMORY_CACHE:
+        logger.info(f"Using in-memory cached text extraction for {file_path}")
+        return _MEMORY_CACHE[cache_key]
+    
+    # Use the get_cache_path function which will return None for text files
+    cache_file = get_cache_path(file_path, "text")
+    
+    # For text files, we'll use memory cache only, no disk caching
+    
+    # Try to read the text with different encodings
+    text = ""
+    encodings = ['utf-8', 'latin-1', 'cp1252', 'ascii']
+    
+    for enc in encodings:
+        try:
+            with open(file_path, 'r', encoding=enc, errors='replace') as f:
+                text = f.read()
+            if text.strip():
+                logger.info(f"Successfully read text file with {enc} encoding")
+                break
+        except Exception as e:
+            logger.debug(f"Failed to read with {enc} encoding: {e}")
+    
+    # Cache the result in memory if we got text
+    if text.strip():
+        # Only store in memory cache, no disk caching for text files
+        _MEMORY_CACHE[cache_key] = text
+        logger.debug(f"Cached text extraction to memory for {file_path}")
+    
+    return text

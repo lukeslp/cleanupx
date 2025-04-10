@@ -112,7 +112,7 @@ def get_description_path(file_path: Path) -> Path:
 
 def save_description(file_path: Path, description: str) -> bool:
     """
-    Save a file description to its markdown file.
+    Save a file description to a markdown file with the same name as the source file.
     
     Args:
         file_path: Path to the source file
@@ -122,10 +122,8 @@ def save_description(file_path: Path, description: str) -> bool:
         True if successful, False otherwise
     """
     try:
-        # Only create directories when actually saving a file
-        metadata_dir = create_metadata_dir(file_path.parent)
-        desc_path = metadata_dir / "descriptions" / f"{file_path.stem}.md"
-        desc_path.parent.mkdir(exist_ok=True)
+        # Save the description as a .md file alongside the image, with the same name
+        desc_path = file_path.with_suffix('.md')
         
         with open(desc_path, 'w', encoding='utf-8') as f:
             f.write(description)
@@ -137,15 +135,20 @@ def save_description(file_path: Path, description: str) -> bool:
 def get_cache_path(file_path: Union[str, Path], cache_type: str = "text") -> Path:
     """
     Get the cache path for a given file.
+    Note: For text files, caching is done in-memory only to avoid cluttering directories.
     
     Args:
         file_path: Path to the source file
         cache_type: Type of cache (text, images, documents)
         
     Returns:
-        Path to the cache file
+        Path to the cache file or None for text files (indicating in-memory cache only)
     """
     file_path = Path(file_path)
+    
+    # Return None for text files - they will use memory cache only
+    if cache_type == "text":
+        return None
     
     # Use the central cache directory instead of creating .cleanupx directories everywhere
     cache_dir = Path(_CACHE_CONFIG["cache_dir"])
@@ -338,8 +341,13 @@ def clear_cache(root: Union[str, Path] = None) -> Dict[str, int]:
         "global_cache": 0,
         "rename_log": 0,
         "descriptions": 0,
-        "summaries": 0
+        "summaries": 0,
+        "text_cache": 0,
+        "memory_cache": len(_MEMORY_CACHE)
     }
+    
+    # Clear memory cache
+    _MEMORY_CACHE.clear()
     
     try:
         if root is None:
@@ -373,6 +381,22 @@ def clear_cache(root: Union[str, Path] = None) -> Dict[str, int]:
                 for file in sum_dir.glob("*.json"):
                     os.remove(file)
                     stats["summaries"] += 1
+        
+        # Find and clear any text_cache files in the root directory
+        if root is not None:
+            if isinstance(root, str):
+                root_path = Path(root)
+            else:
+                root_path = root
+                
+            # Look for text_cache files
+            text_cache_files = list(root_path.glob("**/text_cache*.txt"))
+            for file in text_cache_files:
+                try:
+                    os.remove(file)
+                    stats["text_cache"] += 1
+                except Exception as e:
+                    logger.error(f"Failed to remove text cache file: {e}")
     except Exception as e:
         logger.error(f"Error clearing cache: {e}")
     

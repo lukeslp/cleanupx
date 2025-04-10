@@ -72,7 +72,8 @@ def rename_file(original_path: Path, new_name: str, rename_log: Optional[Dict] =
             logger.info(f"New filename matches original, skipping rename for {original_path}")
             if rename_log is not None:
                 rename_log["stats"]["skipped_files"] += 1
-                save_rename_log(rename_log)
+                root = original_path.parent
+                save_rename_log(rename_log, root)
             return original_path
             
         try:
@@ -111,7 +112,8 @@ def rename_file(original_path: Path, new_name: str, rename_log: Optional[Dict] =
                 "status": "success"
             }
             rename_log["renames"].append(rename_entry)
-            save_rename_log(rename_log)
+            root = original_path.parent
+            save_rename_log(rename_log, root)
         return new_path
     except Exception as e:
         logger.error(f"Error renaming file {original_path}: {e}")

@@ -21,7 +21,7 @@ except ImportError:
 
 from cleanupx.config import IMAGE_FUNCTION_SCHEMA, FILE_IMAGE_PROMPT, XAI_MODEL_VISION, IMAGE_EXTENSIONS
 from cleanupx.utils.common import get_image_dimensions, convert_heic_to_jpeg, convert_webp_to_jpeg, embed_alt_text_into_image
-from cleanupx.utils.cache import save_cache, ensure_metadata_dir, get_description_path
+from cleanupx.utils.cache import save_cache, ensure_metadata_dir, get_description_path, save_description
 from cleanupx.api import call_xai_api, timeout, TimeoutError
 from cleanupx.processors.base import generate_new_filename, rename_file
 
@@ -305,21 +305,25 @@ def process_image_file(file_path: Union[str, Path], cache: Dict[str, Any], renam
         # Generate new filename
         new_path = generate_new_filename(file_path, data)
         if new_path:
-            # Create markdown file with image description in .cleanupx/descriptions
+            # Create markdown file with image description in the same directory as the image
             if generate_md:
-                description_path = get_description_path(file_path)
                 try:
-                    with open(description_path, 'w', encoding='utf-8') as f:
-                        f.write(f"# {data.get('title', file_path.stem)}\n\n")
-                        if "dimensions" in data:
-                            width, height = data["dimensions"]
-                            f.write(f"**Resolution:** {width}x{height}\n\n")
-                        f.write(f"{data.get('description', 'No description available')}\n\n")
-                        f.write(f"**Original Name:** {file_path.name}\n")
-                        f.write(f"**Current Name:** {new_path.name}\n")
-                        f.write(f"**File Size:** {file_path.stat().st_size / 1024:.2f} KB\n")
-                        f.write(f"**Last Modified:** {datetime.fromtimestamp(file_path.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S')}\n")
-                    logger.info(f"Created description file: {description_path}")
+                    # Prepare markdown content
+                    md_content = f"# {data.get('title', file_path.stem)}\n\n"
+                    if "dimensions" in data:
+                        width, height = data["dimensions"]
+                        md_content += f"**Resolution:** {width}x{height}\n\n"
+                    md_content += f"{data.get('description', 'No description available')}\n\n"
+                    md_content += f"**Original Name:** {file_path.name}\n"
+                    md_content += f"**Current Name:** {new_path.name}\n"
+                    md_content += f"**File Size:** {file_path.stat().st_size / 1024:.2f} KB\n"
+                    md_content += f"**Last Modified:** {datetime.fromtimestamp(file_path.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S')}\n"
+                    
+                    # Use the updated save_description function
+                    if save_description(file_path, md_content):
+                        logger.info(f"Created description file: {file_path.with_suffix('.md')}")
+                    else:
+                        logger.error(f"Failed to create description file for {file_path}")
                 except Exception as e:
                     logger.error(f"Failed to create description file for {file_path}: {e}")
             

@@ -154,7 +154,7 @@ except ImportError:
 # Configure logging
 logger = logging.getLogger(__name__)
 
-from cleanupx.utils.cache import load_cache, load_rename_log, save_rename_log
+from cleanupx.utils.cache import load_cache, load_rename_log, save_rename_log, save_cache
 from cleanupx.ui.reporting import display_rename_report
 from cleanupx.utils.documentation import DocumentationManager
 from cleanupx.config import (
@@ -250,7 +250,7 @@ def scramble_directory(target_dir: Union[str, Path], rename_log: Optional[Dict] 
     # Save rename log
     if rename_log is not None:
         rename_log["timestamp"] = datetime.now().isoformat()
-        save_rename_log(rename_log)
+        save_rename_log(rename_log, target_dir)
     
     return scrambled_count
 
@@ -418,7 +418,7 @@ def process_files_menu(console: Console) -> Dict:
             
             # Save cache and rename log
             save_cache(cache)
-            save_rename_log(rename_log)
+            save_rename_log(rename_log, directory)
             
             # Display summary
             summary = {

@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Optional, Union, Tuple, Dict, Any, List
 from datetime import datetime
 
-from cleanupx.utils.cache import _MEMORY_CACHE
+from cleanupx.utils.cache import _MEMORY_CACHE, get_cache_path
 
 try:
     from PIL import Image
@@ -64,6 +64,7 @@ def strip_media_suffixes(stem: str) -> str:
 def read_text_file(file_path: Union[str, Path], max_chars: int = 10000) -> str:
     """
     Read content from a text file with caching support.
+    Only uses in-memory cache to avoid cluttering directories with text_cache files.
     
     Args:
         file_path: Path to the text file
@@ -74,51 +75,25 @@ def read_text_file(file_path: Union[str, Path], max_chars: int = 10000) -> str:
     """
     file_path = Path(file_path)
     
-    # Create a memory cache key
     try:
+        # Create a memory cache key
         cache_key = f"text_read_{str(file_path)}_{file_path.stat().st_mtime}"
         
         # Check for in-memory cache first (faster)
         if cache_key in _MEMORY_CACHE:
             return _MEMORY_CACHE[cache_key][:max_chars]
         
-        # Check for disk cache
-        cache_dir = file_path.parent
-        file_hash = hashlib.md5(str(file_path).encode()).hexdigest()[:8]
-        cache_file = cache_dir / f"text_cache_{file_hash}_{file_path.stem}.txt"
+        # Get cache path using the central cache system
+        # This will return None for text files due to our update in cache.py
+        cache_file = get_cache_path(file_path, "text")
         
-        # Try to load from disk cache if file hasn't changed
-        if not os.environ.get('CLEANUPX_NO_CACHE') and cache_file.exists():
-            try:
-                if cache_file.stat().st_mtime >= file_path.stat().st_mtime:
-                    with open(cache_file, 'r', encoding='utf-8', errors='replace') as f:
-                        content = f.read()
-                    
-                    # Store in memory cache
-                    _MEMORY_CACHE[cache_key] = content
-                    
-                    return content[:max_chars]
-            except Exception as e:
-                logger.debug(f"Failed to read from cache file {cache_file}: {e}")
-        
-        # Read from the actual file
+        # Read directly from the file - no disk caching for text files
         with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
             content = f.read(max_chars)
         
-        # Cache the content if caching is enabled
-        if not os.environ.get('CLEANUPX_NO_CACHE'):
-            try:
-                # Ensure the cache directory exists
-                cache_file.parent.mkdir(parents=True, exist_ok=True)
-                
-                # Write to disk cache
-                with open(cache_file, 'w', encoding='utf-8') as f:
-                    f.write(content)
-                
-                # Store in memory cache
-                _MEMORY_CACHE[cache_key] = content
-            except Exception as e:
-                logger.debug(f"Failed to cache text file content: {e}")
+        # Only store in memory cache
+        _MEMORY_CACHE[cache_key] = content
+        logger.debug(f"Text file content cached in memory for {file_path}")
         
         return content
     except Exception as e:
