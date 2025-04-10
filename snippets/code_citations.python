@@ -1,0 +1,44 @@
+# citations (Code)
+
+**File:** filellama/utils/citations.py  
+**Language:** Python  
+**Lines:** 86  
+
+**Description:** **: This module is designed to handle citation utilities for a tool called Reference Renamer. Its primary purpose is to write citation metadata, provided as a list of dictionaries, to different file formats. It includes two main functions: `write_bibtex`, which processes citation data and writes it to a BibTeX file, and `write_csv`, which writes the data to a CSV file. The code ensures that only available fields are included in the output and handles basic formatting for readability.
+
+```python
+"""
+Citation utilities for Reference Renamer.
+Handles writing citations to different formats (BibTeX, CSV).
+"""
+
+import csv
+from pathlib import Path
+from typing import Dict, List, Any
+
+import bibtexparser
+from bibtexparser.bwriter import BibTexWriter
+from bibtexparser.bibdatabase import BibDatabase
+
+def write_bibtex(citations: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Write citations to a BibTeX file.
+    
+    Args:
+        citations: List of citation metadata dictionaries
+        output_path: Path to write the BibTeX file
+    """
+    db = BibDatabase()
+    db.entries = []
+    
+    for citation in citations:
+        entry = {
+            'ID': citation.get('citation_key', 'Unknown'),
+            'ENTRYTYPE': 'article',
+            'title': citation.get('title', 'Unknown Title'),
+            'author': ' and '.join(citation.get('authors', ['Unknown'])),
+            'year': str(citation.get('year', 'Unknown')),
+            'journal': citation.get('journal', ''),
+      
+```
+

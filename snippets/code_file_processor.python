@@ -1,0 +1,46 @@
+# file_processor (Code)
+
+**File:** filellama/core/file_processor.py  
+**Language:** Python  
+**Lines:** 180  
+
+**Description:** **: This module defines a FileProcessor class that handles various file-related operations, including scanning directories for supported file types, validating files, retrieving file information, creating backups, and restoring files from backups. Its purpose is to facilitate file processing in a robust manner with error handling, logging, and configurable options like recursive search and supported extensions.  
+
+```python
+"""
+File processing module for Reference Renamer.
+Handles file discovery and content extraction.
+"""
+
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+import logging
+import os
+
+from ..utils.exceptions import FileProcessingError
+from ..utils.logging import get_logger
+
+class FileProcessor:
+    """Handles file discovery and initial processing."""
+    
+    def __init__(
+        self, 
+        base_directory: str,
+        supported_extensions: List[str] = ['.pdf', '.txt'],
+        recursive: bool = True,
+        logger: Optional[logging.Logger] = None
+    ):
+        """
+        Initialize the file processor.
+        
+        Args:
+            base_directory: Root directory to process
+            supported_extensions: List of file extensions to process
+            recursive: Whether to search subdirectories
+            logger: Optional logger instance
+        """
+        self.base_directory = Path(base_directory)
+        self.supported_extensions = supported_extensions
+ 
+```
+

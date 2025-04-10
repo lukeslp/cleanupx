@@ -1,0 +1,47 @@
+# change_logger (Code)
+
+**File:** filellama/core/change_logger.py  
+**Language:** Python  
+**Lines:** 287  
+
+**Description:** **: This module is designed for change logging and citation management in the Reference Renamer system. It primarily consists of a class called ChangeLogger that initializes log files for tracking file renames, citations, and errors. The class includes methods to log file changes (e.g., recording original and new paths along with metadata like authors, year, title, and DOI to a CSV file), add citation entries to a BibTeX database, generate unique citation keys, log errors with context, retrieve recent changes, and count citations. Its purpose is to maintain a structured record of operations for auditing, error handling, and bibliography management in a file renaming workflow.  
+
+```python
+"""
+Change logging and citation management module for Reference Renamer.
+Handles logging of file operations and maintains citation records.
+"""
+
+import csv
+from datetime import datetime
+from pathlib import Path
+import json
+import logging
+from typing import Dict, Any, Optional, List
+import bibtexparser
+from bibtexparser.bwriter import BibTexWriter
+from bibtexparser.bibdatabase import BibDatabase
+
+from .metadata_enricher import ArticleMetadata
+from ..utils.exceptions import LoggingError
+from ..utils.logging import get_logger
+
+class ChangeLogger:
+    """Logs file changes and maintains citation records."""
+    
+    def __init__(
+        self,
+        log_directory: Path,
+        logger: Optional[logging.Logger] = None
+    ):
+        """
+        Initialize the change logger.
+        
+        Args:
+            log_directory: Directory for log files
+            logger: Optional logger instance
+        """
+        self.log_directory = Path(log_directory)
+        self.logger = logger or get_log
+```
+

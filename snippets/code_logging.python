@@ -1,0 +1,46 @@
+# logging (Code)
+
+**File:** filellama/utils/logging.py  
+**Language:** Python  
+**Lines:** 230  
+
+**Description:** **: This module is a collection of utilities for configuring and managing logging in the Reference Renamer application. It sets up logging with features like verbosity control, optional file logging, custom formats, and enhanced console output using RichHandler for better readability. It also integrates structlog for structured logging, includes functions for creating rotating log files to manage size, logging with additional context, and a custom formatter for accessibility to make logs more screen-reader friendly. The purpose is to provide flexible, accessible, and structured logging capabilities to improve debugging and monitoring.  
+
+```python
+"""
+Logging utilities for Reference Renamer.
+Provides enhanced logging setup with accessibility features.
+"""
+
+import logging
+import sys
+from pathlib import Path
+from typing import Optional
+from rich.logging import RichHandler
+import structlog
+from datetime import datetime
+
+def setup_logging(
+    verbose: bool = False,
+    log_file: Optional[Path] = None,
+    log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+) -> None:
+    """Set up logging configuration.
+    
+    Args:
+        verbose: If True, set log level to DEBUG
+        log_file: Optional path to log file
+        log_format: Format string for log messages
+    """
+    # Set up basic configuration
+    level = logging.DEBUG if verbose else logging.INFO
+    
+    # Configure structlog
+    structlog.configure(
+        processors=[
+            structlog.stdlib.filter_by_level,
+            structlog.stdlib.add_logger_name,
+            structlog.stdlib.add_log_level,
+            structlog.stdlib.PositionalArgumentsF
+```
+

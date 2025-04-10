@@ -164,6 +164,7 @@ from cleanupx.config import (
     ARCHIVE_EXTENSIONS,
     CACHE_FILE
 )
+from cleanupx.main import smart_merge_files
 
 def display_summary_table(console: Console, title: str, data: Dict[str, str], style: str = "cyan"):
     """Display a summary table with the provided data."""
@@ -283,6 +284,9 @@ def main_menu(console: Console) -> str:
                 ('Organize Files by Date', 'organize_date'),
                 ('Reorganize Directory', 'reorganize'),
                 
+                # Document Management options
+                ('Smart Merge Similar Documents', 'smart_merge'),
+                
                 # Documentation & Reporting options
                 ('Generate Directory Summary', 'summary'),
                 ('Generate Bibliography', 'bibliography'),
@@ -307,6 +311,7 @@ def main_menu(console: Console) -> str:
     console.print(
         "\n[bold blue]=== File Processing ===[/bold blue]\n"
         "[bold blue]=== Organization ===[/bold blue]\n"
+        "[bold blue]=== Document Management ===[/bold blue]\n"
         "[bold blue]=== Documentation & Reporting ===[/bold blue]\n"
         "[bold blue]=== Utilities ===[/bold blue]\n"
     )
@@ -844,6 +849,91 @@ def code_crawler_menu(console: Console) -> Dict:
                 "Open Documentation": "Yes" if answers['open_after_generation'] else "No"
             }
             display_summary_table(console, "Code Documentation Configuration", config, "blue")
+            
+            return answers
+        return {}
+    except Exception as e:
+        console.print(f"[red]Error displaying menu: {e}[/red]")
+        return {}
+
+def smart_merge_menu(console: Console) -> Dict:
+    """Display the smart merge menu and return user choices."""
+    console.print(Panel("[bold magenta]Smart Document Merge[/bold magenta]\n"
+                       "Intelligently merge similar documents to create definitive versions",
+                       border_style="magenta", box=box.ROUNDED))
+    
+    questions = [
+        PathPrompt(
+            'directory',
+            message="Select directory containing documents to analyze",
+            exists=True,
+            path_type=PathPrompt.DIRECTORY,
+            default="."
+        ),
+        Text(
+            'output_dir',
+            message="Output directory for merged documents (leave empty for default)",
+            default=""
+        ),
+        Text(
+            'archive_dir',
+            message="Archive directory for source documents (leave empty for default)",
+            default=""
+        ),
+        Text(
+            'similarity_threshold',
+            message="Similarity threshold (0.1-1.0, higher is more strict)",
+            default="0.75"
+        ),
+        Confirm(
+            'recursive',
+            message="Process subdirectories recursively?",
+            default=False
+        ),
+        Confirm(
+            'dry_run',
+            message="Dry run (only find similar documents without merging)?",
+            default=True
+        ),
+        Confirm(
+            'proceed',
+            message="Proceed with document analysis and merge?",
+            default=True
+        )
+    ]
+    
+    try:
+        answers = prompt(questions, theme=GreenPassion() if INQUIRER_AVAILABLE else None)
+        if answers and answers.get('proceed', False):
+            # Convert similarity threshold to float
+            try:
+                answers['similarity_threshold'] = float(answers['similarity_threshold'])
+                # Validate threshold is between 0.1 and 1.0
+                if answers['similarity_threshold'] < 0.1 or answers['similarity_threshold'] > 1.0:
+                    console.print(Panel("[yellow]Invalid similarity threshold, using default (0.75)[/yellow]", 
+                                       border_style="yellow"))
+                    answers['similarity_threshold'] = 0.75
+            except ValueError:
+                console.print(Panel("[yellow]Invalid similarity threshold, using default (0.75)[/yellow]", 
+                                   border_style="yellow"))
+                answers['similarity_threshold'] = 0.75
+            
+            # Set output and archive dirs to None if empty
+            if not answers['output_dir']:
+                answers['output_dir'] = None
+            if not answers['archive_dir']:
+                answers['archive_dir'] = None
+                
+            # Display configuration summary
+            config = {
+                "Directory": answers['directory'],
+                "Output Directory": answers['output_dir'] or "[default: ./merged]",
+                "Archive Directory": answers['archive_dir'] or "[default: ./archived]",
+                "Similarity Threshold": f"{answers['similarity_threshold']}",
+                "Recursive": "Yes" if answers['recursive'] else "No",
+                "Dry Run": "Yes" if answers['dry_run'] else "No"
+            }
+            display_summary_table(console, "Smart Merge Configuration", config, "magenta")
             
             return answers
         return {}
@@ -1600,6 +1690,63 @@ def interactive_mode() -> int:
             except Exception as e:
                 console.print(Panel(f"[bold red]Error generating code documentation: {e}[/bold red]", 
                                   border_style="red", box=box.ROUNDED))
+        
+        elif action == 'smart_merge':
+            config = smart_merge_menu(console)
+            if config:
+                with Progress(
+                    SpinnerColumn(),
+                    TextColumn("[bold magenta]{task.description}[/bold magenta]"),
+                    BarColumn(),
+                    TimeElapsedColumn()
+                ) as progress:
+                    task = progress.add_task(f"Analyzing documents in {config['directory']}...", total=None)
+                    
+                    # Run smart merge
+                    results = smart_merge_files(
+                        directory=config['directory'],
+                        output_dir=config.get('output_dir'),
+                        similarity_threshold=config.get('similarity_threshold', 0.75),
+                        archive_dir=config.get('archive_dir'),
+                        recursive=config.get('recursive', False),
+                        dry_run=config.get('dry_run', True)
+                    )
+                    
+                    # Update progress
+                    progress.update(task, completed=100, 
+                                  description="Document analysis complete")
+                
+                # Display results
+                if config.get('dry_run', True):
+                    # Display groups of similar documents found
+                    console.print(Panel(
+                        f"[bold green]Found {results.get('total_groups', 0)} groups of similar documents[/bold green]",
+                        border_style="green"
+                    ))
+                    
+                    for group_id, files in results.get('similar_files', {}).items():
+                        console.print(f"[bold]Group {group_id}:[/bold]")
+                        for file_path in files:
+                            console.print(f"  - {file_path}")
+                        console.print("")
+                else:
+                    # Display merge results
+                    result_stats = {
+                        "Total groups merged": results.get('merged_groups', 0),
+                        "Merged files created": len(results.get('merged_files', [])),
+                        "Source files archived": len(results.get('archived_files', [])),
+                        "Total files processed": results.get('total_files', 0),
+                        "Error files": len(results.get('error_files', []))
+                    }
+                    display_summary_table(console, "Smart Merge Results", result_stats, "green")
+                    
+                    # Show list of merged files
+                    if results.get('merged_files'):
+                        console.print("\n[bold]Merged files created:[/bold]")
+                        for file_path in results.get('merged_files', []):
+                            console.print(f"  - {file_path}")
+                
+                input("\nPress Enter to continue...")
         
         # Wait for user to continue
         console.print("\n[cyan]Press Enter to return to the main menu...[/cyan]")

@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
 """
 File processors for CleanupX.
+
+This package contains specialized file processors for different file types:
+- text: Text file processor
+- image: Image file processor
+- document: Document file processor (PDF, DOCX, etc.)
+- media: Media file processor (audio, video)
+- archive: Archive file processor (ZIP, TAR, etc.)
+- dedupe: Deduplication processor
+- smart_merge: Intelligent document merging and deduplication
 """
 
 import logging
@@ -31,6 +40,15 @@ from cleanupx.utils.common import get_file_size_mb
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+try:
+    from cleanupx.processors.smart_merge import (
+        smart_merge_documents,
+        find_similar_documents,
+        merge_document_group
+    )
+except ImportError as e:
+    logger.warning(f"Could not import smart_merge processor: {e}")
 
 def process_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict, 
                 max_size_mb: float = 25.0, citation_style_pdfs: bool = False, 

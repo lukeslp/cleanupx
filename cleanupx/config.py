@@ -30,6 +30,9 @@ MEDIA_EXTENSIONS = {'.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.mp4', '.a
 DOCUMENT_EXTENSIONS = {'.pdf', '.docx', '.doc', '.ppt', '.pptx', 'xlsx', '.xls'}
 ARCHIVE_EXTENSIONS = {'.zip', '.tar', '.tgz', '.tar.gz', '.rar', '.gz', '.pkg'}
 
+# Combination of all extension types
+DEFAULT_EXTENSIONS = IMAGE_EXTENSIONS.union(TEXT_EXTENSIONS).union(MEDIA_EXTENSIONS).union(DOCUMENT_EXTENSIONS).union(ARCHIVE_EXTENSIONS)
+
 # Cache and rename log files
 CACHE_FILE = "generated_alts.json"
 RENAME_LOG_FILE = "rename_log.json"
@@ -270,3 +273,21 @@ Based on the above code, please provide:
 3. A detailed description of what the code does and its purpose
 4. Any dependencies or imports used
 5. An estimate of the code's complexity (low, medium, high)"""
+
+def init_config():
+    """
+    Initialize configuration settings. This function is called at startup
+    to ensure all configuration parameters are properly set.
+    """
+    global XAI_API_KEY
+    
+    # If API key not set from environment, try to load from .env file again
+    if not XAI_API_KEY:
+        load_dotenv(force=True)
+        XAI_API_KEY = os.getenv('XAI_API_KEY')
+        
+        if not XAI_API_KEY:
+            logger.warning("XAI_API_KEY still not found after reloading .env file")
+    
+    # Other initialization steps can be added here
+    return True

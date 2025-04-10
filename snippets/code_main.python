@@ -1,0 +1,49 @@
+# main (Code)
+
+**File:** filellama/filellama/cli/main.py  
+**Language:** Python  
+**Lines:** 296  
+
+**Description:** **: This script serves as the entry point for the Reference Renamer application, a tool designed to standardize filenames of academic articles (such as PDFs or TXT files). It processes files in a specified directory by scanning for supported files, extracting content metadata, enriching it using external APIs (e.g., Semantic Scholar, ArXiv, and Ollama), and renaming files to a standardized format like "Author_Year_FiveWordTitle.ext". The script includes two main commands: 'rename', which handles file renaming with options for recursion, dry runs, and backups; and 'citations', which generates citation databases in formats like BibTeX or CSV without renaming files. It uses asynchronous operations for API calls, incorporates logging and progress tracking for user feedback, and handles errors gracefully to ensure robustness.  
+
+```python
+"""
+Command-line interface for Reference Renamer.
+"""
+
+import asyncio
+import logging
+from pathlib import Path
+from typing import Optional
+import sys
+
+import click
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
+
+from ..core.file_processor import FileProcessor
+from ..core.content_extractor import ContentExtractor
+from ..core.metadata_enricher import MetadataEnricher
+from ..core.filename_generator import FilenameGenerator
+from ..core.change_logger import ChangeLogger
+from ..api.arxiv import ArxivAPI
+from ..api.semantic_scholar import SemanticScholarAPI
+from ..api.ollama import OllamaAPI
+from ..utils.logging import setup_accessibility_logging, get_logger
+from ..utils.exceptions import ReferenceRenamerError
+
+console = Console()
+
+@click.group()
+@click.option(
+    "--log-level",
+    type=click.Choice(["DEBUG", "INFO", "WARNING", "ERROR"]),
+    default="INFO",
+    help="Set logging level"
+)
+@click.option(
+    "--log-file",
+    type=click.Path(),
+
+```
+

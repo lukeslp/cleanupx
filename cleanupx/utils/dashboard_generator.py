@@ -43,7 +43,7 @@ def generate_dashboard(directory: Path, output_path: Optional[Path] = None) -> O
             output_path = directory / "cleanupx_dashboard.html"
             
         # Load data from rename log
-        rename_log = load_rename_log()
+        rename_log = load_rename_log(directory)
         cache = load_cache()
         
         # Get or update hidden summary

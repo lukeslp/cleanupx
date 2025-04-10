@@ -1,44 +1,52 @@
 # arxiv (Code)
 
-**File:** moe/tools/search/arxiv.py  
+**File:** filellama/api/arxiv.py  
 **Language:** Python  
-**Lines:** 88  
+**Lines:** 215  
 
-**Description:** **: This code defines a class named ArxivTool that inherits from BaseTool. It is designed to search for academic papers on arXiv using a specified query, with options to limit the number of results and sort by relevance or date. The class includes an asynchronous execute method that performs the search, formats the results (including title, authors, publication date, URL, and a truncated abstract), and handles events for status updates and errors. Its purpose is to serve as a tool in a larger system (e.g., MoE system) for retrieving and displaying arXiv paper information.  
+**Description:** **: This module is designed for integrating with the arXiv API to search and retrieve academic paper metadata. It defines a class named ArxivAPI that initializes with a base URL and an optional logger. The class includes methods for asynchronous paper searches based on queries (with options for sorting and limiting results), parsing XML responses to extract metadata like titles, authors, abstracts, and DOIs, and fetching paper details by arXiv ID. It uses backoff for handling API errors and raises custom exceptions for failures, making it robust for integration into larger applications like Reference Renamer.  
 
 ```python
-"""arXiv API tool for the MoE system."""
+"""
+arXiv API integration module for Reference Renamer.
+Handles searching and retrieving paper metadata from arXiv.
+"""
 
-import arxiv
-from typing import Dict, Any, Optional, Callable, Awaitable, List
-from ..base import BaseTool
+import urllib.parse
+import logging
+from typing import Dict, Any, List, Optional
+import xml.etree.ElementTree as ET
+from datetime import datetime
 
-class ArxivTool(BaseTool):
-    """Tool for searching arXiv papers."""
+import aiohttp
+import backoff
+
+from ..utils.exceptions import APIError
+from ..utils.logging import get_logger
+
+class ArxivAPI:
+    """Client for interacting with arXiv API."""
     
-    def __init__(self, credentials: Dict[str, str] = None):
-        super().__init__(credentials)  # No credentials needed for arXiv
-        self.client = arxiv.Client()
-
-    async def execute(
+    def __init__(
         self,
-        query: str,
-        max_results: int = 5,
-        sort_by: str = "relevance",
-        __user__: dict = {},
-        __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None
-    ) -> str:
+        base_url: str = "http://export.arxiv.org/api/query",
+        logger: Optional[logging.Logger] = None
+    ):
         """
-        Search for arXiv papers.
+        Initialize arXiv API client.
         
         Args:
-            query: Search query
-            max_results: Maximum number of results to return
-            sort_by: Sort order (relevance or lastUpdatedDate)
-            __user__: User context
-            __event_emitter__: Event emitter for progress updates
-            
-        Returns:
-      
+            base_url: Base URL for arXiv API
+            logger: Optional logger instance
+        """
+        self.base_url = base_url
+        self.logger = logger or get_logger(__name__)
+        
+    @backoff.on_exception(
+        backoff.expo,
+        (aiohttp.ClientError, TimeoutError),
+        max_tries=3
+    )
+    async def s
 ```
 

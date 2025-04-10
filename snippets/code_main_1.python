@@ -1,0 +1,44 @@
+# main (Code)
+
+**File:** filellama/cli/main.py  
+**Language:** Python  
+**Lines:** 198  
+
+**Description:** **: This script serves as a command-line interface (CLI) for the FileLlama tool, designed for managing and organizing academic files such as PDFs. It uses the Click library to define commands for processing files (e.g., renaming based on metadata), extracting citations, extracting metadata, and organizing files into directories. The script includes global imports, setup for logging and console output using Rich, and asynchronous processing for file operations. It handles user inputs via CLI options and arguments, processes files or directories, and displays results in a table format. However, some features like citations, metadata extraction, and organization are placeholders that print "coming soon." The overall purpose is to provide an intelligent tool for academic file management.  
+
+```python
+"""Command line interface for the filellama tool."""
+
+import sys
+import asyncio
+from pathlib import Path
+from typing import Optional
+
+import click
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
+
+from ..core.processor import FileProcessor
+from ..utils.exceptions import ProcessingError
+from ..utils.logging import setup_logging
+
+# Initialize rich console
+console = Console()
+
+def print_version(ctx, param, value):
+    """Print version information."""
+    if not value or ctx.resilient_parsing:
+        return
+    import pkg_resources
+    version = pkg_resources.get_distribution('filellama').version
+    click.echo(f'filellama version {version}')
+    ctx.exit()
+
+@click.group()
+@click.option('--version', is_flag=True, callback=print_version,
+              expose_value=False, is_eager=True, help='Show version information.')
+@click.option('-v', '--verbose', is_flag=True, help='Enable verbose output.')
+@click.option('-c', 
+```
+

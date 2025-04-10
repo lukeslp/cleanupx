@@ -8,6 +8,7 @@ including topic, project, date, and other categorization methods.
 import os
 import shutil
 import logging
+import re
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any, Union
 
@@ -366,3 +367,122 @@ def organize_files_by_date(
             logger.error(f"Error organizing {file_path}: {e}")
     
     return file_count, created_folders
+
+def create_bibliography(directory: Union[str, Path], format: str = "apa") -> Optional[str]:
+    """
+    Create a bibliography from citations found in the directory.
+    
+    Args:
+        directory: Directory to scan for citations
+        format: Citation format (apa, mla, chicago, etc.)
+        
+    Returns:
+        Formatted bibliography string or None if no citations found
+    """
+    try:
+        directory = Path(directory)
+        citations = []
+        
+        # Scan markdown files for citations
+        for file_path in directory.rglob("*.md"):
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+                citations.extend(extract_citations(content))
+        
+        if not citations:
+            return None
+            
+        # Format citations based on style
+        if format.lower() == "apa":
+            return format_apa_citations(citations)
+        elif format.lower() == "mla":
+            return format_mla_citations(citations)
+        elif format.lower() == "chicago":
+            return format_chicago_citations(citations)
+        else:
+            return format_apa_citations(citations)  # Default to APA
+            
+    except Exception as e:
+        logger.error(f"Error creating bibliography: {e}")
+        return None
+
+def extract_citations(content: str) -> List[Dict[str, str]]:
+    """
+    Extract citations from text content.
+    
+    Args:
+        content: Text content to scan
+        
+    Returns:
+        List of citation dictionaries
+    """
+    citations = []
+    
+    # Match formal citations like [Author, Year] or (Author, Year)
+    citation_pattern = r'[\[\(]([^,\]\)]+),\s*(\d{4})[\]\)](?:\s*\(([^\)]+)\))?'
+    matches = re.finditer(citation_pattern, content)
+    
+    for match in matches:
+        author = match.group(1).strip()
+        year = match.group(2)
+        title = match.group(3) if match.group(3) else ""
+        
+        # Look for associated URL
+        url_pattern = rf'\[{re.escape(author)},\s*{year}\].*?\(([^\)]+)\)'
+        url_match = re.search(url_pattern, content)
+        url = url_match.group(1) if url_match else ""
+        
+        citations.append({
+            "author": author,
+            "year": year,
+            "title": title,
+            "url": url
+        })
+    
+    return citations
+
+def format_apa_citations(citations: List[Dict[str, str]]) -> str:
+    """Format citations in APA style."""
+    formatted = []
+    
+    for cite in sorted(citations, key=lambda x: (x["author"].split()[-1], x["year"])):
+        entry = f"{cite['author']} ({cite['year']})"
+        if cite["title"]:
+            entry += f". {cite['title']}"
+            if not cite["title"].endswith("."):
+                entry += "."
+        if cite["url"]:
+            entry += f" Retrieved from {cite['url']}"
+        formatted.append(entry)
+    
+    return "\n\n".join(formatted)
+
+def format_mla_citations(citations: List[Dict[str, str]]) -> str:
+    """Format citations in MLA style."""
+    formatted = []
+    
+    for cite in sorted(citations, key=lambda x: x["author"].split()[-1]):
+        entry = cite["author"]
+        if cite["title"]:
+            entry += f". \"{cite['title']}\""
+        entry += f", {cite['year']}"
+        if cite["url"]:
+            entry += f". Web. {cite['url']}"
+        formatted.append(entry)
+    
+    return "\n\n".join(formatted)
+
+def format_chicago_citations(citations: List[Dict[str, str]]) -> str:
+    """Format citations in Chicago style."""
+    formatted = []
+    
+    for cite in sorted(citations, key=lambda x: x["author"].split()[-1]):
+        entry = f"{cite['author']}. "
+        if cite["title"]:
+            entry += f"\"{cite['title']}.\" "
+        entry += f"({cite['year']})"
+        if cite["url"]:
+            entry += f". {cite['url']}"
+        formatted.append(entry)
+    
+    return "\n\n".join(formatted)

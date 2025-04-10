@@ -1,12 +1,18 @@
 # __init__ (Code)
 
-**File:** tests/__init__.py  
+**File:** filellama/__init__.py  
 **Language:** Python  
-**Lines:** 1  
+**Lines:** 7  
 
-**Description:** **: This is an __init__.py file in a Python package. It is used to indicate that a directory should be treated as a package. In this case, the file is empty, so it doesn't execute any code or perform specific actions; it simply exists to enable package imports and structure.  
+**Description:** **: This is an __init__.py file for a Python module. It serves as an entry point for the package and includes metadata such as the version ("0.1.0"), author ("Luke Steuber"), and license ("MIT"). The primary purpose is to define the module's identity for a tool that standardizes academic article filenames, though this file itself does not contain any executable code, functions, or classes.
 
 ```python
+"""
+Reference Renamer - A tool for standardizing academic article filenames.
+"""
 
+__version__ = "0.1.0"
+__author__ = "Luke Steuber"
+__license__ = "MIT" 
 ```
 

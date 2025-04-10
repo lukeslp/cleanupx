@@ -1,0 +1,254 @@
+"""
+Content extraction module for Reference Renamer.
+Handles extraction of text and metadata from various file formats.
+"""
+
+from pathlib import Path
+from typing import Dict, Any, Optional
+import logging
+import io
+import tempfile
+import re
+import os
+import shutil
+
+import PyPDF2
+import pdfplumber
+import docx
+import pptx
+import markdown
+import textract
+from tika import parser as tika_parser
+from pdfminer.high_level import extract_text as pdfminer_extract
+from PIL import Image
+import pytesseract
+from pdf2image import convert_from_path
+from pdf2image.exceptions import PDFPageCountError
+
+from ..utils.exceptions import ContentExtractionError, ExtractionError
+from ..utils.logging import get_logger
+
+class ContentExtractor:
+    """Extracts text content from various file formats."""
+    
+    def __init__(self, logger: Optional[logging.Logger] = None):
+        """
+        Initialize the content extractor.
+        
+        Args:
+            logger: Optional logger instance
+        """
+        self.logger = logger or get_logger(__name__)
+        
+    def extract_text(self, file_path: Path) -> Dict[str, str]:
+        """Extract text from a document using the appropriate method.
+        
+        Args:
+            file_path: Path to the document
+            
+        Returns:
+            Dictionary containing extracted text sections
+            
+        Raises:
+            ExtractionError: If text extraction fails
+        """
+        try:
+            suffix = file_path.suffix.lower()
+            
+            # Try tika first for any format
+            try:
+                tika_content = self._extract_with_tika(file_path)
+                if tika_content and len(tika_content.strip()) > 100:  # Reasonable content found
+                    return {'full_text': tika_content}
+            except Exception as e:
+                self.logger.warning(f"Tika extraction failed, falling back to specific extractors: {e}")
+            
+            # Fall back to specific extractors
+            if suffix == '.pdf':
+                return self._extract_pdf_text(file_path)
+            elif suffix == '.docx':
+                return self._extract_docx_text(file_path)
+            elif suffix == '.pptx':
+                return self._extract_pptx_text(file_path)
+            elif suffix == '.md':
+                return self._extract_markdown_text(file_path)
+            elif suffix == '.txt':
+                return self._extract_text_file(file_path)
+            else:
+                # Try textract as a last resort
+                try:
+                    content = textract.process(str(file_path)).decode('utf-8')
+                    return {'full_text': content}
+                except Exception as e:
+                    raise ExtractionError(f"Unsupported file format: {suffix}")
+                    
+        except Exception as e:
+            raise ExtractionError(f"Failed to extract text from {file_path}: {str(e)}")
+            
+    def _extract_with_tika(self, file_path: Path) -> str:
+        """Extract text using Apache Tika."""
+        parsed = tika_parser.from_file(str(file_path))
+        return parsed.get('content', '')
+            
+    def _extract_pdf_text(self, file_path: Path) -> Dict[str, str]:
+        """Extract text from PDF using multiple methods."""
+        content = {'full_text': '', 'header': '', 'first_page': ''}
+        
+        # Try pdfplumber first
+        try:
+            with pdfplumber.open(file_path) as pdf:
+                text = ''
+                for i, page in enumerate(pdf.pages):
+                    page_text = page.extract_text()
+                    if page_text:
+                        if i == 0:
+                            content['first_page'] = page_text
+                            # Extract header (first few lines)
+                            lines = page_text.split('\\n')[:3]
+                            content['header'] = '\\n'.join(lines)
+                        text += page_text + '\\n'
+                content['full_text'] = text
+                
+                if text.strip():  # If we got good content, return it
+                    return content
+        except Exception as e:
+            self.logger.warning(f"pdfplumber extraction failed: {e}")
+        
+        # Try pdfminer if pdfplumber failed
+        try:
+            text = pdfminer_extract(str(file_path))
+            if text.strip():
+                content['full_text'] = text
+                lines = text.split('\\n')
+                content['header'] = '\\n'.join(lines[:3])
+                content['first_page'] = '\\n'.join(lines[:20])  # Approximate first page
+                return content
+        except Exception as e:
+            self.logger.warning(f"pdfminer extraction failed: {e}")
+        
+        # Try PyPDF2 as last resort
+        try:
+            with open(file_path, 'rb') as file:
+                reader = PyPDF2.PdfReader(file)
+                text = ""
+                for i, page in enumerate(reader.pages):
+                    page_text = page.extract_text()
+                    if not page_text.strip():
+                        # Try OCR if no text found
+                        page_text = self._ocr_pdf_page(file_path, i)
+                    if i == 0:
+                        content['first_page'] = page_text
+                        lines = page_text.split('\\n')[:3]
+                        content['header'] = '\\n'.join(lines)
+                    text += page_text + "\\n"
+                content['full_text'] = text
+                return content
+        except Exception as e:
+            self.logger.error(f"All PDF extraction methods failed: {e}")
+            raise ExtractionError(f"Could not extract text from PDF: {e}")
+            
+    def _extract_docx_text(self, file_path: Path) -> Dict[str, str]:
+        """Extract text from DOCX file."""
+        try:
+            doc = docx.Document(file_path)
+            content = {'full_text': '', 'header': '', 'first_page': ''}
+            
+            # Extract all paragraphs
+            text = '\\n'.join(p.text for p in doc.paragraphs)
+            content['full_text'] = text
+            
+            # Get header and first page
+            first_paras = [p.text for p in doc.paragraphs[:20]]  # Approximate first page
+            content['header'] = '\\n'.join(first_paras[:3])
+            content['first_page'] = '\\n'.join(first_paras)
+            
+            return content
+        except Exception as e:
+            raise ExtractionError(f"Failed to extract text from DOCX: {e}")
+            
+    def _extract_pptx_text(self, file_path: Path) -> Dict[str, str]:
+        """Extract text from PPTX file."""
+        try:
+            prs = pptx.Presentation(file_path)
+            content = {'full_text': '', 'header': '', 'first_page': ''}
+            
+            all_text = []
+            first_slide_text = []
+            
+            for i, slide in enumerate(prs.slides):
+                slide_text = []
+                for shape in slide.shapes:
+                    if hasattr(shape, "text"):
+                        slide_text.append(shape.text)
+                
+                if i == 0:
+                    first_slide_text = slide_text
+                all_text.extend(slide_text)
+            
+            content['full_text'] = '\\n'.join(all_text)
+            content['header'] = '\\n'.join(first_slide_text[:3])
+            content['first_page'] = '\\n'.join(first_slide_text)
+            
+            return content
+        except Exception as e:
+            raise ExtractionError(f"Failed to extract text from PPTX: {e}")
+            
+    def _extract_markdown_text(self, file_path: Path) -> Dict[str, str]:
+        """Extract text from Markdown file."""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                md_text = f.read()
+                
+            # Convert to HTML and extract text
+            html = markdown.markdown(md_text)
+            # Simple HTML tag removal (could use BeautifulSoup for better parsing)
+            text = re.sub(r'<[^>]+>', '', html)
+            
+            content = {'full_text': text}
+            
+            # Extract header and first page
+            lines = text.split('\\n')
+            content['header'] = '\\n'.join(lines[:3])
+            content['first_page'] = '\\n'.join(lines[:20])  # Approximate first page
+            
+            return content
+        except Exception as e:
+            raise ExtractionError(f"Failed to extract text from Markdown: {e}")
+            
+    def _extract_text_file(self, file_path: Path) -> Dict[str, str]:
+        """Extract text from plain text file."""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                text = f.read()
+                
+            content = {'full_text': text}
+            
+            # Extract header and first page
+            lines = text.split('\\n')
+            content['header'] = '\\n'.join(lines[:3])
+            content['first_page'] = '\\n'.join(lines[:20])  # Approximate first page
+            
+            return content
+        except UnicodeDecodeError:
+            # Try different encodings
+            for encoding in ['latin-1', 'cp1252', 'iso-8859-1']:
+                try:
+                    with open(file_path, 'r', encoding=encoding) as f:
+                        text = f.read()
+                    content = {
+                        'full_text': text,
+                        'header': '\\n'.join(text.split('\\n')[:3]),
+                        'first_page': '\\n'.join(text.split('\\n')[:20])
+                    }
+                    return content
+                except UnicodeDecodeError:
+                    continue
+            raise ExtractionError("Failed to decode text file with any encoding")
+            
+    def _ocr_pdf_page(self, file_path: Path, page_num: int) -> str:
+        """Perform OCR on a PDF page."""
+        temp_dir = None
+        try:
+            temp_dir = tempfile.mkdtemp()
+            
+            # Convert PDF 

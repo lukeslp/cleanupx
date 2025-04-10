@@ -1,0 +1,43 @@
+# processor (Code)
+
+**File:** filellama/core/processor.py  
+**Language:** Python  
+**Lines:** 260  
+
+**Description:** **: This module defines a Python class named FileProcessor, which is responsible for processing academic files (such as documents, presentations, spreadsheets, images, and archives) by checking file types, extracting content, enriching metadata, and generating new filenames for intelligent renaming. It supports operations like creating backups, handling dry runs, and processing both individual files and directories asynchronously. The class uses external components for content extraction, metadata enrichment, and filename generation, and it integrates with an LLM model via Ollama for advanced processing. The purpose is to automate file organization and renaming based on file content and metadata, while logging activities and handling errors gracefully.  
+
+```python
+"""Core file processing module."""
+
+import logging
+import shutil
+import asyncio
+from datetime import datetime
+from pathlib import Path
+from typing import Optional, List, Dict, Any
+
+from .content_extractor import ContentExtractor
+from .metadata_enricher import MetadataEnricher
+from .filename_generator import FilenameGenerator
+from ..utils.exceptions import ProcessingError
+from ..utils.logging import get_logger
+
+class FileProcessor:
+    """Processes academic files for intelligent renaming."""
+
+    SUPPORTED_EXTENSIONS = {
+        'document': ['.pdf', '.txt', '.doc', '.docx', '.rtf', '.odt'],
+        'presentation': ['.ppt', '.pptx', '.odp'],
+        'spreadsheet': ['.xls', '.xlsx', '.ods'],
+        'image': ['.jpg', '.jpeg', '.png', '.tiff', '.bmp'],
+        'archive': ['.zip', '.tar.gz', '.rar']
+    }
+
+    def __init__(
+        self,
+        ollama_base_url: str = "http://localhost:11434",
+        model_name: str = "schollama",
+        backup_dir: Optional[Path] = None,
+        logger: 
+```
+

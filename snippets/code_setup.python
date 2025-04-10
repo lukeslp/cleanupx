@@ -2,38 +2,42 @@
 
 **File:** setup.py  
 **Language:** Python  
-**Lines:** 51  
+**Lines:** 74  
 
-**Description:** **: This script is a setup file for a Python package named 'toollama-moe'. It uses the setuptools library to define the package metadata, including name, version, author, description, and more. It reads the README.md for a long description and requirements.txt for dependencies. The setup function configures the package for distribution, specifying classifiers, required Python version, install requirements, and extra requirements for development and documentation.  
+**Description:** **: This script is a setup.py file used for packaging and distributing the 'filellama' Python package. It utilizes the setuptools library to define package metadata, such as the package name, version, description, author details, and dependencies. The script reads the README.md file for a detailed long description, specifies core dependencies for runtime and additional development dependencies, and sets up console scripts for command-line entry points. Its primary purpose is to facilitate the installation and setup of the filellama package via tools like pip.  
 
 ```python
-"""Setup file for the MoE system."""
+"""Setup script for the filellama package."""
 
 from setuptools import setup, find_packages
+from pathlib import Path
 
-with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+# Read the README for the long description
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
-with open("requirements.txt", "r", encoding="utf-8") as fh:
-    requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
-
-setup(
-    name="toollama-moe",
-    version="0.1.0",
-    author="Luke Steuber",
-    author_email="luke@actuallyuseful.ai",
-    description="A Mixture of Experts system for AI model coordination",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/luketools/toollama",
-    packages=find_packages(),
-    classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Progr
+# Core dependencies
+CORE_DEPENDENCIES = [
+    'pydantic>=2.5.2',
+    'PyPDF2>=3.0.0',
+    'pytesseract>=0.3.10',
+    'Pillow>=10.0.0',
+    'requests>=2.31.0',
+    'aiohttp>=3.9.1',
+    'semanticscholar>=0.5.0',
+    'click>=8.1.7',
+    'PyYAML>=6.0.1',
+    'rich>=13.7.0',
+    'structlog>=23.2.0',
+    'pdf2image>=1.16.3',
+    'anthropic>=0.3.11',
+    'anyio<4.0.0,>=3.5.0',
+    # Additional document processing libraries
+    'python-docx>=0.8.11',  # For .docx files
+    'python-pptx>=0.6.21',  # For .pptx files
+    'markdown>=3.3.7',      # For .md files
+    'pdfplumber>=0.7.6',    # Better PDF text extraction
+    'textract>=1.6.5',      # Unified text extraction from multiple formats
+    'tika-python>=1.24.0',  # Apache Tika integr
 ```
 

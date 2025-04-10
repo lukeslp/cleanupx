@@ -13,10 +13,26 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union, Any
 import re
 from datetime import datetime
+import csv
+import bibtexparser
+from bibtexparser.bwriter import BibTexWriter
+from bibtexparser.bibdatabase import BibDatabase
 from cleanupx.utils.cache import ensure_metadata_dir, CITATIONS_FILE
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+# Supported citation formats
+CITATION_FORMATS = {
+    'txt': 'Plain Text',
+    'md': 'Markdown',
+    'bib': 'BibTeX',
+    'csv': 'CSV',
+    'apa': 'APA',
+    'mla': 'MLA',
+    'chicago': 'Chicago',
+    'ieee': 'IEEE'
+}
 
 def extract_citations_from_text(text: str) -> List[Dict[str, str]]:
     """
@@ -451,4 +467,244 @@ def get_citation_stats(directory: Path) -> Dict[str, Any]:
             "doi": 0,
             "has_citations_file": False,
             "error": str(e)
-        } 
+        }
+
+def generate_citation_list(directory: Path, format: str = 'md') -> str:
+    """
+    Generate a citation list in the specified format.
+    
+    Args:
+        directory: Directory path where the citations file is located
+        format: Output format (txt, md, bib, csv, apa, mla, chicago, ieee)
+        
+    Returns:
+        Formatted string with citations in the specified format
+    """
+    citations_file = directory / CITATIONS_FILE
+    if not citations_file.exists():
+        return f"No citations found in {directory}."
+    
+    try:
+        with open(citations_file, 'r', encoding='utf-8') as f:
+            citations = json.load(f)
+        
+        # Filter to include only reference and DOI citations (not in-text)
+        references = [c for c in citations if c.get("type") in ["reference", "doi"]]
+        
+        if not references:
+            return f"No formal citations found in {directory}."
+        
+        if format == 'txt':
+            return generate_plain_text_citations(references)
+        elif format == 'md':
+            return generate_markdown_citation_list(directory)
+        elif format == 'bib':
+            return generate_bibtex_citations(references)
+        elif format == 'csv':
+            return generate_csv_citations(references)
+        elif format == 'apa':
+            return generate_apa_citation_list(directory)
+        elif format == 'mla':
+            return generate_mla_citations(references)
+        elif format == 'chicago':
+            return generate_chicago_citations(references)
+        elif format == 'ieee':
+            return generate_ieee_citations(references)
+        else:
+            raise ValueError(f"Unsupported citation format: {format}")
+            
+    except Exception as e:
+        logger.error(f"Error generating {format} citation list for {directory}: {e}")
+        return f"Error generating citations: {e}"
+
+def generate_plain_text_citations(references: List[Dict[str, Any]]) -> str:
+    """Generate plain text citations."""
+    formatted_citations = []
+    for ref in references:
+        authors = ref.get("authors", "")
+        year = ref.get("year", "")
+        title = ref.get("title", "")
+        source = ref.get("source", "")
+        volume = ref.get("volume", "")
+        issue = ref.get("issue", "")
+        pages = ref.get("pages", "")
+        doi = ref.get("doi", "")
+        
+        citation = f"{authors} ({year}). {title}. {source}"
+        if volume:
+            citation += f", {volume}"
+            if issue:
+                citation += f"({issue})"
+        if pages:
+            citation += f", {pages}"
+        if doi:
+            citation += f". https://doi.org/{doi}"
+        citation += "."
+        
+        formatted_citations.append(citation)
+    
+    return "\n\n".join(formatted_citations)
+
+def generate_bibtex_citations(references: List[Dict[str, Any]]) -> str:
+    """Generate BibTeX citations."""
+    db = BibDatabase()
+    db.entries = []
+    
+    for ref in references:
+        entry = {
+            'ENTRYTYPE': 'article',
+            'ID': f"{ref.get('authors', '').split(',')[0].strip()}_{ref.get('year', '')}",
+            'title': ref.get("title", ""),
+            'author': ref.get("authors", ""),
+            'year': ref.get("year", ""),
+            'journal': ref.get("source", ""),
+            'volume': ref.get("volume", ""),
+            'number': ref.get("issue", ""),
+            'pages': ref.get("pages", ""),
+            'doi': ref.get("doi", "")
+        }
+        
+        # Remove empty fields
+        entry = {k: v for k, v in entry.items() if v}
+        db.entries.append(entry)
+    
+    writer = BibTexWriter()
+    writer.indent = '    '
+    return writer.write(db)
+
+def generate_csv_citations(references: List[Dict[str, Any]]) -> str:
+    """Generate CSV citations."""
+    import io
+    
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=[
+        'authors', 'year', 'title', 'source', 'volume', 'issue', 'pages', 'doi'
+    ])
+    writer.writeheader()
+    
+    for ref in references:
+        writer.writerow({
+            'authors': ref.get("authors", ""),
+            'year': ref.get("year", ""),
+            'title': ref.get("title", ""),
+            'source': ref.get("source", ""),
+            'volume': ref.get("volume", ""),
+            'issue': ref.get("issue", ""),
+            'pages': ref.get("pages", ""),
+            'doi': ref.get("doi", "")
+        })
+    
+    return output.getvalue()
+
+def generate_mla_citations(references: List[Dict[str, Any]]) -> str:
+    """Generate MLA citations."""
+    formatted_citations = []
+    for ref in references:
+        authors = ref.get("authors", "")
+        title = ref.get("title", "")
+        source = ref.get("source", "")
+        volume = ref.get("volume", "")
+        issue = ref.get("issue", "")
+        pages = ref.get("pages", "")
+        year = ref.get("year", "")
+        
+        citation = f"{authors}. \"{title}.\" {source}"
+        if volume:
+            citation += f", vol. {volume}"
+            if issue:
+                citation += f", no. {issue}"
+        if pages:
+            citation += f", pp. {pages}"
+        citation += f", {year}."
+        
+        formatted_citations.append(citation)
+    
+    return "\n\n".join(formatted_citations)
+
+def generate_chicago_citations(references: List[Dict[str, Any]]) -> str:
+    """Generate Chicago style citations."""
+    formatted_citations = []
+    for ref in references:
+        authors = ref.get("authors", "")
+        title = ref.get("title", "")
+        source = ref.get("source", "")
+        volume = ref.get("volume", "")
+        issue = ref.get("issue", "")
+        pages = ref.get("pages", "")
+        year = ref.get("year", "")
+        doi = ref.get("doi", "")
+        
+        citation = f"{authors}. \"{title}.\" {source}"
+        if volume:
+            citation += f" {volume}"
+            if issue:
+                citation += f", no. {issue}"
+        if pages:
+            citation += f" ({year}): {pages}."
+        else:
+            citation += f" ({year})."
+        if doi:
+            citation += f" https://doi.org/{doi}"
+        
+        formatted_citations.append(citation)
+    
+    return "\n\n".join(formatted_citations)
+
+def generate_ieee_citations(references: List[Dict[str, Any]]) -> str:
+    """Generate IEEE style citations."""
+    formatted_citations = []
+    for i, ref in enumerate(references, 1):
+        authors = ref.get("authors", "")
+        title = ref.get("title", "")
+        source = ref.get("source", "")
+        volume = ref.get("volume", "")
+        issue = ref.get("issue", "")
+        pages = ref.get("pages", "")
+        year = ref.get("year", "")
+        doi = ref.get("doi", "")
+        
+        citation = f"[{i}] {authors}, \"{title},\" {source}"
+        if volume:
+            citation += f", vol. {volume}"
+            if issue:
+                citation += f", no. {issue}"
+        if pages:
+            citation += f", pp. {pages}"
+        citation += f", {year}."
+        if doi:
+            citation += f" doi: {doi}"
+        
+        formatted_citations.append(citation)
+    
+    return "\n\n".join(formatted_citations)
+
+def save_citation_list(directory: Path, format: str = 'md', output_file: Optional[Path] = None) -> Optional[Path]:
+    """
+    Save citations to a file in the specified format.
+    
+    Args:
+        directory: Directory path where the citations file is located
+        format: Output format (txt, md, bib, csv, apa, mla, chicago, ieee)
+        output_file: Optional path to save the file (defaults to CITATIONS.{format} in metadata dir)
+        
+    Returns:
+        Path to the saved file, or None if failed
+    """
+    try:
+        # Generate the citation list
+        citations = generate_citation_list(directory, format)
+        
+        # Determine output file path
+        if not output_file:
+            metadata_dir = ensure_metadata_dir(directory)
+            output_file = metadata_dir / f"CITATIONS.{format}"
+        
+        # Write to file
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write(citations)
+            
+        logger.info(f"Saved {format} citations to {output_file}")
+        return output_file
+    except Exception as e:
+        logger.error(f"Error saving {format} citations for {directory}: {e}")
+        return None 

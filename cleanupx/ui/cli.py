@@ -8,12 +8,16 @@ import sys
 import argparse
 import logging
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union, Callable
+import re
+import json
+import time
 
 try:
     from rich.console import Console
     from rich.panel import Panel
     from rich.table import Table
+    from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
     RICH_AVAILABLE = True
 except ImportError:
     RICH_AVAILABLE = False
@@ -27,7 +31,7 @@ except ImportError:
     logging.error("Inquirer not installed. Install with: pip install inquirer")
 
 from cleanupx.ui.interactive import interactive_mode, scramble_directory
-from cleanupx.utils.cache import load_rename_log
+from cleanupx.utils.cache import load_rename_log, save_rename_log, clear_cache
 from cleanupx.ui.reporting import display_rename_report
 from cleanupx.config import (
     IMAGE_EXTENSIONS, 
@@ -37,9 +41,29 @@ from cleanupx.config import (
     CACHE_FILE
 )
 from cleanupx.utils.documentation import DocumentationManager
+from cleanupx.main import (
+    process_directory, 
+    analyze_directory, 
+    organize_directory,
+    dedupe_files,
+    smart_merge_files,
+    generate_dashboard
+)
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+# Citation formats supported
+CITATION_FORMATS = {
+    'txt': 'Plain Text',
+    'md': 'Markdown',
+    'bib': 'BibTeX',
+    'csv': 'CSV',
+    'apa': 'APA',
+    'mla': 'MLA',
+    'chicago': 'Chicago',
+    'ieee': 'IEEE'
+}
 
 def parse_args(args: List[str]) -> argparse.Namespace:
     """
@@ -236,6 +260,25 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     )
     
     parser.add_argument(
+        "--export-citation-list",
+        action="store_true",
+        help="Create a citation list in the specified format"
+    )
+    
+    parser.add_argument(
+        "--citation-format",
+        choices=list(CITATION_FORMATS.keys()),
+        default="md",
+        help="Format for the citation list (default: md)"
+    )
+    
+    parser.add_argument(
+        "--citation-output",
+        type=str,
+        help="Output file path for the citation list (defaults to CITATIONS.{format} in metadata dir)"
+    )
+    
+    parser.add_argument(
         "--export-summary",
         action="store_true",
         help="Export directory summary to a DIRECTORY_SUMMARY.md file"
@@ -296,6 +339,29 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         help="Edit the report file after processing"
     )
     
+    # Smart merge command
+    parser.add_argument(
+        "--smart-merge",
+        action="store_true",
+        help="Intelligently merge similar documents in a directory"
+    )
+    parser.add_argument(
+        "--merge-threshold",
+        type=float,
+        default=0.75,
+        help="Similarity threshold (0-1) for document merging"
+    )
+    parser.add_argument(
+        "--merge-output",
+        type=str,
+        help="Output directory for merged documents"
+    )
+    parser.add_argument(
+        "--merge-archive",
+        type=str,
+        help="Directory to archive source documents after merging"
+    )
+    
     return parser.parse_args(args)
 
 def run_cli(args: Optional[List[str]] = None) -> int:
@@ -332,7 +398,6 @@ def run_cli(args: Optional[List[str]] = None) -> int:
     
     if parsed_args.clear_cache:
         try:
-            from cleanupx.utils.cache import clear_cache
             directory = Path(parsed_args.directory) if hasattr(parsed_args, 'directory') else None
             stats = clear_cache(directory)
             console.print("[bold green]Cache cleared successfully[/bold green]")
@@ -356,6 +421,22 @@ def run_cli(args: Optional[List[str]] = None) -> int:
     
     # Initialize documentation manager
     doc_manager = DocumentationManager(directory)
+    
+    # Handle citation list creation
+    if parsed_args.export_citation_list:
+        output_path = save_citation_list(
+            directory,
+            parsed_args.citation_format,
+            Path(parsed_args.citation_output) if parsed_args.citation_output else None
+        )
+        if output_path:
+            console.print(f"[bold green]Citation list saved to: {output_path}[/bold green]")
+        else:
+            console.print("[bold red]Error creating citation list[/bold red]")
+        return 0
+    
+    # Load rename log with directory as root
+    rename_log = load_rename_log(directory)
     
     # Handle documentation-related commands first
     if parsed_args.summary:
@@ -696,12 +777,17 @@ def run_cli(args: Optional[List[str]] = None) -> int:
     except Exception as e:
         console.print(f"[yellow]Warning: Could not initialize directory summaries: {e}[/yellow]")
     
-    # Import process_directory here to avoid circular imports
+    # Process the directory
     from cleanupx.main import process_directory
     
-    # Process the directory
-    stats = process_directory(
+    # Count total files first
+    total_files = sum(1 for _ in directory.rglob('*') if _.is_file()) if parsed_args.recursive else sum(1 for _ in directory.iterdir() if _.is_file())
+    
+    # Process with progress bar
+    stats = process_with_progress(
         directory=directory,
+        total_files=total_files,
+        process_fn=process_directory,
         recursive=parsed_args.recursive,
         skip_renamed=not parsed_args.force,
         max_size_mb=parsed_args.max_size,
@@ -1003,6 +1089,35 @@ def run_cli(args: Optional[List[str]] = None) -> int:
             console.print(f"[bold red]Error generating code documentation: {e}[/bold red]")
             return 1
     
+    # Handle smart merge
+    if parsed_args.smart_merge:
+        console.print(Panel(f"[bold blue]Smart Merging Documents in[/] [yellow]{directory}[/]", 
+                           title="Smart Merge", border_style="blue"))
+        
+        results = smart_merge_files(
+            directory=directory,
+            output_dir=Path(parsed_args.merge_output) if parsed_args.merge_output else None,
+            similarity_threshold=parsed_args.merge_threshold,
+            archive_dir=Path(parsed_args.merge_archive) if parsed_args.merge_archive else None,
+            recursive=parsed_args.recursive,
+            dry_run=parsed_args.dry_run
+        )
+        
+        if parsed_args.dry_run:
+            console.print(f"\n[bold green]Found {results.get('total_groups', 0)} groups of similar documents[/]")
+            for group_id, files in results.get('similar_files', {}).items():
+                console.print(f"\n[bold cyan]Group {group_id}[/] ({len(files)} files):")
+                for file in files:
+                    console.print(f"  - {file}")
+        else:
+            console.print(f"\n[bold green]Smart merge complete![/]")
+            console.print(f"[green]Merged {results.get('merged_groups', 0)} groups into {len(results.get('merged_files', []))} files[/]")
+            console.print(f"[green]Archived {len(results.get('archived_files', []))} source files[/]")
+            if results.get('error_files'):
+                console.print(f"[yellow]Encountered errors with {len(results.get('error_files', []))} files[/]")
+        
+        return 0
+    
     return 0
 
 def display_citations(directory: Path, console: Console) -> None:
@@ -1079,3 +1194,171 @@ def display_hidden_summary(directory: Path, console: Console) -> None:
         
     except Exception as e:
         console.print(f"[bold red]Error displaying hidden summary: {e}[/bold red]")
+
+def save_citation_list(
+    directory: Path,
+    format: str = "md",
+    output_path: Optional[Path] = None
+) -> Optional[Path]:
+    """
+    Create a citation list from formal citations in the directory.
+    
+    Args:
+        directory: Directory to scan for citations
+        format: Output format (md, html, txt, json)
+        output_path: Optional custom output path
+        
+    Returns:
+        Path to the created citation list file, or None if failed
+    """
+    try:
+        # Get all formal citations
+        citations = []
+        for file_path in directory.rglob("*.md"):
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+                citations.extend(extract_formal_citations(content))
+        
+        if not citations:
+            print("No formal citations found in the directory.")
+            return None
+            
+        # Create output path if not specified
+        if not output_path:
+            metadata_dir = directory / "metadata"
+            metadata_dir.mkdir(exist_ok=True)
+            output_path = metadata_dir / f"CITATIONS.{format}"
+            
+        # Format citations based on requested format
+        formatted_citations = format_citations(citations, format)
+        
+        # Write to file
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(formatted_citations)
+            
+        return output_path
+        
+    except Exception as e:
+        print(f"Error creating citation list: {str(e)}")
+        return None
+
+def extract_formal_citations(content: str) -> List[Dict[str, str]]:
+    """
+    Extract formal citations from markdown content.
+    
+    Args:
+        content: Markdown content to scan
+        
+    Returns:
+        List of citation dictionaries with keys: author, year, title, url
+    """
+    citations = []
+    # Look for formal citation patterns like [Author, Year] or (Author, Year)
+    pattern = r'\[([^,\]]+),\s*(\d{4})\](?:\(([^)]+)\))?'
+    matches = re.finditer(pattern, content)
+    
+    for match in matches:
+        author = match.group(1).strip()
+        year = match.group(2)
+        title = match.group(3) if match.group(3) else ""
+        
+        # Try to find URL in content after citation
+        url_pattern = rf'\[{re.escape(author)},\s*{year}\].*?\[([^\]]+)\]'
+        url_match = re.search(url_pattern, content)
+        url = url_match.group(1) if url_match else ""
+        
+        citations.append({
+            "author": author,
+            "year": year,
+            "title": title,
+            "url": url
+        })
+        
+    return citations
+
+def format_citations(citations: List[Dict[str, str]], format: str) -> str:
+    """
+    Format citations in the requested format.
+    
+    Args:
+        citations: List of citation dictionaries
+        format: Output format (md, html, txt, json)
+        
+    Returns:
+        Formatted citations as string
+    """
+    if format == "json":
+        return json.dumps(citations, indent=2)
+        
+    elif format == "html":
+        html = "<!DOCTYPE html>\n<html>\n<head>\n<title>Citations</title>\n</head>\n<body>\n"
+        html += "<h1>Citations</h1>\n<ul>\n"
+        for cite in citations:
+            html += f"<li>{cite['author']} ({cite['year']})"
+            if cite['title']:
+                html += f": {cite['title']}"
+            if cite['url']:
+                html += f" <a href='{cite['url']}'>[Link]</a>"
+            html += "</li>\n"
+        html += "</ul>\n</body>\n</html>"
+        return html
+        
+    elif format == "txt":
+        txt = "Citations\n=========\n\n"
+        for cite in citations:
+            txt += f"{cite['author']} ({cite['year']})"
+            if cite['title']:
+                txt += f": {cite['title']}"
+            if cite['url']:
+                txt += f" [Link: {cite['url']}]"
+            txt += "\n\n"
+        return txt
+        
+    else:  # markdown
+        md = "# Citations\n\n"
+        for cite in citations:
+            md += f"- {cite['author']} ({cite['year']})"
+            if cite['title']:
+                md += f": {cite['title']}"
+            if cite['url']:
+                md += f" [Link]({cite['url']})"
+            md += "\n"
+        return md
+
+def create_progress() -> Progress:
+    """Create a rich progress bar with custom styling."""
+    return Progress(
+        SpinnerColumn(),
+        TextColumn("[bold blue]{task.description}"),
+        BarColumn(complete_style="green", finished_style="green"),
+        TaskProgressColumn(),
+        "[progress.percentage]{task.percentage:>3.0f}%",
+        console=Console()
+    )
+
+def process_with_progress(directory: Path, total_files: int, process_fn: callable, **kwargs) -> Dict[str, Any]:
+    """
+    Process files with an animated progress bar.
+    
+    Args:
+        directory: Directory to process
+        total_files: Total number of files to process
+        process_fn: Processing function to call
+        **kwargs: Additional arguments for process_fn
+        
+    Returns:
+        Processing statistics
+    """
+    with create_progress() as progress:
+        # Create the main task
+        task = progress.add_task(f"Processing {directory.name}...", total=total_files)
+        
+        # Create a wrapper to update progress
+        def progress_callback(file_count: int, status: str = ""):
+            progress.update(task, completed=file_count, description=f"Processing {directory.name}... {status}")
+        
+        # Add the callback to kwargs
+        kwargs['progress_callback'] = progress_callback
+        
+        # Run the processing function
+        return process_fn(directory=directory, **kwargs)
