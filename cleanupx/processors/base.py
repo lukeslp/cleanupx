@@ -120,7 +120,7 @@ def rename_file(original_path: Path, new_name: str, rename_log: Optional[Dict] =
         return None
         
 def process_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict, 
-                max_size_mb: float = 25.0) -> Tuple[Path, Optional[Path], Optional[Dict]]:
+                max_size_mb: float = 25.0, generate_image_md: bool = True, generate_archive_md: bool = True) -> Tuple[Path, Optional[Path], Optional[Dict]]:
     """
     Base function to process a file. This will be overridden by specific processors.
     
@@ -129,6 +129,8 @@ def process_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log:
         cache: Cache dictionary for storing/retrieving file descriptions
         rename_log: Log for tracking renames
         max_size_mb: Maximum file size to process (in MB)
+        generate_image_md: Flag to indicate if image markdown should be generated
+        generate_archive_md: Flag to indicate if archive markdown should be generated
         
     Returns:
         Tuple of (original_path, new_path, description)

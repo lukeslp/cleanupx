@@ -54,7 +54,8 @@ def create_hidden_summary(directory: Path) -> Dict[str, Any]:
             "current_scheme": None,
             "suggestions": []
         },
-        "history": []
+        "history": [],
+        "ongoing_summary": ""
     }
     
     # Get basic statistics about the directory
@@ -375,6 +376,11 @@ def update_hidden_summary(directory: Path, changes: Dict[str, Any]) -> Dict[str,
         except Exception as e:
             logger.error(f"Error recalculating directory statistics: {e}")
     
+    try:
+        summary["ongoing_summary"] = generate_ongoing_summary(summary)
+    except Exception as e:
+        logger.error(f"Error generating ongoing summary: {e}")
+    
     return summary
 
 def get_reorganization_suggestions(directory: Path) -> List[Dict[str, Any]]:
@@ -422,7 +428,10 @@ def create_suggested_structure(directory: Path, suggestion: Dict[str, Any]) -> b
             for file_name in files_to_move:
                 source = directory / file_name
                 if source.exists() and source.is_file():
-                    target = new_dir / file_name
+                    new_file_name = file_name
+                    if file_name.startswith('.') and file_name not in [".cleanupx", ".cleanupx-citations"]:
+                        new_file_name = file_name.lstrip('.')
+                    target = new_dir / new_file_name
                     source.rename(target)
                     logger.info(f"Moved {source} to {target}")
             
@@ -474,4 +483,24 @@ def create_suggested_structure(directory: Path, suggestion: Dict[str, Any]) -> b
     
     except Exception as e:
         logger.error(f"Error creating suggested structure: {e}")
-        return False 
+        return False
+
+def generate_ongoing_summary(summary: Dict[str, Any]) -> str:
+    """Generate a human-readable ongoing summary based on the directory's summary data."""
+    parts = []
+    project_info = summary.get("project_info", {})
+    if project_info.get("name"):
+        parts.append(f"Project Name: {project_info.get('name')}")
+    if project_info.get("description"):
+        parts.append(f"Description: {project_info.get('description')}")
+    parts.append(f"Files: {summary.get('file_count', 0)}")
+    parts.append(f"Directories: {summary.get('directory_count', 0)}")
+    categories = summary.get("categories", {})
+    if categories:
+        cat_summary = ", ".join([f"{ext}: {count}" for ext, count in categories.items()])
+        parts.append(f"File types: {cat_summary}")
+    org = summary.get("organization", {})
+    suggestions = org.get("suggestions", [])
+    if suggestions:
+        parts.append(f"Organization suggestions: {', '.join(map(str, suggestions))}")
+    return " | ".join(parts) 

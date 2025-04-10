@@ -37,7 +37,9 @@ from cleanupx.utils.hidden_summary import update_hidden_summary, get_reorganizat
 def process_directory(directory: Union[str, Path], recursive: bool = False, skip_renamed: bool = True, 
                      max_size_mb: float = 25.0, update_summary: bool = True, 
                      include_user_prefs: bool = False, batch_size: int = 0,
-                     citation_style_pdfs: bool = False) -> Dict[str, int]:
+                     citation_style_pdfs: bool = False,
+                     generate_image_md: bool = True,
+                     generate_archive_md: bool = True) -> Dict[str, int]:
     """
     Process files in a directory, optionally recursively.
     
@@ -50,6 +52,8 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
         include_user_prefs: Whether to prompt for user preferences for organization
         batch_size: Number of files to process before asking for confirmation (0 = all)
         citation_style_pdfs: Whether to use citation-style naming for PDFs
+        generate_image_md: Whether to generate image metadata
+        generate_archive_md: Whether to generate archive metadata
         
     Returns:
         Dictionary with processing statistics
@@ -152,7 +156,7 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
                     ext = file_path.suffix.lower()
                     stats["total"] += 1
                     try:
-                        orig_path, new_path, description = process_file(file_path, cache, rename_log, max_size_mb, citation_style_pdfs)
+                        orig_path, new_path, description = process_file(file_path, cache, rename_log, max_size_mb, citation_style_pdfs, generate_image_md=generate_image_md, generate_archive_md=generate_archive_md)
                         
                         # Update stats based on file type
                         from cleanupx.config import IMAGE_EXTENSIONS, TEXT_EXTENSIONS, DOCUMENT_EXTENSIONS
@@ -219,7 +223,7 @@ def process_directory(directory: Union[str, Path], recursive: bool = False, skip
                 ext = file_path.suffix.lower()
                 stats["total"] += 1
                 try:
-                    orig_path, new_path, description = process_file(file_path, cache, rename_log, max_size_mb, citation_style_pdfs)
+                    orig_path, new_path, description = process_file(file_path, cache, rename_log, max_size_mb, citation_style_pdfs, generate_image_md=generate_image_md, generate_archive_md=generate_archive_md)
                     
                     # Update stats based on file type
                     from cleanupx.config import IMAGE_EXTENSIONS, TEXT_EXTENSIONS, DOCUMENT_EXTENSIONS

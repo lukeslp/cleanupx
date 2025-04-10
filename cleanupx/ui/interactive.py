@@ -121,6 +121,7 @@ def main_menu(console: Console) -> str:
                 ('Generate directory summaries', 'summary'),
                 ('Manage citations', 'citations'),
                 ('Scramble filenames', 'scramble'),
+                ('Deduplicate images', 'dedupe_images'),
                 ('Find duplicates', 'dedupe'),
                 ('Reorganize files', 'reorganize'),
                 ('Exit', 'exit')
@@ -179,6 +180,21 @@ def process_files_menu(console: Console) -> Dict:
                 ('Archives (zip, rar, etc.)', 'archives')
             ],
             default=['images', 'text', 'documents', 'archives']
+        ),
+        inquirer.Confirm(
+            'show_preview',
+            message="Show preview of files to be processed/renamed before confirming?",
+            default=True
+        ),
+        inquirer.Confirm(
+            'generate_image_md',
+            message="Generate .md files for image descriptions?",
+            default=True
+        ),
+        inquirer.Confirm(
+            'generate_archive_md',
+            message="Generate .md archive summaries for archives?",
+            default=True
         ),
         inquirer.Confirm(
             'proceed',
@@ -337,10 +353,9 @@ def interactive_mode() -> int:
             
         elif action == 'process':
             answers = process_files_menu(console)
-            if not answers or not answers['proceed']:
+            if not answers or not answers.get('proceed', False):
                 continue
             
-            # Process files based on user preferences
             directory = Path(answers['directory'])
             recursive = answers['scope'] == 'recursive'
             skip_renamed = answers['renamed_files'] == 'skip'
@@ -350,51 +365,62 @@ def interactive_mode() -> int:
             except ValueError:
                 console.print("[yellow]Invalid max size value, using default of 25MB[/yellow]")
                 max_size = 25.0
-            selected_types = set(answers['file_types'])
+            # Preview step: list files to process with their status
+            all_files = list(directory.glob('**/*')) if recursive else list(directory.glob('*'))
+            preview_files = []
+            for f in all_files:
+                if f.is_file():
+                    status_str = "Renamed" if not f.exists() else "Pending"
+                    preview_files.append((f.name, status_str))
 
-            if clear_cache and os.path.exists(CACHE_FILE):
-                os.remove(CACHE_FILE)
-                console.print("[yellow]Cache cleared[/yellow]")
+            if answers.get('show_preview', False):
+                preview_table = Table(title="Files Preview", style="bright_blue")
+                preview_table.add_column("File Name", style="bold")
+                preview_table.add_column("Status", style="green")
+                for name, stat in preview_files:
+                    preview_table.add_row(name, stat)
+                console.print(preview_table)
 
-            # Configure file types based on user selection
-            from cleanupx import config
-            if 'images' not in selected_types:
-                config.IMAGE_EXTENSIONS = set()
-            if 'text' not in selected_types:
-                config.TEXT_EXTENSIONS = set()
-            if 'documents' not in selected_types:
-                config.DOCUMENT_EXTENSIONS = set()
-            if 'archives' not in selected_types:
-                config.ARCHIVE_EXTENSIONS = set()
+                confirm = inquirer.prompt([inquirer.Confirm('confirm_process', message="Proceed with processing these files?", default=True)])
+                if not (confirm and confirm.get('confirm_process', False)):
+                    console.print("[yellow]Processing cancelled by user.[/yellow]")
+                    continue
 
-            console.print(Panel(
+            # Display processing configuration
+            config_panel = Panel(
                 f"[bold]Processing directory:[/bold] {directory}\n"
                 f"[bold]Recursive:[/bold] {'Yes' if recursive else 'No'}\n"
                 f"[bold]Skip renamed:[/bold] {'Yes' if skip_renamed else 'No'}\n"
                 f"[bold]Maximum file size:[/bold] {max_size}MB\n"
-                f"[bold]Selected file types:[/bold] {', '.join(selected_types) or 'None - no files will be processed'}",
+                f"[bold]Generate Image MD:[/bold] {'Yes' if answers.get('generate_image_md') else 'No'}\n"
+                f"[bold]Generate Archive MD:[/bold] {'Yes' if answers.get('generate_archive_md') else 'No'}",
                 title="Processing Configuration",
                 border_style="cyan"
-            ))
+            )
+            console.print(config_panel)
+
             console.print("[blue]Starting file processing...[/blue]")
             try:
                 from cleanupx.main import process_directory
-                with console.status("[bold green]Processing files...", spinner="dots") as status:
-                    stats = process_directory(directory, recursive=recursive, skip_renamed=skip_renamed, max_size_mb=max_size)
+                with console.status("[bold green]Processing files...[/bold green]", spinner="dots") as status:
+                    stats = process_directory(directory, recursive=recursive, skip_renamed=skip_renamed, max_size_mb=max_size, generate_image_md=answers.get('generate_image_md', True), generate_archive_md=answers.get('generate_archive_md', True))
 
-                console.print(Panel(
-                    f"[bold]Total files processed:[/bold] {stats['total']}\n"
-                    f"[bold]Images processed:[/bold] {stats['images']}\n"
-                    f"[bold]Text files processed:[/bold] {stats['text']}\n"
-                    f"[bold]Documents processed:[/bold] {stats['documents']}\n"
-                    f"[bold]Files skipped:[/bold] {stats['skipped']}\n"
-                    f"[bold]Files skipped (too large):[/bold] {stats.get('skipped_large', 0)}\n"
-                    f"[bold]Files failed:[/bold] {stats['failed']}",
-                    title="[bold green]Processing Complete![/bold green]",
-                    border_style="green"
-                ))
+                detail_table = Table(title="File Processing Details", style="bright_yellow")
+                detail_table.add_column("Metric", style="bold cyan")
+                detail_table.add_column("Count", style="bold magenta")
+                detail_table.add_row("Total Files", str(stats.get('total', 0)))
+                detail_table.add_row("Images Processed", str(stats.get('images', 0)))
+                detail_table.add_row("Text Files Processed", str(stats.get('text', 0)))
+                detail_table.add_row("Documents Processed", str(stats.get('documents', 0)))
+                detail_table.add_row("Archives Processed", str(stats.get('archives', 0)))
+                detail_table.add_row("Files Skipped", str(stats.get('skipped', 0)))
+                detail_table.add_row("Large Files Skipped", str(stats.get('skipped_large', 0)))
+                detail_table.add_row("Files Failed", str(stats.get('failed', 0)))
+                console.print(detail_table)
 
-                rename_log = load_rename_log()
+                from cleanupx.ui.reporting import display_rename_report
+                rename_log = __import__('cleanupx.utils.cache', fromlist=['load_rename_log']).load_rename_log()
+                console.print(Panel("Rename Report", style="bold green", border_style="green"))
                 display_rename_report(rename_log)
             except KeyboardInterrupt:
                 console.print("\n[yellow]Operation cancelled by user[/yellow]")
@@ -432,8 +458,16 @@ def interactive_mode() -> int:
             elif answers['action'] == 'display':
                 doc_manager.display_citations()
             elif answers['action'] == 'export':
-                # TODO: Implement citation export
-                pass
+                try:
+                    citations_path = directory / ".cleanupx-citations"
+                    md_path = directory / "CITATIONS.md"
+                    with open(citations_path, 'r', encoding='utf-8') as f:
+                        citations = f.read()
+                    with open(md_path, 'w', encoding='utf-8') as f:
+                        f.write("# Citations\n\n" + citations)
+                    console.print(f"[green]Exported citations to {md_path}[/green]")
+                except Exception as e:
+                    console.print(f"[red]Error exporting citations: {e}[/red]")
                 
         elif action == 'scramble':
             questions = [
@@ -462,7 +496,33 @@ def interactive_mode() -> int:
             console.print(f"\n[bold green]Scrambling complete![/bold green]")
             console.print(f"[cyan]Total files scrambled:[/cyan] {scrambled_count}")
             
+            from cleanupx.ui.reporting import display_rename_report
             display_rename_report(rename_log)
+            
+        elif action == 'dedupe_images':
+            questions = [
+                inquirer.Path(
+                    'directory',
+                    message="Select directory to deduplicate images",
+                    exists=True,
+                    path_type=inquirer.Path.DIRECTORY,
+                    default="inbox"
+                ),
+                inquirer.Confirm(
+                    'proceed',
+                    message="Proceed with image deduplication?",
+                    default=True
+                )
+            ]
+            dedupe_answers = inquirer.prompt(questions)
+            if dedupe_answers and dedupe_answers.get('proceed', False):
+                try:
+                    from scripts.dedupe import dedupe_images
+                    count = dedupe_images(dedupe_answers['directory'])
+                    console.print(Panel(f"[green]Successfully deduplicated images. {count} duplicates removed.[/green]", title="Deduplication Result", border_style="green"))
+                except Exception as e:
+                    console.print(f"[red]Error during image deduplication: {e}[/red]")
+            continue
             
         elif action == 'dedupe':
             answers = dedupe_menu(console)
