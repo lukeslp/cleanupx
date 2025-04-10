@@ -51,8 +51,7 @@ from cleanupx.processors import (
     process_image_file,
     process_document_file,
     process_media_file,
-    process_archive_file,
-    smart_merge_documents
+    process_archive_file
 )
 
 def process_directory(directory: Union[str, Path], recursive: bool = False, skip_renamed: bool = True, 
@@ -294,9 +293,9 @@ def smart_merge_files(directory: Union[str, Path], output_dir: Optional[Union[st
     if dry_run:
         # Only find similar documents without merging
         logger.info("Dry run mode: Only finding similar documents without merging")
-        from cleanupx.processors.smart_merge import find_similar_documents
-        similar_groups = find_similar_documents(
-            directory, similarity_threshold, recursive)
+        from cleanupx.processors.smart_merge import find_similar_snippets
+        similar_groups = find_similar_snippets(
+            directory, similarity_threshold)
         
         results = {
             "total_groups": len(similar_groups),
@@ -305,20 +304,19 @@ def smart_merge_files(directory: Union[str, Path], output_dir: Optional[Union[st
         
         # Format results for reporting
         for group_id, group in similar_groups.items():
-            files = [str(f) for f, _ in group]
+            files = [str(f) for _, _, f in group]
             results["similar_files"][group_id] = files
             
         logger.info(f"Found {len(similar_groups)} groups of similar documents")
         return results
     else:
-        # Perform the actual merging
-        from cleanupx.processors.smart_merge import smart_merge_documents
-        results = smart_merge_documents(
+        # Perform the actual merging - sending to xAI API without similarity check
+        from cleanupx.processors.smart_merge import merge_code_snippets
+        results = merge_code_snippets(
             directory=directory,
             output_dir=output_dir,
             similarity_threshold=similarity_threshold,
-            archive_dir=archive_dir,
-            recursive=recursive
+            archive_dir=archive_dir
         )
         
         logger.info(f"Smart merge complete: {results['merged_groups']} groups merged, "

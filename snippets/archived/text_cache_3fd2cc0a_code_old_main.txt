@@ -1,0 +1,30 @@
+# old_main (Code)
+
+**File:** storage/old_main.html  
+**Language:** HTML  
+**Lines:** 238  
+
+**Description:** **: This HTML file sets up the structure for a web page, specifically a chat interface for Actually Useful AI. It includes meta tags for SEO and mobile optimization, links to external stylesheets and scripts, and defines the basic layout with elements like headers, main chat area, and input fields. The purpose is to provide a user-friendly interface for interacting with local LLMs, handling features like model selection, message input, file uploads, and dynamic content loading.  
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>Actually Useful Chat • Actually Useful AI</title>
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Actually Useful Chat • Actually Useful AI">
+    <meta name="description" content="A beautiful, accessible chat interface for local LLMs. Run powerful AI models locally with a modern, responsive UI.">
+    <meta name="keywords" content="AI chat, local LLM, machine learning, artificial intelligence, Actually Useful AI">
+    <meta name="author" content="Actually Useful AI">
+    <meta name="theme-color" content="#1DA1F2">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="websit
+```
+

@@ -43,16 +43,17 @@ logger = logging.getLogger(__name__)
 
 try:
     from cleanupx.processors.smart_merge import (
-        smart_merge_documents,
-        find_similar_documents,
-        merge_document_group
+        merge_code_snippets,
+        find_similar_snippets,
+        merge_snippet_group
     )
 except ImportError as e:
     logger.warning(f"Could not import smart_merge processor: {e}")
 
 def process_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict, 
                 max_size_mb: float = 25.0, citation_style_pdfs: bool = False, 
-                generate_dashboard: bool = False) -> Tuple[Path, Optional[Path], Optional[Dict]]:
+                generate_dashboard: bool = False, generate_image_md: bool = True,
+                generate_archive_md: bool = True) -> Tuple[Path, Optional[Path], Optional[Dict]]:
     """
     Process a file based on its type.
     
@@ -63,6 +64,8 @@ def process_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log:
         max_size_mb: Maximum file size to process (in MB)
         citation_style_pdfs: Whether to use citation-style naming for PDFs (e.g., Author_Year_Title.pdf)
         generate_dashboard: Whether to generate an HTML dashboard after processing
+        generate_image_md: Whether to generate markdown files for image descriptions
+        generate_archive_md: Whether to generate markdown files for archive contents
         
     Returns:
         Tuple of (original_path, new_path, description)
@@ -133,14 +136,14 @@ def process_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log:
             elif ext in TEXT_EXTENSIONS:
                 result = process_text_file(file_path, cache, rename_log)
             elif ext in IMAGE_EXTENSIONS:
-                result = process_image_file(file_path, cache, rename_log)
+                result = process_image_file(file_path, cache, rename_log, generate_image_md)
             elif ext in MEDIA_EXTENSIONS:
                 result = process_media_file(file_path, cache, rename_log)
             # Handle special case for .tar.gz files
             elif full_name.endswith('.tar.gz') or ext == '.tgz':
-                result = process_archive_file(file_path, cache, rename_log)
+                result = process_archive_file(file_path, cache, rename_log, generate_archive_md)
             elif ext in ARCHIVE_EXTENSIONS:
-                result = process_archive_file(file_path, cache, rename_log)
+                result = process_archive_file(file_path, cache, rename_log, generate_archive_md)
             else:
                 # For unknown file types, default to text processing
                 logger.info(f"Unknown file type: {file_path}, processing as text")

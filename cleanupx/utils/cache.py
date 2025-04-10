@@ -68,12 +68,32 @@ def ensure_metadata_dir(root: Union[str, Path]) -> Path:
         Path to the metadata directory
     """
     metadata_dir = METADATA_DIR(root)
+    
+    # Don't automatically create the directory, just return the path
+    # Directories will be created only when files are explicitly saved
+    
+    return metadata_dir
+
+def create_metadata_dir(root: Union[str, Path], create_subdirs: bool = True) -> Path:
+    """
+    Create the .cleanupx metadata directory in the given root.
+    This is only called when we explicitly need to save metadata.
+    
+    Args:
+        root: Root directory path
+        create_subdirs: Whether to create subdirectories
+        
+    Returns:
+        Path to the created metadata directory
+    """
+    metadata_dir = METADATA_DIR(root)
     metadata_dir.mkdir(parents=True, exist_ok=True)
     
-    # Create subdirectories for different types of metadata
-    (metadata_dir / "cache").mkdir(exist_ok=True)
-    (metadata_dir / "descriptions").mkdir(exist_ok=True)
-    (metadata_dir / "summaries").mkdir(exist_ok=True)
+    # Create subdirectories for different types of metadata if requested
+    if create_subdirs:
+        (metadata_dir / "cache").mkdir(exist_ok=True)
+        (metadata_dir / "descriptions").mkdir(exist_ok=True)
+        (metadata_dir / "summaries").mkdir(exist_ok=True)
     
     return metadata_dir
 
@@ -90,6 +110,30 @@ def get_description_path(file_path: Path) -> Path:
     metadata_dir = ensure_metadata_dir(file_path.parent)
     return metadata_dir / "descriptions" / f"{file_path.stem}.md"
 
+def save_description(file_path: Path, description: str) -> bool:
+    """
+    Save a file description to its markdown file.
+    
+    Args:
+        file_path: Path to the source file
+        description: The description text
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        # Only create directories when actually saving a file
+        metadata_dir = create_metadata_dir(file_path.parent)
+        desc_path = metadata_dir / "descriptions" / f"{file_path.stem}.md"
+        desc_path.parent.mkdir(exist_ok=True)
+        
+        with open(desc_path, 'w', encoding='utf-8') as f:
+            f.write(description)
+        return True
+    except Exception as e:
+        logger.error(f"Error saving description for {file_path}: {e}")
+        return False
+
 def get_cache_path(file_path: Union[str, Path], cache_type: str = "text") -> Path:
     """
     Get the cache path for a given file.
@@ -102,7 +146,10 @@ def get_cache_path(file_path: Union[str, Path], cache_type: str = "text") -> Pat
         Path to the cache file
     """
     file_path = Path(file_path)
-    cache_dir = ensure_metadata_dir(file_path.parent)
+    
+    # Use the central cache directory instead of creating .cleanupx directories everywhere
+    cache_dir = Path(_CACHE_CONFIG["cache_dir"])
+    cache_dir.mkdir(parents=True, exist_ok=True)
     
     # Create a hash of the absolute path to ensure unique cache files
     file_hash = hashlib.md5(str(file_path.absolute()).encode()).hexdigest()[:8]
@@ -110,7 +157,11 @@ def get_cache_path(file_path: Union[str, Path], cache_type: str = "text") -> Pat
     # Create a cache filename that includes the original filename for debugging
     cache_filename = f"{file_hash}_{file_path.stem}.cache"
     
-    return cache_dir / cache_type / cache_filename
+    # Ensure cache type subdirectory exists
+    cache_type_dir = cache_dir / cache_type
+    cache_type_dir.mkdir(exist_ok=True)
+    
+    return cache_type_dir / cache_filename
 
 def configure_cache(
     max_size: Optional[int] = None,
@@ -460,7 +511,8 @@ def save_cache(cache_data: Dict[str, Any], root: Union[str, Path] = None) -> Non
     """
     try:
         if root is None:
-            cache_file = Path(DEFAULT_CACHE_DIR) / "global_cache.json"
+            # Use the central cache directory from config
+            cache_file = Path(_CACHE_CONFIG["cache_dir"]) / "global_cache.json"
         else:
             cache_file = CACHE_FILE(root)
         
@@ -481,7 +533,15 @@ def save_rename_log(log_data: Dict[str, Any], root: Union[str, Path]) -> None:
         root: Root directory path
     """
     try:
-        log_file = RENAME_LOG_FILE(root)
+        # Use the central cache directory instead of local directories
+        if isinstance(root, str) and root.startswith("/"):
+            # This is an absolute path, use it to create a unique filename
+            import hashlib
+            dir_hash = hashlib.md5(root.encode()).hexdigest()[:8]
+            log_file = Path(_CACHE_CONFIG["cache_dir"]) / f"rename_log_{dir_hash}.json"
+        else:
+            log_file = RENAME_LOG_FILE(root)
+        
         log_file.parent.mkdir(parents=True, exist_ok=True)
         
         with open(log_file, 'w') as f:
@@ -530,4 +590,6 @@ def add_error_to_log(rename_log: Dict, file_path: Path, error: str, error_type: 
     rename_log["stats"]["failed_renames"] += 1
     # Only save the log if NO_CACHE is not set
     if not os.environ.get('CLEANUPX_NO_CACHE'):
-        save_rename_log(rename_log)
+        # Get the parent directory of the file as the root
+        root = file_path.parent
+        save_rename_log(rename_log, root)

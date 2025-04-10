@@ -362,6 +362,29 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         help="Directory to archive source documents after merging"
     )
     
+    # Add new options for snippet deduplication
+    parser.add_argument(
+        "--dedupe-snippets",
+        action="store_true",
+        help="Find and consolidate duplicate code snippets using LLM analysis"
+    )
+    parser.add_argument(
+        "--snippets-threshold",
+        type=float,
+        default=0.25,
+        help="Similarity threshold for snippet deduplication (0.0-1.0, default: 0.25)"
+    )
+    parser.add_argument(
+        "--snippets-output-dir",
+        type=str,
+        help="Output directory for deduplicated snippets"
+    )
+    parser.add_argument(
+        "--skip-llm-processing",
+        action="store_true",
+        help="Generate batch files for duplicate snippets but skip LLM processing"
+    )
+    
     return parser.parse_args(args)
 
 def run_cli(args: Optional[List[str]] = None) -> int:
@@ -675,7 +698,7 @@ def run_cli(args: Optional[List[str]] = None) -> int:
         else:
             console.print("[yellow]Inquirer not installed. Proceeding without confirmation.[/yellow]")
         
-        rename_log = load_rename_log()
+        rename_log = load_rename_log(Path.cwd())
         # Ensure directory is properly passed as a Path object
         scrambled_count = scramble_directory(directory, rename_log)
         
@@ -738,7 +761,8 @@ def run_cli(args: Optional[List[str]] = None) -> int:
                                      parsed_args.summary or parsed_args.suggest or 
                                      parsed_args.citations or parsed_args.hidden_summary or
                                      parsed_args.reorganize or parsed_args.dev_crawl or
-                                     parsed_args.code_docs or parsed_args.dedupe_text):
+                                     parsed_args.code_docs or parsed_args.dedupe_text or
+                                     parsed_args.dedupe_snippets):
         console.print(Panel(
             f"[bold]Processing directory:[/bold] {directory}\n"
             f"[bold]Recursive:[/bold] {'Yes' if parsed_args.recursive else 'No'}\n"
@@ -807,7 +831,7 @@ def run_cli(args: Optional[List[str]] = None) -> int:
     console.print(f"[cyan]Files failed:[/cyan] {stats.get('failed', 0)}")
     
     # Display the comprehensive report
-    rename_log = load_rename_log()
+    rename_log = load_rename_log(Path.cwd())
     display_rename_report(rename_log)
     
     # Show organization suggestions if available and summaries were generated
@@ -1117,6 +1141,57 @@ def run_cli(args: Optional[List[str]] = None) -> int:
                 console.print(f"[yellow]Encountered errors with {len(results.get('error_files', []))} files[/]")
         
         return 0
+    
+    # Snippet deduplication mode
+    if parsed_args.dedupe_snippets:
+        try:
+            from cleanupx.utils.snippet_deduplication import deduplicate_snippets
+            
+            console.print(f"[bold cyan]Starting snippet deduplication for {directory}[/bold cyan]")
+            console.print(f"[cyan]Using similarity threshold: {parsed_args.snippets_threshold}[/cyan]")
+            
+            # Call the wrapper function
+            results = deduplicate_snippets(
+                directory=directory,
+                output_dir=parsed_args.snippets_output_dir,
+                threshold=parsed_args.snippets_threshold,
+                skip_processing=parsed_args.skip_llm_processing
+            )
+            
+            # Process results
+            if results["success"]:
+                console.print("[bold green]Snippet deduplication completed successfully![/bold green]")
+                
+                # Print filtered output with proper formatting
+                for line in results["output"]:
+                    if "error" in line.lower():
+                        console.print(f"[red]{line}[/red]")
+                    elif "warning" in line.lower():
+                        console.print(f"[yellow]{line}[/yellow]")
+                    elif any(s in line.lower() for s in ["complete", "success", "finished"]):
+                        console.print(f"[green]{line}[/green]")
+                    else:
+                        console.print(line)
+            else:
+                console.print("[bold red]Snippet deduplication failed[/bold red]")
+                if "error_message" in results:
+                    console.print(f"[red]Error: {results['error_message']}[/red]")
+                
+                # Print error output
+                for line in results.get("errors", []):
+                    console.print(f"[red]{line}[/red]")
+                
+            return results.get("exit_code", 0)
+            
+        except ImportError:
+            console.print("[bold red]Error: snippet_deduplication module not found[/bold red]")
+            console.print("[yellow]Please ensure the deduplication scripts are installed correctly.[/yellow]")
+            return 1
+        except Exception as e:
+            console.print(f"[bold red]Error in snippet deduplication: {e}[/bold red]")
+            import traceback
+            console.print(f"[red]{traceback.format_exc()}[/red]")
+            return 1
     
     return 0
 

@@ -222,7 +222,8 @@ def generate_image_filename(file_path: Union[str, Path], description: Optional[D
     else:
         return f"{base_name}{ext}"
 
-def process_image_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Optional[Dict] = None) -> Tuple[Path, Optional[Path], Optional[Dict[str, Any]]]:
+def process_image_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Optional[Dict] = None, 
+                      generate_md: bool = True) -> Tuple[Path, Optional[Path], Optional[Dict[str, Any]]]:
     """
     Process an image file - extract metadata and generate description.
     
@@ -230,6 +231,7 @@ def process_image_file(file_path: Union[str, Path], cache: Dict[str, Any], renam
         file_path: Path to the image file
         cache: Cache dictionary for storing/retrieving image descriptions
         rename_log: Optional log for tracking renames
+        generate_md: Whether to generate markdown description file
         
     Returns:
         Tuple of (original_path, new_path, description) where:
@@ -304,21 +306,22 @@ def process_image_file(file_path: Union[str, Path], cache: Dict[str, Any], renam
         new_path = generate_new_filename(file_path, data)
         if new_path:
             # Create markdown file with image description in .cleanupx/descriptions
-            description_path = get_description_path(file_path)
-            try:
-                with open(description_path, 'w', encoding='utf-8') as f:
-                    f.write(f"# {data.get('title', file_path.stem)}\n\n")
-                    if "dimensions" in data:
-                        width, height = data["dimensions"]
-                        f.write(f"**Resolution:** {width}x{height}\n\n")
-                    f.write(f"{data.get('description', 'No description available')}\n\n")
-                    f.write(f"**Original Name:** {file_path.name}\n")
-                    f.write(f"**Current Name:** {new_path.name}\n")
-                    f.write(f"**File Size:** {file_path.stat().st_size / 1024:.2f} KB\n")
-                    f.write(f"**Last Modified:** {datetime.fromtimestamp(file_path.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S')}\n")
-                logger.info(f"Created description file: {description_path}")
-            except Exception as e:
-                logger.error(f"Failed to create description file for {file_path}: {e}")
+            if generate_md:
+                description_path = get_description_path(file_path)
+                try:
+                    with open(description_path, 'w', encoding='utf-8') as f:
+                        f.write(f"# {data.get('title', file_path.stem)}\n\n")
+                        if "dimensions" in data:
+                            width, height = data["dimensions"]
+                            f.write(f"**Resolution:** {width}x{height}\n\n")
+                        f.write(f"{data.get('description', 'No description available')}\n\n")
+                        f.write(f"**Original Name:** {file_path.name}\n")
+                        f.write(f"**Current Name:** {new_path.name}\n")
+                        f.write(f"**File Size:** {file_path.stat().st_size / 1024:.2f} KB\n")
+                        f.write(f"**Last Modified:** {datetime.fromtimestamp(file_path.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S')}\n")
+                    logger.info(f"Created description file: {description_path}")
+                except Exception as e:
+                    logger.error(f"Failed to create description file for {file_path}: {e}")
             
             # Rename file
             success = rename_file(file_path, new_path, rename_log)

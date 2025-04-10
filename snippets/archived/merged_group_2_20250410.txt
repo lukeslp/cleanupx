@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actually Useful Search</title>
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Actually Useful Search">
+    <meta name="description" content="Accessible, ethical, practical AI">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://actuallyusefulsearch.com/">
+    <meta property="og:title" content="Actually Useful Search">
+    <meta property="og:description" content="Accessible, ethical, practical AI">
+    <meta property="og:image" content="https://i.imgur.com/kHogTSp.gif">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://actuallyusefulsearch.com/">
+    <meta property="twitter:title" content="Actually Useful Search">
+    <meta property="twitter:description" content="Accessible, ethical, practical AI">
+
+    <style>
+        :root {
+            --color-bg: rgb(13, 17, 23);
+            --color-bg-secondary: rgb(22, 27, 34);
+            --color-text: rgb(230, 237, 243);
+            --color-text-secondary: rgb(139, 148, 158);
+            --color-primary: #58a6ff;
+            --color-critical: #ff0000;
+            --color-success: #198754;
+            --color-warning: #ffc107;
+            --color-border: rgb(48, 54, 61);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        h1 {
+            color: var(--color-primary);
+            font-size: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Content placeholder -->
+</body>
+</html>

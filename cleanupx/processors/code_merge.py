@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Smart Document Merging processor for CleanupX.
+Code Snippet Smart Merger
 
-This module provides functionality to intelligently merge similar documents,
-deduplicate content, and create definitive versions of snippets.
+Specialized processor for finding and consolidating meaningful code snippets,
+filtering out boilerplate and low-value code.
 """
 
 import logging
@@ -17,17 +17,15 @@ import hashlib
 import difflib
 import ast
 
-from cleanupx.config import TEXT_EXTENSIONS, DOCUMENT_EXTENSIONS, XAI_MODEL_TEXT
-from cleanupx.utils.common import read_text_file, strip_media_suffixes, clean_filename
-from cleanupx.utils.cache import save_cache, load_cache, get_cache_path, _CACHE_CONFIG
+from cleanupx.config import TEXT_EXTENSIONS, XAI_MODEL_TEXT
+from cleanupx.utils.common import read_text_file, clean_filename
 from cleanupx.api import call_xai_api
-from cleanupx.processors.document import extract_text_from_pdf, extract_text_from_docx
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Similarity threshold for considering documents similar enough to merge
-DEFAULT_SIMILARITY_THRESHOLD = 0.75
+# Similarity threshold for considering snippets similar enough to merge
+DEFAULT_SIMILARITY_THRESHOLD = 0.25
 
 # Maximum tokens per batch for LLM processing
 MAX_BATCH_TOKENS = 4000
@@ -35,30 +33,22 @@ MAX_BATCH_TOKENS = 4000
 # Initialize in-memory text cache
 _TEXT_CACHE = {}
 
-def calculate_similarity(text1: str, text2: str) -> float:
-    """
-    Calculate similarity ratio between two text strings.
-    
-    Args:
-        text1: First text string
-        text2: Second text string
-        
-    Returns:
-        Similarity ratio between 0 and 1
-    """
-    # Use difflib's SequenceMatcher to calculate similarity
-    matcher = difflib.SequenceMatcher(None, text1, text2)
-    return matcher.ratio()
-
 def is_meaningful_code(text: str) -> bool:
     """
     Determine if a code snippet is meaningful enough to keep.
+    
+    Filters out:
+    - Empty or whitespace-only snippets
+    - Simple __init__ files
+    - Basic imports only
+    - Single-line assignments
+    - Common boilerplate
     
     Args:
         text: Code snippet to analyze
         
     Returns:
-        True if the snippet is meaningful, False if it's too simple or boilerplate
+        True if the snippet is meaningful, False otherwise
     """
     # Remove empty or whitespace-only snippets
     if not text.strip():

@@ -130,7 +130,8 @@ def get_gz_info(file_path: Union[str, Path]) -> Dict[str, Any]:
             "compressed_size": Path(file_path).stat().st_size
         }
 
-def process_archive_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict) -> Tuple[Path, Optional[Path], Optional[Dict]]:
+def process_archive_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict, 
+                        generate_md: bool = True) -> Tuple[Path, Optional[Path], Optional[Dict]]:
     """
     Process archive files (.zip, .tar, etc.) to:
     1. Analyze contents to suggest a new filename
@@ -140,6 +141,7 @@ def process_archive_file(file_path: Union[str, Path], cache: Dict[str, Any], ren
         file_path: Path to the archive file
         cache: Cache dictionary for storing/retrieving archive descriptions
         rename_log: Log for tracking renames
+        generate_md: Whether to generate markdown summary file
         
     Returns:
         Tuple of (original_path, new_path, description)
@@ -277,7 +279,7 @@ Provide:
         new_path = rename_file(file_path, new_name, rename_log)
         
         # Create a markdown summary file
-        if "summary_md" in result and new_path:
+        if "summary_md" in result and new_path and generate_md:
             try:
                 summary_content = result["summary_md"]
                 md_path = new_path.with_suffix(".md")

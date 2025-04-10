@@ -1,0 +1,84 @@
+# notion_api_keys (Code)
+
+**File:** soon/notion_api_keys.html  
+**Language:** HTML  
+**Lines:** 519  
+
+**Description:** **: This code is an HTML file that includes a comprehensive CSS stylesheet. Its purpose is to define the layout, styling, and formatting for a web page or printable document, likely exported from Notion. It handles elements such as typography, tables, lists, images, and interactive components (e.g., checkboxes and toggles) to create a readable and visually appealing document. The CSS ensures cross-browser compatibility, responsive design, and print-specific adjustments, focusing on user interface elements for content like API keys and codes.
+
+```html
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>API Keys and Codes</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border
+```
+
