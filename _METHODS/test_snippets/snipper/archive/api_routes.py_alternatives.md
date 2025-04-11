@@ -5,7 +5,6 @@
 def health_check():
     """Basic health check endpoint"""
     try:
-        # Basic system health check
         import psutil
         memory = psutil.virtual_memory()
         disk = psutil.disk_usage('/')

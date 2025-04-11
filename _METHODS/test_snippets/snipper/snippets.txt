@@ -609,3 +609,864 @@ def admin_required(f):
 
 ###
 --------------------
+
+=== File: api_routes.py | 2025-04-10 22:41:06 ===
+```python
+def admin_required(f):
+    """Decorator to require admin authentication"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            logger.warning("No authorization header provided")
+            return jsonify({"error": "No authorization header"}), 401
+        
+        try:
+            token_type, token = auth_header.split(' ')
+            if token_type.lower() != 'Bearer':
+                logger.warning("Invalid authorization type")
+                return jsonify({"error": "Invalid authorization type"}), 401
+            
+            if token != ADMIN_TOKEN:
+                logger.warning("Invalid admin token provided")
+                return jsonify({"error": "Unauthorized"}), 403
+                
+            return f(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Auth error: {str(e)}")
+            return jsonify({"error": "Invalid authorization header"}), 401
+            
+    return decorated_function
+```
+This snippet is the most important and unique part of the code, as it implements a custom decorator for admin authentication. It handles token validation, logging, and error responses, making it a reusable security mechanism for protected routes.
+--------------------
+
+=== File: auth_routes.py | 2025-04-10 22:41:16 ===
+This is the most comprehensive and representative snippet. It showcases a full OAuth token exchange process, including request handling, external API interaction, error logging, and secure practices like using environment variables. It's unique because it integrates Flask with an external OAuth provider while handling potential failures gracefully.
+
+```python
+@bp.route('/oauth/token', methods=['POST'])
+def oauth_token_exchange():
+    """Handle OAuth token exchange"""
+    try:
+        data = request.json
+        code = data.get('code')
+        if not code:
+            return jsonify({'error': 'No authorization code provided'}), 400
+
+        client_id = os.getenv('OAUTH_CLIENT_ID', '')
+        client_secret = os.getenv('OAUTH_CLIENT_SECRET', '')
+        redirect_uri = os.getenv('OAUTH_REDIRECT_URI', '')
+        token_url = "https://oauth-provider.com/oauth/token"
+        
+        payload = {
+            "code": code,
+            "redirect_uri": redirect_uri,
+            "grant_type": "authorization_code",
+            "client_id": client_id,
+            "client_secret": client_secret
+        }
+
+        response = requests.post(token_url, data=payload)
+        token_data = response.json()
+
+        if response.status_code != 200:
+            logger.error(f"OAuth token exchange failed: {token_data}")
+            return jsonify({
+                'error': 'Token exchange failed',
+                'details': token_data.get('error_description', 'Unknown error')
+            }), response.status_code
+
+        return jsonify({
+            'access_token': token_data.get('access_token'),
+            'refresh_token': token_data.get('refresh_token')
+        })
+
+    except Exception as e:
+        logger.exception("Error during OAuth token exchange")
+        return jsonify({'error': str(e)}), 500
+```
+
+###
+--------------------
+Links/Citations:
+https://oauth-provider.com/oauth/token"
+--------------------
+
+=== File: README.md | 2025-04-10 22:41:21 ===
+This is the most important snippet because it serves as the entry point for running the application. It demonstrates how to create and launch the Flask app using the `create_app` function, which integrates all the blueprints. This is unique to the project's structure and essential for getting started.
+
+```python
+from app import create_app
+
+app = create_app()
+
+if __name__ == '__main__':
+    app.run()
+```
+
+###
+--------------------
+
+=== File: app.py | 2025-04-10 22:41:32 ===
+The most important and unique snippet is the `create_app()` function. This is the core of the application, as it handles configuration, logging, directory creation, CORS setup, blueprint registration, and basic routes/error handlers. It's a factory function pattern commonly used in Flask for creating app instances, making it highly representative and reusable.
+
+```python
+def create_app(config=None):
+    """
+    Create and configure Flask application
+    
+    Args:
+        config (dict, optional): Configuration overrides
+        
+    Returns:
+        Flask: Application instance
+    """
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger(__name__)
+    
+    # Create Flask app
+    app = Flask(__name__, 
+               template_folder='templates',
+               static_folder='static')
+               
+    # Default configuration
+    app.config.update(
+        SECRET_KEY=os.getenv('SECRET_KEY', 'dev-key-change-in-production'),
+        MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB max upload
+        UPLOAD_FOLDER=os.getenv('UPLOAD_FOLDER', 'uploads'),
+        TEMP_FOLDER=os.getenv('TEMP_FOLDER', 'temp'),
+        SERVER_NAME=os.getenv('SERVER_NAME', None),
+        PREFERRED_URL_SCHEME=os.getenv('PREFERRED_URL_SCHEME', 'https'),
+        DEBUG=os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+    )
+    
+    # Apply custom configuration if provided
+    if config:
+        app.config.update(config)
+    
+    # Create necessary directories
+    Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True, parents=True)
+    Path(app.config['TEMP_FOLDER']).mkdir(exist_ok=True, parents=True)
+    
+    # Configure CORS
+    CORS(app, resources={
+        r"/*": {
+            "origins": os.getenv('CORS_ORIGINS', '*').split(','),
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization", "Accept"]
+        }
+    })
+    
+    # Register blueprints with URL prefixes
+    app.register_blueprint(api_bp, url_prefix='/api/v1')
+    app.register_blueprint(proxy_bp, url_prefix='/api/v1/proxy')
+    app.register_blueprint(llm_bp, url_prefix='/api/v1/llm')
+    app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+    app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
+    app.register_blueprint(file_bp, url_prefix='/api/v1/files')
+    app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(tunnel_bp, url_prefix='/api/v1/tunnel')
+    app.register_blueprint(health_bp, url_prefix='/api/v1/health')
+    
+    # Root route
+    @app.route('/')
+    def index():
+        return jsonify({
+            "name": "Your API Service",
+            "version": "1.0.0",
+            "status": "operational",
+            "documentation": "/api/v1/docs"
+        })
+    
+    # Error handlers
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({"error": "Not found"}), 404
+        
+    @app.errorhandler(500)
+    def server_error(error):
+        logger.error(f"Server error: {error}")
+        return jsonify({"error": "Internal server error"}), 500
+        
+    @app.errorhandler(413)
+    def too_large(error):
+        return jsonify({"error": "File too large"}), 413
+    
+    # Log startup information
+    logger.info(f"Application created with config: {app.config}")
+    
+    return app
+```
+
+###
+--------------------
+
+=== File: admin_routes.py | 2025-04-10 22:43:48 ===
+The most important and unique snippet is the `admin_required` decorator. It provides essential authentication logic for protecting admin routes, ensuring security by validating tokens. This is a standout feature as it wraps routes and handles common authentication errors in a Flask context.
+
+```python
+def admin_required(f):
+    """Decorator to require admin authentication"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            logger.warning("No authorization header provided")
+            return jsonify({"error": "No authorization header"}), 401
+        
+        try:
+            token_type, token = auth_header.split(' ')
+            if token_type.lower() != 'bearer':
+                logger.warning("Invalid authorization type")
+                return jsonify({"error": "Invalid authorization type"}), 401
+            
+            if token != ADMIN_TOKEN:
+                logger.warning("Invalid admin token provided")
+                return jsonify({"error": "Unauthorized"}), 403
+                
+            return f(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Auth error: {str(e)}")
+            return jsonify({"error": "Invalid authorization header"}), 401
+            
+    return decorated_function
+```
+
+###
+--------------------
+
+=== File: api_routes.py | 2025-04-10 22:43:56 ===
+The most important and unique snippet is the `admin_required` decorator. This is a custom implementation for authentication, which is critical for securing admin routes. It's unique because it handles token-based authorization with logging and error handling, making it a reusable and essential part of the API's security layer.
+
+```
+def admin_required(f):
+    """Decorator to require admin authentication"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            logger.warning("No authorization header provided")
+            return jsonify({"error": "No authorization header"}), 401
+        
+        try:
+            token_type, token = auth_header.split(' ')
+            if token_type.lower() != 'Bearer':
+                logger.warning("Invalid authorization type")
+                return jsonify({"error": "Invalid authorization type"}), 401
+            
+            if token != ADMIN_TOKEN:
+                logger.warning("Invalid admin token provided")
+                return jsonify({"error": "Unauthorized"}), 403
+                
+            return f(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Auth error: {str(e)}")
+            return jsonify({"error": "Invalid authorization header"}), 401
+            
+    return decorated_function
+```
+
+###
+--------------------
+
+=== File: auth_routes.py | 2025-04-10 22:44:03 ===
+```python
+@bp.route('/oauth/token', methods=['POST'])
+def oauth_token_exchange():
+    """Handle OAuth token exchange"""
+    try:
+        data = request.json
+        code = data.get('code')
+        if not code:
+            return jsonify({'error': 'No authorization code provided'}), 400
+
+        client_id = os.getenv('OAUTH_CLIENT_ID', '')
+        client_secret = os.getenv('OAUTH_CLIENT_SECRET', '')
+        redirect_uri = os.getenv('OAUTH_REDIRECT_URI', '')
+        token_url = "https://oauth-provider.com/oauth/token"
+        
+        payload = {
+            "code": code,
+            "redirect_uri": redirect_uri,
+            "grant_type": "authorization_code",
+            "client_id": client_id,
+            "client_secret": client_secret
+        }
+
+        response = requests.post(token_url, data=payload)
+        token_data = response.json()
+
+        if response.status_code != 200:
+            logger.error(f"OAuth token exchange failed: {token_data}")
+            return jsonify({
+                'error': 'Token exchange failed',
+                'details': token_data.get('error_description', 'Unknown error')
+            }), response.status_code
+
+        return jsonify({
+            'access_token': token_data.get('access_token'),
+            'refresh_token': token_data.get('refresh_token')
+        })
+
+    except Exception as e:
+        logger.exception("Error during OAuth token exchange")
+        return jsonify({'error': str(e)}), 500
+```
+
+###
+--------------------
+Links/Citations:
+https://oauth-provider.com/oauth/token"
+--------------------
+
+=== File: README.md | 2025-04-10 22:44:10 ===
+**
+  ```
+  from flask import Blueprint, jsonify
+
+  bp = Blueprint('my_feature', __name__)
+
+  @bp.route('/', methods=['GET'])
+  def my_endpoint():
+      return jsonify({"message": "Hello from my feature!"})
+  ```
+
+  (Note: This is paired with the registration step in the documentation, but I've kept it focused on the blueprint creation for brevity and relevance.)
+
+- **Alternatives**: These are other notable code snippets or documentation segments that are important but less central than the best version. I included alternatives that provide practical setup instructions, application initialization, and security guidance. They are unique in their context but serve as supporting elements.
+
+  **
+--------------------
+
+=== File: app.py | 2025-04-10 22:44:20 ===
+Below is my extraction of the most important and unique code snippets from the provided file (`test_snippets/app.py`). I focused on segments that are central to the application's functionality, such as the app factory pattern, configuration, blueprint registration, and error handling. These elements are unique because they demonstrate a modular Flask application setup with best practices for logging, CORS, and error management.
+
+- **Best Version**: I selected the `create_app` function as the best snippet because it is the core of the file. It encapsulates the entire application setup, including configuration, directory creation, CORS, blueprint registration, routes, and error handlers. This function follows the Flask app factory pattern, making it reusable, testable, and a strong representation of the code's intent.
+
+  ```
+  def create_app(config=None):
+      """
+      Create and configure Flask application
+      
+      Args:
+          config (dict, optional): Configuration overrides
+          
+      Returns:
+          Flask: Application instance
+      """
+      # Configure logging
+      logging.basicConfig(
+          level=logging.INFO,
+          format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+      )
+      logger = logging.getLogger(__name__)
+      
+      # Create Flask app
+      app = Flask(__name__, 
+                 template_folder='templates',
+                 static_folder='static')
+               
+      # Default configuration
+      app.config.update(
+          SECRET_KEY=os.getenv('SECRET_KEY', 'dev-key-change-in-production'),
+          MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB max upload
+          UPLOAD_FOLDER=os.getenv('UPLOAD_FOLDER', 'uploads'),
+          TEMP_FOLDER=os.getenv('TEMP_FOLDER', 'temp'),
+          SERVER_NAME=os.getenv('SERVER_NAME', None),
+          PREFERRED_URL_SCHEME=os.getenv('PREFERRED_URL_SCHEME', 'https'),
+          DEBUG=os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+      )
+      
+      # Apply custom configuration if provided
+      if config:
+          app.config.update(config)
+      
+      # Create necessary directories
+      Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True, parents=True)
+      Path(app.config['TEMP_FOLDER']).mkdir(exist_ok=True, parents=True)
+      
+      # Configure CORS
+      CORS(app, resources={
+          r"/*": {
+              "origins": os.getenv('CORS_ORIGINS', '*').split(','),
+              "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+              "allow_headers": ["Content-Type", "Authorization", "Accept"]
+          }
+      })
+      
+      # Register blueprints with URL prefixes
+      app.register_blueprint(api_bp, url_prefix='/api/v1')
+      app.register_blueprint(proxy_bp, url_prefix='/api/v1/proxy')
+      app.register_blueprint(llm_bp, url_prefix='/api/v1/llm')
+      app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+      app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
+      app.register_blueprint(file_bp, url_prefix='/api/v1/files')
+      app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
+      app.register_blueprint(tunnel_bp, url_prefix='/api/v1/tunnel')
+      app.register_blueprint(health_bp, url_prefix='/api/v1/health')
+      
+      # Root route
+      @app.route('/')
+      def index():
+          return jsonify({
+              "name": "Your API Service",
+              "version": "1.0.0",
+              "status": "operational",
+              "documentation": "/api/v1/docs"
+          })
+      
+      # Error handlers
+      @app.errorhandler(404)
+      def not_found(error):
+          return jsonify({"error": "Not found"}), 404
+          
+      @app.errorhandler(500)
+      def server_error(error):
+          logger.error(f"Server error: {error}")
+          return jsonify({"error": "Internal server error"}), 500
+          
+      @app.errorhandler(413)
+      def too_large(error):
+          return jsonify({"error": "File too large"}), 413
+      
+      # Log startup information
+      logger.info(f"Application created with config: {app.config}")
+      
+      return app
+  ```
+
+- **Alternatives**: Here are other notable snippets that are important but more specialized. These include unique aspects like CORS configuration (for cross-origin security) and error handling (for robust API responses). I selected these as alternatives because they are modular and could be extracted for reuse in other Flask projects.
+
+  1. **CORS Configuration Snippet**: This is unique for handling cross-origin requests securely, using environment variables for flexibility.
+     ```
+     CORS(app, resources={
+         r"/*": {
+             "origins": os.getenv('CORS_ORIGINS', '*').split(','),
+             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+             "allow_headers": ["Content-Type", "Authorization", "Accept"]
+         }
+     })
+     ```
+
+  2. **Blueprint Registration Snippet**: This demonstrates modular routing, which is a key Flask best practice for organizing large APIs.
+     ```
+     app.register_blueprint(api_bp, url_prefix='/api/v1')
+     app.register_blueprint(proxy_bp, url_prefix='/api/v1/proxy')
+     app.register_blueprint(llm_bp, url_prefix='/api/v1/llm')
+     app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+     app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
+     app.register_blueprint(file_bp, url_prefix='/api/v1/files')
+     app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
+     app.register_blueprint(tunnel_bp, url_prefix='/api/v1/tunnel')
+     app.register_blueprint(health_bp, url_prefix='/api/v1/health')
+     ```
+
+  3. **Error Handler Snippet**: This shows custom error handling with logging, which is essential for debugging and user-friendly responses.
+     ```
+     @app.errorhandler(500)
+     def server_error(error):
+         logger.error(f"Server error: {error}")
+         return jsonify({"error": "Internal server error"}), 500
+     ```
+--------------------
+
+=== File: admin_routes.py | 2025-04-10 23:40:53 ===
+<best snippet>
+```python
+def admin_required(f):
+    """Decorator to require admin authentication"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            logger.warning("No authorization header provided")
+            return jsonify({"error": "No authorization header"}), 401
+        
+        try:
+            token_type, token = auth_header.split(' ')
+            if token_type.lower() != 'bearer':
+                logger.warning("Invalid authorization type")
+                return jsonify({"error": "Invalid authorization type"}), 401
+            
+            if token != ADMIN_TOKEN:
+                logger.warning("Invalid admin token provided")
+                return jsonify({"error": "Unauthorized"}), 403
+                
+            return f(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Auth error: {str(e)}")
+            return jsonify({"error": "Invalid authorization header"}), 401
+            
+    return decorated_function
+```
+</best snippet>
+
+**Rationale for Best Version**: This decorator is the most important and unique snippet because it handles admin authentication across all routes, ensuring security. It's a custom implementation that integrates Flask's request handling with token-based auth, logging, and error handling, making it a foundational element of the admin blueprint.
+
+###
+--------------------
+
+=== File: api_routes.py | 2025-04-10 23:40:59 ===
+```python
+def admin_required(f):
+    """Decorator to require admin authentication"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            logger.warning("No authorization header provided")
+            return jsonify({"error": "No authorization header"}), 401
+        
+        try:
+            token_type, token = auth_header.split(' ')
+            if token_type.lower() != 'Bearer':
+                logger.warning("Invalid authorization type")
+                return jsonify({"error": "Invalid authorization type"}), 401
+            
+            if token != ADMIN_TOKEN:
+                logger.warning("Invalid admin token provided")
+                return jsonify({"error": "Unauthorized"}), 403
+                
+            return f(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Auth error: {str(e)}")
+            return jsonify({"error": "Invalid authorization header"}), 401
+            
+    return decorated_function
+```
+--------------------
+
+=== File: auth_routes.py | 2025-04-10 23:41:08 ===
+```python
+@bp.route('/oauth/token', methods=['POST'])
+def oauth_token_exchange():
+    """Handle OAuth token exchange"""
+    try:
+        data = request.json
+        code = data.get('code')
+        if not code:
+            return jsonify({'error': 'No authorization code provided'}), 400
+
+        client_id = os.getenv('OAUTH_CLIENT_ID', '')
+        client_secret = os.getenv('OAUTH_CLIENT_SECRET', '')
+        redirect_uri = os.getenv('OAUTH_REDIRECT_URI', '')
+        token_url = "https://oauth-provider.com/oauth/token"
+        
+        payload = {
+            "code": code,
+            "redirect_uri": redirect_uri,
+            "grant_type": "authorization_code",
+            "client_id": client_id,
+            "client_secret": client_secret
+        }
+
+        response = requests.post(token_url, data=payload)
+        token_data = response.json()
+
+        if response.status_code != 200:
+            logger.error(f"OAuth token exchange failed: {token_data}")
+            return jsonify({
+                'error': 'Token exchange failed',
+                'details': token_data.get('error_description', 'Unknown error')
+            }), response.status_code
+
+        return jsonify({
+            'access_token': token_data.get('access_token'),
+            'refresh_token': token_data.get('refresh_token')
+        })
+
+    except Exception as e:
+        logger.exception("Error during OAuth token exchange")
+        return jsonify({'error': str(e)}), 500
+```
+
+This snippet is the best because it fully implements the OAuth authorization code flow, handles potential failures gracefully, and incorporates logging and environment variables for security—making it a standout example of secure authentication handling.
+
+###
+--------------------
+Links/Citations:
+https://oauth-provider.com/oauth/token"
+--------------------
+
+=== File: README.md | 2025-04-10 23:41:14 ===
+This is the most important and unique snippet from the file. It demonstrates how to create and register a new Flask blueprint, which is a key feature for extending the API in a modular way. This segment is central to the "Customizing the API" section and encapsulates the reusable, blueprint-based architecture described in the overview.
+
+```python
+from flask import Blueprint, jsonify
+
+bp = Blueprint('my_feature', __name__)
+
+@bp.route('/', methods=['GET'])
+def my_endpoint():
+    return jsonify({"message": "Hello from my feature!"})
+
+# Register the blueprint in your application:
+# from my_feature import bp as my_feature_bp
+# app.register_blueprint(my_feature_bp, url_prefix='/api/v1/my-feature')
+```
+
+This snippet is the best because it directly addresses customization, a core theme of the directory. It's concise, self-contained, and shows how to add new endpoints while integrating with the existing structure.
+
+###
+--------------------
+
+=== File: app.py | 2025-04-10 23:41:23 ===
+```
+def create_app(config=None):
+    """
+    Create and configure Flask application
+    
+    Args:
+        config (dict, optional): Configuration overrides
+        
+    Returns:
+        Flask: Application instance
+    """
+    # Create Flask app
+    app = Flask(__name__, 
+               template_folder='templates',
+               static_folder='static')
+               
+    # Default configuration
+    app.config.update(
+        SECRET_KEY=os.getenv('SECRET_KEY', 'dev-key-change-in-production'),
+        MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB max upload
+        UPLOAD_FOLDER=os.getenv('UPLOAD_FOLDER', 'uploads'),
+        TEMP_FOLDER=os.getenv('TEMP_FOLDER', 'temp'),
+        SERVER_NAME=os.getenv('SERVER_NAME', None),
+        PREFERRED_URL_SCHEME=os.getenv('PREFERRED_URL_SCHEME', 'https'),
+        DEBUG=os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+    )
+    
+    # Apply custom configuration if provided
+    if config:
+        app.config.update(config)
+    
+    # Register blueprints with URL prefixes
+    app.register_blueprint(api_bp, url_prefix='/api/v1')
+    app.register_blueprint(proxy_bp, url_prefix='/api/v1/proxy')
+    app.register_blueprint(llm_bp, url_prefix='/api/v1/llm')
+    app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+    app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
+    app.register_blueprint(file_bp, url_prefix='/api/v1/files')
+    app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(tunnel_bp, url_prefix='/api/v1/tunnel')
+    app.register_blueprint(health_bp, url_prefix='/api/v1/health')
+    
+    return app
+```
+
+This is the most important and unique snippet because it encapsulates the core functionality of the application: the `create_app` function serves as a factory for the Flask app, handling configuration, blueprint registration for modular routing, and overall setup. The docstring provides clear documentation, making it a self-contained, reusable piece that's central to the file's purpose.
+--------------------
+
+=== File: admin_routes.py | 2025-04-10 23:49:40 ===
+The most important and unique snippet is the `admin_required` decorator. This is a custom authentication mechanism that secures all admin routes by validating a Bearer token. It's central to the file's purpose, as it ensures only authorized access, and it's unique in its use of Flask's request handling combined with logging for security auditing.
+
+```python
+def admin_required(f):
+    """Decorator to require admin authentication"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            logger.warning("No authorization header provided")
+            return jsonify({"error": "No authorization header"}), 401
+        
+        try:
+            token_type, token = auth_header.split(' ')
+            if token_type.lower() != 'Bearer':
+                logger.warning("Invalid authorization type")
+                return jsonify({"error": "Invalid authorization type"}), 401
+            
+            if token != ADMIN_TOKEN:
+                logger.warning("Invalid admin token provided")
+                return jsonify({"error": "Unauthorized"}), 403
+                
+            return f(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Auth error: {str(e)}")
+            return jsonify({"error": "Invalid authorization header"}), 401
+            
+    return decorated_function
+```
+
+This snippet is the best because it encapsulates a reusable security pattern that's critical for the entire admin blueprint, making it both essential and distinctive.
+
+###
+--------------------
+
+=== File: api_routes.py | 2025-04-10 23:49:47 ===
+```
+def admin_required(f):
+    """Decorator to require admin authentication"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            logger.warning("No authorization header provided")
+            return jsonify({"error": "No authorization header"}), 401
+        
+        try:
+            token_type, token = auth_header.split(' ')
+            if token_type.lower() != 'bearer':
+                logger.warning("Invalid authorization type")
+                return jsonify({"error": "Invalid authorization type"}), 401
+            
+            if token != ADMIN_TOKEN:
+                logger.warning("Invalid admin token provided")
+                return jsonify({"error": "Unauthorized"}), 403
+                
+            return f(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Auth error: {str(e)}")
+            return jsonify({"error": "Invalid authorization header"}), 401
+            
+    return decorated_function
+```
+--------------------
+
+=== File: auth_routes.py | 2025-04-10 23:49:55 ===
+```
+@bp.route('/oauth/token', methods=['POST'])
+def oauth_token_exchange():
+    """Handle OAuth token exchange"""
+    try:
+        data = request.json
+        code = data.get('code')
+        if not code:
+            return jsonify({'error': 'No authorization code provided'}), 400
+
+        client_id = os.getenv('OAUTH_CLIENT_ID', '')
+        client_secret = os.getenv('OAUTH_CLIENT_SECRET', '')
+        redirect_uri = os.getenv('OAUTH_REDIRECT_URI', '')
+        token_url = "https://oauth-provider.com/oauth/token"
+        
+        payload = {
+            "code": code,
+            "redirect_uri": redirect_uri,
+            "grant_type": "authorization_code",
+            "client_id": client_id,
+            "client_secret": client_secret
+        }
+
+        response = requests.post(token_url, data=payload)
+        token_data = response.json()
+
+        if response.status_code != 200:
+            logger.error(f"OAuth token exchange failed: {token_data}")
+            return jsonify({
+                'error': 'Token exchange failed',
+                'details': token_data.get('error_description', 'Unknown error')
+            }), response.status_code
+
+        return jsonify({
+            'access_token': token_data.get('access_token'),
+            'refresh_token': token_data.get('refresh_token')
+        })
+
+    except Exception as e:
+        logger.exception("Error during OAuth token exchange")
+        return jsonify({'error': str(e)}), 500
+```
+*This is the best version because it represents the core OAuth flow for token exchange, including error handling, environment variable usage, and integration with an external API. It's unique in its practical implementation of a standard OAuth step, making it highly reusable and educational.*
+
+###
+--------------------
+Links/Citations:
+https://oauth-provider.com/oauth/token"
+--------------------
+
+=== File: README.md | 2025-04-10 23:50:00 ===
+This is the most important snippet because it provides a clear, self-contained example of how to create and register a new Flask blueprint for custom routes. It's unique in showing modularity and extensibility, which is a core theme of the project. This segment is directly actionable for developers looking to extend the API.
+
+```
+from flask import Blueprint, jsonify
+
+bp = Blueprint('my_feature', __name__)
+
+@bp.route('/', methods=['GET'])
+def my_endpoint():
+    return jsonify({"message": "Hello from my feature!"})
+```
+
+To register it in the main app:
+```python
+from my_feature import bp as my_feature_bp
+
+app.register_blueprint(my_feature_bp, url_prefix='/api/v1/my-feature')
+```
+
+###
+--------------------
+
+=== File: app.py | 2025-04-10 23:50:09 ===
+```
+def create_app(config=None):
+    """
+    Create and configure Flask application
+    
+    Args:
+        config (dict, optional): Configuration overrides
+        
+    Returns:
+        Flask: Application instance
+    """
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger(__name__)
+    
+    # Create Flask app
+    app = Flask(__name__, 
+               template_folder='templates',
+               static_folder='static')
+               
+    # Default configuration
+    app.config.update(
+        SECRET_KEY=os.getenv('SECRET_KEY', 'dev-key-change-in-production'),
+        MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB max upload
+        UPLOAD_FOLDER=os.getenv('UPLOAD_FOLDER', 'uploads'),
+        TEMP_FOLDER=os.getenv('TEMP_FOLDER', 'temp'),
+        SERVER_NAME=os.getenv('SERVER_NAME', None),
+        PREFERRED_URL_SCHEME=os.getenv('PREFERRED_URL_SCHEME', 'https'),
+        DEBUG=os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+    )
+    
+    # Apply custom configuration if provided
+    if config:
+        app.config.update(config)
+    
+    # Create necessary directories
+    Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True, parents=True)
+    Path(app.config['TEMP_FOLDER']).mkdir(exist_ok=True, parents=True)
+    
+    # Configure CORS
+    CORS(app, resources={
+        r"/*": {
+            "origins": os.getenv('CORS_ORIGINS', '*').split(','),
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization", "Accept"]
+        }
+    })
+    
+    # Register blueprints with URL prefixes
+    app.register_blueprint(api_bp, url_prefix='/api/v1')
+    app.register_blueprint(proxy_bp, url_prefix='/api/v1/proxy')
+    app.register_blueprint(llm_bp, url_prefix='/api/v1/llm')
+    app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+    app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
+    app.register_blueprint(file_bp, url_prefix='/api/v1/files')
+    app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(tunnel_bp, url_prefix='/api/v1/tunnel')
+    app.register_blueprint(health_bp, url_prefix='/api/v1/health')
+    
+    return app
+```
+--------------------

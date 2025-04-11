@@ -5,33 +5,155 @@ import sys
 import argparse
 import shutil
 import time
-import requests
 import base64
 import json
 from dotenv import load_dotenv
 from PIL import Image
+import io
+from typing import List, Dict, Any, Optional, Union
+import google.generativeai as genai
 
 # Load environment variables from .env file
 load_dotenv()
 
-# Try to import the Google Generative AI library
-try:
-    import google.generativeai as genai
-    GENAI_AVAILABLE = True
-except ImportError:
-    GENAI_AVAILABLE = False
-    print("Warning: Google Generative AI library not available. Install with: pip install -U google-generativeai", file=sys.stderr)
-
 # Global client variable
-genai_client = None
+gemini_client = None
+
+class GeminiAPI:
+    """
+    A Python client for the Google Gemini API using the official Google Generative AI library.
+    """
+    
+    def __init__(self, api_key: Optional[str] = None):
+        """
+        Initialize the Gemini API client.
+        
+        Args:
+            api_key: Your Gemini API key. If not provided, will look for GEMINI_API_KEY environment variable.
+        """
+        self.api_key = api_key or os.environ.get("GEMINI_API_KEY")
+        if not self.api_key:
+            raise ValueError("API key must be provided either directly or via GEMINI_API_KEY environment variable")
+        
+        # Configure the API
+        genai.configure(api_key=self.api_key)
+        
+        # Initialize models
+        self.text_model = genai.GenerativeModel('gemini-1.5-pro')
+        self.vision_model = genai.GenerativeModel('gemini-1.5-vision')
+    
+    def _prepare_image_part(self, image: Union[str, Image.Image, bytes]) -> "genai.types.Image":
+        """
+        Prepare image part for the API request.
+        
+        Args:
+            image: Can be a file path, PIL Image, or bytes
+            
+        Returns:
+            Image object for the API
+        """
+        if isinstance(image, str):
+            # Assume it's a file path
+            return genai.types.Image.load_from_file(image)
+        elif isinstance(image, Image.Image):
+            # PIL Image
+            buffer = io.BytesIO()
+            image.save(buffer, format=image.format or "PNG")
+            return genai.types.Image.from_bytes(buffer.getvalue())
+        elif isinstance(image, bytes):
+            # Raw bytes
+            return genai.types.Image.from_bytes(image)
+        else:
+            raise ValueError("Image must be a file path, PIL Image, or bytes")
+    
+    def generate_text(self, 
+                     prompt: str, 
+                     model: str = "gemini-1.5-pro",
+                     temperature: float = 0.7,
+                     max_tokens: Optional[int] = None,
+                     top_p: Optional[float] = None,
+                     top_k: Optional[int] = None) -> str:
+        """
+        Generate text using the Gemini model.
+        
+        Args:
+            prompt: Text prompt
+            model: Model to use (default: gemini-1.5-pro)
+            temperature: Sampling temperature (default: 0.7)
+            max_tokens: Maximum number of tokens to generate
+            top_p: Top-p sampling parameter
+            top_k: Top-k sampling parameter
+            
+        Returns:
+            Generated text
+        """
+        try:
+            # Configure generation parameters
+            generation_config = {
+                "temperature": temperature,
+            }
+            
+            if max_tokens:
+                generation_config["max_output_tokens"] = max_tokens
+            if top_p:
+                generation_config["top_p"] = top_p
+            if top_k:
+                generation_config["top_k"] = top_k
+            
+            # Generate content
+            response = self.text_model.generate_content(
+                prompt,
+                generation_config=generation_config
+            )
+            
+            return response.text
+        except Exception as e:
+            raise Exception(f"Failed to generate text: {e}")
+    
+    def generate_with_images(self, 
+                           prompt: str, 
+                           images: List[Union[str, Image.Image, bytes]],
+                           model: str = "gemini-1.5-vision",
+                           temperature: float = 0.7,
+                           max_tokens: Optional[int] = None) -> str:
+        """
+        Generate text based on images and a prompt.
+        
+        Args:
+            prompt: Text prompt
+            images: List of images (file paths, PIL Images, or bytes)
+            model: Model to use (default: gemini-1.5-vision)
+            temperature: Sampling temperature (default: 0.7)
+            max_tokens: Maximum number of tokens to generate
+            
+        Returns:
+            Generated text
+        """
+        try:
+            # Prepare images
+            prepared_images = [self._prepare_image_part(image) for image in images]
+            
+            # Configure generation parameters
+            generation_config = {
+                "temperature": temperature,
+            }
+            
+            if max_tokens:
+                generation_config["max_output_tokens"] = max_tokens
+            
+            # Generate content
+            response = self.vision_model.generate_content(
+                [prompt] + prepared_images,
+                generation_config=generation_config
+            )
+            
+            return response.text
+        except Exception as e:
+            raise Exception(f"Failed to generate text with images: {e}")
 
 def initialize_client():
     """Initialize the Gemini API client."""
-    global genai_client
-    
-    if not GENAI_AVAILABLE:
-        print("Error: Google Generative AI library not available. Install with: pip install -U google-generativeai", file=sys.stderr)
-        sys.exit(1)
+    global gemini_client
     
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
@@ -39,99 +161,85 @@ def initialize_client():
         sys.exit(1)
     
     try:
-        # Configure the API key globally
-        genai.configure(api_key=api_key)
+        # Create the Gemini API client
+        gemini_client = GeminiAPI(api_key)
         
-        # Test if the API key is valid by listing available models
-        models = genai.list_models()
-        text_models = [m for m in models if 'generateContent' in m.supported_generation_methods]
-        if not text_models:
-            print("Error: No valid text generation models found with your API key.", file=sys.stderr)
+        # Test with a simple query
+        test_response = gemini_client.generate_text("Hello", temperature=0.1)
+        
+        if test_response:
+            print(f"Successfully connected to Gemini API.")
+            return True
+        else:
+            print("Error: No response from Gemini API.", file=sys.stderr)
             sys.exit(1)
-            
-        print(f"Successfully connected to Gemini API. Available models: {[m.name for m in text_models]}")
-        return True
     except Exception as e:
         print(f"Error initializing Gemini API: {e}", file=sys.stderr)
         sys.exit(1)
 
 def call_gemini(prompt, temperature=0.3):
     """Call Gemini API with a prompt."""
-    if not GENAI_AVAILABLE:
-        print("Error: Google Generative AI library not available.", file=sys.stderr)
-        sys.exit(1)
+    global gemini_client
     
     # Initialize the client if not already done
-    if not genai_client:
+    if not gemini_client:
         initialize_client()
     
     try:
-        # Create a GenerativeModel object
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        
         # Generate content
-        response = model.generate_content(prompt, generation_config={"temperature": temperature})
+        response = gemini_client.generate_text(prompt, temperature=temperature)
         
         # Return the generated text
-        return response.text
+        return response
     except Exception as e:
         print(f"Error calling Gemini API: {e}", file=sys.stderr)
         return f"Error: {e}"
 
 def analyze_image(image_path, prompt, verbose=False):
     """Analyze an image using Gemini Vision."""
+    global gemini_client
+    
     if verbose:
         print(f"Analyzing image: {image_path} with prompt: {prompt}")
     
-    if not GENAI_AVAILABLE:
-        print("Error: Google Generative AI library not available.", file=sys.stderr)
-        return "Error: Google Generative AI library not available."
-    
     # Initialize the client if not already done
-    if not genai_client:
+    if not gemini_client:
         initialize_client()
     
     try:
-        # Open and prepare the image
-        img = Image.open(image_path)
-        
-        # Create a model instance for vision tasks
-        model = genai.GenerativeModel('gemini-1.5-vision')
-        
         # Generate content with the image and prompt
-        response = model.generate_content([prompt, img])
+        response = gemini_client.generate_with_images(prompt, [image_path])
         
-        return response.text
+        return response
     except Exception as e:
         print(f"Error analyzing image: {e}", file=sys.stderr)
         return f"Error: {e}"
 
 def generate_text_with_streaming(prompt, verbose=False):
     """Generate text with streaming response."""
+    global gemini_client
+    
     if verbose:
         print(f"Generating text with streaming for prompt: {prompt}")
     
-    if not GENAI_AVAILABLE:
-        print("Error: Google Generative AI library not available.", file=sys.stderr)
-        return "Error: Google Generative AI library not available."
-    
     # Initialize the client if not already done
-    if not genai_client:
+    if not gemini_client:
         initialize_client()
     
     try:
-        # Create a model instance
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # For streaming, we'll use the regular generate_text but print chunks of the response
+        # Note: true streaming requires a different implementation that's not included in this simplified client
+        response = gemini_client.generate_text(prompt, temperature=0.7)
         
-        # Generate content with streaming enabled
-        response = model.generate_content(prompt, stream=True)
-        
-        # Process and display the streaming response
+        # Simulate streaming by printing chunks of the response
+        chunk_size = max(len(response) // 10, 1)  # At least 1 character
         full_response = []
-        for chunk in response:
-            chunk_text = chunk.text
-            print(chunk_text, end="", flush=True)
-            full_response.append(chunk_text)
+        
+        for i in range(0, len(response), chunk_size):
+            chunk = response[i:i+chunk_size]
+            print(chunk, end="", flush=True)
+            time.sleep(0.1)  # Small delay to simulate streaming
+            full_response.append(chunk)
         
         return "".join(full_response)
     except Exception as e:
@@ -167,12 +275,10 @@ def split_into_chunks(text, max_chunk_size=6000):
 
 def explain_code(code, verbose=False):
     """Generate explanation for a code snippet."""
-    if not GENAI_AVAILABLE:
-        print("Error: Google Generative AI library not available.", file=sys.stderr)
-        return "Error: Google Generative AI library not available."
+    global gemini_client
     
     # Initialize the client if not already done
-    if not genai_client:
+    if not gemini_client:
         initialize_client()
     
     if verbose:
@@ -180,9 +286,6 @@ def explain_code(code, verbose=False):
         print(f"Code length: {len(code)} characters")
     
     try:
-        # Create a model instance
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        
         # Prepare the prompt with the code
         prompt = f"""
 You are a helpful coding assistant specializing in explaining code.
@@ -203,15 +306,17 @@ Please provide a thorough yet concise explanation of this code.
 """
         
         # Generate content
-        response = model.generate_content(prompt)
+        response = gemini_client.generate_text(prompt, temperature=0.3)
         
-        return response.text
+        return response
     except Exception as e:
         print(f"Error explaining code: {e}", file=sys.stderr)
         return f"Error: {e}"
 
 def explain_file(file_path, verbose=False, output=None):
     """Generate explanation for a code file."""
+    global gemini_client
+    
     if verbose:
         print(f"Reading file: {file_path}")
     
@@ -232,13 +337,10 @@ def explain_file(file_path, verbose=False, output=None):
             explanations.append(exp)
         
         # Initialize the client if not already done
-        if not genai_client:
+        if not gemini_client:
             initialize_client()
         
         try:
-            # Create a model instance
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            
             # Prepare the prompt for synthesizing explanations
             combined_text = "\n\n===== CHUNK DIVIDER =====\n\n".join(explanations)
             synthesis_prompt = f"""
@@ -255,9 +357,9 @@ Eliminate redundancies while retaining the most important details.
                 print("Synthesizing chunk explanations...")
             
             # Generate content
-            response = model.generate_content(synthesis_prompt)
+            response = gemini_client.generate_text(synthesis_prompt, temperature=0.3)
             
-            final_explanation = response.text
+            final_explanation = response
         except Exception as e:
             print(f"Error synthesizing explanations: {e}", file=sys.stderr)
             final_explanation = "Error synthesizing explanations. Here are the individual chunk explanations:\n\n" + combined_text
@@ -285,12 +387,10 @@ Eliminate redundancies while retaining the most important details.
 
 def process_file_for_snippet(file_path, mode, verbose=False):
     """Process a file to extract code snippets."""
-    if not GENAI_AVAILABLE:
-        print("Error: Google Generative AI library not available.", file=sys.stderr)
-        return {"best": "Error: Google Generative AI library not available.", "alternatives": ""}
+    global gemini_client
     
     # Initialize the client if not already done
-    if not genai_client:
+    if not gemini_client:
         initialize_client()
     
     content = read_file(file_path)
@@ -302,9 +402,6 @@ def process_file_for_snippet(file_path, mode, verbose=False):
     responses = []
     
     try:
-        # Create a model instance
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        
         for i, chunk in enumerate(chunks):
             if verbose:
                 print(f"Sending chunk {i+1}/{len(chunks)} to Gemini for snippet extraction...")
@@ -341,8 +438,8 @@ Snippet:
             
             try:
                 # Generate content
-                response = model.generate_content(prompt)
-                responses.append(response.text)
+                response = gemini_client.generate_text(prompt, temperature=0.3)
+                responses.append(response)
             except Exception as e:
                 print(f"Error processing chunk {i+1}: {e}", file=sys.stderr)
                 responses.append(f"Error processing chunk: {e}")
@@ -360,8 +457,8 @@ Responses:
             
             try:
                 # Generate content
-                response = model.generate_content(synthesis_prompt)
-                final_response = response.text
+                response = gemini_client.generate_text(synthesis_prompt, temperature=0.3)
+                final_response = response
             except Exception as e:
                 print(f"Error synthesizing responses: {e}", file=sys.stderr)
                 final_response = combined_responses
@@ -393,12 +490,10 @@ Responses:
 
 def synthesize_overall_snippets(best_snippets, verbose=False):
     """Synthesize snippets from multiple files into one document."""
-    if not GENAI_AVAILABLE:
-        print("Error: Google Generative AI library not available.", file=sys.stderr)
-        return "Error: Google Generative AI library not available."
+    global gemini_client
     
     # Initialize the client if not already done
-    if not genai_client:
+    if not gemini_client:
         initialize_client()
     
     combined_text = ""
@@ -406,9 +501,6 @@ def synthesize_overall_snippets(best_snippets, verbose=False):
         combined_text += f"\n\nFile: {file_name}\nBest Version:\n{snippet}\n"
     
     try:
-        # Create a model instance
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        
         # Prepare the prompt for synthesizing snippets
         synthesis_prompt = f"""
 You are an expert coding assistant. Combine the following best code/documentation snippets from various files
@@ -419,21 +511,19 @@ Snippets:{combined_text}
 """
         
         # Generate content
-        response = model.generate_content(synthesis_prompt)
+        response = gemini_client.generate_text(synthesis_prompt, temperature=0.3)
         
-        return response.text
+        return response
     except Exception as e:
         print(f"Error synthesizing overall snippets: {e}", file=sys.stderr)
         return combined_text
 
 def generate_alt_text(file_path, verbose=False):
     """Generate alternative text for multimedia files."""
-    if not GENAI_AVAILABLE:
-        print("Error: Google Generative AI library not available.", file=sys.stderr)
-        return "Error: Google Generative AI library not available."
+    global gemini_client
     
     # Initialize the client if not already done
-    if not genai_client:
+    if not gemini_client:
         initialize_client()
     
     file_name = os.path.basename(file_path)
@@ -451,9 +541,6 @@ def generate_alt_text(file_path, verbose=False):
         return analyze_image(file_path, prompt, verbose)
     elif ext in video_types:
         try:
-            # Create a model instance
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            
             # Prepare the prompt for video metadata
             prompt = f"""
 You are a visual assistant that specializes in creating alternative text descriptions for multimedia content.
@@ -469,9 +556,9 @@ Please generate a concise alternative text description for this file.
                 print(f"Generating alt text for video {file_path} using metadata...")
             
             # Generate content
-            response = model.generate_content(prompt)
+            response = gemini_client.generate_text(prompt, temperature=0.3)
             
-            return response.text
+            return response
         except Exception as e:
             print(f"Error generating alt text: {e}", file=sys.stderr)
             return f"Error: {e}"
@@ -486,7 +573,7 @@ def process_directory(directory, mode, verbose=False, output_file="final_combine
         sys.exit(1)
     
     # Initialize the client once at the beginning
-    if GENAI_AVAILABLE:
+    if gemini_client:
         initialize_client()
     
     if mode == "alt":
@@ -619,7 +706,7 @@ def interactive_cli():
     print("Make sure your GEMINI_API_KEY environment variable is set in your .env file.")
     
     # Initialize the client once at the beginning
-    if GENAI_AVAILABLE:
+    if gemini_client:
         initialize_client()
     
     while True:
@@ -719,7 +806,7 @@ def main():
     args = parser.parse_args()
     
     # Initialize the client once at the beginning
-    if GENAI_AVAILABLE:
+    if gemini_client:
         initialize_client()
     
     if not args.file and not args.directory:
