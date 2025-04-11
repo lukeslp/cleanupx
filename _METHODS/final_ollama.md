@@ -1,13 +1,3 @@
-## admin_routes.py
-
-
----
-
-## api_routes.py
-
-
----
-
 ## auth_routes.py
 
 
@@ -74,6 +64,16 @@
 ---
 
 ## summary.txt
+
+
+---
+
+## admin_routes.py
+
+
+---
+
+## api_routes.py
 
 
 ---

@@ -477,15 +477,11 @@ def init_snipper_directory(target_directory):
             with open(file, "w", encoding="utf-8") as f:
                 f.write("")
     
-    return {
-        "base": base_dir, 
-        "log": log_file, 
-        "summary": summary_file, 
-        "snippets": snippets_file, 
-        "archive": archive_dir,
-        "batches": batches_dir,
-        "final": final_dir
-    }
+    processed_dir = os.path.join(base_dir, "xsnippet_processed")
+    if not os.path.isdir(processed_dir):
+        os.makedirs(processed_dir)
+    
+    return {"base": base_dir, "log": log_file, "summary": summary_file, "snippets": snippets_file, "archive": archive_dir, "batches": batches_dir, "final": final_dir, "processed": processed_dir}
 
 def current_timestamp():
     """Return the current timestamp string."""
@@ -760,9 +756,9 @@ def process_directory(directory, mode, verbose=False, output_file="final_combine
     all_files = []
     if recursive:
         for root, dirs, files in os.walk(directory):
-            dirs[:] = [d for d in dirs if not d.startswith('.') and d != ".xsnippet"]
+            dirs[:] = [d for d in dirs if not d.startswith('.') and not d.startswith('_') and d not in (".xsnippet", "xsnippet_processed")]
             for file in files:
-                if file.startswith('.'):
+                if file.startswith('.') or file.startswith('_'):
                     continue
                 file_path = os.path.join(root, file)
                 _, ext = os.path.splitext(file)
@@ -773,7 +769,7 @@ def process_directory(directory, mode, verbose=False, output_file="final_combine
     else:
         for file in os.listdir(directory):
             file_path = os.path.join(directory, file)
-            if os.path.isfile(file_path) and not file.startswith('.') and file != ".xsnippet":
+            if os.path.isfile(file_path) and not file.startswith('.') and not file.startswith('_') and file not in (".xsnippet", "xsnippet_processed"):
                 _, ext = os.path.splitext(file)
                 if ext.lower() in image_extensions:
                     log_message(f"Skipping image file: {file}", snipper_paths["log"])
@@ -823,6 +819,14 @@ def process_directory(directory, mode, verbose=False, output_file="final_combine
             # Extract any links and update the ongoing snippet collection file
             links = extract_links(best_snippet)
             update_snippet_collection(best_snippet, {"filename": file, "links": links}, snipper_paths["snippets"])
+            
+            # Move processed file to "xsnippet_processed" folder
+            try:
+                processed_dest = os.path.join(snipper_paths["processed"], os.path.basename(file_path))
+                shutil.move(file_path, processed_dest)
+                log_message(f"Moved processed file {file_path} to {processed_dest}", snipper_paths["log"])
+            except Exception as e:
+                log_message(f"Error moving file {file_path}: {e}", snipper_paths["log"])
         
         # Generate optimized result for this batch
         if verbose:

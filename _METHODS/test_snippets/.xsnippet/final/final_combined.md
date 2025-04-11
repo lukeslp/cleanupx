@@ -1,38 +1,41 @@
 # Final Combined Snippets
 
-Below is the final consolidated document based on my evaluation of the provided batch results. Since only one batch (Batch 1) was provided, I treated it as the primary source for analysis. My process involved:
+Below is the final consolidated document based on my evaluation of the provided batches. Although only one batch (Batch 1) was supplied, I treated this as the complete set for analysis. My process involved:
 
-1. **Identifying the most important and unique snippets**: I reviewed the content in Batch 1, which already appears to be a well-curated selection. The key snippets include:
-   - The `create_app` function (core application factory, unique for its comprehensive setup of configuration, logging, CORS, and blueprints).
-   - The `admin_required` decorator (a custom, reusable security mechanism with no direct duplicates in the batch).
-   - The OAuth token exchange function (essential for authentication, with robust error handling and integration with external providers).
-   - The modular routing example (demonstrates extensibility via blueprints, promoting best practices).
+1. **Identifying the most important and unique snippets**: I reviewed the content from Batch 1, which already appears to have been curated. The key snippets—such as the `create_app` function, blueprint example, `admin_required` decorator, and OAuth token exchange handler—stand out as central to the application's functionality. These elements are unique in their focus on core Flask features like application setup, modularity, security, and authentication. I confirmed no additional unique snippets were present across the batches.
 
-   These were prioritized for their centrality to Flask application development, security, and modularity, while less critical or redundant elements (e.g., repeated blueprint registrations) were already minimized in Batch 1.
+2. **Removing duplicated content or redundancies**: Batch 1 has already eliminated redundancies (e.g., multiple versions of the `admin_required` decorator were consolidated into one). I double-checked for any overlap and found none. For instance, repeated logging configurations or route registrations were streamlined in the original document, so I preserved that.
 
-2. **Removing duplicated content or redundancies**: Batch 1 has already eliminated obvious redundancies, such as including the `create_app` function only once in its most comprehensive form. I double-checked for any subtle overlaps (e.g., logging configurations across snippets) and ensured no content was repeated unnecessarily. For instance, blueprint registrations are referenced generically without duplication.
+3. **Organizing the content logically and coherently**: The structure in Batch 1 is already logical, starting with high-level application setup and progressing to modular components, security, and authentication. I maintained this flow for clarity and ease of understanding, ensuring the document reads as a cohesive guide.
 
-3. **Organizing the content logically and coherently**: I maintained a logical flow, starting with foundational setup (Application Factory), moving to security and authentication, and ending with modular design. This structure ensures readability and aligns with typical Flask app development workflows. I refined section headings for clarity and added brief transitions where needed.
+4. **Preserving critically important code and documentation**: I retained all essential code snippets and their accompanying documentation, as they represent best practices for a secure, modular Flask API. This includes docstrings, error handling, and logging, which are vital for maintainability and debugging.
 
-4. **Preserving critically important code and documentation**: All essential code snippets, docstrings, and explanatory notes from Batch 1 were retained, as they provide context, best practices, and reusability guidance. No critical elements were altered or removed.
-
-The result is a streamlined, final document that represents the best subset of the provided content. It is concise, focused, and ready for use as a reference for the Flask application's core components.
+The result is a streamlined, final document that represents the best subset of the content. It focuses on reusability, security, and core functionality while keeping the document concise and free of fluff.
 
 ---
 
-# Final Consolidated Document: Core Flask Application Components
+# Final Consolidated Document: Core Components of a Modular Flask API
 
-This document compiles the most critical and unique code snippets from the evaluated batches, emphasizing best practices in Flask development. It focuses on key aspects such as application setup, security, authentication, and modular design. By consolidating this content, we ensure a clean, efficient overview without redundancy, making it easier to maintain and extend the codebase.
+This document compiles the most essential and unique code snippets from the analyzed batches, emphasizing a secure, extensible Flask-based API. It prioritizes key aspects such as application initialization, modularity, authentication, and security. By focusing on these elements, the document ensures reusability and adherence to best practices, including configuration management, error handling, and logging.
 
-The organization follows a logical progression:
-- **Application Setup**: Establishes the foundation with the application factory.
-- **Security and Authentication**: Addresses protection and user flows.
-- **Modular Design**: Demonstrates extensibility for scalable development.
+The content is organized into logical sections:
+- **Application Factory**: The foundation for creating and configuring the Flask app.
+- **Blueprint Example**: Demonstrates modular design for organizing features.
+- **Security Decorator**: A custom mechanism for protecting routes.
+- **Authentication Handler**: Logic for handling secure token exchanges.
+
+This subset eliminates any redundancies from the original batches, resulting in a clean, efficient overview.
 
 ## 1. Application Factory
-The `create_app` function is the cornerstone of the application, handling configuration, logging, CORS, blueprint registration, and error handling. This snippet is unique for its scalability and is preserved in its most comprehensive form.
+The `create_app` function is the cornerstone of the application, handling configuration, logging, CORS, blueprint registration, and error handling. It ensures the app is reusable and adaptable to different environments.
 
 ```python
+import logging
+import os
+from pathlib import Path
+from flask import Flask, jsonify
+from flask_cors import CORS
+
 def create_app(config=None):
     """
     Create and configure Flask application
@@ -44,7 +47,6 @@ def create_app(config=None):
         Flask: Application instance
     """
     # Configure logging
-    import logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -52,7 +54,6 @@ def create_app(config=None):
     logger = logging.getLogger(__name__)
     
     # Create Flask app
-    from flask import Flask
     app = Flask(__name__, 
                 template_folder='templates',
                 static_folder='static')
@@ -73,12 +74,10 @@ def create_app(config=None):
         app.config.update(config)
     
     # Create necessary directories
-    from pathlib import Path
     Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True, parents=True)
     Path(app.config['TEMP_FOLDER']).mkdir(exist_ok=True, parents=True)
     
     # Configure CORS
-    from flask_cors import CORS
     CORS(app, resources={
         r"/*": {
             "origins": os.getenv('CORS_ORIGINS', '*').split(','),
@@ -89,8 +88,14 @@ def create_app(config=None):
     
     # Register blueprints with URL prefixes
     app.register_blueprint(api_bp, url_prefix='/api/v1')
+    app.register_blueprint(proxy_bp, url_prefix='/api/v1/proxy')
+    app.register_blueprint(llm_bp, url_prefix='/api/v1/llm')
     app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+    app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
+    app.register_blueprint(file_bp, url_prefix='/api/v1/files')
     app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(tunnel_bp, url_prefix='/api/v1/tunnel')
+    app.register_blueprint(health_bp, url_prefix='/api/v1/health')
     
     # Root route
     @app.route('/')
@@ -122,8 +127,25 @@ def create_app(config=None):
     return app
 ```
 
-## 2. Security Decorator
-This custom `admin_required` decorator provides a reusable mechanism for protecting admin routes, including token validation and error logging. It is a unique security feature that ensures controlled access.
+## 2. Blueprint Example
+This snippet showcases a blueprint for modularizing routes, promoting code organization and reusability.
+
+```python
+from flask import Blueprint, jsonify
+
+bp = Blueprint('my_feature', __name__)
+
+@bp.route('/', methods=['GET'])
+def my_endpoint():
+    return jsonify({"message": "Hello from my_feature!"})
+
+# To register the blueprint in your application:
+# from my_feature import bp as my_feature_bp
+# app.register_blueprint(my_feature_bp, url_prefix='/api/v1/my-feature')
+```
+
+## 3. Security Decorator
+The `admin_required` decorator provides a secure way to protect routes, validating tokens and logging issues for auditing.
 
 ```python
 from functools import wraps
@@ -131,7 +153,7 @@ from flask import request, jsonify
 import logging
 
 logger = logging.getLogger(__name__)
-ADMIN_TOKEN = "your_admin_token"  # Should be securely managed, e.g., via environment variables
+ADMIN_TOKEN = os.getenv('ADMIN_TOKEN', '')  # Assume this is set in environment
 
 def admin_required(f):
     """Decorator to require admin authentication"""
@@ -160,17 +182,17 @@ def admin_required(f):
     return decorated_function
 ```
 
-## 3. Authentication Logic
-The OAuth token exchange function handles secure authentication flows, integrating with external providers and including error handling. This snippet is critical for maintaining secure user interactions.
+## 4. Authentication Handler
+This handler manages OAuth token exchanges securely, integrating with external providers and handling errors gracefully.
 
 ```python
-from flask import Blueprint, request, jsonify
-import os
 import requests
 import logging
+from flask import Blueprint, request, jsonify
+import os
 
 logger = logging.getLogger(__name__)
-bp = Blueprint('auth', __name__)  # Blueprint for authentication routes
+bp = Blueprint('auth', __name__)
 
 @bp.route('/oauth/token', methods=['POST'])
 def oauth_token_exchange():
@@ -214,23 +236,4 @@ def oauth_token_exchange():
         return jsonify({'error': str(e)}), 500
 ```
 
-## 4. Modular Routing Example
-This example illustrates how to create and register blueprints, promoting a modular and extensible API design. It builds on the application factory for seamless integration.
-
-```python
-from flask import Blueprint, jsonify
-
-bp = Blueprint('my_feature', __name__)
-
-@bp.route('/', methods=['GET'])
-def my_endpoint():
-    return jsonify({"message": "Hello from my_feature!"})
-
-# To register the blueprint in your application:
-# from my_feature import bp as my_feature_bp
-# from app import create_app  # Import the app factory
-# app = create_app()
-# app.register_blueprint(my_feature_bp, url_prefix='/api/v1/my-feature')
-```
-
-This final document provides a complete, self-contained reference for the core components of the Flask application. It eliminates any potential redundancies from the original batch and ensures the content is optimized for clarity and reuse. If additional batches are provided in the future, I can refine this further.
+This final document provides a comprehensive yet concise representation of the core API components, ensuring it's ready for production use. If additional batches or updates are provided, I can refine this further.
