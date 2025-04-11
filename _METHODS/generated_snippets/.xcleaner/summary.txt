@@ -1,0 +1,173 @@
+# Project Summary
+
+Below is a cohesive document that combines the most important and unique code snippets from the provided files. I focused on retaining only the essential segments that demonstrate core functionality, eliminate redundancies (e.g., similar async API patterns or repeated event emitter structures), and organize the content logically. The organization follows a thematic structure:
+
+1. **Utilities and Helpers**: Foundational components like event emitters and progress handlers.
+2. **API Clients and Interactions**: Key methods for API calls, including image generation, data fetching, and error handling.
+3. **Server and Process Management**: Logic for managing servers, processes, and tasks.
+4. **UI and Configuration**: UI state management, file handling, and configuration utilities.
+5. **Testing and Discovery**: Tool discovery, testing fixtures, and metadata extraction.
+
+This results in a streamlined, non-redundant document that prioritizes readability and reusability.
+
+---
+
+```python
+# Combined Code Document: Key Snippets from MoE System Files
+
+"""
+Overview:
+This document consolidates essential code segments from various files in the MoE system.
+It focuses on unique functionalities like event handling, API interactions, server management,
+UI utilities, and testing. Redundancies (e.g., repeated async patterns or similar docstrings)
+have been removed, and content is organized logically for cohesion.
+"""
+
+# Section 1: Utilities and Helpers
+# These provide foundational support for progress tracking and event emissions.
+
+class EventEmitter:
+    """Event emitter for progress tracking"""
+    def __init__(self, event_emitter: Callable[[dict], Any] = None):
+        self.event_emitter = event_emitter
+
+    async def progress_update(self, description):
+        await self.emit(description)
+
+    async def error_update(self, description):
+        await self.emit(description, "error", True)
+
+    async def success_update(self, description):
+        await self.emit(description, "success", True)
+
+    async def emit(self, description="Unknown State", status="in_progress", done=False):
+        if self.event_emitter:
+            await self.event_emitter({
+                "type": "status",
+                "data": {
+                    "status": status,
+                    "description": description,
+                    "done": done,
+                },
+            })
+
+# Section 2: API Clients and Interactions
+# These handle key API operations, focusing on unique integrations like image generation and data fetching.
+
+async def generate_image(self, prompt: str, __user__: dict, __event_emitter__=None) -> str:
+    """
+    Generate an image based on a prompt, with event emission for status updates.
+    """
+    await __event_emitter__({
+        "type": "status",
+        "data": {"description": "Generating an image", "done": False},
+    })
+    try:
+        images = await image_generations(
+            GenerateImageForm(**{"prompt": prompt}),
+            Users.get_user_by_id(__user__["id"]),
+        )
+        await __event_emitter__({  # Truncated in original; implies status update
+            "type": "status",
+            "data": {"description": "Image generated", "done": True},
+        })
+        return images[0]  # Return the first generated image URL
+    except Exception as e:
+        logger.error(f"Error generating image: {e}")
+        return ""
+
+async def fetch_air_quality(self, lat: float, lon: float, __user__: dict = {}, __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None) -> str:
+    """
+    Fetch real-time air quality data for a given location.
+    """
+    if __event_emitter__:
+        await __event_emitter__({
+            "type": "status",
+            "data": {"description": "Fetching air quality data", "done": False},
+        })
+    try:
+        response = requests.get(
+            f"https://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={self.api_key}"
+        )
+        response.raise_for_status()
+        data = response.json()
+        return f"Air Quality: {data['list'][0]['main']['aqi']} (AQI scale)"
+    except Exception as e:
+        logger.error(f"Air quality fetch failed: {e}")
+        return "Error fetching data"
+
+# Section 3: Server and Process Management
+# These manage server processes, task coordination, and endpoint handling.
+
+def find_server_processes():
+    """Find all running MoE server processes."""
+    try:
+        cmd = "ps aux | grep 'python.*server.py' | grep -v grep"
+        output = subprocess.check_output(cmd, shell=True).decode()
+        processes = []
+        for line in output.splitlines():
+            parts = line.split()
+            pid = int(parts[1])
+            cmd_line = ' '.join(parts[10:])
+            if any(script in cmd_line for script in ['caminaa_server.py', 'belters_server.py']):
+                processes.append({"pid": pid, "command": cmd_line})
+        return processes
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error finding processes: {e}")
+        return []
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    """
+    Endpoint to receive chat queries and return a response.
+    """
+    try:
+        data = request.get_json()
+        content = data.get('content', '')
+        task_id = data.get('task_id', '')
+        logger.info(f"Received chat request: {content}")
+        # Simulate processing (e.g., using mistral-small:22b model)
+        response = {"response": f"Processed: {content}"}
+        return jsonify(response), 200
+    except Exception as e:
+        logger.error(f"Error processing chat: {e}")
+        return jsonify({"error": "Invalid request"}), 400
+
+# Section 4: UI and Configuration
+# These handle UI state, file types, and configuration models.
+
+export const UIStateManager = {
+    toggleProcessingState(pasteButton, restartButton, isProcessing) {
+        if (isProcessing) {
+            pasteButton.classList.add('hidden');
+            restartButton.classList.remove('hidden');
+        } else {
+            pasteButton.classList.remove('hidden');
+            restartButton.classList.add('hidden');
+        }
+    },
+};
+
+class UserValves(BaseModel):
+    """Requires AIR_QUALITY_OPEN_DATA API Key"""
+    AIR_QUALITY_OPEN_DATA: str
+
+# Section 5: Testing and Discovery
+# These include testing fixtures and tool discovery logic.
+
+@pytest.fixture
+def communicator(test_config):
+    """ModelCommunicator fixture"""
+    return ModelCommunicator(test_config)
+
+class ToolDiscovery:
+    """Discovers and registers available tools"""
+    def __init__(self, tools_dir: str, router: ToolRouter, registry: ModelRegistry, excluded_dirs: Optional[List[str]] = None):
+        self.tools_dir = tools_dir
+        self.router = router
+        self.registry = registry
+        self.excluded_dirs = excluded_dirs or []
+        # Logic to scan and register tools would follow
+```
+
+This document is now streamlined, with redundant elements (e.g., multiple similar async methods) consolidated or omitted. Each section builds on the previous one, creating a logical flow from utilities to advanced features. If you need further refinements, let me know!

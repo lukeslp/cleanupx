@@ -15,12 +15,224 @@ from datetime import datetime
 
 from cleanupx.config import DOCUMENT_EXTENSIONS, DOCUMENT_FUNCTION_SCHEMA, FILE_DOCUMENT_PROMPT, XAI_MODEL_TEXT
 from cleanupx.utils.common import read_text_file, strip_media_suffixes, clean_filename
-from cleanupx.utils.cache import save_cache, _MEMORY_CACHE, get_cache_path
+from cleanupx.utils.cache import save_cache, _MEMORY_CACHE, get_cache_path, ensure_metadata_dir, get_description_path
 from cleanupx.api import call_xai_api
-from cleanupx.processors.base import generate_new_filename, rename_file
+from cleanupx.processors.base import BaseProcessor
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+class DocumentProcessor(BaseProcessor):
+    """Processor for document files (PDF, DOCX, etc.)."""
+    
+    def __init__(self):
+        """Initialize the document processor."""
+        super().__init__()
+        self.supported_extensions = DOCUMENT_EXTENSIONS
+        self.max_size_mb = 25.0
+        
+    def process(self, file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict) -> Dict:
+        """
+        Process a document file.
+        
+        Args:
+            file_path: Path to the document file
+            cache: Cache dictionary for storing processing results
+            rename_log: Dictionary for tracking file renames
+            
+        Returns:
+            Dictionary with processing results
+        """
+        file_path = Path(file_path)
+        result = {
+            "success": False,
+            "error": None,
+            "new_path": None
+        }
+        
+        try:
+            # Check if we can process this file
+            if not self.can_process(file_path):
+                result['error'] = f"Unsupported file type: {file_path.suffix}"
+                return result
+                
+            # Check file size
+            if not self.check_file_size(file_path):
+                result['error'] = f"File size exceeds maximum ({self.max_size_mb}MB)"
+                return result
+                
+            # Get file description from cache or generate new one
+            description = cache.get(str(file_path))
+            if not description:
+                logger.warning(f"No description found in cache for {file_path}")
+                return result
+                
+            # Generate new filename
+            new_name = self.generate_new_filename(file_path, description, "document")
+            
+            # Rename the file
+            success, new_path = self.rename_file(file_path, new_name)
+            
+            if success:
+                result.update({
+                    "success": True,
+                    "new_path": str(new_path)
+                })
+                # Update rename log
+                rename_log[str(file_path)] = str(new_path)
+            else:
+                result["error"] = "Failed to rename file"
+                
+            # Generate markdown
+            self._generate_markdown(file_path, description)
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error processing document {file_path}: {e}")
+            result["error"] = str(e)
+            
+        return result
+            
+    def _analyze_document(self, file_path: Union[str, Path]) -> Optional[Dict[str, Any]]:
+        """
+        Analyze a document using AI.
+        
+        Args:
+            file_path: Path to the document file
+            
+        Returns:
+            Dictionary with document analysis or None if analysis failed
+        """
+        try:
+            # Extract text from document
+            text = self._extract_document_text(file_path)
+            if not text or not text.strip():
+                logger.error(f"Failed to extract text from {file_path}")
+                return None
+                
+            # Add file metadata to text
+            file_stats = Path(file_path).stat()
+            file_size_mb = file_stats.st_size / (1024 * 1024)
+            modified_time = datetime.fromtimestamp(file_stats.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+            
+            # Get page count for PDFs
+            page_count = None
+            if file_path.suffix.lower() == '.pdf':
+                page_count = get_pdf_page_count(file_path)
+                
+            # Prepare analysis request
+            prompt = FILE_DOCUMENT_PROMPT
+            max_text_length = 15000  # Limit text to avoid token limits
+            
+            if len(text) > max_text_length:
+                logger.info(f"Truncating document text from {len(text)} to {max_text_length} characters")
+                text = text[:max_text_length] + "\n[... TRUNCATED ...]"
+                
+            # Call API for analysis
+            result = call_xai_api(
+                XAI_MODEL_TEXT,
+                prompt,
+                DOCUMENT_FUNCTION_SCHEMA,
+                text,
+                filename=file_path.name,
+                file_size=f"{file_size_mb:.2f} MB",
+                modified_date=modified_time,
+                page_count=page_count
+            )
+            
+            if not result:
+                logger.error(f"Failed to analyze document: {file_path}")
+                return None
+                
+            # Add metadata
+            result['file_size'] = f"{file_size_mb:.2f} MB"
+            result['modified_date'] = modified_time
+            if page_count:
+                result['page_count'] = page_count
+                
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error analyzing document {file_path}: {e}")
+            return None
+            
+    def _extract_document_text(self, file_path: Union[str, Path], max_pages: int = 5) -> str:
+        """
+        Extract text from a document file.
+        
+        Args:
+            file_path: Path to the document file
+            max_pages: Maximum number of pages to extract (for PDFs)
+            
+        Returns:
+            Extracted text or empty string if extraction failed
+        """
+        file_path = Path(file_path)
+        file_extension = file_path.suffix.lower()
+        
+        if file_extension == '.pdf':
+            return extract_text_from_pdf(file_path, max_pages)
+        elif file_extension == '.docx':
+            return extract_text_from_docx(file_path)
+        elif file_extension in ['.txt', '.md', '.py', '.js', '.html', '.css', '.csv', '.json', '.xml']:
+            return extract_text_from_txt(file_path)
+        else:
+            logger.warning(f"No specific extraction method for {file_extension}, trying as text file")
+            return extract_text_from_txt(file_path)
+            
+    def _generate_markdown(self, file_path: Path, description: Dict[str, Any]):
+        """
+        Generate markdown description for the document.
+        
+        Args:
+            file_path: Path to the document file
+            description: Dictionary with document description
+        """
+        try:
+            ensure_metadata_dir(file_path.parent)
+            md_path = get_description_path(file_path)
+            
+            content = [
+                f"# {description.get('title', file_path.stem)}",
+                "",
+                f"**Summary:** {description.get('summary', 'No summary available')}",
+                "",
+                "## Document Information",
+                f"- **Original Filename:** {file_path.name}",
+                f"- **File Size:** {description.get('file_size', 'Unknown')}",
+                f"- **Modified Date:** {description.get('modified_date', 'Unknown')}"
+            ]
+            
+            if 'page_count' in description:
+                content.append(f"- **Pages:** {description['page_count']}")
+                
+            content.extend([
+                "",
+                "## Content Analysis",
+                f"- **Document Type:** {description.get('document_type', 'Unknown')}",
+                f"- **Subject:** {description.get('subject', 'Unknown')}",
+                f"- **Language:** {description.get('language', 'Unknown')}",
+                "",
+                "## Keywords",
+                "\n".join(f"- {keyword}" for keyword in description.get('keywords', []))
+            ])
+            
+            if 'citations' in description and description['citations']:
+                content.extend([
+                    "",
+                    "## Citations",
+                    "\n".join(f"- {citation}" for citation in description['citations'])
+                ])
+                
+            with open(md_path, 'w', encoding='utf-8') as f:
+                f.write('\n'.join(content))
+                
+            logger.info(f"Generated markdown description: {md_path}")
+        except Exception as e:
+            logger.error(f"Error generating markdown for {file_path}: {e}")
+
+# Keep existing utility functions
 
 def extract_text_from_docx(file_path: Union[str, Path]) -> str:
     """Extract text content from a DOCX file."""
@@ -198,354 +410,160 @@ def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> st
                 # Try reading as plain text with multiple encodings
                 for encoding in ['utf-8', 'latin-1', 'cp1252', 'ascii']:
                     try:
-                        with open(file_path, 'r', encoding=encoding, errors='replace') as f:
+                        with open(file_path, 'r', encoding=encoding) as f:
                             text = f.read()
                         if text.strip():
-                            logger.info(f"Successfully read file as text using {encoding} encoding")
+                            logger.info(f"Successfully read {file_path} as text file with {encoding} encoding")
                             break
-                    except Exception as enc_error:
-                        logger.debug(f"Failed to read with {encoding} encoding: {enc_error}")
-            except Exception as txt_error:
-                logger.warning(f"Failed to read as text: {txt_error}")
+                    except UnicodeDecodeError:
+                        continue
+            except Exception as e:
+                logger.warning(f"Text file reading failed: {e}")
                 
-        # If still empty, use the filename as fallback text
-        if not text.strip():
-            text = str(file_path.stem).replace("_", " ").replace("-", " ")
-            logger.info(f"All extraction methods including text scan failed. Using filename as fallback text for {file_path}")
-            # We don't cache fallback text since it's just the filename
+        # Cache results to avoid repeated extraction
+        if text.strip():
+            # Cache to memory
+            _MEMORY_CACHE[cache_key] = text
+            
+            # Cache to disk
+            try:
+                cache_file.parent.mkdir(parents=True, exist_ok=True)
+                with open(cache_file, 'w', encoding='utf-8') as f:
+                    f.write(text)
+                logger.info(f"Cached text extraction to {cache_file}")
+            except Exception as e:
+                logger.warning(f"Failed to save text extraction cache: {e}")
         else:
-            # Cache the extracted text to avoid re-extraction
-            # Skip caching if NO_CACHE is set
-            if os.environ.get('CLEANUPX_NO_CACHE'):
-                logger.debug(f"Skipping text cache creation for {file_path} due to NO_CACHE setting")
-            else:
-                # Cache to disk
-                try:
-                    # Create parent directories if they don't exist
-                    cache_file.parent.mkdir(parents=True, exist_ok=True)
-                    
-                    with open(cache_file, 'w', encoding='utf-8') as f:
-                        f.write(text)
-                    logger.debug(f"Cached text extraction to disk for {file_path} at {cache_file}")
-                except Exception as e:
-                    logger.warning(f"Failed to cache text extraction to disk: {e}")
-                
-                # Cache to memory
-                _MEMORY_CACHE[cache_key] = text
-                logger.debug(f"Cached text extraction in memory for {file_path}")
+            logger.warning(f"No text extracted from {file_path}")
             
         return text
+        
     except Exception as e:
-        logger.error(f"Error in PDF extraction process for {file_path}: {e}")
-        text = str(file_path.stem).replace("_", " ").replace("-", " ")
-        return text
+        logger.error(f"Error extracting text from {file_path}: {e}")
+        return ""
 
 def extract_text_with_pypdf2(file_path: Union[str, Path], max_pages: int = 3) -> str:
-    """Extract text using PyPDF2 with fallback options."""
-    import PyPDF2
-    text = ""
-    
-    # First try the normal PyPDF2 extraction
+    """Extract text content from a PDF file using PyPDF2."""
     try:
+        import PyPDF2
+        text = ""
+        
         with open(file_path, 'rb') as f:
             reader = PyPDF2.PdfReader(f)
+            pages_to_extract = min(len(reader.pages), max_pages) if max_pages is not None else len(reader.pages)
             
-            # Determine how many pages to process
-            total_pages = len(reader.pages)
-            pages_to_process = min(total_pages, max_pages) if max_pages is not None else total_pages
-            
-            for i in range(pages_to_process):
-                extracted = reader.pages[i].extract_text()
-                if extracted:
-                    text += extracted
+            if pages_to_extract < len(reader.pages) and max_pages is not None:
+                logger.info(f"Only extracting {pages_to_extract} of {len(reader.pages)} pages from {file_path}")
+                
+            for i in range(pages_to_extract):
+                try:
+                    page = reader.pages[i]
+                    page_text = page.extract_text()
+                    if page_text:
+                        text += page_text + "\n\n"
+                except Exception as e:
+                    logger.warning(f"Error extracting text from page {i} in {file_path}: {e}")
+                    continue
                     
-            if max_pages is not None and total_pages > max_pages:
-                logger.info(f"Only processed {pages_to_process} of {total_pages} pages in {file_path} with PyPDF2")
+        return text
     except Exception as e:
-        logger.warning(f"Standard PyPDF2 extraction failed for {file_path}: {e}")
-        
-    # If standard extraction failed, try more robust approach
-    if not text.strip():
-        try:
-            with open(file_path, 'rb') as f:
-                reader = PyPDF2.PdfReader(f, strict=False)
-                
-                # Determine how many pages to process
-                total_pages = len(reader.pages)
-                pages_to_process = min(total_pages, max_pages) if max_pages is not None else total_pages
-                
-                for i in range(pages_to_process):
-                    try:
-                        page = reader.pages[i]
-                        extracted = page.extract_text()
-                        if extracted:
-                            text += extracted
-                    except Exception as page_e:
-                        logger.warning(f"Error extracting text from page {i}: {page_e}")
-                        continue
-                        
-                if max_pages is not None and total_pages > max_pages:
-                    logger.info(f"Only processed {pages_to_process} of {total_pages} pages in {file_path} with alternative PyPDF2")
-        except Exception as alt_e:
-            logger.warning(f"Alternative PyPDF2 extraction failed for {file_path}: {alt_e}")
-    
-    return text
+        logger.warning(f"PyPDF2 extraction failed for {file_path}: {e}")
+        return ""
 
 def extract_text_with_pdftotext(file_path: Union[str, Path], max_pages: int = 3) -> str:
-    """Extract text using pdftotext command line tool."""
+    """Extract text content from a PDF file using pdftotext command line tool."""
     try:
-        cmd = ['pdftotext']
-        
-        # Add page range if max_pages is specified
+        page_option = []
         if max_pages is not None:
-            cmd.extend(['-f', '1', '-l', str(max_pages)])
+            page_option = ["-l", str(max_pages)]  # -l specifies the last page to extract
             
-        cmd.extend([str(file_path), '-'])
-        
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        
-        if max_pages is not None:
-            logger.info(f"Processed up to {max_pages} pages in {file_path} with pdftotext")
-            
-        return result.stdout
+        result = subprocess.run(
+            ["pdftotext"] + page_option + ["-layout", str(file_path), "-"],
+            capture_output=True, text=True, check=True
+        )
+        if result.stdout.strip():
+            return result.stdout
+        else:
+            logger.warning(f"pdftotext produced empty output for {file_path}")
+            return ""
     except (subprocess.SubprocessError, FileNotFoundError) as e:
-        logger.warning(f"pdftotext extraction failed: {e}")
+        logger.warning(f"pdftotext extraction failed for {file_path}: {e}")
         return ""
 
 def extract_text_from_txt(file_path: Union[str, Path]) -> str:
-    """Extract text from a plain text file with encoding detection."""
+    """Extract text content from a text file."""
     file_path = Path(file_path)
-    
-    # Use in-memory cache for extracted text during this session
-    cache_key = f"text_extraction_{str(file_path)}_{file_path.stat().st_mtime}"
-    if cache_key in _MEMORY_CACHE:
-        logger.info(f"Using in-memory cached text extraction for {file_path}")
-        return _MEMORY_CACHE[cache_key]
-    
-    # Check for disk cache
-    # Create a standardized cache filename using hash of the path
-    cache_dir = file_path.parent
-    file_hash = hashlib.md5(str(file_path).encode()).hexdigest()[:8]
-    cache_file = cache_dir / f"text_cache_{file_hash}_{file_path.stem}.txt"
-    
-    # Try to load from disk cache if it exists
-    if not os.environ.get('CLEANUPX_NO_CACHE') and cache_file.exists():
-        try:
-            # Check if cache file is newer than the actual file
-            if cache_file.stat().st_mtime >= file_path.stat().st_mtime:
-                with open(cache_file, 'r', encoding='utf-8') as f:
-                    text = f.read()
-                if text.strip():
-                    logger.info(f"Using disk cached text extraction for {file_path}")
-                    # Also store in memory cache
-                    _MEMORY_CACHE[cache_key] = text
-                    return text
-        except Exception as e:
-            logger.warning(f"Failed to read cache file for {file_path}: {e}")
-    
-    # Try to read the text with different encodings
     text = ""
+    
+    # List of encodings to try
     encodings = ['utf-8', 'latin-1', 'cp1252', 'ascii']
     
-    for enc in encodings:
+    for encoding in encodings:
         try:
-            with open(file_path, 'r', encoding=enc, errors='replace') as f:
+            with open(file_path, 'r', encoding=encoding) as f:
                 text = f.read()
-            if text.strip():
-                logger.info(f"Successfully read text file with {enc} encoding")
-                break
+            logger.info(f"Successfully read {file_path} with {encoding} encoding")
+            break
+        except UnicodeDecodeError:
+            logger.debug(f"Encoding {encoding} failed for {file_path}")
+            continue
         except Exception as e:
-            logger.debug(f"Failed to read with {enc} encoding: {e}")
-    
-    # Cache the result if we got text
-    if text.strip() and not os.environ.get('CLEANUPX_NO_CACHE'):
+            logger.error(f"Error reading {file_path}: {e}")
+            return ""
+            
+    # If all encodings failed, try binary read as a last resort
+    if not text:
         try:
-            # Create parent directories if they don't exist
-            cache_file.parent.mkdir(parents=True, exist_ok=True)
-            
-            with open(cache_file, 'w', encoding='utf-8') as f:
-                f.write(text)
-            logger.debug(f"Cached text extraction to disk for {file_path}")
-            
-            # Also cache in memory
-            _MEMORY_CACHE[cache_key] = text
+            with open(file_path, 'rb') as f:
+                binary_data = f.read()
+            try:
+                # Try to decode with errors='replace'
+                text = binary_data.decode('utf-8', errors='replace')
+                logger.info(f"Read {file_path} with binary fallback")
+            except Exception as e:
+                logger.error(f"Binary fallback failed for {file_path}: {e}")
+                return ""
         except Exception as e:
-            logger.warning(f"Failed to cache text extraction: {e}")
-    
+            logger.error(f"Binary read failed for {file_path}: {e}")
+            return ""
+            
     return text
-
-def process_document_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Optional[Dict] = None, web_search: bool = False) -> Tuple[Path, Optional[Path], Optional[Dict[str, Any]]]:
-    """
-    Process a document file - extract text, analyze content, and rename.
-    
-    Args:
-        file_path: Path to the document file
-        cache: Cache dictionary for storing/retrieving document descriptions
-        rename_log: Optional log for tracking renames
-        web_search: Whether to incorporate web search results (if available)
-        
-    Returns:
-        Tuple of (original_path, new_path, description)
-    """
-    try:
-        file_path = Path(file_path)
-        ext = file_path.suffix.lower()
-        
-        # Check if already processed
-        cache_key = str(file_path)
-        if cache_key in cache:
-            logger.info(f"Using cached description for {file_path.name}")
-            data = cache[cache_key]
-        else:
-            # Extract text based on file type
-            if ext == '.docx':
-                text_content = extract_text_from_docx(file_path)
-            elif ext == '.pdf':
-                text_content = extract_text_from_pdf(file_path)
-            else:
-                text_content = read_text_file(file_path)
-            
-            if not text_content.strip():
-                logger.warning(f"No text content extracted from {file_path.name}")
-                return file_path, None, None
-            
-            # Analyze content
-            prompt = FILE_DOCUMENT_PROMPT.format(
-                name=file_path.name,
-                suffix=ext,
-                text_content=text_content[:10000]  # Limit content length
-            )
-            
-            data = call_xai_api(XAI_MODEL_TEXT, prompt, DOCUMENT_FUNCTION_SCHEMA)
-            if not data:
-                logger.warning(f"Failed to analyze document: {file_path.name}")
-                return file_path, None, None
-            
-            # Cache the result
-            cache[cache_key] = data
-            save_cache(cache)
-        
-        # Generate new filename
-        new_filename = generate_new_filename(file_path, data)
-        if not new_filename:
-            logger.warning(f"Failed to generate new filename for {file_path.name}")
-            return file_path, None, data
-        
-        try:
-            new_path = file_path.parent / new_filename
-            if new_path != file_path:
-                file_path.rename(new_path)
-                logger.info(f"Renamed {file_path.name} to {new_filename}")
-                if cache_key in cache:
-                    cache[str(new_path)] = cache.pop(cache_key)
-                    save_cache(cache)
-            
-            # Create markdown file with the document description
-            md_base_name = os.path.splitext(new_filename)[0] if new_path != file_path else os.path.splitext(file_path.name)[0]
-            md_filename = f"{md_base_name}.md"
-            md_path = (new_path if new_path != file_path else file_path).parent / md_filename
-            
-            with open(md_path, 'w', encoding='utf-8') as md_file:
-                title = data.get("title", "Document Description")
-                md_file.write(f"# {title}\n\n")
-                
-                # Add document type and description
-                doc_type = data.get("document_type", "unknown")
-                md_file.write(f"**Type:** {doc_type}\n\n")
-                
-                description = data.get("description", "")
-                if description:
-                    md_file.write(f"## Description\n\n{description}\n\n")
-                
-                # Add file information
-                md_file.write("## File Information\n\n")
-                md_file.write(f"- **Original Name:** {file_path.name}\n")
-                md_file.write(f"- **Current Name:** {new_filename if new_path != file_path else file_path.name}\n")
-                md_file.write(f"- **File Size:** {file_path.stat().st_size / 1024:.1f} KB\n")
-                md_file.write(f"- **Last Modified:** {datetime.fromtimestamp(file_path.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S')}\n")
-            
-            logger.info(f"Created markdown description file: {md_path}")
-            
-            return file_path, new_path, data
-            
-        except Exception as e:
-            logger.warning(f"Failed to rename file {file_path.name}: {e}")
-            return file_path, None, data
-            
-    except Exception as e:
-        logger.warning(f"Error processing document {file_path.name}: {e}")
-        return file_path, None, None
 
 def clear_document_cache(file_path: Optional[Union[str, Path]] = None) -> None:
     """
-    Clear document analysis cache for a specific file or all files.
+    Clear document text extraction cache.
     
     Args:
-        file_path: Path to the document to clear cache for, or None for all documents
+        file_path: If provided, only clear cache for this file.
+                  If None, clear all document cache.
     """
-    cache_dir = ensure_cache_dir()
-    documents_cache_dir = cache_dir / "documents"
-    
-    if file_path is not None:
-        # Clear cache for specific file
+    if file_path:
+        # Clear cache for a specific file
+        file_path = Path(file_path)
         cache_file = get_cache_path(file_path, "documents")
         if cache_file.exists():
             try:
-                os.remove(cache_file)
+                cache_file.unlink()
                 logger.info(f"Cleared document cache for {file_path}")
             except Exception as e:
                 logger.error(f"Failed to clear document cache for {file_path}: {e}")
+                
+        # Clear memory cache
+        cache_key = f"text_extraction_{str(file_path)}_{file_path.stat().st_mtime}"
+        if cache_key in _MEMORY_CACHE:
+            del _MEMORY_CACHE[cache_key]
     else:
-        # Clear all document caches
-        if documents_cache_dir.exists():
-            for cache_file in documents_cache_dir.glob("*.cache"):
-                try:
-                    os.remove(cache_file)
-                except Exception as e:
-                    logger.error(f"Failed to remove document cache file {cache_file}: {e}")
-            logger.info("Cleared all document caches")
-
-def read_text_file(file_path: Union[str, Path]) -> str:
-    """
-    Read text content from a file, with caching.
-    
-    Args:
-        file_path: Path to the text file
-        
-    Returns:
-        The text content
-    """
-    file_path = Path(file_path)
-    
-    # Check memory cache first
-    cache_key = f"text_extraction_{str(file_path)}_{file_path.stat().st_mtime}"
-    if cache_key in _MEMORY_CACHE:
-        logger.info(f"Using in-memory cached text extraction for {file_path}")
-        return _MEMORY_CACHE[cache_key]
-    
-    # Use the get_cache_path function which will return None for text files
-    cache_file = get_cache_path(file_path, "text")
-    
-    # For text files, we'll use memory cache only, no disk caching
-    
-    # Try to read the text with different encodings
-    text = ""
-    encodings = ['utf-8', 'latin-1', 'cp1252', 'ascii']
-    
-    for enc in encodings:
-        try:
-            with open(file_path, 'r', encoding=enc, errors='replace') as f:
-                text = f.read()
-            if text.strip():
-                logger.info(f"Successfully read text file with {enc} encoding")
-                break
-        except Exception as e:
-            logger.debug(f"Failed to read with {enc} encoding: {e}")
-    
-    # Cache the result in memory if we got text
-    if text.strip():
-        # Only store in memory cache, no disk caching for text files
-        _MEMORY_CACHE[cache_key] = text
-        logger.debug(f"Cached text extraction to memory for {file_path}")
-    
-    return text
+        # Clear all document cache
+        cache_dir = Path(os.path.expanduser("~/.cache/cleanupx/documents"))
+        if cache_dir.exists():
+            try:
+                import shutil
+                shutil.rmtree(cache_dir)
+                logger.info(f"Cleared all document cache at {cache_dir}")
+            except Exception as e:
+                logger.error(f"Failed to clear document cache: {e}")
+                
+        # Clear all document-related memory cache
+        for key in list(_MEMORY_CACHE.keys()):
+            if key.startswith("text_extraction_"):
+                del _MEMORY_CACHE[key]

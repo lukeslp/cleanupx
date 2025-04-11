@@ -1525,7 +1525,7 @@ def interactive_mode() -> int:
             dedupe_answers = prompt(questions, theme=GreenPassion() if INQUIRER_AVAILABLE else None)
             if dedupe_answers and dedupe_answers.get('proceed', False):
                 try:
-                    from scripts.dedupe import dedupe_images
+                    from _METHODS.dedupe import dedupe_images
                     # Convert directory to string
                     dir_str = str(dedupe_answers['directory'])
                     count = dedupe_images(dir_str)

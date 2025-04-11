@@ -5,17 +5,342 @@ Archive file processor for CleanupX (ZIP, TAR, etc.).
 
 import json
 import logging
+import os
 from pathlib import Path
 from typing import Dict, Optional, Tuple, Union, Any
+from datetime import datetime
 
 from cleanupx.config import ARCHIVE_FUNCTION_SCHEMA, ARCHIVE_EXTENSIONS, XAI_MODEL_TEXT
-from cleanupx.utils.cache import save_cache
+from cleanupx.utils.cache import save_cache, ensure_metadata_dir, get_description_path
 from cleanupx.api import call_xai_api
-from cleanupx.processors.base import rename_file
+from cleanupx.processors.base import BaseProcessor
 from cleanupx.utils.common import clean_filename, strip_media_suffixes
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+class ArchiveProcessor(BaseProcessor):
+    """Processor for archive files (ZIP, TAR, RAR, etc.)."""
+    
+    def __init__(self):
+        """Initialize the archive processor."""
+        super().__init__()
+        self.supported_extensions = ARCHIVE_EXTENSIONS
+        self.max_size_mb = 100.0  # Archives can be larger
+        
+    def process(self, file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Optional[Dict] = None) -> Dict:
+        """
+        Process an archive file.
+        
+        Args:
+            file_path: Path to the archive file
+            cache: Cache dictionary for storing/retrieving archive descriptions
+            rename_log: Optional log for tracking renames
+            
+        Returns:
+            Dictionary with processing results
+        """
+        file_path = Path(file_path)
+        result = {
+            'original_path': str(file_path),
+            'new_path': None,
+            'description': None,
+            'content_analyzed': False,
+            'renamed': False,
+            'error': None,
+            'file_count': 0
+        }
+        
+        try:
+            # Check if we can process this file
+            if not self.can_process(file_path):
+                result['error'] = f"Unsupported file type: {file_path.suffix}"
+                return result
+                
+            # Check file size
+            if not self.check_file_size(file_path):
+                result['error'] = f"File size exceeds maximum ({self.max_size_mb}MB)"
+                return result
+                
+            # Check cache
+            cache_key = str(file_path)
+            if cache_key in cache:
+                logger.info(f"Using cached description for {file_path.name}")
+                description = cache[cache_key]
+            else:
+                # Analyze archive
+                description = self._analyze_archive(file_path)
+                if description:
+                    cache[cache_key] = description
+                    save_cache(cache)
+                    
+            if not description:
+                result['error'] = "Failed to analyze archive"
+                return result
+                
+            # Generate new filename using inherited method
+            new_name = super().generate_new_filename(file_path, description)
+            if not new_name:
+                result['error'] = "Failed to generate new filename"
+                return result
+                
+            # Rename file using inherited method
+            new_path = super().rename_file(file_path, new_name, rename_log)
+            if new_path:
+                result['new_path'] = str(new_path)
+                result['renamed'] = True
+                
+            # Generate markdown
+            self._generate_markdown(file_path, description)
+            
+            result['description'] = description
+            result['content_analyzed'] = True
+            if 'file_count' in description:
+                result['file_count'] = description['file_count']
+                
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error processing archive {file_path}: {e}")
+            result['error'] = str(e)
+            return result
+            
+    def _analyze_archive(self, file_path: Union[str, Path]) -> Optional[Dict[str, Any]]:
+        """
+        Analyze an archive's contents.
+        
+        Args:
+            file_path: Path to the archive file
+            
+        Returns:
+            Dictionary with archive analysis or None if analysis failed
+        """
+        try:
+            file_path = Path(file_path)
+            archive_ext = file_path.suffix.lower()
+            file_stats = file_path.stat()
+            file_size_mb = file_stats.st_size / (1024 * 1024)
+            modified_time = datetime.fromtimestamp(file_stats.st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+            
+            # Extract archive info based on type
+            content_summary = []
+            file_count = 0
+            dir_count = 0
+            content_types = {}
+            
+            # Process different archive types
+            if archive_ext == '.zip':
+                try:
+                    import zipfile
+                    with zipfile.ZipFile(file_path, 'r') as zipf:
+                        file_list = zipf.namelist()
+                        file_count = len(file_list)
+                        content_summary.append(f"Archive contains {file_count} files/directories")
+                        
+                        # Analyze file types
+                        for name in file_list:
+                            if name.endswith('/'):  # Directory
+                                dir_count += 1
+                            else:
+                                ext = os.path.splitext(name)[1].lower()
+                                if ext in content_types:
+                                    content_types[ext] += 1
+                                else:
+                                    content_types[ext] = 1
+                                    
+                        # Get file list preview (limited)
+                        for i, name in enumerate(file_list[:20]):
+                            content_summary.append(f"- {name}")
+                        if len(file_list) > 20:
+                            content_summary.append(f"... and {len(file_list) - 20} more items")
+                except Exception as e:
+                    logger.error(f"Error analyzing ZIP archive {file_path}: {e}")
+                    content_summary.append(f"Error reading ZIP: {e}")
+                    
+            elif archive_ext in {'.tar', '.tgz', '.tar.gz', '.gz'}:
+                if archive_ext == '.gz' and not str(file_path).endswith('.tar.gz'):
+                    # For solo .gz files, handle differently
+                    gz_info = get_gz_info(file_path)
+                    content_summary.append(f"Compressed file: {gz_info.get('filename', 'unknown')}")
+                    content_summary.append(f"Compressed size: {gz_info.get('compressed_size', 0) / 1024:.1f} KB")
+                    if 'original_size' in gz_info:
+                        content_summary.append(f"Original size: {gz_info.get('original_size', 0) / 1024:.1f} KB")
+                    content_summary.append(f"Content type: {gz_info.get('content_type', 'unknown')}")
+                    if 'detail' in gz_info:
+                        content_summary.append(f"Details: {gz_info['detail']}")
+                    file_count = 1
+                else:
+                    # For tar archives
+                    try:
+                        import tarfile
+                        with tarfile.open(file_path, 'r') as tar:
+                            file_list = tar.getnames()
+                            file_count = len(file_list)
+                            content_summary.append(f"Archive contains {file_count} files/directories")
+                            
+                            # Analyze file types
+                            for name in file_list:
+                                if name.endswith('/'):  # Directory
+                                    dir_count += 1
+                                else:
+                                    ext = os.path.splitext(name)[1].lower()
+                                    if ext in content_types:
+                                        content_types[ext] += 1
+                                    else:
+                                        content_types[ext] = 1
+                                        
+                            # Get file list preview
+                            for i, name in enumerate(file_list[:20]):
+                                content_summary.append(f"- {name}")
+                            if len(file_list) > 20:
+                                content_summary.append(f"... and {len(file_list) - 20} more items")
+                    except Exception as e:
+                        logger.error(f"Error analyzing TAR archive {file_path}: {e}")
+                        content_summary.append(f"Error reading TAR archive: {e}")
+                        
+            elif archive_ext == '.rar':
+                try:
+                    import rarfile
+                    with rarfile.RarFile(file_path, 'r') as rf:
+                        file_list = rf.namelist()
+                        file_count = len(file_list)
+                        content_summary.append(f"Archive contains {file_count} files/directories")
+                        
+                        # Analyze file types
+                        for name in file_list:
+                            if name.endswith('/'):  # Directory
+                                dir_count += 1
+                            else:
+                                ext = os.path.splitext(name)[1].lower()
+                                if ext in content_types:
+                                    content_types[ext] += 1
+                                else:
+                                    content_types[ext] = 1
+                                    
+                        # Get file list preview
+                        for i, name in enumerate(file_list[:20]):
+                            content_summary.append(f"- {name}")
+                        if len(file_list) > 20:
+                            content_summary.append(f"... and {len(file_list) - 20} more items")
+                except ImportError:
+                    content_summary.append("rarfile module not installed. Please install with: pip install rarfile")
+                except Exception as e:
+                    logger.error(f"Error analyzing RAR archive {file_path}: {e}")
+                    content_summary.append(f"Error reading RAR archive: {e}")
+            else:
+                content_summary.append(f"Unsupported archive type: {archive_ext}")
+                
+            # Create content type summary
+            content_type_summary = []
+            for ext, count in sorted(content_types.items(), key=lambda x: x[1], reverse=True):
+                content_type_summary.append(f"{ext}: {count} file(s)")
+                
+            # Build the final result
+            result = {
+                "file_path": str(file_path),
+                "file_size": f"{file_size_mb:.2f} MB",
+                "modified_date": modified_time,
+                "archive_type": archive_ext.lstrip('.'),
+                "file_count": file_count,
+                "directory_count": dir_count,
+                "content_summary": "\n".join(content_summary),
+                "content_types": content_type_summary,
+                "suggested_filename": self._generate_suggested_filename(file_path, content_types)
+            }
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error analyzing archive {file_path}: {e}")
+            return None
+            
+    def _generate_suggested_filename(self, file_path: Path, content_types: Dict[str, int]) -> str:
+        """
+        Generate a suggested filename based on archive contents.
+        
+        Args:
+            file_path: Path to the archive file
+            content_types: Dictionary of file extensions and their counts
+            
+        Returns:
+            Suggested filename without extension
+        """
+        # Start with the original name
+        original_name = strip_media_suffixes(file_path.stem)
+        
+        # If the archive is empty or we couldn't analyze it, just return the original name
+        if not content_types:
+            return original_name
+            
+        # Find the most common file type
+        most_common_ext = None
+        most_common_count = 0
+        for ext, count in content_types.items():
+            if count > most_common_count:
+                most_common_ext = ext
+                most_common_count = count
+                
+        # Append the most common file type to the name if it's significant
+        if most_common_ext and most_common_count > 1:
+            # Clean up the extension
+            ext_type = most_common_ext.lstrip('.').lower()
+            
+            # Only use meaningful extension types
+            meaningful_extensions = {'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 
+                                     'xls', 'xlsx', 'ppt', 'pptx', 'mp3', 'mp4', 'wav',
+                                     'txt', 'csv', 'json', 'xml', 'html', 'py', 'js'}
+            if ext_type in meaningful_extensions:
+                # If the original name already contains this extension type, don't add it
+                if ext_type.lower() not in original_name.lower():
+                    return f"{original_name}_{ext_type}_files"
+                    
+        return original_name
+        
+    def _generate_markdown(self, file_path: Path, description: Dict[str, Any]):
+        """
+        Generate markdown summary for the archive.
+        
+        Args:
+            file_path: Path to the archive file
+            description: Dictionary with archive description
+        """
+        try:
+            ensure_metadata_dir(file_path.parent)
+            md_path = get_description_path(file_path)
+            
+            content = [
+                f"# {description.get('suggested_filename', file_path.stem)}",
+                "",
+                "## Archive Information",
+                f"- **Original Filename:** {file_path.name}",
+                f"- **Archive Type:** {description.get('archive_type', 'Unknown').upper()}",
+                f"- **File Size:** {description.get('file_size', 'Unknown')}",
+                f"- **Modified Date:** {description.get('modified_date', 'Unknown')}",
+                f"- **File Count:** {description.get('file_count', 0)}",
+                f"- **Directory Count:** {description.get('directory_count', 0)}",
+                "",
+                "## Content Types",
+            ]
+            
+            # Add content types
+            for content_type in description.get('content_types', []):
+                content.append(f"- {content_type}")
+                
+            # Add content summary
+            content.extend([
+                "",
+                "## Content Summary",
+                description.get('content_summary', 'No content summary available')
+            ])
+            
+            with open(md_path, 'w', encoding='utf-8') as f:
+                f.write('\n'.join(content))
+                
+            logger.info(f"Generated markdown summary: {md_path}")
+        except Exception as e:
+            logger.error(f"Error generating markdown for {file_path}: {e}")
+
+# Keep existing utility functions
 
 def get_gz_info(file_path: Union[str, Path]) -> Dict[str, Any]:
     """
@@ -129,175 +454,3 @@ def get_gz_info(file_path: Union[str, Path]) -> Dict[str, Any]:
             "filename": Path(file_path).name,
             "compressed_size": Path(file_path).stat().st_size
         }
-
-def process_archive_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict, 
-                        generate_md: bool = True) -> Tuple[Path, Optional[Path], Optional[Dict]]:
-    """
-    Process archive files (.zip, .tar, etc.) to:
-    1. Analyze contents to suggest a new filename
-    2. Generate a markdown (.md) summary of the archive contents
-    
-    Args:
-        file_path: Path to the archive file
-        cache: Cache dictionary for storing/retrieving archive descriptions
-        rename_log: Log for tracking renames
-        generate_md: Whether to generate markdown summary file
-        
-    Returns:
-        Tuple of (original_path, new_path, description)
-    """
-    file_path = Path(file_path)
-    cache_key = str(file_path)
-    
-    # Check if we have a cached result
-    cached_result = cache.get(cache_key)
-    result = None
-    
-    if cached_result:
-        try:
-            if isinstance(cached_result, str):
-                result = json.loads(cached_result)
-            else:
-                result = cached_result
-            logger.info(f"Using cached description for {file_path}")
-        except json.JSONDecodeError:
-            result = None
-    
-    # If no cached result, analyze the archive contents
-    if not result:
-        try:
-            content_summary = []
-            if file_path.suffix.lower() == '.zip':
-                try:
-                    import zipfile
-                    with zipfile.ZipFile(file_path, 'r') as zipf:
-                        file_list = zipf.namelist()
-                        content_summary.append(f"Archive contains {len(file_list)} files/directories")
-                        for i, name in enumerate(file_list[:20]):  # Limit to first 20 items
-                            content_summary.append(f"- {name}")
-                        if len(file_list) > 20:
-                            content_summary.append(f"... and {len(file_list) - 20} more items")
-                except Exception as e:
-                    content_summary.append(f"Error reading zip: {e}")
-            elif file_path.suffix.lower() in {'.tar', '.tgz', '.tar.gz'}:
-                try:
-                    import tarfile
-                    with tarfile.open(file_path, 'r') as tar:
-                        file_list = tar.getnames()
-                        content_summary.append(f"Archive contains {len(file_list)} files/directories")
-                        for i, name in enumerate(file_list[:20]):  # Limit to first 20 items
-                            content_summary.append(f"- {name}")
-                        if len(file_list) > 20:
-                            content_summary.append(f"... and {len(file_list) - 20} more items")
-                except Exception as e:
-                    content_summary.append(f"Error reading tar archive: {e}")
-            elif file_path.suffix.lower() == '.rar':
-                try:
-                    import rarfile
-                    with rarfile.RarFile(file_path, 'r') as rf:
-                        file_list = rf.namelist()
-                        content_summary.append(f"Archive contains {len(file_list)} files/directories")
-                        for i, name in enumerate(file_list[:20]):
-                            content_summary.append(f"- {name}")
-                        if len(file_list) > 20:
-                            content_summary.append(f"... and {len(file_list) - 20} more items")
-                except Exception as e:
-                    content_summary.append(f"Error reading rar: {e}")
-            elif file_path.suffix.lower() == '.gz' and not file_path.name.endswith('.tar.gz'):
-                try:
-                    # Get detailed information about the gzip file
-                    gz_info = get_gz_info(file_path)
-                    
-                    # Clean the stem to remove any existing metadata
-                    clean_stem = strip_media_suffixes(file_path.stem)
-                    
-                    # Create a new name with compression ratio
-                    if gz_info["original_size"] > 0 and gz_info["compressed_size"] > 0:
-                        compression_ratio = gz_info["compressed_size"] / gz_info["original_size"]
-                        compression_pct = int((1 - compression_ratio) * 100)
-                        
-                        # Append compression information to filename (e.g. _compressed_70pct.gz)
-                        new_name = f"{clean_stem}_compressed_{compression_pct}pct{file_path.suffix}"
-                        new_path = rename_file(file_path, new_name, rename_log)
-                        
-                        if new_path:
-                            file_path = new_path
-                    
-                    # Add information to the content summary
-                    content_summary.append(f"Gzip file with compressed size: {gz_info['compressed_size']} bytes")
-                    if gz_info["original_size"] > 0:
-                        content_summary.append(f"Original size: {gz_info['original_size']} bytes")
-                        content_summary.append(f"Compression ratio: {compression_pct}%")
-                    
-                    if not gz_info["is_binary"]:
-                        content_summary.append("\nContent preview:")
-                        content_summary.append(gz_info["content_preview"])
-                    else:
-                        content_summary.append("\nContains binary data")
-                    
-                except Exception as e:
-                    content_summary.append(f"Error reading gzip file: {e}")
-            else:
-                content_summary.append(f"Unsupported archive type: {file_path.suffix}")
-            
-            # Build the prompt for the AI
-            archive_prompt = f"""Analyze this archive file and provide structured information.
-File name: {file_path.name}
-File type: {file_path.suffix}
-
-Archive Contents:
-{chr(10).join(content_summary)}
-
-Provide:
-1. A suggested filename (5-7 words, lowercase with underscores, no extension).
-2. A markdown (.md) summary of the archive contents."""
-            
-            result = call_xai_api(XAI_MODEL_TEXT, archive_prompt, ARCHIVE_FUNCTION_SCHEMA)
-            
-            if result:
-                cache[cache_key] = result
-                save_cache(cache)
-        except Exception as e:
-            logger.error(f"Error analyzing archive {file_path}: {e}")
-            return file_path, None, None
-    
-    # If we have a result, process the file renaming and create markdown summary
-    if result:
-        new_name = None
-        if "suggested_filename" in result:
-            suggested_name = result["suggested_filename"]
-            if suggested_name:
-                clean_name = clean_filename(suggested_name)
-                new_name = f"{clean_name}{file_path.suffix}"
-        
-        # If no suggested filename, use the original name
-        if not new_name:
-            clean_stem = strip_media_suffixes(file_path.stem)
-            new_name = f"{clean_stem}{file_path.suffix}"
-        
-        # Rename the file
-        new_path = rename_file(file_path, new_name, rename_log)
-        
-        # Create a markdown summary file
-        if "summary_md" in result and new_path and generate_md:
-            try:
-                summary_content = result["summary_md"]
-                md_path = new_path.with_suffix(".md")
-                
-                with open(md_path, "w", encoding="utf-8") as md_file:
-                    md_file.write(f"# Archive Summary: {new_path.name}\n\n")
-                    md_file.write(summary_content)
-                
-                logger.info(f"Created archive summary: {md_path}")
-            except Exception as e:
-                logger.error(f"Error creating archive summary: {e}")
-        
-        # Update cache if renamed
-        if new_path and new_path != file_path and cache_key in cache:
-            cache[str(new_path)] = cache[cache_key]
-            del cache[cache_key]
-            save_cache(cache)
-        
-        return file_path, new_path, result
-    
-    return file_path, None, None

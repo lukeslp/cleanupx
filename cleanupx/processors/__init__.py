@@ -2,21 +2,22 @@
 """
 File processors for CleanupX.
 
-This package contains specialized file processors for different file types:
-- text: Text file processor
-- image: Image file processor
-- document: Document file processor (PDF, DOCX, etc.)
-- media: Media file processor (audio, video)
-- archive: Archive file processor (ZIP, TAR, etc.)
-- dedupe: Deduplication processor
-- smart_merge: Intelligent document merging and deduplication
+This module contains processors for different file types:
+- BaseProcessor: Common base functionality for all processors
+- ImageProcessor: For image files (JPG, PNG, etc.)
+- DocumentProcessor: For document files (PDF, DOCX, etc.)
+- ArchiveProcessor: For archive files (ZIP, TAR, etc.)
+- TextProcessor: For text files (TXT, MD, etc.)
+- MediaProcessor: For media files (MP3, MP4, etc.)
+- DedupeProcessor: For file deduplication
+- TextDedupeProcessor: For text file deduplication and merging
 """
 
 import logging
 import gc
 import os
 from pathlib import Path
-from typing import Dict, Optional, Tuple, Union, Any
+from typing import Dict, List, Optional, Union, Any, Type, Tuple
 import fnmatch
 import mimetypes
 import magic
@@ -29,12 +30,14 @@ from cleanupx.config import (
     MEDIA_EXTENSIONS,
     PROTECTED_PATTERNS
 )
-from cleanupx.processors.image import process_image_file
-from cleanupx.processors.text import process_text_file
-from cleanupx.processors.document import process_document_file
-from cleanupx.processors.archive import process_archive_file
-from cleanupx.processors.media import process_media_file
-from cleanupx.processors.dedupe import dedupe_directory
+from cleanupx.processors.base import BaseProcessor
+from cleanupx.processors.image import ImageProcessor
+from cleanupx.processors.document import DocumentProcessor
+from cleanupx.processors.archive import ArchiveProcessor
+from cleanupx.processors.text import TextProcessor
+from cleanupx.processors.media import MediaProcessor
+from cleanupx.processors.dedupe import DedupeProcessor
+from cleanupx.processors.text_dedupe import TextDedupeProcessor
 from cleanupx.processors.citation import process_file_for_citations
 from cleanupx.utils.common import get_file_size_mb
 
@@ -50,117 +53,148 @@ try:
 except ImportError as e:
     logger.warning(f"Could not import smart_merge processor: {e}")
 
-def process_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Dict, 
-                max_size_mb: float = 25.0, citation_style_pdfs: bool = False, 
-                generate_dashboard: bool = False, generate_image_md: bool = True,
-                generate_archive_md: bool = True) -> Tuple[Path, Optional[Path], Optional[Dict]]:
+# For backwards compatibility - these are now methods within the processor classes
+process_image_file = ImageProcessor().process
+process_document_file = DocumentProcessor().process
+process_archive_file = ArchiveProcessor().process
+process_text_file = TextProcessor().process
+process_media_file = MediaProcessor().process
+
+__all__ = [
+    'BaseProcessor',
+    'ImageProcessor', 
+    'DocumentProcessor',
+    'ArchiveProcessor',
+    'TextProcessor',
+    'MediaProcessor',
+    'DedupeProcessor',
+    'TextDedupeProcessor',
+    'process_file',
+    'get_processor_for_file',
+    'get_file_type',
+    'process_image_file',
+    'process_document_file',
+    'process_archive_file',
+    'process_text_file',
+    'process_media_file'
+]
+
+def get_processor_for_file(file_path: Union[str, Path]) -> Optional[BaseProcessor]:
+    """
+    Get the appropriate processor for a file based on its extension.
+    
+    Args:
+        file_path: Path to the file
+        
+    Returns:
+        Processor instance or None if no appropriate processor found
+    """
+    file_path = Path(file_path)
+    file_ext = file_path.suffix.lower()
+    
+    # Try each processor in order
+    processors = [
+        ImageProcessor(),
+        DocumentProcessor(),
+        ArchiveProcessor(),
+        TextProcessor(),
+        MediaProcessor()
+    ]
+    
+    for processor in processors:
+        if processor.can_process(file_path):
+            return processor
+            
+    return None
+
+def get_file_type(file_path: Union[str, Path]) -> str:
+    """
+    Determine the file type based on its extension.
+    
+    Args:
+        file_path: Path to the file
+        
+    Returns:
+        File type as a string ("image", "document", "archive", "text", "media", or "other")
+    """
+    processor = get_processor_for_file(file_path)
+    if processor:
+        if isinstance(processor, ImageProcessor):
+            return "image"
+        elif isinstance(processor, DocumentProcessor):
+            return "document"
+        elif isinstance(processor, ArchiveProcessor):
+            return "archive"
+        elif isinstance(processor, TextProcessor):
+            return "text"
+        elif isinstance(processor, MediaProcessor):
+            return "media"
+    
+    return "other"
+
+def process_file(file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Optional[Dict] = None,
+                max_size_mb: float = 25.0, skip_images: bool = False, skip_documents: bool = False,
+                skip_archives: bool = False, skip_text: bool = False, skip_media: bool = False,
+                citation_styles: Optional[List[str]] = None, generate_dash: bool = False) -> Dict[str, Any]:
     """
     Process a file based on its type.
     
     Args:
         file_path: Path to the file
         cache: Cache dictionary for storing/retrieving file descriptions
-        rename_log: Log dictionary for tracking file renames
-        max_size_mb: Maximum file size to process (in MB)
-        citation_style_pdfs: Whether to use citation-style naming for PDFs (e.g., Author_Year_Title.pdf)
-        generate_dashboard: Whether to generate an HTML dashboard after processing
-        generate_image_md: Whether to generate markdown files for image descriptions
-        generate_archive_md: Whether to generate markdown files for archive contents
+        rename_log: Optional log for tracking renames
+        max_size_mb: Maximum file size in megabytes
+        skip_images: Whether to skip image files
+        skip_documents: Whether to skip document files
+        skip_archives: Whether to skip archive files
+        skip_text: Whether to skip text files
+        skip_media: Whether to skip media files
+        citation_styles: Optional list of citation styles to extract
+        generate_dash: Whether to generate a dashboard
         
     Returns:
-        Tuple of (original_path, new_path, description)
+        Dictionary with processing results
     """
+    file_path = Path(file_path)
+    
+    result = {
+        'original_path': str(file_path),
+        'new_path': None,
+        'processed': False,
+        'file_type': get_file_type(file_path),
+        'error': None
+    }
+    
+    # Check if we should skip this file type
+    if (result['file_type'] == 'image' and skip_images) or \
+       (result['file_type'] == 'document' and skip_documents) or \
+       (result['file_type'] == 'archive' and skip_archives) or \
+       (result['file_type'] == 'text' and skip_text) or \
+       (result['file_type'] == 'media' and skip_media):
+        result['error'] = f"Skipping {result['file_type']} file as requested"
+        return result
+        
+    # Get processor for this file
+    processor = get_processor_for_file(file_path)
+    if not processor:
+        result['error'] = f"No processor found for file type: {file_path.suffix}"
+        return result
+        
+    # Set maximum file size
+    processor.max_size_mb = max_size_mb
+    
+    # Process the file
     try:
-        file_path = Path(file_path)
-        full_name = file_path.name
-        ext = file_path.suffix.lower()
+        process_result = processor.process(file_path, cache, rename_log)
         
-        # Check file size
-        size_mb = get_file_size_mb(file_path)
-        if size_mb > max_size_mb:
-            logger.warning(f"File {file_path} exceeds maximum size ({size_mb:.2f} MB > {max_size_mb} MB). Skipping.")
-            return file_path, None, None
+        # Update result with process_result
+        result.update(process_result)
         
-        # Skip files that should be protected
-        for pattern in PROTECTED_PATTERNS:
-            if fnmatch.fnmatch(file_path.name.lower(), pattern.lower()):
-                logger.info(f"Skipping protected file: {file_path}")
-                return file_path, None, None
-        
-        # Handle files without extension by detecting file type and adding extension
-        if not ext:
-            logger.info(f"Processing file without extension: {file_path}")
+        if 'error' not in process_result or not process_result['error']:
+            result['processed'] = True
             
-            # Try to determine file type using magic
-            try:
-                mime_type = magic.from_file(str(file_path), mime=True)
-                logger.info(f"Detected MIME type for {file_path}: {mime_type}")
-                
-                # Map MIME type to extension
-                if mime_type:
-                    guessed_extension = mimetypes.guess_extension(mime_type)
-                    
-                    if guessed_extension:
-                        new_path = file_path.with_suffix(guessed_extension)
-                        
-                        # Rename the file to add the extension
-                        try:
-                            os.rename(file_path, new_path)
-                            logger.info(f"Added extension to file: {file_path} -> {new_path}")
-                            
-                            # Update file_path for further processing
-                            file_path = new_path
-                            ext = guessed_extension
-                            
-                            # Update rename log
-                            if str(file_path) not in rename_log:
-                                rename_log[str(file_path)] = {
-                                    "original_path": str(file_path),
-                                    "new_path": str(new_path),
-                                    "timestamp": str(Path(file_path).stat().st_mtime),
-                                    "status": "success (extension added)"
-                                }
-                        except Exception as e:
-                            logger.error(f"Error adding extension to {file_path}: {e}")
-            except Exception as e:
-                logger.error(f"Error determining file type for {file_path}: {e}")
-                # Continue with processing as text file if we couldn't determine the type
-        
-        # Wrap each processor call in its own try/except block to prevent one failure
-        # from affecting the entire process
-        result = None
-        try:
-            # Process file based on extension
-            if ext in DOCUMENT_EXTENSIONS:
-                result = process_document_file(file_path, cache, rename_log, citation_style_pdfs)
-            elif ext in TEXT_EXTENSIONS:
-                result = process_text_file(file_path, cache, rename_log)
-            elif ext in IMAGE_EXTENSIONS:
-                result = process_image_file(file_path, cache, rename_log, generate_image_md)
-            elif ext in MEDIA_EXTENSIONS:
-                result = process_media_file(file_path, cache, rename_log)
-            # Handle special case for .tar.gz files
-            elif full_name.endswith('.tar.gz') or ext == '.tgz':
-                result = process_archive_file(file_path, cache, rename_log, generate_archive_md)
-            elif ext in ARCHIVE_EXTENSIONS:
-                result = process_archive_file(file_path, cache, rename_log, generate_archive_md)
-            else:
-                # For unknown file types, default to text processing
-                logger.info(f"Unknown file type: {file_path}, processing as text")
-                result = process_text_file(file_path, cache, rename_log)
-            
-            # Force garbage collection after processing each file
-            gc.collect()
-            
-            return result
-        except Exception as e:
-            logger.error(f"Error processing file {file_path}: {e}")
-            # Force garbage collection after errors
-            gc.collect()
-            return file_path, None, None
-            
+        return result
     except Exception as e:
-        logger.error(f"Error in file processing pipeline for {file_path}: {e}")
-        # Force garbage collection after errors
-        gc.collect()
-        return file_path, None, None
+        logger.error(f"Error processing file {file_path}: {e}")
+        result['error'] = str(e)
+        return result

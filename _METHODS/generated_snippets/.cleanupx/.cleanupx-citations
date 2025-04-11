@@ -1,0 +1,217 @@
+{
+  "processed": [
+    {
+      "file": "/Volumes/Galactus/_DEV/cleanupx/xsnipper.py",
+      "citations": [
+        {
+          "style": "ieee",
+          "citation": "[0]",
+          "line": 102
+        },
+        {
+          "style": "ieee",
+          "citation": "[0]",
+          "line": 161
+        },
+        {
+          "style": "ieee",
+          "citation": "[0]",
+          "line": 229
+        },
+        {
+          "style": "ieee",
+          "citation": "[0]",
+          "line": 249
+        },
+        {
+          "style": "ieee",
+          "citation": "[0]",
+          "line": 254
+        },
+        {
+          "style": "ieee",
+          "citation": "[1]",
+          "line": 261
+        },
+        {
+          "style": "ieee",
+          "citation": "[0]",
+          "line": 295
+        },
+        {
+          "style": "vancouver",
+          "citation": "[0]",
+          "line": 102
+        },
+        {
+          "style": "vancouver",
+          "citation": "[0]",
+          "line": 161
+        },
+        {
+          "style": "vancouver",
+          "citation": "[0]",
+          "line": 229
+        },
+        {
+          "style": "vancouver",
+          "citation": "[0]",
+          "line": 249
+        },
+        {
+          "style": "vancouver",
+          "citation": "[0]",
+          "line": 254
+        },
+        {
+          "style": "vancouver",
+          "citation": "[1]",
+          "line": 261
+        },
+        {
+          "style": "vancouver",
+          "citation": "[0]",
+          "line": 295
+        }
+      ]
+    },
+    {
+      "file": "/Volumes/Galactus/_DEV/cleanupx/cleanupx.py",
+      "citations": [
+        {
+          "style": "ieee",
+          "citation": "[0]",
+          "line": 150
+        },
+        {
+          "style": "vancouver",
+          "citation": "[0]",
+          "line": 150
+        }
+      ]
+    },
+    {
+      "file": "/Volumes/Galactus/_DEV/cleanupx/generated_alts.json",
+      "citations": [
+        {
+          "style": "mla",
+          "citation": "(ranked 66)",
+          "line": 1033
+        },
+        {
+          "style": "mla",
+          "citation": "(ranked 70)",
+          "line": 1033
+        },
+        {
+          "style": "mla",
+          "citation": "(ranked 71)",
+          "line": 1033
+        },
+        {
+          "style": "mla",
+          "citation": "(ranked 72)",
+          "line": 1033
+        },
+        {
+          "style": "mla",
+          "citation": "(ranked 73)",
+          "line": 1033
+        },
+        {
+          "style": "mla",
+          "citation": "(ranked 73)",
+          "line": 1033
+        },
+        {
+          "style": "mla",
+          "citation": "(ranked 73)",
+          "line": 1033
+        },
+        {
+          "style": "mla",
+          "citation": "(ranked 74)",
+          "line": 1033
+        },
+        {
+          "style": "mla",
+          "citation": "(ranked 75)",
+          "line": 1033
+        }
+      ]
+    },
+    {
+      "file": "/Volumes/Galactus/_DEV/cleanupx/xai_unified.py",
+      "citations": [
+        {
+          "style": "ieee",
+          "citation": "[0]",
+          "line": 117
+        },
+        {
+          "style": "vancouver",
+          "citation": "[0]",
+          "line": 117
+        }
+      ]
+    },
+    {
+      "file": "/Volumes/Galactus/_DEV/cleanupx/find_duplicates.py",
+      "citations": [
+        {
+          "style": "ieee",
+          "citation": "[0]",
+          "line": 240
+        },
+        {
+          "style": "ieee",
+          "citation": "[1]",
+          "line": 244
+        },
+        {
+          "style": "ieee",
+          "citation": "[2]",
+          "line": 245
+        },
+        {
+          "style": "vancouver",
+          "citation": "[0]",
+          "line": 240
+        },
+        {
+          "style": "vancouver",
+          "citation": "[1]",
+          "line": 244
+        },
+        {
+          "style": "vancouver",
+          "citation": "[2]",
+          "line": 245
+        }
+      ]
+    }
+  ],
+  "skipped": [
+    "/Volumes/Galactus/_DEV/cleanupx/deduplicate_snippets.py",
+    "/Volumes/Galactus/_DEV/cleanupx/.DS_Store",
+    "/Volumes/Galactus/_DEV/cleanupx/rename_log.json",
+    "/Volumes/Galactus/_DEV/cleanupx/requirements.txt",
+    "/Volumes/Galactus/_DEV/cleanupx/organize.py",
+    "/Volumes/Galactus/_DEV/cleanupx/PROJECT_PLAN.md",
+    "/Volumes/Galactus/_DEV/cleanupx/process_duplicates.py",
+    "/Volumes/Galactus/_DEV/cleanupx/LICENSE",
+    "/Volumes/Galactus/_DEV/cleanupx/README_duplicates.md",
+    "/Volumes/Galactus/_DEV/cleanupx/setup.py",
+    "/Volumes/Galactus/_DEV/cleanupx/.gitignore",
+    "/Volumes/Galactus/_DEV/cleanupx/README.md",
+    "/Volumes/Galactus/_DEV/cleanupx/.env"
+  ],
+  "errors": [],
+  "stats": {
+    "total_files": 18,
+    "processed_files": 5,
+    "skipped_files": 13,
+    "error_files": 0,
+    "total_citations": 33
+  }
+}
