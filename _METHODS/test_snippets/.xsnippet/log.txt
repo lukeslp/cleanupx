@@ -1,0 +1,32 @@
+[2025-04-10 23:53:16] Started processing directory: test_snippets (mode: snippet)
+[2025-04-10 23:53:16] Processing batch 1/1
+[2025-04-10 23:53:16] Processing file: test_snippets/admin_routes.py
+[2025-04-10 23:53:26] Error archiving alternatives for test_snippets/admin_routes.py: [Errno 2] No such file or directory: 'test_snippets/.xsnippet/archive/test_snippets/admin_routes.py_alternatives.md'
+[2025-04-10 23:53:26] Processing file: test_snippets/api_routes.py
+[2025-04-10 23:53:34] Error archiving alternatives for test_snippets/api_routes.py: [Errno 2] No such file or directory: 'test_snippets/.xsnippet/archive/test_snippets/api_routes.py_alternatives.md'
+[2025-04-10 23:53:34] Processing file: test_snippets/auth_routes.py
+[2025-04-10 23:53:43] Error archiving alternatives for test_snippets/auth_routes.py: [Errno 2] No such file or directory: 'test_snippets/.xsnippet/archive/test_snippets/auth_routes.py_alternatives.md'
+[2025-04-10 23:53:43] Processing file: test_snippets/README.md
+[2025-04-10 23:53:49] Error archiving alternatives for test_snippets/README.md: [Errno 2] No such file or directory: 'test_snippets/.xsnippet/archive/test_snippets/README.md_alternatives.md'
+[2025-04-10 23:53:49] Processing file: test_snippets/app.py
+[2025-04-10 23:53:58] Error archiving alternatives for test_snippets/app.py: [Errno 2] No such file or directory: 'test_snippets/.xsnippet/archive/test_snippets/app.py_alternatives.md'
+[2025-04-10 23:53:58] Processing file: test_snippets/snipper/snippets.txt
+[2025-04-10 23:54:12] Processing file: test_snippets/snipper/log.txt
+[2025-04-10 23:54:19] Error archiving alternatives for test_snippets/snipper/log.txt: [Errno 2] No such file or directory: 'test_snippets/.xsnippet/archive/test_snippets/snipper/log.txt_alternatives.md'
+[2025-04-10 23:54:19] Processing file: test_snippets/snipper/summary.txt
+[2025-04-10 23:54:28] Error archiving alternatives for test_snippets/snipper/summary.txt: [Errno 2] No such file or directory: 'test_snippets/.xsnippet/archive/test_snippets/snipper/summary.txt_alternatives.md'
+[2025-04-10 23:54:28] Processing file: test_snippets/snipper/archive/api_routes.py_alternatives.md
+[2025-04-10 23:54:32] Error archiving alternatives for test_snippets/snipper/archive/api_routes.py_alternatives.md: [Errno 2] No such file or directory: 'test_snippets/.xsnippet/archive/test_snippets/snipper/archive/api_routes.py_alternatives.md_alternatives.md'
+[2025-04-10 23:54:32] Processing file: test_snippets/snipper/archive/app.py_alternatives.md
+[2025-04-10 23:54:39] Error archiving alternatives for test_snippets/snipper/archive/app.py_alternatives.md: [Errno 2] No such file or directory: 'test_snippets/.xsnippet/archive/test_snippets/snipper/archive/app.py_alternatives.md_alternatives.md'
+[2025-04-10 23:54:39] Processing file: test_snippets/snipper/archive/admin_routes.py_alternatives.md
+[2025-04-10 23:54:48] Error archiving alternatives for test_snippets/snipper/archive/admin_routes.py_alternatives.md: [Errno 2] No such file or directory: 'test_snippets/.xsnippet/archive/test_snippets/snipper/archive/admin_routes.py_alternatives.md_alternatives.md'
+[2025-04-10 23:54:48] Processing file: test_snippets/snipper/archive/auth_routes.py_alternatives.md
+[2025-04-10 23:54:53] Error archiving alternatives for test_snippets/snipper/archive/auth_routes.py_alternatives.md: [Errno 2] No such file or directory: 'test_snippets/.xsnippet/archive/test_snippets/snipper/archive/auth_routes.py_alternatives.md_alternatives.md'
+[2025-04-10 23:54:53] Processing file: test_snippets/snipper/archive/README.md_alternatives.md
+[2025-04-10 23:54:59] Error archiving alternatives for test_snippets/snipper/archive/README.md_alternatives.md: [Errno 2] No such file or directory: 'test_snippets/.xsnippet/archive/test_snippets/snipper/archive/README.md_alternatives.md_alternatives.md'
+[2025-04-10 23:55:13] Batch 1 results written to test_snippets/.xsnippet/batches/batch_1_combined.md
+[2025-04-10 23:55:13] Starting final sweep across all batches
+[2025-04-10 23:55:26] Final combined document written to test_snippets/.xsnippet/final/final_combined.md
+[2025-04-10 23:55:40] Project summary updated.
+[2025-04-10 23:55:40] Processing complete.

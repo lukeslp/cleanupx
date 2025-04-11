@@ -453,7 +453,7 @@ def init_snipper_directory(target_directory):
     Ensure the snipper directory and its subdirectories exist in the target directory; 
     return their paths.
     """
-    base_dir = os.path.join(target_directory, "snipper")
+    base_dir = os.path.join(target_directory, ".xsnippet")
     if not os.path.isdir(base_dir):
         os.makedirs(base_dir)
     
@@ -735,7 +735,7 @@ def generate_project_summary(best_snippets, verbose=False):
 # Main processing functions
 # =============================================================================
 
-def process_directory(directory, mode, verbose=False, output_file="final_combined.md"):
+def process_directory(directory, mode, verbose=False, output_file="final_combined.md", recursive=False):
     """
     Process every file in the specified directory in batches of 25:
       - Extract snippets via the X.AI API,
@@ -758,14 +758,27 @@ def process_directory(directory, mode, verbose=False, output_file="final_combine
     # Collect all valid files while skipping common image types
     image_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.svg'}
     all_files = []
-    for file in os.listdir(directory):
-        file_path = os.path.join(directory, file)
-        if os.path.isfile(file_path) and not file.startswith('.') and file != "snipper":
-            _, ext = os.path.splitext(file)
-            if ext.lower() in image_extensions:
-                log_message(f"Skipping image file: {file}", snipper_paths["log"])
-                continue
-            all_files.append(file)
+    if recursive:
+        for root, dirs, files in os.walk(directory):
+            dirs[:] = [d for d in dirs if not d.startswith('.') and d != ".xsnippet"]
+            for file in files:
+                if file.startswith('.'):
+                    continue
+                file_path = os.path.join(root, file)
+                _, ext = os.path.splitext(file)
+                if ext.lower() in image_extensions:
+                    log_message(f"Skipping image file: {file_path}", snipper_paths["log"])
+                    continue
+                all_files.append(file_path)
+    else:
+        for file in os.listdir(directory):
+            file_path = os.path.join(directory, file)
+            if os.path.isfile(file_path) and not file.startswith('.') and file != ".xsnippet":
+                _, ext = os.path.splitext(file)
+                if ext.lower() in image_extensions:
+                    log_message(f"Skipping image file: {file}", snipper_paths["log"])
+                    continue
+                all_files.append(file_path)
     
     if not all_files:
         log_message(f"No valid files found in directory: {directory}", snipper_paths["log"])
@@ -786,7 +799,7 @@ def process_directory(directory, mode, verbose=False, output_file="final_combine
         # Process each file in the batch
         best_snippets_in_batch = {}
         for file in batch_files:
-            file_path = os.path.join(directory, file)
+            file_path = file
             log_message(f"Processing file: {file}", snipper_paths["log"])
             if verbose:
                 print(f"Processing {file}...")
@@ -814,7 +827,7 @@ def process_directory(directory, mode, verbose=False, output_file="final_combine
         # Generate optimized result for this batch
         if verbose:
             print(f"Synthesizing batch {batch_index + 1} results...")
-        batch_output_file = f"batch_{batch_index + 1}_combined.md"
+        batch_output_file = os.path.join(snipper_paths["batches"], f"batch_{batch_index + 1}_combined.md")
         batch_document = synthesize_overall_snippets(best_snippets_in_batch, verbose)
         
         try:
@@ -839,12 +852,13 @@ def process_directory(directory, mode, verbose=False, output_file="final_combine
     final_document = synthesize_final_results(batch_results, verbose)
     
     try:
-        with open(output_file, "w", encoding="utf-8") as f:
+        final_output_file = os.path.join(snipper_paths["final"], "final_combined.md")
+        with open(final_output_file, "w", encoding="utf-8") as f:
             f.write("# Final Combined Snippets\n\n")
             f.write(final_document)
-        log_message(f"Final combined document written to {output_file}", snipper_paths["log"])
+        log_message(f"Final combined document written to {final_output_file}", snipper_paths["log"])
         if verbose:
-            print(f"Final document written to {output_file}")
+            print(f"Final document written to {final_output_file}")
     except Exception as e:
         log_message(f"Error writing final output: {e}", snipper_paths["log"])
         print(f"Error writing final output: {e}", file=sys.stderr)
@@ -923,18 +937,27 @@ def interactive_cli():
     while True:
         print("\nChoose an option:")
         print("  1. Process a directory of code/snippet files")
-        print("  2. Exit")
-        choice = input("Enter your choice (1/2): ").strip()
+        print("  2. Export snippets")
+        print("  3. Exit")
+        choice = input("Enter your choice (1/2/3): ").strip()
         if choice == "1":
             directory = input("Enter the full path to the directory: ").strip()
             mode = input("Enter the mode ('code' or 'snippet'): ").strip().lower()
             verbose_in = input("Enable verbose output? (y/n): ").strip().lower()
             verbose = verbose_in == "y"
+            recursive_in = input("Process subdirectories recursively? (y/n): ").strip().lower()
+            recursive = recursive_in == "y"
             output = input("Enter an output file name (default: final_combined.md): ").strip()
             if not output:
                 output = "final_combined.md"
-            process_directory(directory, mode, verbose, output)
+            process_directory(directory, mode, verbose, output, recursive)
         elif choice == "2":
+            export_path = input("Enter the export file path (e.g., formatted_snippets.md): ").strip()
+            if export_path:
+                export_formatted_snippetfile(export_path, verbose=True)
+            else:
+                print("Export path cannot be empty.")
+        elif choice == "3":
             print("Exiting X.AI Cleaner. Goodbye!")
             break
         else:
@@ -951,6 +974,8 @@ def main():
                         help="Operation mode: 'code' for source code files or 'snippet' for pre-made snippet files (default: code)")
     parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose output")
     parser.add_argument("--output", "-o", help="Output file path for the final combined snippets (default: final_combined.md)")
+    parser.add_argument("--recursive", "-r", action="store_true", help="Recursively process subdirectories")
+    parser.add_argument("--export", "-e", help="Export the snippets into a formatted snippet file")
     
     args = parser.parse_args()
     
@@ -958,7 +983,9 @@ def main():
         interactive_cli()
     else:
         output_file = args.output if args.output else "final_combined.md"
-        process_directory(args.directory, args.mode, args.verbose, output_file)
+        process_directory(args.directory, args.mode, args.verbose, output_file, recursive=args.recursive)
+        if args.export:
+            export_formatted_snippetfile(args.export, verbose=args.verbose)
 
 if __name__ == "__main__":
     main()
