@@ -5,6 +5,7 @@
 def health_check():
     """Basic health check endpoint"""
     try:
+        # Basic system health check
         import psutil
         memory = psutil.virtual_memory()
         disk = psutil.disk_usage('/')
@@ -39,6 +40,10 @@ def health_check():
         }), 500
 ```
 
-Explanation of Selection:
-- **Best Version**: The `admin_required` decorator is selected as the most important and unique snippet because it encapsulates a custom authentication mechanism, including error handling, logging, and token validation. It's reusable, central to securing routes, and demonstrates best practices for decorators in Flask.
-- **Alternatives**: The `/health` route is chosen as an alternative because it provides a practical, system-monitoring feature using `psutil`, which is unique in its integration of system metrics. It's important for API health checks but is less reusable than the decorator. Other similar routes (e.g., `/dashboard/api/status`) were omitted as they are redundant with this one.
+```
+def format_datetime(timestamp):
+    """Format timestamp for display"""
+    if timestamp is None:
+        return "Never"
+    return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+```

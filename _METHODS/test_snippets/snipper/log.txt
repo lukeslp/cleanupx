@@ -38,3 +38,22 @@
 [2025-04-10 22:30:32] Final combined document written to final_combined.md
 [2025-04-10 22:30:48] Project summary updated.
 [2025-04-10 22:30:48] Processing complete.
+[2025-04-10 22:33:05] Started processing directory: test_snippets (mode: snippet)
+[2025-04-10 22:33:05] Processing batch 1/1
+[2025-04-10 22:33:05] Processing file: admin_routes.py
+[2025-04-10 22:33:14] Archived alternatives for admin_routes.py to test_snippets/snipper/archive/admin_routes.py_alternatives.md
+[2025-04-10 22:33:14] Processing file: api_routes.py
+[2025-04-10 22:33:20] Archived alternatives for api_routes.py to test_snippets/snipper/archive/api_routes.py_alternatives.md
+[2025-04-10 22:33:20] Processing file: auth_routes.py
+[2025-04-10 22:33:27] Archived alternatives for auth_routes.py to test_snippets/snipper/archive/auth_routes.py_alternatives.md
+[2025-04-10 22:33:27] Processing file: README.md
+[2025-04-10 22:33:33] Archived alternatives for README.md to test_snippets/snipper/archive/README.md_alternatives.md
+[2025-04-10 22:33:33] Processing file: app.py
+[2025-04-10 22:33:46] Archived alternatives for app.py to test_snippets/snipper/archive/app.py_alternatives.md
+[2025-04-10 22:33:58] Batch 1 results written to batch_1_combined.md
+[2025-04-10 22:33:58] Starting final sweep across all batches
+[2025-04-10 22:40:49] Started processing directory: test_snippets (mode: snippet)
+[2025-04-10 22:40:49] Processing batch 1/1
+[2025-04-10 22:40:49] Processing file: admin_routes.py
+[2025-04-10 22:40:59] Archived alternatives for admin_routes.py to test_snippets/snipper/archive/admin_routes.py_alternatives.md
+[2025-04-10 22:40:59] Processing file: api_routes.py

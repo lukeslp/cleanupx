@@ -1,6 +1,8 @@
 # Alternatives for admin_routes.py
 
-1. **Health Check Route**: This snippet is unique for its use of psutil to monitor system resources and service status, providing a comprehensive health overview. It's important for real-time admin monitoring.
+Here are other notable snippets that are important and unique but serve as alternatives. I selected these based on their role in system monitoring, health checks, and documentation. Each provides value in different contexts, such as runtime monitoring or logging.
+
+1. **Health Check Route**: This is a key route for API health monitoring. It's unique due to its integration of system metrics (e.g., CPU, memory, disk) and service status checks, making it essential for operational awareness.
    
    ```python
    @bp.route('/health')
@@ -50,7 +52,7 @@
            }), 500
    ```
 
-2. **Get Open Ports Function**: This is a unique utility for network monitoring, filtering and processing network connections with psutil. It's important for security and diagnostics in an admin context.
+2. **System Status Helper Function (e.g., get_open_ports)**: This function is unique for its network monitoring capabilities, specifically checking open ports from a predefined list. It's part of a larger set of helper functions and demonstrates how the code interacts with system resources.
    
    ```python
    def get_open_ports():
@@ -83,3 +85,16 @@
            logger.error(f"Error getting open ports: {str(e)}")
            return []
    ```
+
+3. **Documentation Segment from System Status Route**: This docstring provides clear documentation for the `/system` route, explaining its purpose and what it returns. It's unique as it outlines the structure of the response, which is helpful for API users.
+   
+   ```
+   @bp.route('/system', methods=['GET'])
+   @admin_required
+   def system_status():
+       """
+       Get detailed system status
+       """
+       # [Function body omitted for brevity]
+   ```
+   (The full docstring describes the route's output, including system metrics, network info, and processes, making it a strong documentation example.)

@@ -1,219 +1,219 @@
 # Batch 1 Combined Snippets
 
-Below is a cohesive document that combines the most important and unique segments from the provided code snippets. I focused on retaining only the essential code elements, eliminating redundancies (e.g., similar event emission patterns were consolidated where possible, and incomplete or repetitive descriptions were removed). The content is organized logically:
+Below is a cohesive document that combines the provided code snippets into a single, organized structure. I have focused on retaining only the most important and unique segments, eliminating redundancies (e.g., the `admin_required` decorator appears in multiple files, so I've included it only once), and organizing the content logically.
 
-1. **Python Module Imports and Definitions**: Starts with package initialization and enums, as these form the foundation.
-2. **Event Handling and Emissions**: Groups related functionality for events and status updates.
-3. **Image Generation and Processing**: Includes unique functions for image-related tasks.
-4. **Utilities and Server Interactions**: Covers file handling, process management, and API interactions.
-5. **JavaScript Utilities**: Ends with the JavaScript code, as it's from a different language and serves UI-related purposes.
+The document is structured as follows:
+1. **App Setup and Initialization**: Starts with the `create_app` function from `app.py`, as it's the core entry point for configuring the Flask application.
+2. **Authentication Mechanisms**: Includes the unique `admin_required` decorator (from `admin_routes.py`) and the `oauth_token_exchange` function (from `auth_routes.py`), as these handle security and token exchange, which are critical for API authentication.
+3. **Modular Features**: Ends with the Blueprint example from `README.md`, which demonstrates how to create and register blueprints, tying into the app's extensibility as referenced in `app.py`.
 
-This structure ensures a logical flow, from foundational elements to specific functionalities. Only the core code is included, with minimal comments for context where necessary.
+This results in a streamlined, logical flow: from app creation to authentication to modular extensions. I've added brief comments to explain the organization and transitions, but kept the content concise.
 
 ---
 
-### Combined Code Document
+# Combined API Application Code Document
 
-#### 1. Python Module Imports and Definitions
-This section includes the package initialization, which sets up key imports and exports.
-
-```python
-# From code___init___3.python: Core package setup for exporting classes.
-from .doc_processor import DocumentProcessor
-from .wayback_archiver import WaybackArchiver
-
-__all__ = [
-    'DocumentProcessor',
-    'WaybackArchiver'
-]
-```
-
-#### 2. Event Handling and Emissions
-This section captures the Enum for event types and representative functions that use event emitters for status updates. Redundancies in event emission logic (e.g., across image generation functions) were streamlined to avoid repetition.
+## 1. App Setup and Initialization
+This section includes the `create_app` function, which is the central function for creating and configuring the Flask application. It handles logging, configuration, CORS, blueprint registration, and basic routes/error handlers. This is the foundation of the application.
 
 ```python
-# From code_events.python: Enum for defining event types.
-from enum import Enum
+import logging
+import os
+from pathlib import Path
+from flask import Flask, jsonify
+from flask_cors import CORS
 
-class EventType(str, Enum):
-    """Types of events that can be emitted"""
-    TASK_STARTED = "task_started"
-    TASK_COMPLETED = "task_completed"
-    TASK_FAILED = "task_failed"
-    BELTER_ASSIGNED = "belter_assigned"
-    BELTER_STARTED = "belter_started"
-    BELTER_COMPLETED = "belter_completed"
-    BELTER_FAILED = "belter_failed"
-    DRUMMER_ASSIGNED = "drummer_assigned"
-    DRUMMER_STARTED = "drummer_started"
-    DRUMMER_COMPLETED = "drummer_completed"
-    DRUMMER_FAILED = "drummer_failed"
-    DATA_GATHERING = "data_gathering"
-    DATA_PROCESSING = "data_processing"
-    ANALYSIS_STARTED = "analysis_started"
-    ANALYSIS_COMPLETED = "analysis_complet"  # Note: This is as provided; it appears incomplete.
-```
-
-#### 3. Image Generation and Processing
-This section includes unique functions for image generation and file handling. Similar async functions (e.g., from code_image_gen.python and code_flux.python) were consolidated into their most distinct forms to avoid redundancy.
-
-```python
-# From code_image_gen.python: Asynchronous function for generating images with event emission.
-async def generate_image(
-    self, prompt: str, __user__: dict, __event_emitter__=None
-) -> str:
+def create_app(config=None):
     """
-    Generate an image given a prompt.
-    
-    :param prompt: Prompt to use for image generation.
-    """
-    if __event_emitter__:
-        await __event_emitter__({
-            "type": "status",
-            "data": {"description": "Generating an image", "done": False},
-        })
-    
-    try:
-        # Core image generation logic (truncated in original; assuming integration with external API)
-        images = await image_generations(  # Calls external function
-            GenerateImageForm(**{"prompt": prompt}),
-            Users.get_user_by_id(__user__["id"]),
-        )
-        if __event_emitter__:
-            await __event_emitter__({  # Further event handling implied
-                "type": "status",
-                "data": {"description": "Image generated successfully", "done": True},
-            })
-    except Exception as e:
-        if __event_emitter__:
-            await __event_emitter__({
-                "type": "status",
-                "data": {"description": f"Error: {str(e)}", "done": True},
-            })
-        raise  # Propagate error for robustness
-
-# From code_flux.python: Specialized image creation function, kept for its unique API focus.
-async def create_flux_image(
-        self,
-        prompt: str,
-        image_format: str,
-        __event_emitter__=None,
-    ) -> str:
-    """
-    Creates images using the Black Forest Labs API with the Flux.1-pro model.
-    
-    :param prompt: The prompt to generate the image.
-    :param image_format: 'default' for square, 'landscape', or 'portrait'.
-    """
-    if __event_emitter__:
-        await __event_emitter__({
-            "type": "status",  # Event for user feedback
-            "data": {"description": "Starting image creation with Flux API"},
-        })
-    # API call logic would follow (truncated in original).
-
-# From code_test_heic_simple.python: Utility for handling HEIC files, unique for image processing.
-def get_heic_dimensions(file_path):
-    """Get dimensions from a HEIC file using pillow-heif."""
-    try:
-        from pillow_heif import register_heif_opener
-        from PIL import Image
-        
-        register_heif_opener()  # Register HEIF opener
-        with Image.open(file_path) as img:
-            width, height = img.size
-            return width, height  # Return dimensions
-    except Exception as e:
-        return None, None  # Error handling
-```
-
-#### 4. Utilities and Server Interactions
-This section covers general utilities like process management and API interactions, focusing on their unique aspects.
-
-```python
-# From code__openweather_api.python: Asynchronous function for fetching air quality data.
-async def fetch_air_quality(
-    self,
-    lat: float,
-    lon: float,
-    __user__: dict = {},
-    __event_emitter__=None,
-) -> str:
-    """
-    Fetch real-time air quality data for a given location.
+    Create and configure Flask application
     
     Args:
-        lat (float): Latitude.
-        lon (float): Longitude.
-    
-    Returns:
-        str: Formatted air quality report.
-    """
-    if __event_emitter__:
-        await __event_emitter__({
-            "status": "Fetching air quality data..."
-        })
-    # API call and processing logic would follow (truncated in original).
-
-# From code_stop_servers.python: Function to find and manage server processes.
-import subprocess
-
-def find_server_processes():
-    """Find all running MoE server processes."""
-    try:
-        cmd = "ps aux | grep 'python.*server.py' | grep -v grep"
-        output = subprocess.check_output(cmd, shell=True).decode()
+        config (dict, optional): Configuration overrides
         
-        processes = []
-        for line in output.splitlines():
-            parts = line.split()
-            if len(parts) > 1:
-                pid = int(parts[1])  # Extract PID
-                cmd_line = ' '.join(parts[10:])  # Extract command
-                if any(x in cmd_line for x in ['caminaa_server.py', 'belters_server.py']):
-                    processes.append(pid)
-        return processes
-    except subprocess.CalledProcessError as e:
-        return []  # Return empty list on error
-
-# From code_caminaa_server.python: Core server endpoint for chat interactions.
-from flask import request, jsonify
-
-@app.route('/chat', methods=['POST'])
-def chat():
-    '''
-    Endpoint to receive chat queries and return a response.
+    Returns:
+        Flask: Application instance
+    """
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger(__name__)
     
-    Expected JSON payload: {"content": "message", "task_id": "optional_task_id"}
-    '''
-    try:
-        data = request.get_json()
-        content = data.get('content', '')
-        task_id = data.get('task_id', '')
-        # Processing logic would follow (truncated in original)
-        return jsonify({"response": "Chat processed successfully"})
-    except Exception as e:
-        return jsonify({"error": "Internal server error"}), 500
-```
-
-#### 5. JavaScript Utilities
-This section includes UI-related JavaScript code, as it's distinct from the Python snippets.
-
-```javascript
-// From code_ui_utilities.javascript: Utility for managing UI state.
-export const UIStateManager = {
-    toggleProcessingState(pasteButton, restartButton, isProcessing) {
-        if (isProcessing) {
-            pasteButton.classList.add('hidden');
-            restartButton.classList.remove('hidden');
-        } else {
-            pasteButton.classList.remove('hidden');
-            restartButton.classList.add('hidden');
+    # Create Flask app
+    app = Flask(__name__, 
+               template_folder='templates',
+               static_folder='static')
+               
+    # Default configuration
+    app.config.update(
+        SECRET_KEY=os.getenv('SECRET_KEY', 'dev-key-change-in-production'),
+        MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB max upload
+        UPLOAD_FOLDER=os.getenv('UPLOAD_FOLDER', 'uploads'),
+        TEMP_FOLDER=os.getenv('TEMP_FOLDER', 'temp'),
+        SERVER_NAME=os.getenv('SERVER_NAME', None),
+        PREFERRED_URL_SCHEME=os.getenv('PREFERRED_URL_SCHEME', 'https'),
+        DEBUG=os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+    )
+    
+    # Apply custom configuration if provided
+    if config:
+        app.config.update(config)
+    
+    # Create necessary directories
+    Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True, parents=True)
+    Path(app.config['TEMP_FOLDER']).mkdir(exist_ok=True, parents=True)
+    
+    # Configure CORS
+    CORS(app, resources={
+        r"/*": {
+            "origins": os.getenv('CORS_ORIGINS', '*').split(','),
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization", "Accept"]
         }
-    }
-};
+    })
+    
+    # Register blueprints with URL prefixes
+    app.register_blueprint(api_bp, url_prefix='/api/v1')
+    app.register_blueprint(proxy_bp, url_prefix='/api/v1/proxy')
+    app.register_blueprint(llm_bp, url_prefix='/api/v1/llm')
+    app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+    app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
+    app.register_blueprint(file_bp, url_prefix='/api/v1/files')
+    app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(tunnel_bp, url_prefix='/api/v1/tunnel')
+    app.register_blueprint(health_bp, url_prefix='/api/v1/health')
+    
+    # Root route
+    @app.route('/')
+    def index():
+        return jsonify({
+            "name": "Your API Service",
+            "version": "1.0.0",
+            "status": "operational",
+            "documentation": "/api/v1/docs"
+        })
+    
+    # Error handlers
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({"error": "Not found"}), 404
+        
+    @app.errorhandler(500)
+    def server_error(error):
+        logger.error(f"Server error: {error}")
+        return jsonify({"error": "Internal server error"}), 500
+        
+    @app.errorhandler(413)
+    def too_large(error):
+        return jsonify({"error": "File too large"}), 413
+    
+    # Log startup information
+    logger.info(f"Application created with config: {app.config}")
+    
+    return app
 ```
 
----
+## 2. Authentication Mechanisms
+This section covers key authentication components. The `admin_required` decorator ensures admin-only access, while the `oauth_token_exchange` function handles OAuth 2.0 token exchanges. These are unique and essential for securing routes.
 
-This document is now streamlined, with redundancies removed (e.g., only one representative event emission pattern is shown per relevant function). The total length is reduced while preserving the unique essence of each snippet. If you need further adjustments, let me know!
+```python
+from functools import wraps
+from flask import request, jsonify
+import logging
+import requests
+import os
+
+# Admin authentication decorator
+def admin_required(f):
+    """Decorator to require admin authentication"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            logger.warning("No authorization header provided")
+            return jsonify({"error": "No authorization header"}), 401
+        
+        try:
+            token_type, token = auth_header.split(' ')
+            if token_type.lower() != 'bearer':
+                logger.warning("Invalid authorization type")
+                return jsonify({"error": "Invalid authorization type"}), 401
+            
+            if token != ADMIN_TOKEN:  # Assuming ADMIN_TOKEN is defined in your environment or config
+                logger.warning("Invalid admin token provided")
+                return jsonify({"error": "Unauthorized"}), 403
+                
+            return f(*args, **kwargs)
+        except Exception as e:
+            logger.error(f"Auth error: {str(e)}")
+            return jsonify({"error": "Invalid authorization header"}), 401
+            
+    return decorated_function
+
+# OAuth token exchange route
+from flask import Blueprint as bp  # Assuming bp is imported for blueprint usage
+
+auth_bp = bp('auth', __name__)
+
+@auth_bp.route('/oauth/token', methods=['POST'])
+def oauth_token_exchange():
+    """Handle OAuth token exchange"""
+    try:
+        data = request.json
+        code = data.get('code')
+        if not code:
+            return jsonify({'error': 'No authorization code provided'}), 400
+
+        client_id = os.getenv('OAUTH_CLIENT_ID', '')
+        client_secret = os.getenv('OAUTH_CLIENT_SECRET', '')
+        redirect_uri = os.getenv('OAUTH_REDIRECT_URI', '')
+        token_url = "https://oauth-provider.com/oauth/token"
+        
+        payload = {
+            "code": code,
+            "redirect_uri": redirect_uri,
+            "grant_type": "authorization_code",
+            "client_id": client_id,
+            "client_secret": client_secret
+        }
+
+        response = requests.post(token_url, data=payload)
+        token_data = response.json()
+
+        if response.status_code != 200:
+            logger.error(f"OAuth token exchange failed: {token_data}")
+            return jsonify({
+                'error': 'Token exchange failed',
+                'details': token_data.get('error_description', 'Unknown error')
+            }), response.status_code
+
+        return jsonify({
+            'access_token': token_data.get('access_token'),
+            'refresh_token': token_data.get('refresh_token')
+        })
+
+    except Exception as e:
+        logger.exception("Error during OAuth token exchange")
+        return jsonify({'error': str(e)}), 500
+```
+
+## 3. Modular Features and Examples
+This section includes an example of creating and registering a Blueprint, as shown in `README.md`. This is important for extending the application modularly, and it aligns with the blueprint registrations in `create_app`.
+
+```python
+from flask import Blueprint, jsonify
+
+# Example: Create a new Blueprint
+bp = Blueprint('my_feature', __name__)
+
+@bp.route('/', methods=['GET'])
+def my_endpoint():
+    return jsonify({"message": "Hello from my feature!"})
+
+# To register it in the main application (as referenced in create_app):
+# from my_feature import bp as my_feature_bp
+# app.register_blueprint(my_feature_bp, url_prefix='/api/v1/my-feature')
+```
+
+This document provides a complete, non-redundant overview of the key components from the snippets. If you need to run this as a single file, ensure dependencies like blueprints (e.g., `api_bp`) are imported or defined appropriately.

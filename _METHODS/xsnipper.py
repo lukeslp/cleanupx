@@ -149,7 +149,8 @@ class XAIClient:
         
         try:
             logger.debug(f"Sending request to {url}")
-            response = self.session.post(url, json=payload)
+            # Added timeout to prevent hanging (e.g., when processing images)
+            response = self.session.post(url, json=payload, timeout=30)
             response.raise_for_status()
             return response.json()
         except requests.HTTPError as e:
@@ -567,7 +568,7 @@ def process_file_for_snippets(file_path, mode, verbose=False):
     if len(chunks) > 1:
         chunks = group_chunks(chunks, threshold=0.8)
     
-    # Group the chunks into batches of 10
+    # Group the chunks into batches of 25
     batches = group_batches(chunks, batch_size=25)
     batch_responses = []
     
@@ -754,11 +755,16 @@ def process_directory(directory, mode, verbose=False, output_file="final_combine
         print(f"Error: {directory} is not a valid directory.", file=sys.stderr)
         sys.exit(1)
     
-    # Collect all valid files
+    # Collect all valid files while skipping common image types
+    image_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.svg'}
     all_files = []
     for file in os.listdir(directory):
         file_path = os.path.join(directory, file)
         if os.path.isfile(file_path) and not file.startswith('.') and file != "snipper":
+            _, ext = os.path.splitext(file)
+            if ext.lower() in image_extensions:
+                log_message(f"Skipping image file: {file}", snipper_paths["log"])
+                continue
             all_files.append(file)
     
     if not all_files:

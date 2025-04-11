@@ -1,37 +1,38 @@
 # Batch 1 Combined Snippets
 
-Below is a cohesive document that combines the provided code snippets into a single, organized structure. I have focused on retaining only the most important and unique segments, eliminating redundancies (e.g., the `admin_required` decorator appears in multiple files, so I've included it only once), and organizing the content logically.
+Below is a cohesive document that combines the provided code snippets into a single, organized structure. I have focused on retaining only the most important and unique segments, eliminating redundancies (e.g., the duplicate `admin_required` decorator from `api_routes.py` is removed), and organizing the content logically. The structure follows a natural flow:
 
-The document is structured as follows:
-1. **App Setup and Initialization**: Starts with the `create_app` function from `app.py`, as it's the core entry point for configuring the Flask application.
-2. **Authentication Mechanisms**: Includes the unique `admin_required` decorator (from `admin_routes.py`) and the `oauth_token_exchange` function (from `auth_routes.py`), as these handle security and token exchange, which are critical for API authentication.
-3. **Modular Features**: Ends with the Blueprint example from `README.md`, which demonstrates how to create and register blueprints, tying into the app's extensibility as referenced in `app.py`.
+1. **Application Setup**: Starts with the core `create_app` function from `app.py`, as it forms the foundation of the Flask application.
+2. **Blueprints and Modularity**: Includes the blueprint example from `README.md`, which demonstrates how to create and register blueprints for modular API design.
+3. **Authentication and Security**: Covers the unique authentication utilities, including the `admin_required` decorator (from `admin_routes.py`) and the `_get_bearer_token` helper function (from `auth_routes.py`).
 
-This results in a streamlined, logical flow: from app creation to authentication to modular extensions. I've added brief comments to explain the organization and transitions, but kept the content concise.
+I've added minimal explanatory comments to tie the sections together, based on the original descriptions, while keeping the document concise and focused on the code. Only essential, non-redundant code is included.
 
 ---
 
-# Combined API Application Code Document
+# Combined Code Document: Flask Application Overview
 
-## 1. App Setup and Initialization
-This section includes the `create_app` function, which is the central function for creating and configuring the Flask application. It handles logging, configuration, CORS, blueprint registration, and basic routes/error handlers. This is the foundation of the application.
+This document consolidates the key components of the Flask application, emphasizing modularity, security, and initialization. It begins with the application factory for setup, followed by blueprint registration for API organization, and ends with authentication utilities for secure access.
+
+## 1. Application Setup
+The `create_app` function is the core of the application, implementing the Flask application factory pattern. It handles configuration, logging, directory creation, CORS setup, blueprint registration, and basic routes/error handlers. This modular approach makes it reusable and suitable for production.
 
 ```python
-import logging
 import os
+import logging
 from pathlib import Path
 from flask import Flask, jsonify
 from flask_cors import CORS
 
 def create_app(config=None):
     """
-    Create and configure Flask application
+    Create and configure the Flask application.
     
     Args:
-        config (dict, optional): Configuration overrides
+        config (dict, optional): Configuration overrides.
         
     Returns:
-        Flask: Application instance
+        Flask: Application instance.
     """
     # Configure logging
     logging.basicConfig(
@@ -42,9 +43,9 @@ def create_app(config=None):
     
     # Create Flask app
     app = Flask(__name__, 
-               template_folder='templates',
-               static_folder='static')
-               
+                template_folder='templates',
+                static_folder='static')
+    
     # Default configuration
     app.config.update(
         SECRET_KEY=os.getenv('SECRET_KEY', 'dev-key-change-in-production'),
@@ -98,12 +99,12 @@ def create_app(config=None):
     @app.errorhandler(404)
     def not_found(error):
         return jsonify({"error": "Not found"}), 404
-        
+    
     @app.errorhandler(500)
     def server_error(error):
         logger.error(f"Server error: {error}")
         return jsonify({"error": "Internal server error"}), 500
-        
+    
     @app.errorhandler(413)
     def too_large(error):
         return jsonify({"error": "File too large"}), 413
@@ -114,19 +115,35 @@ def create_app(config=None):
     return app
 ```
 
-## 2. Authentication Mechanisms
-This section covers key authentication components. The `admin_required` decorator ensures admin-only access, while the `oauth_token_exchange` function handles OAuth 2.0 token exchanges. These are unique and essential for securing routes.
+## 2. Blueprints and Modularity
+This snippet demonstrates how to create and register a Flask blueprint, promoting modularity in API design. It's essential for organizing routes and allowing extensions to the API.
+
+```python
+from flask import Blueprint, jsonify
+
+bp = Blueprint('my_feature', __name__)
+
+@bp.route('/', methods=['GET'])
+def my_endpoint():
+    return jsonify({"message": "Hello from my_feature!"})
+
+# To register the blueprint in the application (e.g., in create_app):
+# from my_feature import bp as my_feature_bp
+# app.register_blueprint(my_feature_bp, url_prefix='/api/v1/my-feature')
+```
+
+## 3. Authentication and Security Utilities
+These functions handle secure authentication. The `admin_required` decorator ensures protection for sensitive endpoints by verifying the Authorization header. The `_get_bearer_token` function provides a reusable way to extract bearer tokens, supporting OAuth/JWT-based systems.
 
 ```python
 from functools import wraps
 from flask import request, jsonify
 import logging
-import requests
-import os
 
-# Admin authentication decorator
+logger = logging.getLogger(__name__)
+
 def admin_required(f):
-    """Decorator to require admin authentication"""
+    """Decorator to require admin authentication."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         auth_header = request.headers.get('Authorization')
@@ -140,7 +157,7 @@ def admin_required(f):
                 logger.warning("Invalid authorization type")
                 return jsonify({"error": "Invalid authorization type"}), 401
             
-            if token != ADMIN_TOKEN:  # Assuming ADMIN_TOKEN is defined in your environment or config
+            if token != ADMIN_TOKEN:  # Assuming ADMIN_TOKEN is defined elsewhere
                 logger.warning("Invalid admin token provided")
                 return jsonify({"error": "Unauthorized"}), 403
                 
@@ -151,69 +168,15 @@ def admin_required(f):
             
     return decorated_function
 
-# OAuth token exchange route
-from flask import Blueprint as bp  # Assuming bp is imported for blueprint usage
-
-auth_bp = bp('auth', __name__)
-
-@auth_bp.route('/oauth/token', methods=['POST'])
-def oauth_token_exchange():
-    """Handle OAuth token exchange"""
-    try:
-        data = request.json
-        code = data.get('code')
-        if not code:
-            return jsonify({'error': 'No authorization code provided'}), 400
-
-        client_id = os.getenv('OAUTH_CLIENT_ID', '')
-        client_secret = os.getenv('OAUTH_CLIENT_SECRET', '')
-        redirect_uri = os.getenv('OAUTH_REDIRECT_URI', '')
-        token_url = "https://oauth-provider.com/oauth/token"
-        
-        payload = {
-            "code": code,
-            "redirect_uri": redirect_uri,
-            "grant_type": "authorization_code",
-            "client_id": client_id,
-            "client_secret": client_secret
-        }
-
-        response = requests.post(token_url, data=payload)
-        token_data = response.json()
-
-        if response.status_code != 200:
-            logger.error(f"OAuth token exchange failed: {token_data}")
-            return jsonify({
-                'error': 'Token exchange failed',
-                'details': token_data.get('error_description', 'Unknown error')
-            }), response.status_code
-
-        return jsonify({
-            'access_token': token_data.get('access_token'),
-            'refresh_token': token_data.get('refresh_token')
-        })
-
-    except Exception as e:
-        logger.exception("Error during OAuth token exchange")
-        return jsonify({'error': str(e)}), 500
+def _get_bearer_token():
+    """
+    Helper function to extract access token from Authorization header: 'Bearer <token>'.
+    This is a fundamental utility for secure token handling in authentication systems.
+    """
+    auth_header = request.headers.get('Authorization')
+    if auth_header and auth_header.startswith('Bearer '):
+        return auth_header.split(' ')[1]
+    return None
 ```
 
-## 3. Modular Features and Examples
-This section includes an example of creating and registering a Blueprint, as shown in `README.md`. This is important for extending the application modularly, and it aligns with the blueprint registrations in `create_app`.
-
-```python
-from flask import Blueprint, jsonify
-
-# Example: Create a new Blueprint
-bp = Blueprint('my_feature', __name__)
-
-@bp.route('/', methods=['GET'])
-def my_endpoint():
-    return jsonify({"message": "Hello from my feature!"})
-
-# To register it in the main application (as referenced in create_app):
-# from my_feature import bp as my_feature_bp
-# app.register_blueprint(my_feature_bp, url_prefix='/api/v1/my-feature')
-```
-
-This document provides a complete, non-redundant overview of the key components from the snippets. If you need to run this as a single file, ensure dependencies like blueprints (e.g., `api_bp`) are imported or defined appropriately.
+This combined document provides a complete, logical overview of the application's key elements, focusing on essentials while removing duplicates and redundancies. It can serve as a reference for development or documentation.

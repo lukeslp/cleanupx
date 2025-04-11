@@ -67,7 +67,7 @@ def call_gemini(prompt, temperature=0.3):
     
     try:
         # Create a GenerativeModel object
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         # Generate content
         response = model.generate_content(prompt, generation_config={"temperature": temperature})
@@ -96,7 +96,7 @@ def analyze_image(image_path, prompt, verbose=False):
         img = Image.open(image_path)
         
         # Create a model instance for vision tasks
-        model = genai.GenerativeModel('gemini-pro-vision')
+        model = genai.GenerativeModel('gemini-1.5-vision')
         
         # Generate content with the image and prompt
         response = model.generate_content([prompt, img])
@@ -121,7 +121,7 @@ def generate_text_with_streaming(prompt, verbose=False):
     
     try:
         # Create a model instance
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         # Generate content with streaming enabled
         response = model.generate_content(prompt, stream=True)
@@ -181,7 +181,7 @@ def explain_code(code, verbose=False):
     
     try:
         # Create a model instance
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         # Prepare the prompt with the code
         prompt = f"""
@@ -237,7 +237,7 @@ def explain_file(file_path, verbose=False, output=None):
         
         try:
             # Create a model instance
-            model = genai.GenerativeModel('gemini-pro')
+            model = genai.GenerativeModel('gemini-1.5-flash')
             
             # Prepare the prompt for synthesizing explanations
             combined_text = "\n\n===== CHUNK DIVIDER =====\n\n".join(explanations)
@@ -303,7 +303,7 @@ def process_file_for_snippet(file_path, mode, verbose=False):
     
     try:
         # Create a model instance
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         for i, chunk in enumerate(chunks):
             if verbose:
@@ -407,7 +407,7 @@ def synthesize_overall_snippets(best_snippets, verbose=False):
     
     try:
         # Create a model instance
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         # Prepare the prompt for synthesizing snippets
         synthesis_prompt = f"""
@@ -452,7 +452,7 @@ def generate_alt_text(file_path, verbose=False):
     elif ext in video_types:
         try:
             # Create a model instance
-            model = genai.GenerativeModel('gemini-pro')
+            model = genai.GenerativeModel('gemini-1.5-flash')
             
             # Prepare the prompt for video metadata
             prompt = f"""
