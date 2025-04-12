@@ -1,0 +1,68 @@
+{
+    "test_dir/a_new_chart_of_history_timeline_1436x1005.png:1744439408.2488081": {
+        "description": "This image is a historical chart titled 'A NEW CHART OF HISTORY' created by Joseph Priestley. The chart is designed to visually represent the rise and fall of various empires and civilizations over time. The chart is divided into horizontal colored bands, each representing a different empire or civilization, with timelines marked at the top in increments of 100 years from 1000 BC to 1800 AD. Here are some key details:\n\n- **Title**: 'A NEW CHART OF HISTORY' is prominently displayed at the top in large, bold letters.\n- **Dedication**: Below the title, there is a dedication in elegant script that reads: 'To Benjamin Franklin LL.D. F.R.S. This Chart, In testimony of Esteem & Friendship, Is Inscribed By his most obedient humble servt. Joseph Priestley'.\n- **Empires and Civilizations**: The chart includes various empires and civilizations such as:\n  - **Romans** (green band)\n  - **Persians** (yellow band)\n  - **Grecians** (light blue band)\n  - **Saracens** (pink band)\n  - **Franks** (light green band)\n  - **English** (light blue band)\n  - **Chinese** (yellow band)\n  - **Indians** (pink band)\n  - **Scythians** (light green band)\n  - **Germans** (light green band)\n  - **French** (light blue band)\n  - **Spanish** (light blue band)\n  - **Turks** (pink band)\n  - **Mongols** (pink band)\n  - **Russians** (light blue band)\n  - **Japanese** (yellow band)\n- **Geographical Regions**: The chart also includes geographical regions like 'Germany', 'France', 'Spain', 'Italy', 'Africa', 'America', 'India', and 'China' on the right side.\n- **Textual Notes**: There are various textual notes and explanations within the chart, providing additional historical context and details about the transitions of power and significant events.\n- **Color Coding**: Each civilization or empire is color-coded for easy differentiation.\n- **Time Scale**: The top of the chart has a time scale marked in centuries, allowing viewers to track the duration of each civilization.\n\nThe chart is framed with a decorative border and has a vintage, educational aesthetic.",
+        "alt_text": "A historical chart titled 'A NEW CHART OF HISTORY' by Joseph Priestley, showing the rise and fall of various empires and civilizations from 1000 BC to 1800 AD, with color-coded bands for each civilization and a dedication to Benjamin Franklin.",
+        "suggested_filename": "historical_timeline_chart_joseph_priestley",
+        "tags": [
+            "history",
+            "timeline",
+            "chart",
+            "Joseph Priestley",
+            "Benjamin Franklin",
+            "empires",
+            "civilizations",
+            "Romans",
+            "Persians",
+            "Grecians",
+            "Saracens",
+            "Franks",
+            "English",
+            "Chinese",
+            "Indians",
+            "Scythians",
+            "Germans",
+            "French",
+            "Spanish",
+            "Turks",
+            "Mongols",
+            "Russians",
+            "Japanese"
+        ]
+    },
+    "test_dir/1939_new_york_worlds_fair_map_2528x1708.jpg:1744439408.2623248": {
+        "description": "This image is a colorful, stylized map of Lower Manhattan, New York City, from 1939. The map is oriented with north to the left, showing the Hudson River at the top and the East River at the bottom. The map features prominent skyscrapers and buildings in white, with streets and parks in orange and blue. Key landmarks are illustrated with small vignettes, including the Statue of Liberty on the left, various historical figures, and scenes of daily life. The top left corner has a banner with the text 'DOWN TOWN DISTRICT of MANHATTAN' and an illustration of a ship. The top right corner shows people dancing, possibly at a social event. The bottom of the map has a banner with the text 'NIEUW AMSTERDAM AND NEW YORK 1626-1939' and illustrations of historical figures and ships. Various smaller texts throughout the map provide additional information about locations and historical events.",
+        "alt_text": "A colorful, stylized 1939 map of Lower Manhattan, New York City, showing skyscrapers, streets, parks, and historical landmarks with illustrations of people and events.",
+        "suggested_filename": "1939_lower_manhattan_stylized_map",
+        "tags": [
+            "map",
+            "Lower Manhattan",
+            "New York City",
+            "1939",
+            "historical",
+            "skyscrapers",
+            "landmarks",
+            "illustrations",
+            "Hudson River",
+            "East River"
+        ]
+    },
+    "test_dir/A&C Black 1854 Physical Geography.jpg:1744439408.2329133": {
+        "description": "This image is a vintage illustration titled 'Physical Geography' depicting the relative heights of the world's major geographical features. The image is divided into several horizontal bands, each representing different elevations and geographical zones. At the top, there are numerous vertical lines representing the lengths of major rivers from around the world, including the Mississippi, Amazon, Yang-tse, Nile, Volga, Ganges, and others, with their lengths marked in miles. Below the rivers, the image transitions into mountain ranges and other landforms, with notable peaks and regions labeled. The highest peaks are from Asia and Oceania, including the Himalayas with peaks like Everest and K2. America is represented with peaks like those in the Andes and Rockies. Europe is shown with the Alps and other ranges, while Africa features Kilimanjaro. The image also shows the snow line, the limit of perpetual snow, and various volcanic regions. The bottom part of the image shows lower elevations, including plains and ocean depths. The vertical scale on the right side is marked in feet, ranging from sea level to over 29,000 feet. Various labels indicate specific locations, heights, and geographical features.",
+        "alt_text": "Vintage illustration of 'Physical Geography' showing the relative heights of major world geographical features, including rivers, mountains, and ocean depths, with labels for specific locations and elevations.",
+        "suggested_filename": "vintage_physical_geography_world_features",
+        "tags": [
+            "physical geography",
+            "world map",
+            "mountains",
+            "rivers",
+            "elevation",
+            "vintage illustration",
+            "geographical features",
+            "Asia",
+            "America",
+            "Europe",
+            "Africa",
+            "Oceania"
+        ]
+    }
+}
