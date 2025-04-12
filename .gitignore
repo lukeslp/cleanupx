@@ -1,4 +1,4 @@
-# .gitignore for Python projects
+make this complete for Python# .gitignore for Python projects
 highres*
 .DS_Store
 
@@ -89,3 +89,4 @@ logs/
 # Project specific
 cache/
 output/
+

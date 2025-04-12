@@ -660,7 +660,7 @@ def process_file_for_citations(
         mod_time = datetime.fromtimestamp(file_path.stat().st_mtime)
         
         # Check if we should process this file based on mode
-        citations_file = metadata_dir / CITATIONS_FILE
+        citations_file = metadata_dir / "citations.json"  # Fixed path
         if mode != "all" and citations_file.exists():
             with open(citations_file, "r", encoding="utf-8") as f:
                 existing = json.load(f)
@@ -671,9 +671,10 @@ def process_file_for_citations(
                     if mode == "new" or (mode == "update" and mod_time <= last_processed):
                         return {"skipped": "Already processed"}
         
-        # Read file content
-        with open(file_path, "r", encoding="utf-8") as f:
-            content = f.read()
+        # Extract content using appropriate method based on file type
+        content = extract_text_content(file_path)
+        if not content:
+            return {"error": f"Failed to extract content from {file_path}"}
             
         # Extract citations using API
         citations = extract_citations_from_text(content)
@@ -704,6 +705,9 @@ def process_file_for_citations(
                 existing.update(citations_data)
                 citations_data = existing
                 
+            # Ensure parent directory exists
+            citations_file.parent.mkdir(parents=True, exist_ok=True)
+            
             with open(citations_file, "w", encoding="utf-8") as f:
                 json.dump(citations_data, f, indent=2)
                 
@@ -852,28 +856,23 @@ def interactive_cli():
                 print("Invalid mode. Using 'all'.")
                 mode = 'all'
             
-            verbose_input = input("Enable verbose output? (y/n): ").strip().lower()
-            verbose = verbose_input == "y"
+            file_types_input = input("Enter file types to process (comma-separated, e.g. '.pdf,.txt', or press Enter for all): ").strip()
+            file_types = [ft.strip() for ft in file_types_input.split(',')] if file_types_input else None
             
-            recursive_input = input("Process subdirectories recursively? (y/n): ").strip().lower()
-            recursive = recursive_input == "y"
+            results = process_directory(directory, mode=mode, file_types=file_types)
             
-            output = input("Enter an output file name (default: citations.md): ").strip()
-            if not output:
-                output = "citations.md"
-            
-            results = process_directory(directory, mode, verbose, output, recursive)
-            
-            if results["success"]:
+            if "error" in results:
+                print(f"\nProcessing failed: {results['error']}")
+            else:
                 print(f"\nProcessing complete!")
-                print(f"Processed {len(results['processed_files'])} files")
-                print(f"Found {results['total_citations']} citations")
+                print(f"Total files found: {results['total_files']}")
+                print(f"Files processed: {results['processed']}")
+                print(f"Files skipped: {results['skipped']}")
+                print(f"Total citations found: {results['citations_found']}")
                 if results["errors"]:
                     print(f"\nEncountered {len(results['errors'])} errors:")
                     for error in results["errors"]:
                         print(f"- {error['file']}: {error['error']}")
-            else:
-                print(f"\nProcessing failed: {results.get('error', 'Unknown error')}")
         
         elif choice == "2":
             file_path = input("Enter the full path to the file: ").strip()
