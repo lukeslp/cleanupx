@@ -13,6 +13,10 @@ synthesize the most important and unique snippets (or documentation), and proces
   - Maintains a summary of impressions (purpose of the snippets/project) in snipper/summary.txt,
   - Updates an ongoing snippet collection (and any encountered links/citations) in snipper/snippets.txt.
 
+Mode options explained:
+  - 'code': Process source code files to extract significant snippets. Use this when dealing with full source files.
+  - 'snippet': Evaluate existing code snippets for uniqueness/importance. Use this when files are already snippets.
+
 Usage examples:
   python xsnipper.py --directory /path/to/code --mode code --verbose --output final_combined.md
   python xsnipper.py --directory /path/to/snippets --mode snippet --verbose
@@ -477,11 +481,17 @@ def init_snipper_directory(target_directory):
             with open(file, "w", encoding="utf-8") as f:
                 f.write("")
     
+    # Create API credentials file
+    api_creds_file = os.path.join(base_dir, "api_credentials.txt")
+    if not os.path.exists(api_creds_file):
+        with open(api_creds_file, "w", encoding="utf-8") as f:
+            f.write("# API Credentials and Endpoints Found\n\n")
+    
     processed_dir = os.path.join(base_dir, "xsnippet_processed")
     if not os.path.isdir(processed_dir):
         os.makedirs(processed_dir)
     
-    return {"base": base_dir, "log": log_file, "summary": summary_file, "snippets": snippets_file, "archive": archive_dir, "batches": batches_dir, "final": final_dir, "processed": processed_dir}
+    return {"base": base_dir, "log": log_file, "summary": summary_file, "snippets": snippets_file, "archive": archive_dir, "batches": batches_dir, "final": final_dir, "processed": processed_dir, "api_creds": api_creds_file}
 
 def current_timestamp():
     """Return the current timestamp string."""
@@ -550,6 +560,77 @@ def split_into_chunks(text, max_chunk_size=6000):
 # X.AI API functions for snippet extraction and synthesis
 # =============================================================================
 
+def scan_for_api_credentials(content, filename):
+    """
+    Scan a file's content for potential API credentials, endpoints, and schema.
+    
+    Args:
+        content: The file content to scan
+        filename: Name of the file being scanned
+        
+    Returns:
+        Dictionary with found credentials and endpoints
+    """
+    credentials = {
+        "api_keys": [],
+        "endpoints": [],
+        "schemas": []
+    }
+    
+    # Common patterns for API keys
+    key_patterns = [
+        r'(?:api[_-]?key|apikey|access[_-]?token|auth[_-]?token|client[_-]?secret)["\']?\s*(?::|=|:=|\+=)\s*["\']([a-zA-Z0-9_\-\.]{20,})["\']',
+        r'bearer\s+([a-zA-Z0-9_\-\.]{20,})',
+        r'token["\']?\s*(?::|=|:=|\+=)\s*["\']([a-zA-Z0-9_\-\.]{20,})["\']'
+    ]
+    
+    # Patterns for API endpoints
+    endpoint_patterns = [
+        r'https?://([a-zA-Z0-9][-a-zA-Z0-9]*\.)*api\.[-a-zA-Z0-9.]+\.[a-zA-Z]{2,}/[-a-zA-Z0-9/%_.~?&=]*',
+        r'https?://([a-zA-Z0-9][-a-zA-Z0-9]*\.)*[-a-zA-Z0-9.]+\.[a-zA-Z]{2,}/api/[-a-zA-Z0-9/%_.~?&=]*',
+        r'(?:endpoint|url|uri|base[_-]?url)["\']?\s*(?::|=|:=|\+=)\s*["\']([^"\']+api[^"\']+)["\']'
+    ]
+    
+    # Patterns for API schema definitions
+    schema_patterns = [
+        r'(?:schema|model)\s*=\s*{[\s\S]*?}',
+        r'@app\.(?:get|post|put|delete)\(["\']([^"\']+)["\']',
+        r'function\s+\w+\([^)]*\)\s*{[\s\S]*?fetch\(["\']([^"\']+)["\']',
+        r'(?:routes|endpoints)\s*=\s*\[[\s\S]*?\]'
+    ]
+    
+    # Scan for API keys
+    for pattern in key_patterns:
+        matches = re.findall(pattern, content, re.IGNORECASE)
+        for match in matches:
+            # Don't add placeholder/example keys
+            if not any(x in match.lower() for x in ['yourkey', 'example', 'placeholder', 'xxxxxx']):
+                credentials["api_keys"].append(match)
+    
+    # Scan for endpoints
+    for pattern in endpoint_patterns:
+        matches = re.findall(pattern, content, re.IGNORECASE)
+        for match in matches:
+            if isinstance(match, tuple):
+                match = match[-1]  # Sometimes the regex returns tuples
+            if match and not any(x in match.lower() for x in ['example', 'placeholder']):
+                credentials["endpoints"].append(match)
+    
+    # Scan for schema definitions
+    for pattern in schema_patterns:
+        matches = re.findall(pattern, content, re.MULTILINE)
+        for match in matches:
+            if match:
+                if isinstance(match, tuple):
+                    match = match[-1]
+                credentials["schemas"].append(match)
+    
+    # Remove duplicates
+    for key in credentials:
+        credentials[key] = list(set(credentials[key]))
+    
+    return credentials
+
 def process_file_for_snippets(file_path, mode, verbose=False):
     """
     For the given file, use the X.AI API to extract important snippet(s) by processing in batches.
@@ -558,6 +639,29 @@ def process_file_for_snippets(file_path, mode, verbose=False):
     content = read_file(file_path)
     if verbose:
         print(f"Processing file for snippet extraction: {file_path}")
+    
+    # Scan for API credentials
+    filename = os.path.basename(file_path)
+    credentials = scan_for_api_credentials(content, filename)
+    if any(credentials.values()) and 'snipper_paths' in globals() and snipper_paths:
+        # Log to api_credentials.txt file
+        with open(snipper_paths["api_creds"], "a", encoding="utf-8") as f:
+            f.write(f"\n## From file: {filename}\n")
+            if credentials["api_keys"]:
+                f.write("### API Keys\n")
+                for key in credentials["api_keys"]:
+                    f.write(f"- `{key}`\n")
+            if credentials["endpoints"]:
+                f.write("### Endpoints\n")
+                for endpoint in credentials["endpoints"]:
+                    f.write(f"- `{endpoint}`\n")
+            if credentials["schemas"]:
+                f.write("### Schemas\n")
+                for schema in credentials["schemas"]:
+                    f.write(f"- ```\n{schema}\n```\n")
+        if verbose:
+            print(f"Found API credentials in {filename} and stored in {snipper_paths['api_creds']}")
+    
     # Split content into chunks based on size limits
     chunks = [content] if len(content) <= 6000 else split_into_chunks(content)
     # Optionally, you can still group similar chunks to minimize redundancy:
@@ -744,6 +848,9 @@ def process_directory(directory, mode, verbose=False, output_file="final_combine
     # Initialize snipper file paths in the target directory
     global snipper_paths
     snipper_paths = init_snipper_directory(directory)
+    # Store the absolute path of the directory for later use
+    global source_directory_path
+    source_directory_path = os.path.abspath(directory)
     log_message(f"Started processing directory: {directory} (mode: {mode})", snipper_paths["log"])
     
     if not os.path.isdir(directory):
@@ -840,7 +947,9 @@ def process_directory(directory, mode, verbose=False, output_file="final_combine
                 f.write(batch_document)
             log_message(f"Batch {batch_index + 1} results written to {batch_output_file}", snipper_paths["log"])
             if verbose:
-                print(f"Batch {batch_index + 1} results written to {batch_output_file}")
+                # Use relative path for display
+                rel_path = os.path.relpath(batch_output_file, source_directory_path)
+                print(f"Batch {batch_index + 1} results written to {rel_path}")
                 
             # Add this batch's results to the overall results
             batch_results[f"Batch {batch_index + 1}"] = batch_document
@@ -861,8 +970,19 @@ def process_directory(directory, mode, verbose=False, output_file="final_combine
             f.write("# Final Combined Snippets\n\n")
             f.write(final_document)
         log_message(f"Final combined document written to {final_output_file}", snipper_paths["log"])
+        
+        # Create a copy of the final output in the main directory
+        main_output_file = os.path.join(directory, output_file)
+        with open(main_output_file, "w", encoding="utf-8") as f:
+            f.write("# Final Combined Snippets\n\n")
+            f.write(final_document)
+        log_message(f"Created visible copy at {main_output_file}", snipper_paths["log"])
+        
         if verbose:
-            print(f"Final document written to {final_output_file}")
+            # Use relative path for display
+            rel_path = os.path.relpath(final_output_file, source_directory_path)
+            print(f"Final document written to {rel_path}")
+            print(f"Visible copy created at: {output_file}")
     except Exception as e:
         log_message(f"Error writing final output: {e}", snipper_paths["log"])
         print(f"Error writing final output: {e}", file=sys.stderr)
@@ -877,7 +997,9 @@ def process_directory(directory, mode, verbose=False, output_file="final_combine
             f.write(summary)
         log_message("Project summary updated.", snipper_paths["log"])
         if verbose:
-            print(f"Project summary written to {snipper_paths['summary']}")
+            # Use relative path for display
+            rel_path = os.path.relpath(snipper_paths["summary"], source_directory_path)
+            print(f"Project summary written to {rel_path}")
     except Exception as e:
         log_message(f"Error writing project summary: {e}", snipper_paths["log"])
         print(f"Error writing project summary: {e}", file=sys.stderr)
@@ -929,6 +1051,150 @@ def synthesize_final_results(batch_results, verbose=False):
         # Fallback: concatenate all batch results
         return "# Final Consolidated Results\n\n" + "\n\n---\n\n".join(batch_results.values())
 
+def export_formatted_snippetfile(export_path, source_directory=None, include_api_creds=False, verbose=False):
+    """
+    Export the snippets from the .xsnippet folder into a formatted snippet file.
+    
+    Reads the final combined document and summary (if exists) and combines them
+    into a formatted snippet file.
+    
+    Args:
+        export_path: Path for the exported formatted snippet file.
+        source_directory: Directory containing the .xsnippet folder. If None, will use the global snipper_paths.
+        include_api_creds: Whether to include API credentials in the export.
+        verbose: Whether to print progress.
+    
+    Returns:
+        The formatted snippet content or None if operation failed.
+    """
+    global snipper_paths
+    
+    # If export_path is not an absolute path and doesn't include directories, place it in current directory
+    if not os.path.isabs(export_path) and not os.path.dirname(export_path):
+        export_path = os.path.join(os.getcwd(), export_path)
+        if verbose:
+            print(f"Using absolute export path: {export_path}")
+    
+    # Initialize snipper_paths if needed
+    if source_directory:
+        source_directory = os.path.abspath(source_directory)
+        if verbose:
+            print(f"Initializing from source directory: {source_directory}")
+        snipper_paths = init_snipper_directory(source_directory)
+        # Store the absolute directory path
+        global source_directory_path
+        source_directory_path = source_directory
+    
+    if 'snipper_paths' not in globals() or not snipper_paths:
+        print("Error: No source directory specified and no previous processing detected.")
+        return None
+    
+    if verbose:
+        print(f"Looking for files in: {snipper_paths['base']}")
+        print(f"Directory structure:")
+        for root, dirs, files in os.walk(snipper_paths['base']):
+            print(f"Dir: {root}")
+            for f in files:
+                print(f"  - {f}")
+    
+    # Initialize content sections
+    snippets_content = ""
+    summary_content = ""
+    api_content = ""
+    
+    # Try to get snippets content
+    final_combined_file = os.path.join(snipper_paths["final"], "final_combined.md")
+    if os.path.exists(final_combined_file):
+        try:
+            with open(final_combined_file, "r", encoding="utf-8") as f:
+                snippets_content = f.read()
+            if verbose:
+                print(f"Successfully read snippets from: {final_combined_file}")
+        except Exception as e:
+            print(f"Warning: Error reading combined snippets file: {e}")
+    else:
+        # Try to see if there are any batch files we can use
+        batch_dir = snipper_paths.get("batches", "")
+        if batch_dir and os.path.exists(batch_dir):
+            batch_files = [f for f in os.listdir(batch_dir) if f.endswith(".md")]
+            if batch_files:
+                try:
+                    # Use the most recent batch file
+                    latest_batch = sorted(batch_files)[-1]
+                    batch_path = os.path.join(batch_dir, latest_batch)
+                    with open(batch_path, "r", encoding="utf-8") as f:
+                        snippets_content = f.read()
+                    if verbose:
+                        print(f"Using batch file as fallback: {batch_path}")
+                except Exception as e:
+                    print(f"Warning: Error reading batch file: {e}")
+        
+        if not snippets_content:
+            print(f"Warning: No snippets found at expected path: {final_combined_file}")
+            if verbose:
+                try:
+                    final_dir = os.path.dirname(final_combined_file)
+                    if os.path.exists(final_dir):
+                        print(f"Contents of final directory: {os.listdir(final_dir)}")
+                except Exception:
+                    pass
+    
+    # Try to get summary content
+    summary_file = snipper_paths.get("summary", "")
+    if summary_file and os.path.exists(summary_file):
+        try:
+            with open(summary_file, "r", encoding="utf-8") as f:
+                summary_content = f.read()
+            if verbose:
+                print(f"Successfully read summary from: {summary_file}")
+        except Exception as e:
+            print(f"Warning: Error reading summary file: {e}")
+    
+    # Include API credentials if requested
+    if include_api_creds:
+        api_creds_file = snipper_paths.get("api_creds", "")
+        if api_creds_file and os.path.exists(api_creds_file):
+            try:
+                with open(api_creds_file, "r", encoding="utf-8") as f:
+                    api_content = f.read()
+                if api_content.strip() == "# API Credentials and Endpoints Found":
+                    api_content = ""  # Empty or default content, don't include
+                if verbose and api_content:
+                    print(f"Successfully read API credentials from: {api_creds_file}")
+            except Exception as e:
+                print(f"Warning: Error reading API credentials file: {e}")
+    
+    # Create output content
+    formatted_output = "# Exported Snippets\n\n"
+    
+    if snippets_content:
+        formatted_output += snippets_content
+    else:
+        formatted_output += "No snippets were found. Please run processing first.\n\n"
+    
+    if summary_content:
+        formatted_output += "\n\n## Project Summary\n\n" + summary_content
+    
+    if api_content:
+        formatted_output += "\n\n## API Credentials and Endpoints\n\n" + api_content
+    
+    try:
+        # Ensure the output directory exists
+        output_dir = os.path.dirname(export_path)
+        if output_dir and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+            
+        # Write the output file
+        with open(export_path, "w", encoding="utf-8") as f:
+            f.write(formatted_output)
+        print(f"Successfully exported snippet file to: {export_path}")
+        
+        return formatted_output
+    except Exception as e:
+        print(f"Error writing export file: {e}")
+        print(f"Attempted to write to: {export_path}")
+        return None
+
 # =============================================================================
 # Interactive CLI and Main entry point
 # =============================================================================
@@ -956,11 +1222,17 @@ def interactive_cli():
                 output = "final_combined.md"
             process_directory(directory, mode, verbose, output, recursive)
         elif choice == "2":
+            source_dir = input("Enter the source directory containing the .xsnippet folder: ").strip()
+            if not source_dir:
+                print("Source directory cannot be empty.")
+                continue
             export_path = input("Enter the export file path (e.g., formatted_snippets.md): ").strip()
-            if export_path:
-                export_formatted_snippetfile(export_path, verbose=True)
-            else:
+            if not export_path:
                 print("Export path cannot be empty.")
+                continue
+            include_creds_input = input("Include API credentials in the export? (y/n): ").strip().lower()
+            include_creds = include_creds_input == "y"
+            export_formatted_snippetfile(export_path, source_directory=source_dir, include_api_creds=include_creds, verbose=True)
         elif choice == "3":
             print("Exiting X.AI Cleaner. Goodbye!")
             break
@@ -980,6 +1252,7 @@ def main():
     parser.add_argument("--output", "-o", help="Output file path for the final combined snippets (default: final_combined.md)")
     parser.add_argument("--recursive", "-r", action="store_true", help="Recursively process subdirectories")
     parser.add_argument("--export", "-e", help="Export the snippets into a formatted snippet file")
+    parser.add_argument("--include-creds", "-c", action="store_true", help="Include API credentials in the export")
     
     args = parser.parse_args()
     
@@ -987,9 +1260,16 @@ def main():
         interactive_cli()
     else:
         output_file = args.output if args.output else "final_combined.md"
+        
+        # If output_file is not absolute and contains no path separators, it's just a filename
+        # In this case, make sure it will be created in the current directory
+        if not os.path.isabs(output_file) and not os.path.dirname(output_file):
+            if verbose:
+                print(f"Output will be created as: {os.path.join(os.getcwd(), output_file)}")
+        
         process_directory(args.directory, args.mode, args.verbose, output_file, recursive=args.recursive)
         if args.export:
-            export_formatted_snippetfile(args.export, verbose=args.verbose)
+            export_formatted_snippetfile(args.export, source_directory=args.directory, include_api_creds=args.include_creds, verbose=args.verbose)
 
 if __name__ == "__main__":
     main()
