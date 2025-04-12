@@ -1244,25 +1244,87 @@ def process_directory(directory, recursive=False, force=False, file_types=None,
 def interactive_cli():
     print("\nWelcome to X.AI File Namer!")
     print("This script analyzes files with AI, renames them descriptively, and creates markdown summaries.")
+    
+    def select_file_types():
+        """Helper function to select file types interactively"""
+        file_type_groups = {
+            "1": ("Documents", DOCUMENT_EXTENSIONS),
+            "2": ("Images", IMAGE_EXTENSIONS),
+            "3": ("Archives", ARCHIVE_EXTENSIONS),
+            "4": ("Audio", AUDIO_EXTENSIONS),
+            "5": ("Video", VIDEO_EXTENSIONS)
+        }
+        
+        selected_types = set()
+        while True:
+            print("\nAvailable file type groups:")
+            for key, (name, extensions) in file_type_groups.items():
+                status = "✓" if any(ext in selected_types for ext in extensions) else " "
+                print(f"  [{status}] {key}. {name} ({', '.join(sorted(extensions))})")
+            print("  6. Custom extensions")
+            print("  7. Done")
+            
+            choice = input("\nSelect a group (1-7) or 'c' to clear selections: ").strip().lower()
+            
+            if choice == 'c':
+                selected_types.clear()
+                print("Cleared all selections.")
+                continue
+            
+            if choice == '7':
+                break
+                
+            if choice == '6':
+                custom = input("Enter custom extensions (comma-separated, e.g., .txt,.md,.py): ").strip()
+                if custom:
+                    for ext in custom.split(','):
+                        ext = ext.strip()
+                        if not ext.startswith('.'):
+                            ext = f".{ext}"
+                        selected_types.add(ext.lower())
+            elif choice in file_type_groups:
+                group_name, extensions = file_type_groups[choice]
+                if any(ext in selected_types for ext in extensions):
+                    # Remove all extensions from this group
+                    selected_types.difference_update(extensions)
+                else:
+                    # Add all extensions from this group
+                    selected_types.update(extensions)
+        
+        return selected_types if selected_types else None
+
     while True:
         print("\nPlease choose an option:")
         print("  1. Process a single file")
         print("  2. Process a directory of files")
         print("  3. Clear cache")
         print("  4. Exit")
+        
         choice = input("Enter your choice (1-4): ").strip()
+        
         if choice == "1":
             file_path = input("Enter the file path: ").strip()
             if not os.path.isfile(file_path):
                 print(f"Error: {file_path} is not a valid file.")
                 continue
+                
+            file_type = get_file_type(file_path)
+            print(f"\nDetected file type: {file_type.upper()}")
+            proceed = input("Process this file? (y/n): ").strip().lower()
+            if proceed not in ('y', 'yes'):
+                continue
+                
             force_input = input("Force regeneration of description even if cached? (y/n): ").strip().lower()
             force = force_input in ("y", "yes")
+            
             backup_input = input("Create backup of original file? (y/n): ").strip().lower()
             backup = backup_input in ("y", "yes")
+            
             md_input = input("Create markdown description? (y/n): ").strip().lower()
             markdown = md_input in ("y", "yes")
+            
             result = process_and_rename_file(file_path, force=force, create_backup=backup, create_markdown=markdown)
+            
             if result['success']:
                 print(f"\nSuccessfully processed: {file_path}")
                 if result['renamed']:
@@ -1272,29 +1334,35 @@ def interactive_cli():
                     print(f"Created markdown description: {md_path}")
             else:
                 print(f"\nError processing {file_path}: {result.get('error', 'Unknown error')}")
+                
         elif choice == "2":
             directory = input("Enter the directory path: ").strip()
             if not os.path.isdir(directory):
                 print(f"Error: {directory} is not a valid directory.")
                 continue
+                
+            print("\nFile type selection:")
+            file_types = select_file_types()
+            if not file_types:
+                print("No file types selected. Operation cancelled.")
+                continue
+                
+            print(f"\nSelected extensions: {', '.join(sorted(file_types))}")
+            
             recursive_input = input("Process subdirectories recursively? (y/n): ").strip().lower()
             recursive = recursive_input in ("y", "yes")
+            
             force_input = input("Force regeneration of descriptions even if cached? (y/n): ").strip().lower()
             force = force_input in ("y", "yes")
+            
             backup_input = input("Create backups of original files? (y/n): ").strip().lower()
             backup = backup_input in ("y", "yes")
+            
             md_input = input("Create markdown descriptions? (y/n): ").strip().lower()
             markdown = md_input in ("y", "yes")
-            file_types_input = input("Enter specific file types to process (comma-separated, e.g., 'jpg,png,pdf') or leave blank for all: ").strip()
-            file_types = None
-            if file_types_input:
-                file_types = set()
-                for ext in file_types_input.split(','):
-                    ext = ext.strip()
-                    if not ext.startswith('.'):
-                        ext = f".{ext}"
-                    file_types.add(ext.lower())
+            
             stats = process_directory(directory, recursive, force, file_types, backup, markdown)
+            
         elif choice == "3":
             confirm = input("Are you sure you want to clear the cache? (y/n): ").strip().lower()
             if confirm in ("y", "yes"):
@@ -1303,9 +1371,11 @@ def interactive_cli():
                     print("Cache cleared.")
                 else:
                     print("No cache file found.")
+                    
         elif choice == "4":
             print("Exiting. Goodbye!")
             break
+            
         else:
             print("Invalid choice. Please try again.")
 
@@ -1466,7 +1536,7 @@ def main():
     parser.add_argument("--file", help="Single file to process")
     parser.add_argument("--recursive", "-r", action="store_true", help="Process subdirectories recursively")
     parser.add_argument("--force", "-f", action="store_true", help="Force regeneration of descriptions even if cached")
-    parser.add_argument("--types", help="Comma-separated list of file extensions to process (e.g., 'jpg,pdf,zip')")
+    parser.add_argument("--types", help="Comma-separated list of file extensions to process (e.g., 'jpg,png,pdf')")
     parser.add_argument("--no-backup", action="store_true", help="Skip creating backups of original files")
     parser.add_argument("--no-markdown", action="store_true", help="Skip creating markdown descriptions")
     parser.add_argument("--clear-cache", action="store_true", help="Clear the cache before processing")

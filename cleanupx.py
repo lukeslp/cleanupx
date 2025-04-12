@@ -29,7 +29,7 @@ from typing import Dict, List, Any, Optional, Tuple
 
 # Import our unified X.AI API
 try:
-    import xai_unified
+    import storage.xai_unified as xai_unified
     XAI_AVAILABLE = True
 except ImportError:
     XAI_AVAILABLE = False
