@@ -1,0 +1,45 @@
+# unified (Code)
+
+**File:** WORKING/flask-alt/unified.py  
+**Language:** Python  
+**Lines:** 370  
+
+**Description:** **: This script is a Python Flask web application that integrates multiple AI language model providers (such as Anthropic, OpenAI, Perplexity, Mistral, Cohere, XAI, and Coze) into a unified interface. It handles tasks like chat interactions, image processing, and user interface rendering. The code includes imports for various libraries, initializes clients for each AI provider using API keys, sets up logging, and defines a Flask app with HTML templates for a dynamic web UI. Its purpose is to provide a seamless way to switch between different AI models for conversational AI tasks, including error handling and UI elements for user interaction.  
+
+```python
+#!/usr/bin/env python
+import os
+import sys
+import tempfile
+import io
+import json
+import requests
+from flask import Flask, request, render_template_string, Response, jsonify
+from typing import Generator, List, Dict, Optional, Union
+from datetime import datetime
+from base64 import b64encode
+from PIL import Image
+import anthropic
+from openai import OpenAI
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Import Coze SDK
+try:
+    from cozepy import Coze, TokenAuth, Message, ChatEventType, MessageObjectString
+except Exception as e:
+    logger.error(f"Failed to import cozepy: {str(e)}")
+    Coze = TokenAuth = Message = ChatEventType = MessageObjectString = None
+
+# Import our provider-specific implementations
+from flask_alt_anthropic import AnthropicChat
+from flask_alt_openai import OpenAIChat
+from flask_alt_ollama import OllamaChat
+from flask_chat_perplexity import PerplexityChat
+from flask_chat_mistral import MistralChat
+from
+```
+

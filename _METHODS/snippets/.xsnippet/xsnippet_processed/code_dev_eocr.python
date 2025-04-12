@@ -1,0 +1,41 @@
+# dev_eocr (Code)
+
+**File:** soon/tools_pending/unprocessed/dev_eocr.py  
+**Language:** Python  
+**Lines:** 151  
+
+**Description:** **: This module defines a class named `Tools` that serves as a collection of utility functions for various tasks. It includes methods to retrieve user details, get the current date and time, evaluate mathematical equations, fetch weather data from an API, and extract text from scanned PDF files using Optical Character Recognition (OCR). The purpose is to provide reusable tools for an application, likely integrated with a web framework like FastAPI, handling operations such as API interactions, file processing, and error handling. The module also includes an example usage section that demonstrates extracting text from PDF files in a specified directory.  
+
+```python
+import os
+import requests
+from datetime import datetime
+import fitz  # PyMuPDF
+import pytesseract
+from PIL import Image
+from open_webui.apps.webui.models.tools import ToolForm, ToolModel, ToolResponse, Tools
+from open_webui.apps.webui.models.users import Users
+from pathlib import Path
+from typing import Optional
+from open_webui.apps.webui.models.tools import ToolForm, ToolModel, ToolResponse, Tools
+from open_webui.apps.webui.utils import load_toolkit_module_by_id, replace_imports
+from open_webui.config import CACHE_DIR, DATA_DIR
+from typing import Optional
+
+from open_webui.apps.webui.models.models import (
+    ModelForm,
+    ModelModel,
+    ModelResponse,
+    Models,
+)
+from open_webui.constants import ERROR_MESSAGES
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from open_webui.utils.utils import get_admin_user, get_verified_user
+
+
+class Tools:
+    def __init__(self):
+        # Specify the Tesseract-OCR executable path
+        pytesseract.pytesseract.tesseract_c
+```
+

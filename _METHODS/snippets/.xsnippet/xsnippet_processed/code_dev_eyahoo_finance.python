@@ -1,0 +1,45 @@
+# dev_eyahoo_finance (Code)
+
+**File:** soon/tools_pending/unprocessed/dev_eyahoo_finance.py  
+**Language:** Python  
+**Lines:** 301  
+
+**Description:** **: This script is a comprehensive tool for analyzing stocks and cryptocurrencies using Yahoo Finance data. It includes functions to fetch asset information, current prices, news articles, and historical data. It performs sentiment analysis on news using a FinBERT model from the transformers library, calculates technical indicators like RSI and MACD, analyzes historical data for trends and volatility, and compiles detailed reports for both stocks and cryptocurrencies. The script uses asynchronous operations for efficiency in data gathering and analysis.
+
+```python
+"""
+title: Yahoo Finance Stock and Crypto Analyzer with Historical Data
+description: A comprehensive stock and cryptocurrency analysis tool using Yahoo Finance data, including historical price analysis and AI news sentiment.
+author: AI Assistant
+author_url: https://github.com/johnongit
+funding_url: https://github.com/open-webui
+version: 0.4.0
+license: MIT
+requirements: yfinance, pandas, numpy, aiohttp, asyncio, transformers
+"""
+
+import yfinance as yf
+import pandas as pd
+import numpy as np
+import aiohttp
+import asyncio
+from transformers import pipeline
+from pydantic import BaseModel
+from typing import Dict, Any, List, Union, Callable, Awaitable
+from functools import lru_cache
+
+# Helper functions
+
+
+@lru_cache(maxsize=128)
+def _get_sentiment_model():
+    return pipeline("sentiment-analysis", model="ProsusAI/finbert")
+
+
+async def _async_sentiment_analysis(
+    content: str, model
+) -> Dict[str, Union[str, float]]:
+    result = model(content)[0]
+    return {"sentiment": result["label"], "co
+```
+

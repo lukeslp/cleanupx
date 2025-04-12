@@ -4973,3 +4973,890 @@ def get_file_type_info(file_path: Union[str, Path]) -> Dict[str, Any]:
     file_path = Path(file_path)
 ```
 --------------------
+
+=== File: snippets/code_dev_epaperless.python | 2025-04-12 00:28:56 ===
+** I selected the `PaperlessDocumentLoader` class as the best snippet because it represents the core functionality of the module. This class is designed for fetching documents from the Paperless system based on filters (e.g., document type, tags), and it integrates with Langchain's `BaseLoader`. It's unique in how it combines API interaction with document filtering, making it the most representative part of the code.
+
+  ```
+  class PaperlessDocumentLoader(BaseLoader):
+      """Paperless document loader that retrieves all documents of a specific type and optionally by day, month and year"""
+
+      def __init__(self, documentTypeName: Optional[str] = '', documentTagName: Optional[str] = '',
+                   # [Note: The code snippet provided cuts off here, but based on the context, this class continues to handle API requests and document processing.]
+  ```
+
+- **
+--------------------
+
+=== File: snippets/code_dev_eyahoo_finance.python | 2025-04-12 00:29:02 ===
+Below is my extraction of the most important and unique code snippets or documentation segments from the provided code file (`dev_eyahoo_finance.py`). Based on the context, the script focuses on stock and cryptocurrency analysis using Yahoo Finance data, with emphasis on asynchronous operations, sentiment analysis via a FinBERT model, and efficient data handling. I prioritized snippets that demonstrate core functionality, uniqueness (e.g., asynchronous sentiment analysis), and relevance to the script's description.
+
+- **Best Version**: I selected the `_async_sentiment_analysis()` function as the best snippet because it represents the script's innovative use of asynchronous processing for sentiment analysis on news articles. This is a key feature highlighted in the description, combining AI (via the transformers library) with financial data analysis for efficiency.
+
+  ```
+  async def _async_sentiment_analysis(
+      content: str, model
+  ) -> Dict[str, Union[str, float]]:
+      result = model(content)[0]
+      return {"sentiment": result["label"], "co  # (Note: The code appears truncated; likely intended as "score" or similar)
+  ```
+
+- **Alternatives**: These are other notable snippets that provide context, utility, or foundational elements. I included the cached model loader (`_get_sentiment_model()`) for its role in optimizing performance, and the docstring for its comprehensive overview of the script's purpose and requirements.
+
+  - **Alternative 1: Cached Sentiment Model Loader**  
+    This function is unique for its use of `@lru_cache` to efficiently load and reuse the FinBERT model, reducing redundant computations in a data-intensive script.  
+    ```
+    @lru_cache(maxsize=128)
+    def _get_sentiment_model():
+        return pipeline("sentiment-analysis", model="ProsusAI/finbert")
+    ```
+
+  - **Alternative 2: Docstring Overview**  
+    This documentation segment is important as it succinctly describes the script's purpose, dependencies, and metadata, making it a valuable reference for users or developers. It's unique in how it ties together the script's features like historical data analysis and AI integration.  
+    ```
+    """
+    title: Yahoo Finance Stock and Crypto Analyzer with Historical Data
+    description: A comprehensive stock and cryptocurrency analysis tool using Yahoo Finance data, including historical price analysis and AI news sentiment.
+    author: AI Assistant
+    author_url: https://github.com/johnongit
+    funding_url: https://github.com/open-webui
+    version: 0.4.0
+    license: MIT
+    requirements: yfinance, pandas, numpy, aiohttp, asyncio, transformers
+    """
+--------------------
+Links/Citations:
+https://github.com/johnongit
+https://github.com/open-webui
+--------------------
+
+=== File: snippets/code_process_utils.python | 2025-04-12 00:29:08 ===
+```python
+def rename_file(original_path: Path, new_name: str) -> Tuple[bool, Path]:
+    """Rename the file to the new name in its current directory."""
+    try:
+        new_path = original_path.parent / new_name
+        original_path.rename(new_path)
+        return True, new_path
+    except Exception as e:
+        logger.error(f"Error renaming file {original_path} to {new_name}: {e}")
+        return False  # Note: Original code has "return F", which is likely a typo for "return False"
+```
+**Explanation:** This is the best version because it represents the core functionality of the module. It's a complete, self-contained function that performs file renaming, handles exceptions, logs errors, and returns meaningful results. It's unique in demonstrating practical file management with Python's `Pathlib`, making it highly reusable for automation tasks.
+
+###
+--------------------
+
+=== File: snippets/code__football_api.python | 2025-04-12 00:29:32 ===
+```python
+async def fetch_matches(
+    self,
+    league_code: str = "PL",  # English Premier League default
+    __user__: dict = {},
+    __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None,
+) -> str:
+    """
+    Fetch recent football matches for a given league.
+
+    Args:
+        league_code (str): The league code (e.g., "PL" for Premier League, "SA" for Serie A).
+
+    Returns:
+        str: Formatted match results including teams, scores, and match status.
+    """
+    if __event_emitter__:
+        await __event_emitter__({
+            # (Truncated in original code, but implies event data)
+        })
+    # (Rest of the method would handle API requests and processing)
+```
+
+**Rationale**: This is the best snippet because it encapsulates the primary functionality of the class—fetching and formatting match data asynchronously. It's unique for its use of an event emitter for status updates, error handling (implied), and detailed docstring. This method is the core of the API client, as described in the file's documentation, and demonstrates how the class interacts with external APIs.
+
+###
+--------------------
+
+=== File: snippets/code_server_1.python | 2025-04-12 00:29:38 ===
+Below is my extraction of the most important and unique code snippets or documentation segments from the provided code. Based on the context (a FastAPI-based web server for the MoE system), I focused on elements that are central to the functionality, such as setting up the FastAPI app, configuring middleware, and initializing logging. These snippets are unique in how they tailor FastAPI for the MoE system's needs, including CORS for cross-origin requests and basic app metadata.
+
+- **Best Version**: This is the most critical and representative snippet, as it initializes the FastAPI application with metadata that defines the server's purpose, making it the core of the web interface for the MoE system.
+  
+  ```
+  app = FastAPI(
+      title="MoE System",
+      description="Web interface for the Mixture of Experts system",
+      version="0.1.0"
+  )
+  ```
+
+- **Alternatives**: These are other noteworthy snippets that provide supporting functionality. They are unique in their configuration for security (CORS) and logging, which are essential for the server's operation but not as foundational as the app initialization.
+  
+  - **Alternative 1 (CORS Middleware Configuration)**: This snippet handles cross-origin requests, which is crucial for a web application like this one that might interact with frontend clients from different origins. It's unique due to the permissive settings (e.g., allowing all origins for development).
+    
+    ```
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],  # In production, replace with specific origins
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    ```
+    
+  - **Alternative 2 (Logging Configuration)**: This is a simple yet important setup for logging, which ensures that the server can log events for debugging and monitoring. It's unique in its basic configuration tailored to the MoE system.
+    
+    ```
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    ```
+--------------------
+
+=== File: snippets/code_observer.python | 2025-04-12 00:29:43 ===
+```
+OBSERVER_SYSTEM_PROMPT = """You are the DeepSeek Observer, a meta-analysis agent responsible for monitoring and providing insights about the MoE system's operation.
+
+Your responsibilities include:
+1. Monitoring task execution and providing real-time commentary
+2. Analyzing system performance and efficiency
+3. Identifying potential issues or improvements
+4. Providing strategic insights about task handling
+5. Integrating user feedback to improve system operation
+
+When providing observations:
+- Be concise but informative
+- Focus on actionable insights
+- Highlight both successes and areas for improvement
+- Consider system-wide implications
+- Suggest optimizations when relevant
+
+Form
+```
+```
+
+This is the most important and unique segment because it defines the core behavior, responsibilities, and guidelines for the DeepSeek Observer agent. It's a system prompt likely used to configure a language model for real-time monitoring, making it central to the module's purpose and highly distinctive in the context of an MoE (Mixture of Experts) system.
+--------------------
+
+=== File: snippets/code_belter.python | 2025-04-12 00:29:50 ===
+```python
+class OllamaInfiniteUser:
+    def __init__(self, model: str = "belter-searcher:latest"):
+        self.model = model
+        self.search_tool = Tools()
+        self.search_tool.valves.SEARXNG_URL = "https://searx.be/search"
+        self.search_tool.valves.TIMEOUT = 60
+        print(f"\nInitialized with search URL: {self.search_tool.valves.SEARXNG_URL}")
+        self.base_url = "https://ai.assisted.space/api/chat"
+        self.deepseek_url = "https://ai.assisted.space/api/chat"
+        self.results_dir = "search_results"
+        os.makedirs(self.results_dir, exist_ok=True)
+        self.session = None
+```
+
+###
+--------------------
+Links/Citations:
+https://searx.be/search"
+https://ai.assisted.space/api/chat"
+https://ai.assisted.space/api/chat"
+--------------------
+
+=== File: snippets/code_semantic_scholar.python | 2025-04-12 00:29:57 ===
+```python
+class SemanticScholarAPI:
+    """Client for interacting with Semantic Scholar API."""
+    
+    def __init__(
+        self,
+        base_url: str = "https://api.semanticscholar.org/v1",
+        api_key: Optional[str] = None,
+        logger: Optional[logging.Logger] = None
+    ):
+        """
+        Initialize Semantic Scholar API client.
+        
+        Args:
+            base_url: Base URL for Semantic Scholar API
+            api_key: Optional API key for higher rate limits
+            logger: Optional logger instance
+        """
+        self.base_url = base_url
+        self.api_key = api_key
+        self.logger = logger or get_logger(__name__)
+```
+
+**Rationale**: This is the most important snippet because it defines the core class and its `__init__` method, which handles initialization with configurable parameters (e.g., base URL, API key, and logger). It's unique as it encapsulates the setup for API interactions, including error handling via logging, and is the entry point for users of this class. The docstring provides clear documentation on usage, making it self-contained and practical.
+
+###
+--------------------
+Links/Citations:
+https://api.semanticscholar.org/v1",
+--------------------
+
+=== File: snippets/code_coze_analyzer.python | 2025-04-12 00:30:02 ===
+```
+"""
+Coze History Analyzer
+====================
+
+This script analyzes a Coze bot history export file, extracting and organizing:
+- Bot prompts
+- Tool configurations
+- Workflows
+- API information
+
+Features:
+- Extracts and evaluates prompts for each bot
+- Analyzes tool configurations and API integrations
+- Generates improved versions of prompts with accessibility considerations
+- Creates organized documentation structure
+
+Author: Luke Steuber
+License: MIT
+"""
+```
+--------------------
+
+=== File: snippets/code_doc_processor.python | 2025-04-12 00:30:06 ===
+```python
+class EventEmitter:
+    """Event emitter for progress tracking"""
+    def __init__(self, event_emitter: Callable[[dict], Any] = None):
+        self.event_emitter = event_emitter
+
+    async def progress_update(self, description):
+        await self.emit(description)
+
+    async def error_update(self, description):
+        await self.emit(description, "error", True)
+
+    async def success_update(self, description):
+        await self.emit(description, "success", True)
+
+    async def emit(self, description="Unknown State", status="in_progr
+```
+--------------------
+
+=== File: snippets/code_ollama_coderunner.python | 2025-04-12 00:30:13 ===
+```python
+class OllamaCodeRouter:
+    """Routes requests to appropriate tools based on user input"""
+    
+    def __init__(self, model: str = "drummer-code"):
+        """Initialize the code router"""
+        self.model = model
+        self.base_url = "http://localhost:11434/api"
+        
+        # Import available tools
+        try:
+            from llm_tool_infinite_search import Tools as InfiniteSearch
+            self.infinite_tool = InfiniteSearch()
+        except ImportError:
+            self.infinite_tool = None
+            
+        try:
+            from llm_tool_wayback import Tools as WaybackMachine
+            self.wayback_tool = WaybackMachine()
+        except ImportError:
+            self.wayback_tool = None
+            
+        try:
+            from llm_tool_arxiv import Tools as ArxivSearch
+            self.arxiv_tool = ArxivSearch()
+        except ImportError:
+            self.arxiv_tool = None
+```
+
+**Explanation:** This is the best snippet because it represents the core of the `OllamaCodeRouter` class. It initializes the router with a model, sets up API connections, and dynamically imports and handles external tools (e.g., InfiniteSearch, WaybackMachine, ArxivSearch). The use of try-except blocks for imports is a unique and robust feature, ensuring the code doesn't crash if dependencies are missing. This snippet encapsulates the script's primary functionality: routing and tool integration.
+
+###
+--------------------
+Links/Citations:
+http://localhost:11434/api"
+--------------------
+
+=== File: snippets/code_media_utils.javascript | 2025-04-12 00:30:22 ===
+```javascript
+export const MediaTypes = {
+    // Supported media formats
+    supportedTypes: [
+        // Image Formats
+        'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+        'image/heic', 'image/heif', 'image/avif', 'image/tiff', 'image/bmp',
+        'image/x-icon', 'image/vnd.microsoft.icon', 'image/svg+xml',
+        'image/vnd.adobe.photoshop', 'image/x-adobe-dng', 'image/x-canon-cr2',
+        'image/x-nikon-nef', 'image/x-sony-arw', 'image/x-fuji-raf',
+        'image/x-olympus-orf', 'image/x-panasonic-rw2', 'image/x-rgb',
+        'image/x-portable-pixmap', 'image/x-portable-graymap',
+        'image/x-portable-bitmap',
+        // Video Formats
+        'video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo',
+        'video/x-flv', 'video/x-ms-wmv', 'video/x-matroska', 'video/3gpp',
+        'video/x-m4v', 'video/x-ms-asf', 'video/x-mpegURL', 'video/x-ms-vob'
+    ]
+};
+```
+**Reason for selection:** This is the most important and unique snippet as it defines the core functionality of the module—an exported object with a comprehensive array of supported media formats (MIME types for images and videos). It's a consolidated list that could be used for validation or processing in a web application, making it the centerpiece of the code.
+
+###
+--------------------
+
+=== File: snippets/code_xai-flask.python | 2025-04-12 00:30:31 ===
+Below is my extraction of the most important and unique code snippets or documentation segments from the provided code. I focused on the core elements that demonstrate the key functionality, such as initializing the X.AI client, setting up conversation history, and managing conversations. These snippets are selected based on their uniqueness (e.g., custom OpenAI client setup for X.AI API) and importance (e.g., they form the foundation of the `XAIChat` class).
+
+- **Best Version**: I selected the `__init__` method from the primary code block as the best snippet because it encapsulates the essential initialization logic, including API setup and conversation history, which is central to the module's purpose. This is the most comprehensive and unique part, as it ties together the API key, base URL, and initial system prompt.
+
+  ```
+  class XAIChat:
+      def __init__(self, api_key: str):
+          """Initialize the X.AI client with the provided API key."""
+          self.client = OpenAI(
+              api_key=api_key,
+              base_url="https://api.x.ai/v1"
+          )
+          self.conversation_history = [
+              {
+                  "role": "system",
+                  "content": "You are Grok, a chatbot inspired by the Hitchhiker's Guide to the Galaxy."
+              }
+          ]
+  ```
+
+- **Alternatives**: The alternative snippets include variations or extensions from the provided code, such as the `clear_conversation` method. These are less comprehensive than the best version but show slight differences in implementation or additional context. I extracted the `clear_conversation` method as it's a unique segment that appears in both the main and alternative code blocks, demonstrating conversation management.
+
+  ```
+  def clear_conversation(self):
+      """Clear the conversation history, keeping only the system message."""
+      self.conversation_history = [
+          {
+              "role": "system",
+              "content": "You are Grok, a chatbot inspired by the Hitchhiker's Guide to the Galaxy."
+          }
+      ]
+  ```
+--------------------
+Links/Citations:
+https://api.x.ai/v1"
+--------------------
+
+=== File: snippets/code_test_llm_integration.python | 2025-04-12 00:30:39 ===
+```python
+@pytest.mark.asyncio
+async def test_llm_task_execution(
+    model_communicator,
+    task_manager,
+    sample_llm_request
+):
+    """Test complete LLM task execution flow"""
+    # Set up mocks
+    mock_belter = AsyncMock(spec=LLMBelter)
+    mock_drummer = AsyncMock(spec=LLMDrummer)
+    
+    # Mock responses
+    mock_belter.process_request.return_value = {
+        'task_id': 'test-task',
+        'selected_model': 'mistral-small',
+        'parameters': {
+            'temperature': 0.7,
+            'max_tokens': 500
+        }
+    }
+    
+    mock_drummer.execute_task.return_value = {
+        'content': 'Generated response',
+        'usage': {
+            'prompt_tokens': 10,
+            'comp  # (Note: The code is truncated here, but this is the provided segment)
+    }
+```
+
+This snippet is the best version because it fully captures the test's structure, including asynchronous decoration, mock setup, and simulated responses. It's unique as it demonstrates how the script tests the interaction between LLMBelter and LLMDrummer in an integration context, including model selection and task parameters.
+
+###
+--------------------
+
+=== File: snippets/code_ollama_wayback.python | 2025-04-12 00:30:45 ===
+```python
+def generate(self, prompt: str) -> str:
+    """Generate a response from Ollama"""
+    data = {
+        "model": self.model,
+        "messages": [
+            {"role": "user", "content": prompt}
+        ],
+        "stream": False
+    }
+    try:
+        response = requests.post(self.base_url, json=data)
+        response.raise_for_status()
+        content = response.json().get("message", {}).get("content", "").strip()
+        
+        # Ensure we have a complete JSON object
+        if not content.startswith("{"):
+            content = "  # Incomplete in provided code, but this checks for JSON structure
+    except requests.RequestException as e:
+        # Error handling implied, though not fully shown
+        raise ValueError(f"API request failed: {e}")
+    return content  # Returns the generated content
+```
+
+This snippet is the best version because it encapsulates the script's primary functionality: sending a user prompt to the Ollama API, processing the response, and handling potential errors. It's unique in showing the API interaction (e.g., constructing the payload and parsing JSON), which is critical for the script's AI-driven Wayback Machine integration.
+
+###
+--------------------
+
+=== File: snippets/code_patreon_api.python | 2025-04-12 00:30:53 ===
+This is the most important snippet, as it encapsulates the core class (`PatreonAPI`) that manages the Patreon API interface, including authentication setup. It's unique because it combines the base URL, session initialization, and header configuration, which are critical for making authenticated API requests. This snippet represents the module's primary functionality.
+
+```python
+class PatreonAPI:
+    """A Python interface for the Patreon API v2"""
+    
+    BASE_URL = "https://www.patreon.com/api/oauth2/v2"
+    
+    def __init__(self, credentials: PatreonCredentials = None):
+        self.credentials = credentials or PatreonCredentials()
+        self.session = requests.Session()
+        self.session.headers.update({
+            "Authorization": f"Bearer {self.credentials.access_token}"
+        })
+```
+
+###
+--------------------
+Links/Citations:
+https://www.patreon.com/api/oauth2/v2"
+--------------------
+
+=== File: snippets/code_ollama_arxiv.python | 2025-04-12 00:31:00 ===
+** This is the most critical snippet, as it showcases the core interaction with the Ollama API for generating responses from user prompts. It's unique because it handles API calls, error checking, and response parsing, which is central to the script's functionality.
+
+<best snippet>
+```python
+def generate(self, prompt: str) -> str:
+    """Generate a response from Ollama"""
+    data = {
+        "model": self.model,
+        "messages": [
+            {"role": "user", "content": prompt}
+        ],
+        "stream": False
+    }
+    try:
+        response = requests.post(self.base_url, json=data)
+        response.raise_for_status()
+        content = response.json().get("message", {}).get("content", "").strip()
+        print("\nRaw LLM Response:", repr(content))
+        return content  # Assuming this is the intended return based on context
+    except Exception as e:
+        print(f"Error in generate: {e}")
+        return ""  # Error handling implied
+```
+</best snippet>
+
+- **
+--------------------
+
+=== File: snippets/code_client.python | 2025-04-12 00:31:05 ===
+** I chose the `MoEClient` class definition as the best snippet because it encapsulates the primary functionality of the module. It's the core component that initializes connections, handles endpoints, and supports event-driven interactions, making it the most representative and unique part of the code.
+
+**
+--------------------
+
+=== File: snippets/code_dev_bbc.python | 2025-04-12 00:31:14 ===
+Below is my extraction of the most important and unique code snippets or documentation segments from the provided code (from the file `dev_bbc.py`). I focused on elements that highlight the module's core functionality, such as fetching BBC news feeds, error handling, asynchronous operations, and the evolution of the code via the changelog. These are key because they demonstrate the tool's purpose (programmatic access to BBC news), unique features (like event emitters for status updates), and improvements over time.
+
+- **Best Version**: I selected the changelog as the best snippet because it succinctly captures the module's evolution, key updates (e.g., adding error handling and status updates), and ties directly to the main function (`get_bbc_news_feed`). This is unique as it provides context on how the code was refined for reliability and user feedback, which is not always present in standard codebases.
+
+  ```
+  changelog:
+  - 0.0.1 - Initial upload to openwebui community.
+  - 0.0.2 - Modified formatting slightly.
+  - 0.0.3 - Added tool docstring, and this changelog.
+  - 0.0.4 - Added funding_url to docstring.
+  - 0.0.5 - Updated get_bbc_news_feed function to use a default for 
+            the ArticleType, and updated it's docstring to include 
+            a list of the possible types, to assist the LLM's query.
+  - 0.0.6 - Added event emitter to the get_bbc_news_feed function, 
+            to provide status updates to the user as the function 
+            executes. Also wrapped the function in a try/catch, to 
+            handle any exceptions that may occur during execution.
+  - 0.0.7 - Fixed a major bug where the type was not being casted 
+            to the ArticleType enum, causing the get_uri functi
+  ```
+
+- **Alternatives**: These are other notable segments from the docstring that provide essential metadata, such as the module's title, authors, and overall description. They are less comprehensive than the changelog but offer unique context on authorship, versioning, and the module's intent. I included two alternatives for brevity:
+
+  1. **Module Description**: This summarizes the purpose and key features, emphasizing asynchronous HTTP requests and news categories—unique aspects for a news-fetching tool.
+     ```
+     **Description:** **: This Python module is designed to fetch and process BBC news data. It includes functions to retrieve RSS feeds for various news categories (e.g., world, business, politics) and to extract the full content of specific BBC news articles. The module uses asynchronous operations for handling HTTP requests, includes error handling, and emits status updates. It also defines helper functions and a dictionary of categories for organizing news types. The purpose is to provide a tool for accessing and parsing BBC news programmatically, likely for applications like web scrapers or news aggregators.
+     ```
+
+  2. **Function Update Highlight**: This focuses on the key function (`get_bbc_news_feed`) from the changelog, showing its enhancements for robustness and usability.
+     ```
+     - 0.0.6 - Added event emitter to the get_bbc_news_feed function, 
+               to provide status updates to the user as the function 
+               executes. Also wrapped the function in a try/catch, to 
+               handle any exceptions that may occur during execution.
+     ```
+--------------------
+
+=== File: snippets/code_tool_archive_wayback.python | 2025-04-12 00:31:24 ===
+Below is my extraction of the most important and unique code snippets or documentation segments from the provided code file (`tool_archive_wayback.py`). I focused on elements that are central to the script's functionality, such as the core function for interacting with the Wayback Machine, error handling, and logging setup. These were selected based on their uniqueness (e.g., specific Wayback Machine URLs and headers) and importance (e.g., the main function driving the script's purpose).
+
+- **Best Version**: This is the most essential snippet, as it encapsulates the primary logic of the script. It includes the function definition, which handles URL submission, logging, and the initial check for archived status. This is unique because it directly interacts with the Wayback Machine APIs and includes practical error handling.
+
+  ```python
+  def submit_url_to_archive(url):
+      """Submits a URL to the Wayback Machine and retrieves the archived page link."""
+      logging.info(f"Submitting URL to Wayback Machine: {url}")
+
+      headers = {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.5",
+      }
+
+      try:
+          # First check if URL is already archived
+          avail_response = requests.get(WAYBACK_AVAIL_URL
+  ```
+
+- **Alternatives**: These are secondary but still noteworthy snippets. They include unique elements like the logging configuration (which provides detailed debugging output) and the constants (which define the Wayback Machine endpoints, making the code modular and reusable). These are less central than the best version but highlight good practices for error handling and configuration.
+
+  - **Logging Configuration**: This sets up robust logging for debugging, which is a unique aspect of the script as it ensures activities are tracked in a structured way.
+    ```python
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    ```
+
+  - **Wayback Machine Constants**: These define the API endpoints, which are specific to the Wayback Machine and make the code adaptable for similar archiving tools.
+    ```python
+    WAYBACK_SAVE_URL = "https://web.archive.org/save/"
+    WAYBACK_AVAIL_URL = "https://archive.org/wayback/available?url="
+    ```
+--------------------
+Links/Citations:
+https://web.archive.org/save/"
+https://archive.org/wayback/available?url="
+--------------------
+
+=== File: snippets/code_error_handling.javascript | 2025-04-12 00:31:34 ===
+```javascript
+async timeoutPromise(promise, ms = 60000, maxAttempts = 3) {
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+        try {
+            return await Promise.race([
+                promise,
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Timeout occurred")), ms)
+                ),
+            ]);
+        } catch (error) {
+            attempts++;
+            if (attempts === maxAttempts) {
+                throw error;
+            }
+            // Exponential backoff before retrying
+            await new Promise((resolve) =>
+                setTimeout(resolve, 1000 * Math.pow(2, attempts))
+            );
+            console.log(`Retry attempt ${attempts} of ${maxAttempts}`);
+        }
+    }
+}
+```
+
+This snippet is the best because it encapsulates the primary functionality: racing a promise against a timeout, catching errors, and implementing retries with exponential backoff. It's unique in its combination of promise handling, error retry logic, and logging, making it a valuable utility for asynchronous error management.
+
+###
+--------------------
+
+=== File: snippets/code_knowledge_dictionary.python | 2025-04-12 00:31:42 ===
+```python
+async def fetch_definition(
+    self,
+    word: str,
+    dictionary_type: str = "learners",
+    __user__: dict = {},
+    __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None,
+) -> str:
+    """
+    Fetch word definitions from Merriam-Webster Dictionary API.
+
+    Args:
+        word (str): The word to look up.
+        dictionary_type (str): The type of dictionary ("learners" or "medical").
+        __user__ (dict): User-specific data (default is an empty dictionary).
+        __event_emitter__ (Optional[Callable[[Any], Awaitable[None]]]): A callable for emitting events, such as status updates or errors.
+
+    Returns:
+        str: The definitions of the word.
+    """
+```
+**Rationale:** This is the most important snippet because it represents the primary functionality of the class. The `fetch_definition` method is asynchronous, handles API requests for different dictionary types, and includes unique features like event emission for status updates and error handling. The docstring provides clear documentation on usage, making it a complete and self-contained segment.
+
+###
+--------------------
+
+=== File: snippets/code_base_2.python | 2025-04-12 00:31:50 ===
+This is the most important and representative snippet. It captures the core class definition (`BaseModelServer`), which serves as the foundational structure for extending model servers. It includes initialization parameters, constants for Ollama API interaction, and ties into the overall purpose of setting up a FastAPI server.
+
+```python
+class BaseModelServer:
+    """Base class for all model servers"""
+    
+    DEFAULT_PORT = 6000  # Base port, each model type will offset from this
+    OLLAMA_API = "http://localhost:11434/api"
+    
+    def __init__(
+        self,
+        model_name: str,
+        port: Optional[int] = None,
+    ):
+        # (Note: The __init__ method is incomplete in the provided code, but this is the key setup for server configuration)
+        pass  # Initialization logic would continue here for routes, health checks, and chat functionalities
+```
+
+**Why this is the best**: 
+- It's the central component, providing the base structure for server setup, as described in the code's documentation.
+- It includes unique elements like `DEFAULT_PORT` and `OLLAMA_API`, which are specific to this Ollama-FastAPI integration.
+- This snippet encapsulates the essence of extensibility for specific models, making it the most valuable for reuse or understanding.
+
+###
+--------------------
+Links/Citations:
+http://localhost:11434/api"
+--------------------
+
+=== File: snippets/code_discovery.python | 2025-04-12 00:31:56 ===
+```python
+class ToolDiscovery:
+    """Discovers and registers available tools"""
+    
+    def __init__(
+        self,
+        tools_dir: str,
+        router: ToolRouter,
+        registry: ModelRegistry,
+        excluded_dirs: Optional[List[str]] = None
+    ):
+        """
+        Initialize tool discovery.
+        
+        Args:
+            tools_dir: Directory containing tools
+            router: Tool router instance
+            registry: Model registry instance
+            excluded_dirs: List of directories to exclude
+        """
+```
+
+This is the most important and unique snippet because it defines the core functionality of the ToolDiscovery class, including its initialization parameters and docstring. It encapsulates the class's purpose (discovering and registering tools) and provides clear documentation on how to use it, making it essential for understanding the system's entry point.
+--------------------
+
+=== File: snippets/code_dev_eocr.python | 2025-04-12 00:32:06 ===
+** I selected the `__init__` method of the `Tools` class as the best snippet. This is because it directly sets up the Tesseract-OCR configuration, which is a core and unique aspect of the module for handling Optical Character Recognition (OCR). It's the entry point for the class and ties into the module's description of processing scanned PDFs. This snippet is concise, essential for the OCR workflow, and demonstrates how external dependencies (like pytesseract) are integrated.
+
+- **
+--------------------
+
+=== File: snippets/code_app.python | 2025-04-12 00:32:13 ===
+**  
+<best snippet>  
+```python
+@app.route('/api/search/initial', methods=['POST'])
+async def initial_search():
+    try:
+        data = request.json
+        query = data.get('query')
+        if not query:
+            return jsonify({'error': 'No query provided'}), 400
+            
+        # Perform initial search
+        initial_tool_call = {
+            "tool": "google_search",
+            "parameters": {"query": query}
+        }
+        initial_result = await searcher.execute_tool(initial_tool_call)
+        
+        return jsonify({'status': 'success', 'result': initial_result})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+```  
+</best snippet>
+
+- **Alternatives**: These are other notable snippets that provide additional context or unique elements, such as app initialization and a basic route. I included the index route for its simplicity and role in rendering the UI, and a partial snippet from the parallel_search route to highlight its potential for advanced, parallel operations (even though it's incomplete in the provided code).
+
+**
+--------------------
+
+=== File: snippets/code_news.python | 2025-04-12 00:32:19 ===
+** I selected the `execute` method as the best snippet because it encapsulates the primary functionality of the NewsAPITool class. It's asynchronous, handles user input, API interactions, and event emissions, making it the most critical and unique part for integrating news fetching into a larger system (e.g., MoE). This method's docstring also provides clear documentation, which is valuable.
+
+  ```python
+  async def execute(
+      self,
+      query: str,
+      __user__: dict = {},
+      __event_emitter__: Optional[Callable[[Any], Awaitable[None]]] = None
+  ) -> str:
+      """
+      Search for news articles.
+      
+      Args:
+          query: Search query
+          __user__: User context
+          __event_emitter__: Event emitter for progress updates
+          
+      Returns:
+          Formatted article results
+      """
+      # (Note: The original code appears incomplete here, as it ends with "awa".)
+  ```
+
+- **
+--------------------
+
+=== File: snippets/code_runCode.python | 2025-04-12 00:32:27 ===
+```
+"""
+id: run_code
+title: Run code
+description: Run arbitrary Python or Bash code safely in a gVisor sandbox.
+author: EtiennePerot
+author_url: https://github.com/EtiennePerot/safe-code-execution
+funding_url: https://github.com/EtiennePerot/safe-code-execution
+version: 0.8.0
+license: Apache-2.0
+"""
+```
+**Reason for selection:** This is the most important and unique segment because it serves as the primary metadata and description for the tool. It succinctly defines the tool's purpose (running code safely in a sandbox), includes authorship, licensing, and versioning details, and provides links for further reference. It's a self-contained docstring that could be reused or referenced independently.
+
+###
+--------------------
+Links/Citations:
+https://github.com/EtiennePerot/safe-code-execution
+https://github.com/EtiennePerot/safe-code-execution
+--------------------
+
+=== File: snippets/code_styles_1.css | 2025-04-12 00:32:52 ===
+<best snippet>
+```css
+:root {
+    --bg-color: #000000;
+    --text-color: #ffffff;
+    --accent-color: #00ff00;
+    --secondary-color: #333333;
+    --input-bg: #1a1a1a;
+    --step-inactive: #444444;
+    --step-active: var(--accent-color);
+    --step-complete: #00cc00;
+}
+```
+This snippet defines the global CSS variables, which are the most important and unique elements in the file. They establish a consistent dark-themed color scheme and are referenced throughout the stylesheet, making it foundational for the application's visual identity.
+--------------------
+
+=== File: snippets/code_content_extractor.python | 2025-04-12 00:32:59 ===
+```python
+class ContentExtractor:
+    """Extracts text content from various file formats."""
+    
+    def __init__(self, logger: Optional[logging.Logger] = None):
+        """
+        Initialize the content extractor.
+        
+        Args:
+            logger: Optional logger instance
+        """
+        self.logger = logger or get_logger(__name__)
+```
+
+This snippet is the best representation because it defines the core class and its initialization logic. It's unique in how it sets up logging and prepares for file extraction, emphasizing the class's role in handling various file formats with potential fallbacks. The docstring provides clear documentation on the class's purpose and the __init__ method's parameters, making it essential for understanding the module.
+
+###
+--------------------
+
+=== File: snippets/code_unified.python | 2025-04-12 00:33:06 ===
+** This snippet stands out as the most important and unique because it demonstrates robust error handling for an optional dependency (Coze SDK), which is critical for a multi-provider AI application. It ensures the app can gracefully handle import failures without crashing, allowing the system to proceed with other providers.
+
+  ```
+  # Import Coze SDK
+  try:
+      from cozepy import Coze, TokenAuth, Message, ChatEventType, MessageObjectString
+  except Exception as e:
+      logger.error(f"Failed to import cozepy: {str(e)}")
+      Coze = TokenAuth = Message = ChatEventType = MessageObjectString = None
+  ```
+
+- **
+--------------------
+
+=== File: snippets/function_url_to_base64.python | 2025-04-12 00:33:11 ===
+```python
+def url_to_base64():
+    """
+    Convert an image URL to a base64-encoded data URL.
+    Expects JSON payload with:
+      { "url": "https://example.com/image.jpg" }
+    """
+```
+--------------------
+Links/Citations:
+https://example.com/image.jpg"
+--------------------
+
+=== File: snippets/code_mistral-flask.python | 2025-04-12 00:33:16 ===
+Below is my extraction of the most important and unique code snippets or documentation segments from the provided code (from the file `mistral-flask.py`). I focused on elements that are central to the module's functionality, such as API authentication, conversation management, and utility methods. The "Best Version" highlights the most foundational and unique part, which is the `__init__` method of the `MistralChat` class. This is because it sets up the core API client, including authentication and initial conversation state, making it essential for the entire module.
+
+- **Best Version**: I selected the `__init__` method as the best snippet because it encapsulates the initialization of the Mistral API client, including API key handling, headers for authentication, and the setup of conversation history. This is unique to the module's design and serves as the entry point for all interactions.
+
+  ```python
+  class MistralChat:
+      def __init__(self, api_key: str):
+          """Initialize the Mistral client with the provided API key."""
+          self.api_key = api_key
+          self.api_url = "https://api.mistral.ai/v1"
+          self.headers = {
+              "Authorization": f"Bearer {self.api_key}",
+              "Content-Type": "application/json"
+          }
+          # Initialize with system message
+          self.conversation_history = [{
+              "role": "system",
+              "content": "You are a helpful AI assistant focused on accurate and insightful responses."
+          }]
+  ```
+
+- **Alternatives**: These are other notable snippets that provide additional utility or context. I included the `list_models` method as an alternative because it demonstrates a key API interaction (retrieving models), which is unique to the module's functionality for handling Mistral AI resources. It's less foundational than `__init__` but still important for practical use.
+
+  - **Alternative 1: The `list_models` method** (shows how the class handles API queries with parameters for sorting and pagination, highlighting error handling and API integration):
+  
+    ```python
+    def list_models(
+        self,
+        sort_by: str = "created",
+        page: int = 1,
+        page_size: int = 5,
+    ):
+        # (Note: The method body is not fully provided in the original code, so this is based on the available snippet)
+        # This method would typically make a GET request to the API endpoint for listing models.
+    ```
+    
+    This is an alternative because it extends the class's capabilities for model management, but it's incomplete in the provided code. In a full implementation, it would include API calls and error handling, making it a practical utility method.
+--------------------
+Links/Citations:
+https://api.mistral.ai/v1"
+--------------------
+
+=== File: snippets/code_test_direct_api.python | 2025-04-12 00:33:24 ===
+** I selected the `test_client()` function as the best snippet because it is complete, self-contained, and directly demonstrates a key functionality (creating and verifying an API client). It's unique in its simplicity and use of logging with emojis for clear pass/fail feedback, making it an excellent representation of the script's testing approach.
+
+  **
+--------------------

@@ -1,1 +1,0 @@
-Sample content for .c file.

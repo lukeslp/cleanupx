@@ -1,0 +1,31 @@
+# dev_bbc (Code)
+
+**File:** soon/tools_pending/unprocessed/dev_bbc.py  
+**Language:** Python  
+**Lines:** 252  
+
+**Description:** **: This Python module is designed to fetch and process BBC news data. It includes functions to retrieve RSS feeds for various news categories (e.g., world, business, politics) and to extract the full content of specific BBC news articles. The module uses asynchronous operations for handling HTTP requests, includes error handling, and emits status updates. It also defines helper functions and a dictionary of categories for organizing news types. The purpose is to provide a tool for accessing and parsing BBC news programmatically, likely for applications like web scrapers or news aggregators.
+
+```python
+"""
+title: BBC News Feed
+author: @nathanwindisch, with bug fixes by @igna503
+author_url: https://github.com/nathanwindisch, https://github.com/igna503
+funding_url: https://www.patreon.com/NathanWindisch
+version: 0.1.0
+changelog:
+- 0.0.1 - Initial upload to openwebui community.
+- 0.0.2 - Modified formatting slightly.
+- 0.0.3 - Added tool docstring, and this changelog.
+- 0.0.4 - Added funding_url to docstring.
+- 0.0.5 - Updated get_bbc_news_feed function to use a default for 
+          the ArticleType, and updated it's docstring to include 
+          a list of the possible types, to assist the LLM's query.
+- 0.0.6 - Added event emitter to the get_bbc_news_feed function, 
+          to provide status updates to the user as the function 
+          executes. Also wrapped the function in a try/catch, to 
+          handle any exceptions that may occur during execution.
+- 0.0.7 - Fixed a major bug where the type was not being casted 
+          to the ArticleType enum, causing the get_uri functi
+```
+

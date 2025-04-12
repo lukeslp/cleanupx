@@ -1,0 +1,87 @@
+# xai-flask (Code)
+
+**File:** WORKING/flask-alt/xai-flask.py, WORKING/cli/xai.py  
+**Language:** Python  
+**Lines:** 219  
+
+**Description:** **: This module implements a Flask-based interface for interacting with the X.AI API. It supports features like selecting models, streaming responses, and handling multimodal inputs (text and images). The core component is the `XAIChat` class, which initializes a client with an API key, manages conversation history, lists available models with filtering and sorting, encodes images to base64, creates test images, and streams chat responses while maintaining a conversation state.
+
+Additional implementation:
+**: This module provides an interface to the X.AI API for interacting with models like Grok. It includes functionalities for initializing the client, managing conversation history, listing available models, creating test images, streaming chat responses, and a CLI interface for user interaction.
+
+```python
+#!/usr/bin/env python
+"""
+X.AI API Chat Implementation for Flask
+This module provides a Flask interface to the X.AI API with support for:
+- Interactive model selection
+- Response streaming
+- Multimodal inputs (text + images)
+"""
+
+import os
+import sys
+import tempfile
+import io
+import json
+from openai import OpenAI
+from typing import Generator, List, Dict, Optional, Union
+from datetime import datetime
+from base64 import b64encode
+from PIL import Image
+
+class XAIChat:
+    def __init__(self, api_key: str):
+        """Initialize the X.AI client with the provided API key."""
+        self.client = OpenAI(
+            api_key=api_key,
+            base_url="https://api.x.ai/v1"
+        )
+        self.conversation_history = [
+            {
+                "role": "system",
+                "content": "You are Grok, a chatbot inspired by the Hitchhiker's Guide to the Galaxy."
+            }
+        ]
+    
+    def clear_conversation(self):
+        """Clear the conversation history, keeping only the
+
+# Alternative Implementation
+"""
+X.AI API Chat Implementation
+This module provides an interface to the X.AI API with support for:
+- Interactive model selection
+- Response streaming
+- Multimodal inputs (text + images)
+"""
+
+import os
+import sys
+from openai import OpenAI
+from typing import Generator, List, Dict, Optional
+from datetime import datetime
+from base64 import b64encode
+from PIL import Image
+import io
+import requests
+
+class XAIChat:
+    def __init__(self, api_key: str):
+        """Initialize the X.AI client with the provided API key."""
+        self.client = OpenAI(
+            api_key=api_key,
+            base_url="https://api.x.ai/v1"
+        )
+        self.conversation_history = [
+            {
+                "role": "system",
+                "content": "You are Grok, a chatbot inspired by the Hitchhiker's Guide to the Galaxy."
+            }
+        ]
+    
+    def clear_conversation(self):
+        """Clear the conversation history, keeping only the system message."""
+        self.conversation_history = [
+```
+

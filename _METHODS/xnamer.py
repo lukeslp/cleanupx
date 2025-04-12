@@ -105,8 +105,8 @@ except ImportError:
 
 # Constants
 XAI_API_KEY = os.environ.get("XAI_API_KEY", "")
-# Always use the official API endpoint
-XAI_API_BASE = "https://api.assisted.space/v2"
+# Use X.AI's official API endpoint
+XAI_API_BASE = "https://api.x.ai/v1"
 XAI_API_MODEL = os.environ.get("XAI_API_MODEL", "vision")
 API_TIMEOUT = 25  # Timeout for API calls in seconds
 RETRY_ATTEMPTS = 3
@@ -178,6 +178,17 @@ except ImportError:
 if not XAI_API_KEY:
     logger.warning("XAI_API_KEY not found or invalid. The script requires a valid API key to function.")
 
+# Initialize the OpenAI client with X.AI API endpoint
+try:
+    client = openai.Client(
+        api_key=XAI_API_KEY,
+        base_url=XAI_API_BASE,
+    )
+    logger.info(f"Initialized OpenAI client with X.AI endpoint: {XAI_API_BASE}")
+except Exception as e:
+    logger.error(f"Failed to initialize OpenAI client: {e}")
+    client = None
+
 # File Types and Extensions
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.tif', '.heic', '.heif'}
 DOCUMENT_EXTENSIONS = {'.pdf', '.docx', '.doc', '.txt', '.md', '.rtf', '.odt', '.html', '.htm'}
@@ -226,23 +237,11 @@ class XAIClient:
     the X.AI API, with built-in error handling and retry logic.
     """
     
-    def __init__(self, api_key=None):
-        """
-        Initialize the client with API credentials.
+    def __init__(self):
+        """Initialize the client."""
+        # Use the global client
+        self.client = client
         
-        Args:
-            api_key: X.AI API key (defaults to XAI_API_KEY environment variable)
-        """
-        self.api_key = api_key or XAI_API_KEY
-        if not self.api_key:
-            logger.error("X.AI API key not found. Set XAI_API_KEY environment variable.")
-            raise ValueError("X.AI API key not found. Set XAI_API_KEY environment variable.")
-        
-        self.client = openai.Client(
-            api_key=self.api_key,
-            base_url=XAI_API_BASE,
-        )
-    
     def analyze_text(self, text: str, prompt: str, schema: Dict = None, 
                      model: str = DEFAULT_MODEL_TEXT, temperature: float = 0.01,
                      max_retries: int = 3):
@@ -262,6 +261,10 @@ class XAIClient:
         """
         if not OPENAI_AVAILABLE:
             logger.error("OpenAI library not installed. Install with: pip install openai")
+            return None
+            
+        if not self.client:
+            logger.error("OpenAI client not initialized. Cannot make API calls.")
             return None
         
         retries = 0
@@ -283,6 +286,7 @@ class XAIClient:
                     ]
                 
                 # Make the API call
+                logger.debug(f"Making API call to {XAI_API_BASE} with model {model}")
                 response = self.client.chat.completions.create(
                     model=model,
                     messages=messages,
@@ -292,13 +296,49 @@ class XAIClient:
                     response_format={"type": "json_object"} if not schema else None
                 )
                 
+                if not response:
+                    logger.warning(f"Empty response from API")
+                    retries += 1
+                    time.sleep(2 ** retries)
+                    continue
+                
                 # Extract result
-                if schema:
-                    tool_calls = response.choices[0].message.tool_calls
+                if schema and response.choices:
+                    message = response.choices[0].message
+                    if not message or not hasattr(message, 'tool_calls') or not message.tool_calls:
+                        logger.warning(f"No tool calls in response: {response}")
+                        retries += 1
+                        time.sleep(2 ** retries)
+                        continue
+                        
+                    tool_calls = message.tool_calls
                     if tool_calls:
-                        return json.loads(tool_calls[0].function.arguments)
+                        try:
+                            return json.loads(tool_calls[0].function.arguments)
+                        except Exception as e:
+                            logger.error(f"Error parsing tool call arguments: {e}")
+                            retries += 1
+                            time.sleep(2 ** retries)
+                            continue
+                elif response.choices:
+                    try:
+                        content = response.choices[0].message.content
+                        if not content:
+                            logger.warning("Empty content in response")
+                            retries += 1
+                            time.sleep(2 ** retries)
+                            continue
+                        return json.loads(content)
+                    except Exception as e:
+                        logger.error(f"Error parsing response content: {e}")
+                        retries += 1
+                        time.sleep(2 ** retries)
+                        continue
                 else:
-                    return json.loads(response.choices[0].message.content)
+                    logger.warning(f"No choices in response: {response}")
+                    retries += 1
+                    time.sleep(2 ** retries)
+                    continue
                     
             except Exception as e:
                 retries += 1
@@ -308,6 +348,7 @@ class XAIClient:
                     return None
                 time.sleep(2 ** retries)  # Exponential backoff
         
+        logger.error("All API call attempts failed")
         return None
     
     def analyze_image(self, image_data: str, prompt: str, schema: Dict = None, 
@@ -329,6 +370,10 @@ class XAIClient:
         """
         if not OPENAI_AVAILABLE:
             logger.error("OpenAI library not installed. Install with: pip install openai")
+            return None
+            
+        if not self.client:
+            logger.error("OpenAI client not initialized. Cannot make API calls.")
             return None
         
         retries = 0
@@ -354,6 +399,7 @@ class XAIClient:
                 ]
                 
                 # Make the API call
+                logger.debug(f"Making vision API call to {XAI_API_BASE} with model {model}")
                 response = self.client.chat.completions.create(
                     model=model,
                     messages=messages,
@@ -361,9 +407,35 @@ class XAIClient:
                     response_format={"type": "json_object"}
                 )
                 
+                if not response:
+                    logger.warning("Empty response from vision API")
+                    retries += 1
+                    time.sleep(2 ** retries)
+                    continue
+                
                 # Parse JSON response
-                content = response.choices[0].message.content
-                return json.loads(content)
+                if not hasattr(response, 'choices') or not response.choices:
+                    logger.warning(f"No choices in vision API response: {response}")
+                    retries += 1
+                    time.sleep(2 ** retries)
+                    continue
+                    
+                message = response.choices[0].message
+                if not message or not hasattr(message, 'content') or not message.content:
+                    logger.warning(f"No content in vision API response message: {message}")
+                    retries += 1
+                    time.sleep(2 ** retries)
+                    continue
+                
+                content = message.content
+                try:
+                    parsed_content = json.loads(content)
+                    return parsed_content
+                except json.JSONDecodeError as e:
+                    logger.error(f"JSON decode error: {e} for content: {content[:100]}...")
+                    retries += 1
+                    time.sleep(2 ** retries)
+                    continue
                     
             except Exception as e:
                 retries += 1
@@ -373,6 +445,7 @@ class XAIClient:
                     return None
                 time.sleep(2 ** retries)  # Exponential backoff
         
+        logger.error("All vision API call attempts failed")
         return None
 
 # --- Utility Functions ---
@@ -1054,7 +1127,7 @@ def process_image(file_path, cache=None, force=False):
             
             # Call API for analysis
             client = XAIClient()
-            result = client.analyze_image(image_data, prompt)
+            result = client.analyze_image(image_data, prompt, model="grok-2-vision-latest")
             
             # Cleanup temporary files
             cleanup_temp_files(temp_converted)
@@ -1313,11 +1386,20 @@ def process_document(file_path, cache=None, force=False):
         
         # Call API for analysis
         client = XAIClient()
-        result = client.analyze_text(text, prompt)
+        result = client.analyze_text(text, prompt, model="grok-3-mini-latest")
         
         if not result:
-            logger.error(f"Failed to analyze document: {file_path}")
-            return False, None
+            logger.warning(f"API analysis failed for {file_path}, using fallback description")
+            # Create a fallback basic description
+            result = {
+                "title": file_path.stem,
+                "document_type": file_path.suffix.upper().replace('.', ''),
+                "summary": "This document could not be analyzed by the AI service.",
+                "language": "Unknown",
+                "keywords": ["document", file_path.suffix.lower().replace('.', '')],
+                "suggested_filename": clean_filename(file_path.stem),
+                "citations": []
+            }
         
         # Add file metadata
         result['file_size'] = f"{metadata['size_mb']:.2f} MB"

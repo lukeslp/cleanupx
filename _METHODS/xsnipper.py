@@ -1030,13 +1030,10 @@ def synthesize_final_results(batch_results, verbose=False):
         combined_text += f"\n\n## {batch_name}\n{content}\n"
     
     prompt = (
-        f"You are performing a final evaluation of multiple batches of code snippets that have "
-        f"already been analyzed and optimized. Your task is to:\n"
-        f"1. Identify the most important and unique snippets across all batches\n"
-        f"2. Remove any duplicated content or redundancies\n"
-        f"3. Organize the content in a logical, coherent manner\n"
-        f"4. Preserve critically important code and documentation\n\n"
-        f"Create a final consolidated document that represents the best subset of all content.\n\n"
+        f"You are reviewing several batches of code snippets that have already been optimized. "
+        f"Your task is to create a final consolidated document that retains a balanced subset (around 50%) of the available content. "
+        f"Make sure to include complete API interactions, especially those involving chat APIs, while reducing duplicate or redundant code. "
+        f"Organize the content logically and preserve vital code segments and documentation for a comprehensive overview.\n\n"
         f"Batch Results:{combined_text}"
     )
     

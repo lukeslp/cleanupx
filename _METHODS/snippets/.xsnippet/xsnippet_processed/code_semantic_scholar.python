@@ -1,0 +1,48 @@
+# semantic_scholar (Code)
+
+**File:** filellama/api/semantic_scholar.py  
+**Language:** Python  
+**Lines:** 238  
+
+**Description:** **: This code defines a class that serves as a client for the Semantic Scholar API. Its primary purpose is to facilitate interactions with the API for searching academic papers and retrieving metadata. It includes initialization with optional parameters like API key and logger, methods for searching papers by query and fetching papers by DOI, error handling with retries, and utility functions for processing API responses. This class is likely used in a broader application for tasks like reference management or academic research.  
+
+```python
+"""
+Semantic Scholar API integration module for Reference Renamer.
+Handles searching and retrieving paper metadata from Semantic Scholar.
+"""
+
+import logging
+from typing import Dict, Any, List, Optional
+import json
+
+import aiohttp
+import backoff
+
+from ..utils.exceptions import APIError
+from ..utils.logging import get_logger
+
+class SemanticScholarAPI:
+    """Client for interacting with Semantic Scholar API."""
+    
+    def __init__(
+        self,
+        base_url: str = "https://api.semanticscholar.org/v1",
+        api_key: Optional[str] = None,
+        logger: Optional[logging.Logger] = None
+    ):
+        """
+        Initialize Semantic Scholar API client.
+        
+        Args:
+            base_url: Base URL for Semantic Scholar API
+            api_key: Optional API key for higher rate limits
+            logger: Optional logger instance
+        """
+        self.base_url = base_url
+        self.api_key = api_key
+        self.logger = logger or get_logger(__name__)
+        
+    def _ge
+```
+

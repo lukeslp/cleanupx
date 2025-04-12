@@ -1,0 +1,52 @@
+# base (Code)
+
+**File:** moe/servers/base.py  
+**Language:** Python  
+**Lines:** 161  
+
+**Description:** **: This code defines a base class for setting up a FastAPI server that interacts with an Ollama model. It includes initialization of the server with a model name, port, host, and debug options. It sets up routes for health checks and chat functionalities, handles message processing by forwarding requests to the Ollama API, and manages responses and errors. The purpose is to provide a foundational structure for model servers that can be extended for specific models.  
+
+```python
+"""
+Base server class for model endpoints.
+"""
+
+import os
+import json
+import logging
+from typing import Dict, Any, Optional
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import httpx
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class Message(BaseModel):
+    """Message model for requests"""
+    content: str
+    task_id: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+class Response(BaseModel):
+    """Response model for all endpoints"""
+    status: str
+    task_id: Optional[str] = None
+    content: Optional[str] = None
+    error: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+
+class BaseModelServer:
+    """Base class for all model servers"""
+    
+    DEFAULT_PORT = 6000  # Base port, each model type will offset from this
+    OLLAMA_API = "http://localhost:11434/api"
+    
+    def __init__(
+        self,
+        model_name: str,
+        port: Optional[int] = None,
+     
+```
+

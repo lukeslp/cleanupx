@@ -583,3 +583,106 @@
 [2025-04-12 00:28:39] Error archiving alternatives for snippets/code_metadata_utils.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_metadata_utils.python_alternatives.md'
 [2025-04-12 00:28:39] Moved processed file snippets/code_metadata_utils.python to snippets/.xsnippet/xsnippet_processed/code_metadata_utils.python
 [2025-04-12 00:28:39] Processing file: snippets/code_dev_epaperless.python
+[2025-04-12 00:28:56] Error archiving alternatives for snippets/code_dev_epaperless.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_dev_epaperless.python_alternatives.md'
+[2025-04-12 00:28:56] Moved processed file snippets/code_dev_epaperless.python to snippets/.xsnippet/xsnippet_processed/code_dev_epaperless.python
+[2025-04-12 00:28:56] Processing file: snippets/code_dev_eyahoo_finance.python
+[2025-04-12 00:29:02] Moved processed file snippets/code_dev_eyahoo_finance.python to snippets/.xsnippet/xsnippet_processed/code_dev_eyahoo_finance.python
+[2025-04-12 00:29:02] Processing file: snippets/code_process_utils.python
+[2025-04-12 00:29:08] Error archiving alternatives for snippets/code_process_utils.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_process_utils.python_alternatives.md'
+[2025-04-12 00:29:08] Moved processed file snippets/code_process_utils.python to snippets/.xsnippet/xsnippet_processed/code_process_utils.python
+[2025-04-12 00:29:26] Batch 8 results written to snippets/.xsnippet/batches/batch_8_combined.md
+[2025-04-12 00:29:26] Processing batch 9/10
+[2025-04-12 00:29:26] Processing file: snippets/code__football_api.python
+[2025-04-12 00:29:32] Error archiving alternatives for snippets/code__football_api.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code__football_api.python_alternatives.md'
+[2025-04-12 00:29:32] Moved processed file snippets/code__football_api.python to snippets/.xsnippet/xsnippet_processed/code__football_api.python
+[2025-04-12 00:29:32] Processing file: snippets/code_server_1.python
+[2025-04-12 00:29:38] Moved processed file snippets/code_server_1.python to snippets/.xsnippet/xsnippet_processed/code_server_1.python
+[2025-04-12 00:29:38] Processing file: snippets/code_observer.python
+[2025-04-12 00:29:43] Error archiving alternatives for snippets/code_observer.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_observer.python_alternatives.md'
+[2025-04-12 00:29:43] Moved processed file snippets/code_observer.python to snippets/.xsnippet/xsnippet_processed/code_observer.python
+[2025-04-12 00:29:43] Processing file: snippets/code_belter.python
+[2025-04-12 00:29:50] Error archiving alternatives for snippets/code_belter.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_belter.python_alternatives.md'
+[2025-04-12 00:29:50] Moved processed file snippets/code_belter.python to snippets/.xsnippet/xsnippet_processed/code_belter.python
+[2025-04-12 00:29:50] Processing file: snippets/code_semantic_scholar.python
+[2025-04-12 00:29:57] Error archiving alternatives for snippets/code_semantic_scholar.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_semantic_scholar.python_alternatives.md'
+[2025-04-12 00:29:57] Moved processed file snippets/code_semantic_scholar.python to snippets/.xsnippet/xsnippet_processed/code_semantic_scholar.python
+[2025-04-12 00:29:57] Processing file: snippets/code_coze_analyzer.python
+[2025-04-12 00:30:02] Error archiving alternatives for snippets/code_coze_analyzer.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_coze_analyzer.python_alternatives.md'
+[2025-04-12 00:30:02] Moved processed file snippets/code_coze_analyzer.python to snippets/.xsnippet/xsnippet_processed/code_coze_analyzer.python
+[2025-04-12 00:30:02] Processing file: snippets/code_doc_processor.python
+[2025-04-12 00:30:06] Error archiving alternatives for snippets/code_doc_processor.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_doc_processor.python_alternatives.md'
+[2025-04-12 00:30:06] Moved processed file snippets/code_doc_processor.python to snippets/.xsnippet/xsnippet_processed/code_doc_processor.python
+[2025-04-12 00:30:06] Processing file: snippets/code_ollama_coderunner.python
+[2025-04-12 00:30:13] Error archiving alternatives for snippets/code_ollama_coderunner.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_ollama_coderunner.python_alternatives.md'
+[2025-04-12 00:30:13] Moved processed file snippets/code_ollama_coderunner.python to snippets/.xsnippet/xsnippet_processed/code_ollama_coderunner.python
+[2025-04-12 00:30:13] Processing file: snippets/code_media_utils.javascript
+[2025-04-12 00:30:22] Error archiving alternatives for snippets/code_media_utils.javascript: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_media_utils.javascript_alternatives.md'
+[2025-04-12 00:30:22] Moved processed file snippets/code_media_utils.javascript to snippets/.xsnippet/xsnippet_processed/code_media_utils.javascript
+[2025-04-12 00:30:22] Processing file: snippets/code_xai-flask.python
+[2025-04-12 00:30:31] Moved processed file snippets/code_xai-flask.python to snippets/.xsnippet/xsnippet_processed/code_xai-flask.python
+[2025-04-12 00:30:31] Processing file: snippets/code_test_llm_integration.python
+[2025-04-12 00:30:39] Error archiving alternatives for snippets/code_test_llm_integration.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_test_llm_integration.python_alternatives.md'
+[2025-04-12 00:30:39] Moved processed file snippets/code_test_llm_integration.python to snippets/.xsnippet/xsnippet_processed/code_test_llm_integration.python
+[2025-04-12 00:30:39] Processing file: snippets/code_ollama_wayback.python
+[2025-04-12 00:30:45] Error archiving alternatives for snippets/code_ollama_wayback.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_ollama_wayback.python_alternatives.md'
+[2025-04-12 00:30:45] Moved processed file snippets/code_ollama_wayback.python to snippets/.xsnippet/xsnippet_processed/code_ollama_wayback.python
+[2025-04-12 00:30:45] Processing file: snippets/code_patreon_api.python
+[2025-04-12 00:30:53] Error archiving alternatives for snippets/code_patreon_api.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_patreon_api.python_alternatives.md'
+[2025-04-12 00:30:53] Moved processed file snippets/code_patreon_api.python to snippets/.xsnippet/xsnippet_processed/code_patreon_api.python
+[2025-04-12 00:30:53] Processing file: snippets/code_ollama_arxiv.python
+[2025-04-12 00:31:00] Error archiving alternatives for snippets/code_ollama_arxiv.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_ollama_arxiv.python_alternatives.md'
+[2025-04-12 00:31:00] Moved processed file snippets/code_ollama_arxiv.python to snippets/.xsnippet/xsnippet_processed/code_ollama_arxiv.python
+[2025-04-12 00:31:00] Processing file: snippets/code_client.python
+[2025-04-12 00:31:05] Moved processed file snippets/code_client.python to snippets/.xsnippet/xsnippet_processed/code_client.python
+[2025-04-12 00:31:05] Processing file: snippets/code_dev_bbc.python
+[2025-04-12 00:31:14] Moved processed file snippets/code_dev_bbc.python to snippets/.xsnippet/xsnippet_processed/code_dev_bbc.python
+[2025-04-12 00:31:14] Processing file: snippets/code_tool_archive_wayback.python
+[2025-04-12 00:31:24] Moved processed file snippets/code_tool_archive_wayback.python to snippets/.xsnippet/xsnippet_processed/code_tool_archive_wayback.python
+[2025-04-12 00:31:24] Processing file: snippets/code_error_handling.javascript
+[2025-04-12 00:31:34] Error archiving alternatives for snippets/code_error_handling.javascript: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_error_handling.javascript_alternatives.md'
+[2025-04-12 00:31:34] Moved processed file snippets/code_error_handling.javascript to snippets/.xsnippet/xsnippet_processed/code_error_handling.javascript
+[2025-04-12 00:31:34] Processing file: snippets/code_knowledge_dictionary.python
+[2025-04-12 00:31:42] Error archiving alternatives for snippets/code_knowledge_dictionary.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_knowledge_dictionary.python_alternatives.md'
+[2025-04-12 00:31:42] Moved processed file snippets/code_knowledge_dictionary.python to snippets/.xsnippet/xsnippet_processed/code_knowledge_dictionary.python
+[2025-04-12 00:31:42] Processing file: snippets/code_base_2.python
+[2025-04-12 00:31:50] Error archiving alternatives for snippets/code_base_2.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_base_2.python_alternatives.md'
+[2025-04-12 00:31:50] Moved processed file snippets/code_base_2.python to snippets/.xsnippet/xsnippet_processed/code_base_2.python
+[2025-04-12 00:31:50] Processing file: snippets/code_discovery.python
+[2025-04-12 00:31:56] Error archiving alternatives for snippets/code_discovery.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_discovery.python_alternatives.md'
+[2025-04-12 00:31:56] Moved processed file snippets/code_discovery.python to snippets/.xsnippet/xsnippet_processed/code_discovery.python
+[2025-04-12 00:31:56] Processing file: snippets/code_dev_eocr.python
+[2025-04-12 00:32:06] Error archiving alternatives for snippets/code_dev_eocr.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_dev_eocr.python_alternatives.md'
+[2025-04-12 00:32:06] Moved processed file snippets/code_dev_eocr.python to snippets/.xsnippet/xsnippet_processed/code_dev_eocr.python
+[2025-04-12 00:32:06] Processing file: snippets/code_app.python
+[2025-04-12 00:32:13] Error archiving alternatives for snippets/code_app.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_app.python_alternatives.md'
+[2025-04-12 00:32:13] Moved processed file snippets/code_app.python to snippets/.xsnippet/xsnippet_processed/code_app.python
+[2025-04-12 00:32:13] Processing file: snippets/code_news.python
+[2025-04-12 00:32:19] Error archiving alternatives for snippets/code_news.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_news.python_alternatives.md'
+[2025-04-12 00:32:19] Moved processed file snippets/code_news.python to snippets/.xsnippet/xsnippet_processed/code_news.python
+[2025-04-12 00:32:19] Processing file: snippets/code_runCode.python
+[2025-04-12 00:32:27] Error archiving alternatives for snippets/code_runCode.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_runCode.python_alternatives.md'
+[2025-04-12 00:32:27] Moved processed file snippets/code_runCode.python to snippets/.xsnippet/xsnippet_processed/code_runCode.python
+[2025-04-12 00:32:46] Batch 9 results written to snippets/.xsnippet/batches/batch_9_combined.md
+[2025-04-12 00:32:46] Processing batch 10/10
+[2025-04-12 00:32:46] Processing file: snippets/code_styles_1.css
+[2025-04-12 00:32:52] Error archiving alternatives for snippets/code_styles_1.css: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_styles_1.css_alternatives.md'
+[2025-04-12 00:32:52] Moved processed file snippets/code_styles_1.css to snippets/.xsnippet/xsnippet_processed/code_styles_1.css
+[2025-04-12 00:32:52] Processing file: snippets/code_content_extractor.python
+[2025-04-12 00:32:59] Error archiving alternatives for snippets/code_content_extractor.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_content_extractor.python_alternatives.md'
+[2025-04-12 00:32:59] Moved processed file snippets/code_content_extractor.python to snippets/.xsnippet/xsnippet_processed/code_content_extractor.python
+[2025-04-12 00:32:59] Processing file: snippets/code_unified.python
+[2025-04-12 00:33:06] Error archiving alternatives for snippets/code_unified.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/code_unified.python_alternatives.md'
+[2025-04-12 00:33:06] Moved processed file snippets/code_unified.python to snippets/.xsnippet/xsnippet_processed/code_unified.python
+[2025-04-12 00:33:06] Processing file: snippets/function_url_to_base64.python
+[2025-04-12 00:33:11] Error archiving alternatives for snippets/function_url_to_base64.python: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/function_url_to_base64.python_alternatives.md'
+[2025-04-12 00:33:11] Moved processed file snippets/function_url_to_base64.python to snippets/.xsnippet/xsnippet_processed/function_url_to_base64.python
+[2025-04-12 00:33:11] Processing file: snippets/code_mistral-flask.python
+[2025-04-12 00:33:16] Moved processed file snippets/code_mistral-flask.python to snippets/.xsnippet/xsnippet_processed/code_mistral-flask.python
+[2025-04-12 00:33:16] Processing file: snippets/code_test_direct_api.python
+[2025-04-12 00:33:24] Moved processed file snippets/code_test_direct_api.python to snippets/.xsnippet/xsnippet_processed/code_test_direct_api.python
+[2025-04-12 00:33:36] Batch 10 results written to snippets/.xsnippet/batches/batch_10_combined.md
+[2025-04-12 00:33:36] Starting final sweep across all batches
+[2025-04-12 00:33:54] Final combined document written to snippets/.xsnippet/final/final_combined.md
+[2025-04-12 00:33:54] Created visible copy at snippets/snippets_folder_combined.md
+[2025-04-12 00:34:09] Project summary updated.
+[2025-04-12 00:34:09] Processing complete.
