@@ -64,5 +64,36 @@
             "Africa",
             "Oceania"
         ]
+    },
+    "../highres/worlds_deadliest_animals_infographic_956x5396.png:1744234710.3595736": {
+        "description": "The image is an infographic titled 'World's Deadliest Animals' which shows the number of people killed by various animals in 2015. The data is presented in a bar chart format at the top, with each square representing 500 human deaths, totaling an estimated 1,537,186 deaths worldwide. Below the chart, each animal is depicted with an icon and the number of deaths they caused. The animals and their respective death tolls are as follows:\n\n- **Mosquito**: 830,000 deaths, depicted with a red mosquito icon.\n- **Human**: 580,000 deaths, depicted with a blue human figure icon.\n- **Snake**: 60,000 deaths, depicted with a yellow snake icon.\n- **Sandfly**: 24,200 deaths, depicted with a green sandfly icon.\n- **Dog**: 17,400 deaths, depicted with an orange dog icon.\n- **Kissing bug**: 8,000 deaths, depicted with a blue kissing bug icon.\n- **Freshwater snail**: 4,400 deaths, depicted with a pink freshwater snail icon.\n- **Scorpion**: 3,500 deaths, depicted with a light blue scorpion icon.\n- **Tsetse fly**: 3,500 deaths, depicted with a light blue tsetse fly icon.\n- **Ascaris roundworm**: 2,700 deaths, depicted with a green roundworm icon.\n- **Tapeworm**: 1,600 deaths, depicted with a purple tapeworm icon.\n- **Crocodile**: 1,000 deaths, depicted with a blue crocodile icon.\n- **Hippopotamus**: 500 deaths, depicted with a brown hippopotamus icon.\n- **Elephant**: 100 deaths, depicted with a brown elephant icon.\n- **Lion**: 100 deaths, depicted with an orange lion icon.\n- **Bee**: 60 deaths, depicted with a green bee icon.\n- **Tiger**: 50 deaths, depicted with a gray tiger icon.\n- **Jellyfish**: 40 deaths, depicted with a pink jellyfish icon.\n- **Wolf**: 10 deaths, depicted with a gray wolf icon.\n- **Shark**: 6 deaths, depicted with a purple shark icon.\n\nAt the bottom, the sources of the data are listed: IHME, WHO, CrocoBITE, FAO, Norwegian Institute for Nature Research, International Shark Attack File, National Geographic, PBS, National Science Foundation, CDC, WWF, French Institute of Research for Development, Wilderness & Environmental Medicine, Nature. It is noted that all calculations have wide error margins.",
+        "alt_text": "Infographic showing the number of people killed by various animals in 2015, with mosquitoes causing the most deaths at 830,000 and sharks the least at 6. Each animal is represented by an icon and a death toll.",
+        "suggested_filename": "worlds_deadliest_animals_2015_death_toll",
+        "tags": [
+            "deadliest animals",
+            "death toll",
+            "2015",
+            "infographic",
+            "mosquito",
+            "human",
+            "snake",
+            "sandfly",
+            "dog",
+            "kissing bug",
+            "freshwater snail",
+            "scorpion",
+            "tsetse fly",
+            "ascaris roundworm",
+            "tapeworm",
+            "crocodile",
+            "hippopotamus",
+            "elephant",
+            "lion",
+            "bee",
+            "tiger",
+            "jellyfish",
+            "wolf",
+            "shark"
+        ]
     }
 }

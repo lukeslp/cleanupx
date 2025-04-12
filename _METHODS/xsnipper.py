@@ -1273,3 +1273,868 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+#     ### POTENTIALLY USEFUL SNIPPETS - EVALUATE TO INCLUDE FOR NEW FUNCTIONALITY
+# 
+# def is_meaningful_code(text: str) -> bool:
+#     """
+#     Determine if a code snippet is meaningful enough to keep.
+#     
+#     Filters out:
+#     - Empty or whitespace-only snippets
+#     - Simple __init__ files
+#     - Basic imports only
+#     - Single-line assignments
+#     - Common boilerplate
+#     
+#     Args:
+#         text: Code snippet to analyze
+#         
+#     Returns:
+#         True if the snippet is meaningful, False otherwise
+#     """
+#     # Remove empty or whitespace-only snippets
+#     if not text.strip():
+#         return False
+#         
+#     # Try to parse as Python code
+#     try:
+#         tree = ast.parse(text)
+#         
+#         # Count meaningful nodes (excluding imports, simple assignments, etc.)
+#         meaningful_nodes = 0
+#         total_nodes = 0
+#         
+#         for node in ast.walk(tree):
+#             total_nodes += 1
+#             
+#             # Skip imports
+#             if isinstance(node, (ast.Import, ast.ImportFrom)):
+#                 continue
+#                 
+#             # Skip simple assignments (e.g., VERSION = "1.0.0")
+#             if isinstance(node, ast.Assign) and len(node.targets) == 1:
+#                 if isinstance(node.value, (ast.Str, ast.Num, ast.NameConstant)):
+#                     continue
+#             
+#             # Skip empty __init__ files
+#             if isinstance(node, ast.Module) and len(node.body) <= 2:
+#                 if all(isinstance(n, (ast.Import, ast.ImportFrom)) for n in node.body):
+#                     return False
+#             
+#             meaningful_nodes += 1
+#         
+#         # Require a minimum number of meaningful nodes
+#         if meaningful_nodes < 3:
+#             return False
+#             
+#         # Require a minimum ratio of meaningful to total nodes
+#         if meaningful_nodes / total_nodes < 0.3:
+#             return False
+#             
+#     except SyntaxError:
+#         # If it's not valid Python, check for other meaningful patterns
+#         lines = text.strip().split('\n')
+#         
+#         # Skip if too short
+#         if len(lines) < 3:
+#             return False
+#             
+#         # Skip if mostly imports or simple assignments
+#         meaningful_lines = 0
+#         for line in lines:
+#             line = line.strip()
+#             if not line:
+#                 continue
+#             if line.startswith(('import ', 'from ')):
+#                 continue
+#             if re.match(r'^[A-Z_]+\s*=\s*["\'].*["\']$', line):
+#                 continue
+#             meaningful_lines += 1
+#         
+#         if meaningful_lines < 3:
+#             return False
+#     
+#     return True
+# 
+# def extract_code_snippets(file_path: Path) -> List[Tuple[str, str]]:
+#     """
+#     Extract meaningful code snippets from a file.
+#     
+#     Args:
+#         file_path: Path to the file
+#         
+#     Returns:
+#         List of (snippet_name, snippet_text) tuples
+#     """
+#     try:
+#         with open(file_path, 'r', encoding='utf-8') as f:
+#             content = f.read()
+#     except Exception as e:
+#         logger.error(f"Error reading {file_path}: {e}")
+#         return []
+#     
+#     snippets = []
+#     
+#     # Try to parse as Python code
+#     try:
+#         tree = ast.parse(content)
+#         
+#         # Extract classes and functions
+#         for node in ast.walk(tree):
+#             if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
+#                 snippet_text = ast.get_source_segment(content, node)
+#                 if snippet_text and is_meaningful_code(snippet_text):
+#                     snippet_name = f"{node.name}"
+#                     snippets.append((snippet_name, snippet_text))
+#                     
+#     except SyntaxError:
+#         # If not valid Python, try to extract blocks based on indentation
+#         lines = content.split('\n')
+#         current_block = []
+#         current_indent = 0
+#         
+#         for line in lines:
+#             if not line.strip():
+#                 continue
+#                 
+#             indent = len(line) - len(line.lstrip())
+#             
+#             # Start of a new block
+#             if not current_block or indent > current_indent:
+#                 current_block.append(line)
+#                 current_indent = indent
+#             # End of current block
+#             elif indent < current_indent:
+#                 block_text = '\n'.join(current_block)
+#                 if is_meaningful_code(block_text):
+#                     # Try to extract a meaningful name from the first line
+#                     first_line = current_block[0].strip()
+#                     name_match = re.search(r'(?:def|class|function)\s+(\w+)', first_line)
+#                     name = name_match.group(1) if name_match else "snippet"
+#                     snippets.append((name, block_text))
+#                 current_block = [line]
+#                 current_indent = indent
+#             # Continue current block
+#             else:
+#                 current_block.append(line)
+#     
+#     return snippets
+# 
+# def find_similar_snippets(directory: Path, similarity_threshold: float = DEFAULT_SIMILARITY_THRESHOLD) -> Dict[str, List[Tuple[str, str, Path]]]:
+#     """
+#     Find groups of similar code snippets in a directory.
+#     
+#     Args:
+#         directory: Directory to scan for snippets
+#         similarity_threshold: Threshold for considering snippets similar
+#         
+#     Returns:
+#         Dictionary mapping group IDs to lists of (name, text, source_file) tuples
+#     """
+#     # Get all Python and text files
+#     all_files = []
+#     for ext in ['.py', '.python', '.txt']:
+#         all_files.extend(directory.glob(f"**/*{ext}"))
+#     
+#     logger.info(f"Found {len(all_files)} files to analyze in {directory}")
+#     
+#     # Extract snippets from all files
+#     all_snippets = []
+#     for file_path in all_files:
+#         try:
+#             snippets = extract_code_snippets(file_path)
+#             for name, text in snippets:
+#                 all_snippets.append((name, text, file_path))
+#         except Exception as e:
+#             logger.error(f"Error processing {file_path}: {e}")
+#     
+#     logger.info(f"Extracted {len(all_snippets)} meaningful code snippets")
+#     
+#     # Group similar snippets
+#     similar_groups = {}
+#     processed_snippets = set()
+#     group_id = 0
+#     
+#     for i, (name1, text1, file1) in enumerate(all_snippets):
+#         if i in processed_snippets:
+#             continue
+#             
+#         # Start a new group
+#         current_group = [(name1, text1, file1)]
+#         processed_snippets.add(i)
+#         
+#         # Find similar snippets
+#         for j, (name2, text2, file2) in enumerate(all_snippets):
+#             if i == j or j in processed_snippets:
+#                 continue
+#                 
+#             # Check similarity
+#             similarity = calculate_similarity(text1, text2)
+#             if similarity >= similarity_threshold:
+#                 current_group.append((name2, text2, file2))
+#                 processed_snippets.add(j)
+#         
+#         # Only add groups with multiple snippets
+#         if len(current_group) > 1:
+#             similar_groups[f"group_{group_id}"] = current_group
+#             group_id += 1
+#     
+#     logger.info(f"Found {len(similar_groups)} groups of similar snippets")
+#     return similar_groups
+# 
+# def merge_snippet_group(group: List[Tuple[str, str, Path]], output_dir: Path, 
+#                        group_name: str) -> Tuple[Path, List[Path]]:
+#     """
+#     Merge a group of similar code snippets into a definitive version.
+#     
+#     Args:
+#         group: List of (name, text, source_file) tuples for similar snippets
+#         output_dir: Directory to save the merged snippet
+#         group_name: Name of the snippet group
+#         
+#     Returns:
+#         Tuple of (path to merged snippet, list of source files)
+#     """
+#     names = [n for n, _, _ in group]
+#     texts = [t for _, t, _ in group]
+#     files = [f for _, _, f in group]
+#     
+#     # Determine the best snippet to use as base
+#     best_idx = select_best_snippet(names, texts)
+#     best_name = names[best_idx]
+#     best_text = texts[best_idx]
+#     
+#     # Create a prompt for the language model to merge the snippets
+#     prompt = f"""
+# I need to merge these {len(group)} similar code snippets into one optimized version.
+# The snippets are different implementations or variations of similar functionality.
+# 
+# Here are the snippets:
+# 
+# {'-' * 40}
+# BASE SNIPPET: {best_name}
+# {'-' * 40}
+# {best_text}
+# {'-' * 40}
+# 
+# """
+#     
+#     # Add other snippets
+#     for i, (name, text, _) in enumerate(group):
+#         if i != best_idx:
+#             prompt += f"""
+# ALTERNATIVE VERSION: {name}
+# {'-' * 40}
+# {text}
+# {'-' * 40}
+# """
+#     
+#     prompt += """
+# Create a merged version that:
+# 1. Combines the best aspects of each implementation
+# 2. Uses modern and efficient coding practices
+# 3. Includes comprehensive error handling
+# 4. Has clear documentation and type hints
+# 5. Maintains compatibility with all use cases
+# 6. Removes any redundant or unnecessary code
+# 
+# Return ONLY the final merged code. Do not include explanations or snippet names.
+# """
+#     
+#     # Call the language model to merge the snippets
+#     try:
+#         # Create a basic function schema for text generation
+#         merge_function_schema = {
+#             "name": "merge_snippets",
+#             "description": "Merge multiple code snippets into one optimized version",
+#             "parameters": {
+#                 "type": "object",
+#                 "properties": {
+#                     "merged_code": {
+#                         "type": "string",
+#                         "description": "The merged and optimized code combining the best parts of all snippets"
+#                     }
+#                 },
+#                 "required": ["merged_code"]
+#             }
+#         }
+#         
+#         # Call the API
+#         result = call_xai_api(model=XAI_MODEL_TEXT, prompt=prompt, function_schema=merge_function_schema)
+#         merged_text = result.get("merged_code", best_text)
+#     except Exception as e:
+#         logger.error(f"Error calling language model API: {e}")
+#         merged_text = best_text
+#         logger.info(f"Using best snippet as fallback due to API error")
+#     
+#     # Create a meaningful name for the merged file
+#     timestamp = datetime.now().strftime("%Y%m%d")
+#     output_file = output_dir / f"snippet_{clean_filename(best_name)}_{timestamp}.py"
+#     output_file.parent.mkdir(parents=True, exist_ok=True)
+#     
+#     # Save the merged content
+#     try:
+#         with open(output_file, 'w', encoding='utf-8') as f:
+#             f.write(merged_text)
+#             
+#         # Create an accompanying metadata file
+#         meta_file = output_file.with_suffix('.meta.json')
+#         import json
+#         with open(meta_file, 'w', encoding='utf-8') as f:
+#             json.dump({
+#                 "name": best_name,
+#                 "group_id": group_name,
+#                 "source_files": [str(f) for f in files],
+#                 "timestamp": datetime.now().isoformat(),
+#                 "similarity_threshold": DEFAULT_SIMILARITY_THRESHOLD
+#             }, f, indent=2)
+#             
+#         logger.info(f"Created merged snippet at {output_file}")
+#     except Exception as e:
+#         logger.error(f"Error saving merged snippet: {e}")
+#         return None, files
+#     
+#     return output_file, files
+# 
+# def select_best_snippet(names: List[str], texts: List[str]) -> int:
+#     """
+#     Select the best snippet to use as a base for merging.
+#     
+#     Args:
+#         names: List of snippet names
+#         texts: List of snippet texts
+#         
+#     Returns:
+#         Index of the best snippet
+#     """
+#     scores = []
+#     
+#     for i, (name, text) in enumerate(zip(names, texts)):
+#         score = 0
+#         
+#         # Prefer longer snippets (more comprehensive)
+#         score += len(text) / 100  # Length factor
+#         
+#         # Prefer snippets with docstrings
+#         if '"""' in text or "'''" in text:
+#             score += 10
+#         
+#         # Prefer snippets with type hints
+#         if re.search(r':\s*[A-Z][A-Za-z]*[\[\],\s]*', text):
+#             score += 5
+#         
+#         # Prefer snippets with error handling
+#         if 'try:' in text:
+#             score += 5
+#         
+#         # Prefer snippets with comments
+#         score += 2 * len(re.findall(r'#.*$', text, re.MULTILINE))
+#         
+#         # Prefer descriptive names
+#         score += len(name.split('_'))
+#         
+#         scores.append(score)
+#     
+#     # Return index of snippet with highest score
+#     return scores.index(max(scores))
+# 
+# def merge_code_snippets(
+
+
+#!/usr/bin/env python3
+"""
+Code documentation generator for CleanupX.
+
+This module provides functionality to analyze code files
+and generate comprehensive documentation.
+"""
+# 
+# import os
+# import re
+# import logging
+# from pathlib import Path
+# from typing import Dict, List, Optional, Any, Tuple, Set
+# 
+# from cleanupx.utils.common import read_text_file, is_ignored_file
+# 
+# # Configure logging
+# logger = logging.getLogger(__name__)
+# 
+# # Constants for supported languages
+# LANGUAGE_INFO = {
+#     ".py": {
+#         "name": "Python",
+#         "class_pattern": r"class\s+(\w+)(?:\(([^)]*)\))?:",
+#         "function_pattern": r"def\s+(\w+)\s*\(([^)]*)\)(?:\s*->\s*([^:]*))?\s*:",
+#         "docstring_pattern": r'"""(.*?)"""',
+#         "comment_pattern": r"#\s*(.*)",
+#         "module_docstring_pattern": r'^"""(.*?)"""',
+#         "multi_line_start": '"""',
+#         "multi_line_end": '"""',
+#         "import_pattern": r"(?:import|from)\s+([^;\n]+)",
+#     },
+#     ".js": {
+#         "name": "JavaScript",
+#         "class_pattern": r"class\s+(\w+)(?:\s+extends\s+([^\s{]+))?",
+#         "function_pattern": r"(?:function\s+(\w+)|(?:const|let|var)\s+(\w+)\s*=\s*(?:function|\([^)]*\)\s*=>))",
+#         "docstring_pattern": r"/\*\*(.*?)\*/",
+#         "comment_pattern": r"//\s*(.*)",
+#         "module_docstring_pattern": r"^/\*\*(.*?)\*/",
+#         "multi_line_start": "/*",
+#         "multi_line_end": "*/",
+#         "import_pattern": r"(?:import|require)\s*\(?\s*['\"]([^'\"]+)",
+#     },
+#     ".ts": {
+#         "name": "TypeScript",
+#         "class_pattern": r"class\s+(\w+)(?:\s+extends\s+([^\s{]+))?",
+#         "function_pattern": r"(?:function\s+(\w+)|(?:const|let|var)\s+(\w+)\s*=\s*(?:function|\([^)]*\)\s*=>)|(?:(\w+)\([^)]*\)\s*:\s*[^{]*)|(?:(\w+)\s*:\s*(?:Function|[^=;]*=>\s*[^=;]*)))",
+#         "docstring_pattern": r"/\*\*(.*?)\*/",
+#         "comment_pattern": r"//\s*(.*)",
+#         "module_docstring_pattern": r"^/\*\*(.*?)\*/",
+#         "multi_line_start": "/*",
+#         "multi_line_end": "*/",
+#         "import_pattern": r"(?:import|from)\s+['\"]([^'\"]+)",
+#     },
+#     ".java": {
+#         "name": "Java",
+#         "class_pattern": r"(?:public|private|protected)?\s*class\s+(\w+)(?:\s+extends\s+([^\s{]+))?",
+#         "function_pattern": r"(?:public|private|protected)?\s*(?:static)?\s*(?:[\w<>[\],\s]+)\s+(\w+)\s*\(([^)]*)\)",
+#         "docstring_pattern": r"/\*\*(.*?)\*/",
+#         "comment_pattern": r"//\s*(.*)",
+#         "module_docstring_pattern": r"^/\*\*(.*?)\*/",
+#         "multi_line_start": "/*",
+#         "multi_line_end": "*/",
+#         "import_pattern": r"import\s+([^;\n]+)",
+#     },
+#     ".rb": {
+#         "name": "Ruby",
+#         "class_pattern": r"class\s+(\w+)(?:\s*<\s*([^\s]+))?",
+#         "function_pattern": r"def\s+(\w+)(?:\(([^)]*)\))?",
+#         "docstring_pattern": r"=begin(.*?)=end",
+#         "comment_pattern": r"#\s*(.*)",
+#         "module_docstring_pattern": r"^#\s*(.*)",
+#         "multi_line_start": "=begin",
+#         "multi_line_end": "=end",
+#         "import_pattern": r"(?:require|include)\s+['\"]([^'\"]+)",
+#     },
+#     ".go": {
+#         "name": "Go",
+#         "class_pattern": r"type\s+(\w+)\s+struct",
+#         "function_pattern": r"func\s+(?:\(([^)]*)\)\s*)?(\w+)\s*\(([^)]*)\)",
+#         "docstring_pattern": r"/\*(.*?)\*/",
+#         "comment_pattern": r"//\s*(.*)",
+#         "module_docstring_pattern": r"^//\s*(.*)",
+#         "multi_line_start": "/*",
+#         "multi_line_end": "*/",
+#         "import_pattern": r"import\s+(?:\([^)]*\)|['\"]([^'\"]+))",
+#     },
+#     ".cs": {
+#         "name": "C#",
+#         "class_pattern": r"(?:public|private|protected|internal)?\s*(?:static)?\s*class\s+(\w+)(?:\s*:\s*([^{]+))?",
+#         "function_pattern": r"(?:public|private|protected|internal)?\s*(?:static)?\s*(?:[\w<>[\],\s]+)\s+(\w+)\s*\(([^)]*)\)",
+#         "docstring_pattern": r"///\s*<summary>(.*?)</summary>",
+#         "comment_pattern": r"//\s*(.*)",
+#         "module_docstring_pattern": r"^///\s*<summary>(.*?)</summary>",
+#         "multi_line_start": "/*",
+#         "multi_line_end": "*/",
+#         "import_pattern": r"using\s+([^;\n]+)",
+#     },
+# }
+# 
+# class CodeFile:
+#     """Represents a code file with its parsed components."""
+#     
+#     def __init__(self, path: Path):
+#         self.path = path
+#         self.relative_path = path
+#         self.language = ""
+#         self.name = path.name
+#         self.size = 0
+#         self.content = ""
+#         self.classes: List[Dict[str, Any]] = []
+#         self.functions: List[Dict[str, Any]] = []
+#         self.imports: List[str] = []
+#         self.docstring = ""
+#         self.comments: List[Dict[str, Any]] = []
+#         self.loc = 0  # Lines of code
+#         self.doc_coverage = 0.0  # Documentation coverage
+#         
+#     def load(self, root_dir: Path) -> bool:
+#         """Load and parse the file."""
+#         try:
+#             self.relative_path = self.path.relative_to(root_dir)
+#             self.size = self.path.stat().st_size
+#             self.content = read_text_file(self.path)
+#             self.loc = len(self.content.splitlines())
+#             return True
+#         except Exception as e:
+#             logger.error(f"Error loading {self.path}: {e}")
+#             return False
+#     
+#     def parse(self) -> bool:
+#         """Parse the file contents based on language."""
+#         suffix = self.path.suffix.lower()
+#         if suffix not in LANGUAGE_INFO:
+#             return False
+#             
+#         language_data = LANGUAGE_INFO[suffix]
+#         self.language = language_data["name"]
+#         
+#         # Extract docstring
+#         module_docstring_matches = re.search(language_data["module_docstring_pattern"], self.content, re.DOTALL)
+#         if module_docstring_matches:
+#             self.docstring = self._clean_docstring(module_docstring_matches.group(1))
+#         
+#         # Extract classes
+#         class_matches = re.finditer(language_data["class_pattern"], self.content)
+#         for match in class_matches:
+#             class_name = match.group(1)
+#             class_info = {
+#                 "name": class_name,
+#                 "docstring": self._extract_entity_docstring(match.start(), language_data),
+#                 "line": self.content[:match.start()].count('\n') + 1,
+#                 "methods": [],
+#             }
+#             
+#             if len(match.groups()) > 1 and match.group(2):
+#                 class_info["inherits"] = match.group(2).strip()
+#                 
+#             self.classes.append(class_info)
+#         
+#         # Extract functions/methods
+#         function_matches = re.finditer(language_data["function_pattern"], self.content)
+#         for match in class_matches:
+#             # Determine function name (patterns may have multiple capture groups for function name)
+#             function_name = None
+#             for i in range(1, len(match.groups()) + 1):
+#                 if match.group(i) and not function_name:
+#                     function_name = match.group(i)
+#             
+#             if not function_name:
+#                 continue
+#                 
+#             function_info = {
+#                 "name": function_name,
+#                 "docstring": self._extract_entity_docstring(match.start(), language_data),
+#                 "line": self.content[:match.start()].count('\n') + 1,
+#             }
+#             
+#             # Add parameter info if available
+#             params_index = 2  # Most patterns have params in group 2
+#             if len(match.groups()) >= params_index and match.group(params_index):
+#                 function_info["parameters"] = match.group(params_index).strip()
+#                 
+#             self.functions.append(function_info)
+#         
+#         # Extract imports
+#         import_matches = re.finditer(language_data["import_pattern"], self.content)
+#         for match in import_matches:
+#             import_stmt = match.group(1).strip() if match.group(1) else ""
+#             if import_stmt:
+#                 self.imports.append(import_stmt)
+#         
+#         # Extract comments
+#         comment_matches = re.finditer(language_data["comment_pattern"], self.content, re.MULTILINE)
+#         for match in comment_matches:
+#             comment = match.group(1).strip()
+#             if comment:
+#                 self.comments.append({
+#                     "text": comment,
+#                     "line": self.content[:match.start()].count('\n') + 1
+#                 })
+#         
+#         # Calculate doc coverage
+#         self._calculate_doc_coverage()
+#         
+#         return True
+#     
+#     def _extract_entity_docstring(self, start_pos: int, language_data: Dict[str, str]) -> str:
+#         """Extract docstring for a class or function."""
+#         # Look for docstring after the entity definition
+#         content_after = self.content[start_pos:]
+#         docstring_match = re.search(language_data["docstring_pattern"], content_after, re.DOTALL)
+#         
+#         if docstring_match and docstring_match.start() < 50:  # Only consider docstrings close to the definition
+#             return self._clean_docstring(docstring_match.group(1))
+#             
+#         # Look for docstring before the entity definition
+#         content_before = self.content[:start_pos]
+#         lines_before = content_before.splitlines()
+#         if lines_before:
+#             # Look at the line just before the entity
+#             last_line = lines_before[-1].strip()
+#             if last_line.startswith("///") or last_line.startswith("//") or last_line.startswith("#"):
+#                 # Try to gather consecutive comment lines
+#                 docstring_lines = []
+#                 for i in range(len(lines_before) - 1, -1, -1):
+#                     line = lines_before[i].strip()
+#                     if line.startswith("///") or line.startswith("//") or line.startswith("#"):
+#                         docstring_lines.insert(0, line.lstrip("#/").strip())
+#                     else:
+#                         break
+#                 
+#                 if docstring_lines:
+#                     return "\n".join(docstring_lines)
+#         
+#         return ""
+#     
+#     def _clean_docstring(self, docstring: str) -> str:
+#         """Clean up a docstring by removing extra whitespace and formatting."""
+#         # Remove leading/trailing whitespace from each line
+#         lines = [line.strip() for line in docstring.splitlines()]
+#         
+#         # Remove empty lines from the beginning and end
+#         while lines and not lines[0]:
+#             lines.pop(0)
+#         while lines and not lines[-1]:
+#             lines.pop()
+#             
+#         if not lines:
+#             return ""
+#             
+#         # Determine the minimum indentation
+#         indentation = min(len(line) - len(line.lstrip()) for line in lines if line)
+#         
+#         # Remove the common indentation from all lines
+#         cleaned_lines = [line[indentation:] if line else line for line in lines]
+#         
+#         return "\n".join(cleaned_lines)
+#     
+#     def _calculate_doc_coverage(self) -> None:
+#         """Calculate documentation coverage percentage."""
+#         documentable_items = len(self.classes) + len(self.functions) + 1  # +1 for module docstring
+#         documented_items = sum(1 for cls in self.classes if cls.get("docstring"))
+#         documented_items += sum(1 for func in self.functions if func.get("docstring"))
+#         documented_items += 1 if self.docstring else 0
+#         
+#         self.doc_coverage = (documented_items / documentable_items) * 100 if documentable_items > 0 else 0
+# 
+# class CodeDocumenter:
+#     """Analyzes code files and generates documentation."""
+#     
+#     def __init__(self, directory: Path, output_path: Optional[Path] = None):
+#         """
+#         Initialize the code documenter.
+#         
+#         Args:
+#             directory: Directory containing code files
+#             output_path: Path to save documentation (defaults to directory/CODE_DOCS.md)
+#         """
+#         self.directory = Path(directory)
+#         self.output_path = output_path or (self.directory / "CODE_DOCS.md")
+#         self.code_files: List[CodeFile] = []
+#         self.language_stats: Dict[str, int] = {}
+#         self.total_loc = 0
+#         self.dependencies: Dict[str, Set[str]] = {}  # Maps files to their imports
+#         
+#     def scan_directory(self, recursive: bool = True) -> int:
+#         """
+#         Scan directory for code files.
+#         
+#         Args:
+#             recursive: Whether to scan subdirectories
+#             
+#         Returns:
+#             Number of files scanned
+#         """
+#         logger.info(f"Scanning directory: {self.directory}")
+#         
+#         # Function to process a file
+#         def process_file(file_path: Path) -> None:
+#             if is_ignored_file(file_path):
+#                 return
+#                 
+#             # Check if the file is a supported code file
+#             if file_path.suffix.lower() in LANGUAGE_INFO:
+#                 code_file = CodeFile(file_path)
+#                 if code_file.load(self.directory) and code_file.parse():
+#                     self.code_files.append(code_file)
+#                     self.language_stats[code_file.language] = self.language_stats.get(code_file.language, 0) + 1
+#                     self.total_loc += code_file.loc
+#         
+#         # Walk the directory structure
+#         if recursive:
+#             for root, dirs, files in os.walk(self.directory):
+#                 # Skip ignored directories
+#                 dirs[:] = [d for d in dirs if not is_ignored_file(Path(root) / d)]
+#                 
+#                 # Process each file
+#                 for file in files:
+#                     process_file(Path(root) / file)
+#         else:
+#             # Only process files in the root directory
+#             for item in self.directory.iterdir():
+#                 if item.is_file():
+#                     process_file(item)
+#         
+#         logger.info(f"Scanned {len(self.code_files)} code files.")
+#         return len(self.code_files)
+#     
+#     def build_dependency_graph(self) -> Dict[str, Set[str]]:
+#         """
+#         Build a graph of file dependencies based on imports.
+#         
+#         Returns:
+#             Dictionary mapping file paths to sets of imported modules
+#         """
+#         # Build the dependency graph
+#         for code_file in self.code_files:
+#             file_path = str(code_file.relative_path)
+#             self.dependencies[file_path] = set()
+#             
+#             # Add imports as dependencies
+#             for import_stmt in code_file.imports:
+#                 # Try to map the import to an actual file in the project
+#                 potential_files = self._find_matching_files(import_stmt)
+#                 for potential_file in potential_files:
+#                     self.dependencies[file_path].add(str(potential_file.relative_path))
+#         
+#         return self.dependencies
+#     
+#     def _find_matching_files(self, import_stmt: str) -> List[CodeFile]:
+#         """Find code files that match an import statement."""
+#         matching_files = []
+#         
+#         # Remove quotes and common prefixes
+#         import_stmt = import_stmt.strip('\'"')
+#         
+#         for code_file in self.code_files:
+#             # Very basic matching - would need to be improved for a real implementation
+#             file_path = str(code_file.relative_path)
+#             module_name = str(code_file.path.stem)
+#             
+#             if import_stmt.endswith(module_name) or import_stmt == module_name:
+#                 matching_files.append(code_file)
+#         
+#         return matching_files
+#     
+#     def generate_markdown_documentation(self) -> Path:
+#         """
+#         Generate markdown documentation for the code.
+#         
+#         Returns:
+#             Path to the generated documentation file
+#         """
+#         logger.info(f"Generating documentation for {len(self.code_files)} files")
+#         
+#         # Calculate overall statistics
+#         doc_files = [f for f in self.code_files if f.docstring]
+#         doc_coverage = sum(f.doc_coverage for f in self.code_files) / len(self.code_files) if self.code_files else 0
+#         
+#         # Start the markdown content
+#         content = f"# Code Documentation: {self.directory.name}\n\n"
+#         content += "Automatically generated by CleanupX\n\n"
+#         
+#         # Add summary section
+#         content += "## Summary\n\n"
+#         content += f"- **Files:** {len(self.code_files)}\n"
+#         content += f"- **Lines of Code:** {self.total_loc}\n"
+#         content += f"- **Languages:** {', '.join(self.language_stats.keys())}\n"
+#         content += f"- **Documentation Coverage:** {doc_coverage:.1f}%\n\n"
+#         
+#         # Add language breakdown
+#         content += "### Language Breakdown\n\n"
+#         content += "| Language | Files | % of Codebase |\n"
+#         content += "|----------|-------|---------------|\n"
+#         for language, count in self.language_stats.items():
+#             percentage = (count / len(self.code_files)) * 100 if self.code_files else 0
+#             content += f"| {language} | {count} | {percentage:.1f}% |\n"
+#         content += "\n"
+#         
+#         # Add file listing
+#         content += "## Files\n\n"
+#         content += "| File | Language | Lines | Classes | Functions | Doc Coverage |\n"
+#         content += "|------|----------|-------|---------|-----------|-------------|\n"
+#         
+#         # Sort files by relative path
+#         sorted_files = sorted(self.code_files, key=lambda f: str(f.relative_path))
+#         for code_file in sorted_files:
+#             content += f"| [{code_file.relative_path}](#{self._create_anchor(str(code_file.relative_path))}) | {code_file.language} | {code_file.loc} | {len(code_file.classes)} | {len(code_file.functions)} | {code_file.doc_coverage:.1f}% |\n"
+#         content += "\n"
+#         
+#         # Add detailed file documentation
+#         content += "## File Details\n\n"
+#         for code_file in sorted_files:
+#             content += f"### {code_file.relative_path} {{{self._create_anchor(str(code_file.relative_path))}}}\n\n"
+#             content += f"**Language:** {code_file.language}  \n"
+#             content += f"**Lines:** {code_file.loc}  \n"
+#             content += f"**Documentation Coverage:** {code_file.doc_coverage:.1f}%  \n\n"
+#             
+#             # Add module docstring if available
+#             if code_file.docstring:
+#                 content += "**Description:**\n\n"
+#                 content += f"{code_file.docstring}\n\n"
+#             
+#             # Add dependencies
+#             file_path = str(code_file.relative_path)
+#             if file_path in self.dependencies and self.dependencies[file_path]:
+#                 content += "**Dependencies:**\n\n"
+#                 for dependency in sorted(self.dependencies[file_path]):
+#                     content += f"- [{dependency}](#{self._create_anchor(dependency)})\n"
+#                 content += "\n"
+#             
+#             # Add imports
+#             if code_file.imports:
+#                 content += "**Imports:**\n\n"
+#                 for import_stmt in sorted(code_file.imports):
+#                     content += f"- `{import_stmt}`\n"
+#                 content += "\n"
+#             
+#             # Add classes
+#             if code_file.classes:
+#                 content += "**Classes:**\n\n"
+#                 for cls in code_file.classes:
+#                     content += f"#### {cls['name']}\n\n"
+#                     if cls.get("inherits"):
+#                         content += f"*Inherits from: {cls['inherits']}*\n\n"
+#                     if cls.get("docstring"):
+#                         content += f"{cls['docstring']}\n\n"
+#                     content += f"*Defined at line {cls['line']}*\n\n"
+#             
+#             # Add functions
+#             if code_file.functions:
+#                 content += "**Functions:**\n\n"
+#                 for func in code_file.functions:
+#                     content += f"#### {func['name']}"
+#                     if func.get("parameters"):
+#                         content += f"({func['parameters']})"
+#                     content += "\n\n"
+#                     
+#                     if func.get("docstring"):
+#                         content += f"{func['docstring']}\n\n"
+#                     content += f"*Defined at line {func['line']}*\n\n"
+#             
+#             # Add a divider between files
+#             content += "---\n\n"
+#         
+#         # Write the content to the output file
+#         with open(self.output_path, 'w', encoding='utf-8') as f:
+#             f.write(content)
+#             
+#         logger.info(f"Documentation generated at {self.output_path}")
+#         return self.output_path
+#     
+#     def _create_anchor(self, text: str) -> str:
+#         """Create a GitHub-compatible markdown anchor."""
+#         # Convert to lowercase, replace spaces with hyphens, remove non-alphanumeric chars
+#         anchor = text.lower().replace(' ', '-')
+#         anchor = re.sub(r'[^\w\-]', '', anchor)
+#         return anchor
+# 
+# def generate_code_documentation(directory: Path, output_path: Optional[Path] = None) -> Path:
+#     """
+#     Generate comprehensive documentation for code in a directory.
+#     
+#     Args:
+#         directory: Directory containing code files
+#         output_path: Path to save documentation (defaults to directory/CODE_DOCS.md)
+#         
+#     Returns:
+#         Path to the generated documentation file
+#     """
+#     documenter = CodeDocumenter(directory, output_path)
+#     documenter.scan_directory(recursive=True)
+#     documenter.build_dependency_graph()
+#     return documenter.generate_markdown_documentation() 

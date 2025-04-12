@@ -1,0 +1,72 @@
+{
+    "test_dir/zkg4nzzhr4.zip:1744441139.7083776": {
+        "title": "zkg4nzzhr4",
+        "archive_type": "zip",
+        "file_count": 1,
+        "directory_count": 0,
+        "content_types": [
+            ".txt: 1 file(s)"
+        ],
+        "content_summary": "Archive contains 1 files/directories\n- dummy.txt",
+        "file_size": "0.00 MB",
+        "modified_date": "2025-04-11 23:58:59",
+        "suggested_filename": "zkg4nzzhr4"
+    },
+    "test_dir/zytih089wg.zip:1744441139.7087324": {
+        "title": "zytih089wg",
+        "archive_type": "zip",
+        "file_count": 1,
+        "directory_count": 0,
+        "content_types": [
+            ".txt: 1 file(s)"
+        ],
+        "content_summary": "Archive contains 1 files/directories\n- dummy.txt",
+        "file_size": "0.00 MB",
+        "modified_date": "2025-04-11 23:58:59",
+        "suggested_filename": "zytih089wg"
+    },
+    "test_dir/dv4l5zeis0.zip:1744440975.5035288": {
+        "title": "dv4l5zeis0",
+        "archive_type": "zip",
+        "file_count": 0,
+        "directory_count": 0,
+        "content_types": [],
+        "content_summary": "No content summary available",
+        "file_size": "0.00 MB",
+        "modified_date": "2025-04-11 23:56:15",
+        "suggested_filename": "dv4l5zeis0"
+    },
+    "test_dir/binffqdc90.gz:1744441139.7102776": {
+        "title": "binffqdc90",
+        "archive_type": "gz",
+        "file_count": 0,
+        "directory_count": 0,
+        "content_types": [],
+        "content_summary": "No content summary available",
+        "file_size": "0.00 MB",
+        "modified_date": "2025-04-11 23:58:59",
+        "suggested_filename": "binffqdc90"
+    },
+    "test_dir/ljx2x5t14p.gz:1744440975.5042078": {
+        "title": "ljx2x5t14p",
+        "archive_type": "gz",
+        "file_count": 0,
+        "directory_count": 0,
+        "content_types": [],
+        "content_summary": "No content summary available",
+        "file_size": "0.00 MB",
+        "modified_date": "2025-04-11 23:56:15",
+        "suggested_filename": "ljx2x5t14p"
+    },
+    "test_dir/b4aiqdik7x.zip:1744440975.5031836": {
+        "title": "b4aiqdik7x",
+        "archive_type": "zip",
+        "file_count": 0,
+        "directory_count": 0,
+        "content_types": [],
+        "content_summary": "No content summary available",
+        "file_size": "0.00 MB",
+        "modified_date": "2025-04-11 23:56:15",
+        "suggested_filename": "b4aiqdik7x"
+    }
+}
