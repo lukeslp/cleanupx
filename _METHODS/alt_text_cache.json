@@ -313,5 +313,156 @@
             "logos",
             "cartoon characters"
         ]
+    },
+    "../highres/handwritten_letter_early_20th_century_1575x2508.jpg:1744230001.6618326": {
+        "description": "The image is a black and white scan of a handwritten letter on graph paper. The handwriting is in cursive and appears to be written with a fountain pen or similar writing instrument. The text is written in a flowing, cursive style, with some words underlined for emphasis. The letter is numbered '5' at the top center of the page. There is a noticeable ink blot near the bottom left of the text, suggesting the pen might have leaked or the writer paused for a moment. The content of the letter discusses a person named Ruth McCormack who wrote a letter after finishing a book, expressing a desire to travel to Europe but mentioning that it was mislaid. The letter continues with a discussion about history and the writer's wish to have lived in a different time. The paper shows signs of aging or handling, with slight creases and smudges visible. The grid lines of the graph paper are faintly visible beneath the handwritten text, providing a structured background to the writing.",
+        "alt_text": "A black and white scan of a handwritten letter on graph paper. The cursive handwriting discusses Ruth McCormack writing a letter after finishing a book, expressing a desire to travel to Europe, which was mislaid. The letter mentions history and a wish to have lived in a different time. There is an ink blot near the bottom left. The paper shows slight creases and smudges.",
+        "suggested_filename": "handwritten_letter_ruth_mccormack_graph_paper",
+        "tags": [
+            "handwritten",
+            "letter",
+            "cursive",
+            "graph_paper",
+            "Ruth_McCormack",
+            "history",
+            "travel",
+            "ink_blot",
+            "personal_correspondence"
+        ]
+    },
+    "../highres/100_challenging_novels_poster_image_1300x1749.png:1744230359.1480603": {
+        "description": "This image is a poster titled '100 Challenging Novels' which features a grid of 100 book covers arranged in a 10x10 layout. Each book cover is distinct, showcasing various artistic styles, colors, and themes. The books range from classic literature to modern novels, each with a unique design that reflects the content or era of the book. Below the grid, there is a banner with the text '100 CHALLENGING NOVELS' in bold, stylized font, followed by a subtitle 'A SCRATCH OFF CHART OF FORMIDABLE FICTION' in smaller text. The poster is designed to be interactive, suggesting that each book cover can be scratched off as one reads the corresponding novel. The cultural references include a wide array of literary works from different genres and time periods, indicating a diverse selection of challenging reads. The image conveys a theme of literary exploration and the challenge of reading complex novels. The bottom right corner has a small logo of the publisher, Pop Chart Lab, with the year 2022.",
+        "alt_text": "Poster titled '100 Challenging Novels' with a 10x10 grid of book covers. Each cover is unique, representing various literary works. Below the grid, text reads '100 CHALLENGING NOVELS' and 'A SCRATCH OFF CHART OF FORMIDABLE FICTION'. Publisher logo 'Pop Chart Lab' and year '2022' are in the bottom right corner.",
+        "suggested_filename": "100_challenging_novels_poster_grid",
+        "tags": [
+            "literature",
+            "books",
+            "reading challenge",
+            "book covers",
+            "interactive poster",
+            "Pop Chart Lab",
+            "2022",
+            "fiction",
+            "novels",
+            "artistic design"
+        ]
+    },
+    "../highres/the_complete_genealogy_of_graphic_design_1074x1428.png:1744230775.842153": {
+        "description": "This image is a cover of 'Print' magazine, specifically from the 'Special Graphic Parody Section' dated November/December 1985, priced at $7.50. The cover features a humorous and intricate genealogical chart titled 'The Complete Genealogy of Graphic Design'. The chart traces the lineage of various famous typefaces and graphic design elements, connecting them to historical figures in a playful manner. The key at the top indicates different types of relationships: 'm' for married, 'c' for child of, 'd' for descended from, and a dotted line for illicit liaison. The chart includes names like 'Helvetica', 'Delphin', 'Bodoni', 'Baskerville', 'Times', and 'Futura', linking them to historical figures such as 'Julius Caesar', 'Cleopatra', 'Napoleon', and 'Queen Elizabeth II'. The design uses a mix of colors: blue for 'm', red for 'c', orange for 'd', and dotted lines for illicit liaisons. The background is a light grey, and the magazine's title 'Print' is prominently displayed at the top in large white letters. There is also an illustration of a man in a hat at the bottom right corner, adding to the parody theme. The chart is dense with connections, showing a complex web of relationships between typefaces and historical figures, blending humor with graphic design history.",
+        "alt_text": "Cover of 'Print' magazine from November/December 1985, featuring a parody genealogical chart titled 'The Complete Genealogy of Graphic Design'. The chart humorously connects famous typefaces like Helvetica and Bodoni to historical figures like Julius Caesar and Napoleon, using color-coded lines to indicate relationships: blue for marriage, red for child of, orange for descended from, and dotted lines for illicit liaisons. The background is light grey, with the magazine title 'Print' at the top in white.",
+        "suggested_filename": "print_magazine_graphic_design_genealogy_1985",
+        "tags": [
+            "Print magazine",
+            "graphic design",
+            "genealogy",
+            "parody",
+            "typefaces",
+            "historical figures",
+            "humor",
+            "1985",
+            "cover",
+            "relationships"
+        ]
+    },
+    "../highres/us_cities_distribution_map_1536x998.webp:1744230644.2886617": {
+        "description": "This image is a map of the United States with various city and state names written in different fonts, representing a typographic exploration of regional typography. Each state is outlined, and within these outlines, city names and sometimes state names are written in fonts that might reflect local culture or history. For example, 'Portland' in Oregon is written in a font called 'Tacoma', while 'Los Angeles' in California is in 'Hollywood Hills'. The map includes all 50 states, with notable cities like New York, Los Angeles, Chicago, and Houston prominently featured. The fonts vary widely, from playful and whimsical to bold and serious, adding a layer of visual interest and cultural commentary. The map is monochromatic, using black text on a white background, and includes a small credit at the bottom right corner: 'Image Source: The Statesider, 2020 Links to all fonts at statesider.us/us-font-map'.",
+        "alt_text": "A typographic map of the United States with city and state names in various fonts. Each state is outlined, and cities like New York, Los Angeles, Chicago, and Houston are labeled in unique fonts reflecting local culture. The map is monochromatic, with black text on a white background, and includes a credit to The Statesider, 2020.",
+        "suggested_filename": "us_typographic_map_state_and_city_fonts",
+        "tags": [
+            "typography",
+            "map",
+            "United States",
+            "cities",
+            "states",
+            "fonts",
+            "cultural representation",
+            "design",
+            "geography"
+        ]
+    },
+    "../highres/global_land_area_comparison_infographic_1723x2409.png:1744230377.3285398": {
+        "description": "This image is a detailed infographic displaying the land surface areas of various countries, arranged in descending order of size. The background is black, providing a stark contrast to the satellite images of each country, which are shown in natural colors (greens, browns, and whites for snow-covered regions). Each country's image is accompanied by its name and land surface area in square kilometers, with the text in white for readability. The countries are grouped into size categories, indicated by numbers on the left side (1-4, 5-11, 12-20, 21-34, 35-72, 73-96, 97-126, 127-207, 208-274, 275-295). At the bottom, the total area of land surface is prominently displayed as 143,804,549 km² in large white text with a red background. Below this, there is a small world map with continents labeled (Europe, Asia, Africa, North America, South America, Australia, Antarctica) and their respective land areas. The image credits are given to Art Director Artemy Lebedev, designer Vasiliy Dubrovin, and others, with a copyright notice for 2016 Art. Lebedev Studio. The infographic has a technical and educational theme, focusing on geographical data.",
+        "alt_text": "Infographic showing land surface areas of countries in descending order with satellite images. Countries are grouped by size, with areas in km². Total land surface area is 143,804,549 km². Includes a small world map with continent areas. Credits to Artemy Lebedev, Vasiliy Dubrovin, and others, © 2016 Art. Lebedev Studio.",
+        "suggested_filename": "world_countries_land_surface_areas_infographic",
+        "tags": [
+            "infographic",
+            "land_surface",
+            "countries",
+            "geography",
+            "satellite_images",
+            "area_comparison",
+            "world_map",
+            "educational",
+            "technical"
+        ]
+    },
+    "../highres/new_zealand_relief_map_4000x6000.jpeg:1744230559.7895334": {
+        "description": "This image is a detailed topographical map of New Zealand, presented in a vintage style with a beige background. The map is titled 'NEW ZEALAND' at the top, with a subtitle 'The Times Atlas' below it. The map is divided into two main islands: the North Island and the South Island, with various insets providing additional details. The North Island is depicted with green and brown tones indicating elevation, with notable features like the 'Pekapeka Valley' marked. The South Island shows more rugged terrain with higher elevations in darker browns. The map includes a legend titled 'EXPLANATION OF SHADING' on the left side, indicating different elevations with a color gradient from light green to dark brown. There are several insets: one showing the Auckland area, another the Wellington area, and others focusing on Stewart Island, the Chatham Islands, and the Dunedin area. The map also includes a scale at the bottom, indicating distances in miles. The bottom of the map credits 'EAST OF NOWHERE' with a website URL 'www.eastofnoswhere.co.nz' and mentions 'REPRODUCED BY EAST OF NOWHERE CO. SYRACUSE, N.Y.' The map has a vintage, cartographic art theme, emphasizing the natural topography of New Zealand.",
+        "alt_text": "Vintage topographical map of New Zealand with detailed elevation shading. Title: 'NEW ZEALAND' with subtitle 'The Times Atlas'. Divided into North and South Islands, with insets for Auckland, Wellington, Stewart Island, Chatham Islands, and Dunedin. Elevation legend on left, scale at bottom. Credits: 'EAST OF NOWHERE' with website URL.",
+        "suggested_filename": "vintage_topographical_map_new_zealand_details",
+        "tags": [
+            "New Zealand",
+            "map",
+            "topography",
+            "vintage",
+            "cartography",
+            "North Island",
+            "South Island",
+            "Auckland",
+            "Wellington",
+            "Stewart Island",
+            "Chatham Islands",
+            "Dunedin",
+            "elevation",
+            "geography"
+        ]
+    },
+    "../highres/the_10_commandments_of_user_interface_design_2992x1800.png:1744233302.1788092": {
+        "description": "The image is an infographic titled 'The 10 Commandments of User Interface Design' by DesignMantic. It is divided into 10 vertical sections, each with a different background color and a specific commandment for UI design. Each section contains a heading, a subheading, and several icons with descriptions. Here are the details for each section:\n\n1. **Create a Story** (Light Blue)\n   - Use Real Images\n   - Use a Mascot\n   - Custom Messages\n   - Be Authentic\n   - Embed Social\n   - Interactive Content\n\n2. **Streamline Navigation** (Dark Blue)\n   - Use Icons\n   - Mobile-Friendly\n   - Direct Manipulation\n   - Clear Call to Action\n   - Avoid Ambiguities\n   - Aim Conversions\n\n3. **Make it Responsive** (Purple)\n   - Use Columns\n   - Parallax Scrolling\n   - Fluid Grid\n   - Drop-Down Menus\n   - Google Standards\n   - Scales to Any Width\n\n4. **Ensure Accessibility** (Pink)\n   - Label Links\n   - Alt Text\n   - Avoid Image as Link\n   - Modify Settings\n   - Screen Prime Estate\n   - Isolate Content\n\n5. **Form Follows Function** (Red)\n   - Click Button\n   - Check Boxes\n   - Drop-Down List\n   - Slider\n   - Icons\n   - Pagination\n\n6. **Use Pleasant Color Themes** (Orange)\n   - Color Palette\n   - Pick Vibrant Colors\n   - Contrast is Clarity\n   - Industry Relevant\n   - Stick to Three\n   - Complement Colors\n\n7. **Define Font Families** (Yellow)\n   - No Serif\n   - Perfect Design\n   - Andes\n   - Set Hierarchies\n   - Use Legible Fonts\n   - In Doubt? Go Gothic\n\n8. **Boost Optimized Images** (Green)\n   - Prefer Vector\n   - Minify Metadata\n   - Pick Best Format\n   - Automate Scaling\n   - Natural Resolution\n   - Use Alt-Tags\n\n9. **Master Minimalism** (Teal)\n   - Solid Colors\n   - Ads Pop-Up Flash Widgets\n   - Less is More\n   - Whitespace\n   - Big Fonts\n   - Use Visuals\n\n10. **Eliminate User Errors** (Brown)\n    - Understand the User\n    - Allow User Error\n    - Readability\n    - Comprehensive Documentation\n    - Suggest a Solution\n    - Feedback\n\nThe overall theme is educational, focusing on best practices in user interface design, with a modern and professional aesthetic.",
+        "alt_text": "Infographic titled 'The 10 Commandments of User Interface Design' by DesignMantic. It lists 10 commandments for UI design: 1. Create a Story (Use Real Images, Use a Mascot, Custom Messages, Be Authentic, Embed Social, Interactive Content), 2. Streamline Navigation (Use Icons, Mobile-Friendly, Direct Manipulation, Clear Call to Action, Avoid Ambiguities, Aim Conversions), 3. Make it Responsive (Use Columns, Parallax Scrolling, Fluid Grid, Drop-Down Menus, Google Standards, Scales to Any Width), 4. Ensure Accessibility (Label Links, Alt Text, Avoid Image as Link, Modify Settings, Screen Prime Estate, Isolate Content), 5. Form Follows Function (Click Button, Check Boxes, Drop-Down List, Slider, Icons, Pagination), 6. Use Pleasant Color Themes (Color Palette, Pick Vibrant Colors, Contrast is Clarity, Industry Relevant, Stick to Three, Complement Colors), 7. Define Font Families (No Serif, Perfect Design, Andes, Set Hierarchies, Use Legible Fonts, In Doubt? Go Gothic), 8. Boost Optimized Images (Prefer Vector, Minify Metadata, Pick Best Format, Automate Scaling, Natural Resolution, Use Alt-Tags), 9. Master Minimalism (Solid Colors, Ads Pop-Up Flash Widgets, Less is More, Whitespace, Big Fonts, Use Visuals), 10. Eliminate User Errors (Understand the User, Allow User Error, Readability, Comprehensive Documentation, Suggest a Solution, Feedback).",
+        "suggested_filename": "10_commandments_of_user_interface_design",
+        "tags": [
+            "user interface",
+            "UI design",
+            "design principles",
+            "accessibility",
+            "responsive design",
+            "color themes",
+            "typography",
+            "image optimization",
+            "minimalism",
+            "error prevention",
+            "infographic",
+            "DesignMantic"
+        ]
+    },
+    "../highres/watering_the_garden_with_hose_sunlight_5472x2405.jpeg:1744232089.3360012": {
+        "description": "The image depicts a close-up of a person's right hand holding a blue garden hose, spraying water. The hand is gripping the hose firmly, with the thumb pressing on the end to control the spray pattern, creating a fan-shaped spray of water. The background is a blurred, sunlit green field, suggesting a garden or lawn setting. The lighting is warm, indicating it might be late afternoon or early evening, with sunlight creating a soft, golden glow. The focus is on the hand and the water spray, with the background out of focus, emphasizing the action of watering. There are no visible texts, logos, or technical details in the image. The theme is related to gardening, outdoor activities, and possibly summer or springtime.",
+        "alt_text": "Close-up of a person's right hand holding a blue garden hose, spraying water in a fan-shaped pattern. The background is a blurred, sunlit green field, suggesting a garden setting with warm, golden sunlight.",
+        "suggested_filename": "hand_holding_garden_hose_spraying_water",
+        "tags": [
+            "hand",
+            "garden hose",
+            "water spray",
+            "gardening",
+            "outdoor",
+            "sunlight",
+            "summer",
+            "spring",
+            "close-up"
+        ]
+    },
+    "../highres/global_light_pollution_map_2023_2141x814.png:1744232248.3144083": {
+        "description": "This image is a world map depicting global population density. The map uses a color gradient to represent varying levels of population density, with darker shades of purple indicating lower population densities and lighter shades, including white, indicating higher population densities. The map highlights several key regions: North America, South America, Europe, Africa, Asia, and Australia. High population densities are particularly noticeable in parts of Europe, South and East Asia, and along the eastern coast of the United States. Lower population densities are evident in the interior regions of continents like the Amazon rainforest in South America, the Sahara Desert in Africa, and the central parts of Australia. The map is set against a black background, which enhances the contrast of the population density data. There is no text or legend present on the map, so the interpretation relies solely on the color gradient.",
+        "alt_text": "World map showing population density with a color gradient from dark purple (low density) to light purple and white (high density). High densities are in Europe, South and East Asia, and the eastern US. Low densities are in the Amazon, Sahara, and central Australia.",
+        "suggested_filename": "global_population_density_map_color_gradient",
+        "tags": [
+            "world map",
+            "population density",
+            "color gradient",
+            "geography",
+            "demographics",
+            "data visualization"
+        ]
     }
 }

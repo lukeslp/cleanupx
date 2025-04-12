@@ -686,3 +686,58 @@
 [2025-04-12 00:33:54] Created visible copy at snippets/snippets_folder_combined.md
 [2025-04-12 00:34:09] Project summary updated.
 [2025-04-12 00:34:09] Processing complete.
+[2025-04-12 01:29:58] Started processing directory: snippets (mode: snippet)
+[2025-04-12 01:29:58] Processing batch 1/1
+[2025-04-12 01:29:58] Processing file: snippets/batch_6_combined.md
+[2025-04-12 01:30:08] Error archiving alternatives for snippets/batch_6_combined.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/batch_6_combined.md_alternatives.md'
+[2025-04-12 01:30:08] Moved processed file snippets/batch_6_combined.md to snippets/.xsnippet/xsnippet_processed/batch_6_combined.md
+[2025-04-12 01:30:08] Processing file: snippets/snippets_folder_combined.md
+[2025-04-12 01:30:16] Error archiving alternatives for snippets/snippets_folder_combined.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/snippets_folder_combined.md_alternatives.md'
+[2025-04-12 01:30:16] Moved processed file snippets/snippets_folder_combined.md to snippets/.xsnippet/xsnippet_processed/snippets_folder_combined.md
+[2025-04-12 01:30:16] Processing file: snippets/batch_3_combined.md
+[2025-04-12 01:30:22] Error archiving alternatives for snippets/batch_3_combined.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/batch_3_combined.md_alternatives.md'
+[2025-04-12 01:30:22] Moved processed file snippets/batch_3_combined.md to snippets/.xsnippet/xsnippet_processed/batch_3_combined.md
+[2025-04-12 01:30:22] Processing file: snippets/routes_combined.md
+[2025-04-12 01:30:34] Error archiving alternatives for snippets/routes_combined.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/routes_combined.md_alternatives.md'
+[2025-04-12 01:30:34] Moved processed file snippets/routes_combined.md to snippets/.xsnippet/xsnippet_processed/routes_combined.md
+[2025-04-12 01:30:34] Processing file: snippets/batch_9_combined.md
+[2025-04-12 01:30:44] Error archiving alternatives for snippets/batch_9_combined.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/batch_9_combined.md_alternatives.md'
+[2025-04-12 01:30:44] Moved processed file snippets/batch_9_combined.md to snippets/.xsnippet/xsnippet_processed/batch_9_combined.md
+[2025-04-12 01:30:44] Processing file: snippets/batch_5_combined.md
+[2025-04-12 01:30:54] Error archiving alternatives for snippets/batch_5_combined.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/batch_5_combined.md_alternatives.md'
+[2025-04-12 01:30:54] Moved processed file snippets/batch_5_combined.md to snippets/.xsnippet/xsnippet_processed/batch_5_combined.md
+[2025-04-12 01:30:54] Processing file: snippets/batch_10_combined.md
+[2025-04-12 01:31:01] Error archiving alternatives for snippets/batch_10_combined.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/batch_10_combined.md_alternatives.md'
+[2025-04-12 01:31:02] Moved processed file snippets/batch_10_combined.md to snippets/.xsnippet/xsnippet_processed/batch_10_combined.md
+[2025-04-12 01:31:02] Processing file: snippets/batch_2_combined.md
+[2025-04-12 01:31:12] Error archiving alternatives for snippets/batch_2_combined.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/batch_2_combined.md_alternatives.md'
+[2025-04-12 01:31:12] Moved processed file snippets/batch_2_combined.md to snippets/.xsnippet/xsnippet_processed/batch_2_combined.md
+[2025-04-12 01:31:12] Processing file: snippets/batch_7_combined.md
+[2025-04-12 01:31:22] Error archiving alternatives for snippets/batch_7_combined.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/batch_7_combined.md_alternatives.md'
+[2025-04-12 01:31:22] Moved processed file snippets/batch_7_combined.md to snippets/.xsnippet/xsnippet_processed/batch_7_combined.md
+[2025-04-12 01:31:22] Processing file: snippets/another_final_combined.md
+[2025-04-12 01:31:34] Moved processed file snippets/another_final_combined.md to snippets/.xsnippet/xsnippet_processed/another_final_combined.md
+[2025-04-12 01:31:34] Processing file: snippets/similar_formatted_final_combined.md
+[2025-04-12 01:31:49] Error archiving alternatives for snippets/similar_formatted_final_combined.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/similar_formatted_final_combined.md_alternatives.md'
+[2025-04-12 01:31:49] Moved processed file snippets/similar_formatted_final_combined.md to snippets/.xsnippet/xsnippet_processed/similar_formatted_final_combined.md
+[2025-04-12 01:31:49] Processing file: snippets/batch_4_combined.md
+[2025-04-12 01:31:58] Error archiving alternatives for snippets/batch_4_combined.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/batch_4_combined.md_alternatives.md'
+[2025-04-12 01:31:58] Moved processed file snippets/batch_4_combined.md to snippets/.xsnippet/xsnippet_processed/batch_4_combined.md
+[2025-04-12 01:31:58] Processing file: snippets/batch_1_combined.md
+[2025-04-12 01:32:10] Error archiving alternatives for snippets/batch_1_combined.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/batch_1_combined.md_alternatives.md'
+[2025-04-12 01:32:10] Moved processed file snippets/batch_1_combined.md to snippets/.xsnippet/xsnippet_processed/batch_1_combined.md
+[2025-04-12 01:32:10] Processing file: snippets/formatted.md
+[2025-04-12 01:32:22] Error archiving alternatives for snippets/formatted.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/formatted.md_alternatives.md'
+[2025-04-12 01:32:22] Moved processed file snippets/formatted.md to snippets/.xsnippet/xsnippet_processed/formatted.md
+[2025-04-12 01:32:22] Processing file: snippets/final_combined.md
+[2025-04-12 01:32:36] Error archiving alternatives for snippets/final_combined.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/final_combined.md_alternatives.md'
+[2025-04-12 01:32:36] Moved processed file snippets/final_combined.md to snippets/.xsnippet/xsnippet_processed/final_combined.md
+[2025-04-12 01:32:36] Processing file: snippets/batch_8_combined.md
+[2025-04-12 01:32:44] Error archiving alternatives for snippets/batch_8_combined.md: [Errno 2] No such file or directory: 'snippets/.xsnippet/archive/snippets/batch_8_combined.md_alternatives.md'
+[2025-04-12 01:32:44] Moved processed file snippets/batch_8_combined.md to snippets/.xsnippet/xsnippet_processed/batch_8_combined.md
+[2025-04-12 01:33:01] Batch 1 results written to snippets/.xsnippet/batches/batch_1_combined.md
+[2025-04-12 01:33:01] Starting final sweep across all batches
+[2025-04-12 01:33:14] Final combined document written to snippets/.xsnippet/final/final_combined.md
+[2025-04-12 01:33:14] Created visible copy at snippets/king_snippet.md
+[2025-04-12 01:33:27] Project summary updated.
+[2025-04-12 01:33:27] Processing complete.

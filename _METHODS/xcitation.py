@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 XCITATION - SNIPPET FILE
 Goal is to create a bibliography while renaming journal articles in a directory (and/or harvest links) 
@@ -22,7 +23,7 @@ import io
 import argparse
 import sys
 from dotenv import load_dotenv
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, unquote_plus
 
 # Load environment variables from .env file
 load_dotenv()
@@ -35,10 +36,10 @@ logging.basicConfig(
 
 # Constants and configuration
 DEFAULT_MODEL_TEXT = "grok-3-mini-latest"
-API_BASE_URL = "https://api.assisted.space/v2"
+API_BASE_URL = "https://api.x.ai/v1"
 MAX_RETRIES = 3
 RETRY_DELAY = 2  # seconds
-CITATIONS_FILE = ".cleanupx/citations.json"
+CITATIONS_FILE = "citations.json"
 API_TIMEOUT = 30
 
 # File type constants
@@ -96,63 +97,225 @@ class Logger:
         if os.getenv("DEBUG", "").lower() in ("1", "true", "yes"):
             logging.debug(message)
 
-def call_xai_api(
-    messages: List[Dict[str, str]],
-    model: str = DEFAULT_MODEL_TEXT,
-    temperature: float = 0.7,
-    functions: Optional[List[Dict[str, Any]]] = None,
-    retries: int = MAX_RETRIES
-) -> Optional[Dict[str, Any]]:
+def retry_with_backoff(func):
+    """Decorator to retry API calls with exponential backoff."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        retries = 0
+        while retries < MAX_RETRIES:
+            try:
+                return func(*args, **kwargs)
+            except (requests.HTTPError, requests.ConnectionError) as e:
+                retries += 1
+                if retries >= MAX_RETRIES:
+                    Logger.error(f"Max retries reached. Last error: {e}")
+                    raise
+                
+                sleep_time = RETRY_DELAY * (2 ** (retries - 1))
+                Logger.warning(f"API call failed: {e}. Retrying in {sleep_time}s...")
+                time.sleep(sleep_time)
+        return func(*args, **kwargs)  # One last try
+    return wrapper
+
+class XAIClient:
     """
-    Call the X.AI API with retry logic.
+    Client for interacting with the X.AI API.
     
-    Args:
-        messages: List of message dictionaries
-        model: Model name to use
-        temperature: Temperature for generation
-        functions: Optional list of function definitions
-        retries: Number of retries on failure
-        
-    Returns:
-        API response dictionary or None on failure
+    This class provides methods for authenticating and making requests to
+    the X.AI API, with built-in error handling and retry logic.
     """
-    api_key = os.getenv("XAI_API_KEY")
-    if not api_key:
-        Logger.error("XAI_API_KEY environment variable not set")
-        return None
-        
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
     
-    data = {
-        "messages": messages,
-        "model": model,
-        "temperature": temperature
-    }
-    
-    if functions:
-        data["functions"] = functions
+    def __init__(self, api_key=None):
+        """
+        Initialize the client with API credentials.
         
-    for attempt in range(retries):
+        Args:
+            api_key: X.AI API key (defaults to XAI_API_KEY environment variable)
+        """
+        self.api_key = api_key or os.getenv("XAI_API_KEY")
+        if not self.api_key:
+            Logger.error("X.AI API key not found. Set XAI_API_KEY environment variable.")
+            raise ValueError("X.AI API key not found. Set XAI_API_KEY environment variable.")
+        
+        self.base_url = API_BASE_URL
+        self.session = requests.Session()
+        self.session.headers.update({
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        })
+    
+    @retry_with_backoff
+    def chat(self, messages, model=DEFAULT_MODEL_TEXT, temperature=0.3, functions=None):
+        """
+        Send a chat completion request to the X.AI API.
+        
+        Args:
+            messages: List of message objects with role and content
+            model: X.AI model identifier to use
+            temperature: Sampling temperature (0-1)
+            functions: Optional function calling configuration
+            
+        Returns:
+            Parsed JSON response from the API
+        """
+        url = f"{self.base_url}/chat/completions"
+        payload = {
+            "model": model,
+            "messages": messages,
+            "temperature": temperature
+        }
+        
+        # Add function calling if provided
+        if functions:
+            payload["tools"] = [{"type": "function", "function": f} for f in functions]
+            if len(functions) == 1:
+                payload["tool_choice"] = {
+                    "type": "function", 
+                    "function": {"name": functions[0]["name"]}
+                }
+        
         try:
-            response = requests.post(
-                "https://api.x.ai/v1/chat/completions",
-                headers=headers,
-                json=data,
-                timeout=API_TIMEOUT
-            )
+            Logger.debug(f"Sending request to {url}")
+            response = self.session.post(url, json=payload, timeout=API_TIMEOUT)
             response.raise_for_status()
             return response.json()
+        except requests.HTTPError as e:
+            error_details = "No response details available"
+            if e.response is not None:
+                try:
+                    error_details = e.response.json()
+                except json.JSONDecodeError:
+                    error_details = e.response.text
             
-        except requests.exceptions.RequestException as e:
-            Logger.warning(f"API call failed (attempt {attempt + 1}/{retries}): {str(e)}")
-            if attempt < retries - 1:
-                time.sleep(RETRY_DELAY * (attempt + 1))
-            else:
-                Logger.error("Max retries reached for API call")
-                return None
+            Logger.error(f"API error: {e}\nResponse details: {error_details}")
+            raise
+    
+    def extract_tool_result(self, response):
+        """
+        Extract function call result from API response.
+        
+        Args:
+            response: JSON response from chat completion API
+            
+        Returns:
+            Extracted function arguments as dictionary
+        """
+        try:
+            message = response["choices"][0]["message"]
+            
+            # Check for tool calls in the response
+            if "tool_calls" in message and message["tool_calls"]:
+                tool_call = message["tool_calls"][0]
+                if tool_call["type"] == "function":
+                    function_args = json.loads(tool_call["function"]["arguments"])
+                    return function_args
+            
+            # Fallback to content parsing if no tool calls
+            content = message.get("content", "")
+            # Try to extract JSON from markdown code blocks
+            json_match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', content, re.DOTALL)
+            if json_match:
+                try:
+                    return json.loads(json_match.group(1))
+                except json.JSONDecodeError:
+                    pass
+            
+            # Return the raw content as fallback
+            return {"content": content}
+            
+        except (KeyError, IndexError, json.JSONDecodeError) as e:
+            Logger.error(f"Error extracting tool result: {e}")
+            return {}
+
+def get_xai_client():
+    """
+    Get an initialized X.AI client instance.
+    
+    Returns:
+        XAIClient instance
+    """
+    try:
+        return XAIClient()
+    except ValueError as e:
+        Logger.error(f"Failed to initialize XAI client: {e}")
+        return None
+
+def chunk_text(text: str, max_tokens: int = 100000) -> List[str]:
+    """
+    Split text into chunks that fit within token limits.
+    Uses sentence boundaries where possible to maintain context.
+    
+    Args:
+        text: Text to chunk
+        max_tokens: Maximum tokens per chunk
+        
+    Returns:
+        List of text chunks
+    """
+    # Rough token estimation (4 chars per token on average)
+    CHARS_PER_TOKEN = 4
+    max_chars = max_tokens * CHARS_PER_TOKEN
+    
+    # Split into sentences first
+    sentence_endings = r'[.!?]\s+'
+    sentences = re.split(sentence_endings, text)
+    
+    chunks = []
+    current_chunk = ""
+    current_length = 0
+    
+    for sentence in sentences:
+        sentence = sentence.strip()
+        if not sentence:
+            continue
+            
+        # Add sentence ending punctuation back
+        sentence = sentence + ". "
+        sentence_length = len(sentence)
+        
+        # If single sentence is too long, split by paragraphs
+        if sentence_length > max_chars:
+            if current_chunk:
+                chunks.append(current_chunk.strip())
+                current_chunk = ""
+                current_length = 0
+            
+            # Split long sentence by paragraphs
+            paragraphs = sentence.split('\n\n')
+            for paragraph in paragraphs:
+                paragraph = paragraph.strip()
+                if not paragraph:
+                    continue
+                    
+                # If paragraph is still too long, split by character limit
+                if len(paragraph) > max_chars:
+                    while paragraph:
+                        chunk_end = max_chars
+                        # Try to break at word boundary
+                        if chunk_end < len(paragraph):
+                            chunk_end = paragraph.rfind(' ', 0, max_chars)
+                            if chunk_end == -1:
+                                chunk_end = max_chars
+                        chunks.append(paragraph[:chunk_end].strip())
+                        paragraph = paragraph[chunk_end:].strip()
+                else:
+                    chunks.append(paragraph)
+            continue
+        
+        # Check if adding sentence would exceed limit
+        if current_length + sentence_length > max_chars:
+            chunks.append(current_chunk.strip())
+            current_chunk = sentence
+            current_length = sentence_length
+        else:
+            current_chunk += sentence
+            current_length += sentence_length
+    
+    # Add final chunk
+    if current_chunk:
+        chunks.append(current_chunk.strip())
+    
+    return chunks
 
 def extract_citations_from_text(text: str) -> List[Dict[str, Any]]:
     """
@@ -164,39 +327,106 @@ def extract_citations_from_text(text: str) -> List[Dict[str, Any]]:
     Returns:
         List of citation dictionaries
     """
-    messages = [
-        {
-            "role": "system",
-            "content": """You are a citation extraction assistant. Your task is to analyze text and extract academic citations and references.
-            For each citation, provide:
-            1. Authors (as a list)
-            2. Year
-            3. Title
-            4. Source (journal, conference, etc.)
-            5. DOI if available
-            6. URL if available
-            
-            Format your response as a JSON array of citation objects."""
-        },
-        {
-            "role": "user",
-            "content": text
-        }
-    ]
+    client = get_xai_client()
+    if not client:
+        return []
+
+    # Conservative token limit to leave room for system prompt
+    MAX_CHUNK_TOKENS = 90000  # Well below 131,072 limit
     
-    # First try API-based extraction
-    response = call_xai_api(messages)
-    if response and "choices" in response:
+    # Split text into manageable chunks
+    chunks = chunk_text(text, max_tokens=MAX_CHUNK_TOKENS)
+    Logger.info(f"Split text into {len(chunks)} chunks for processing")
+    
+    all_citations = []
+    seen_citations = set()  # Track duplicates across chunks
+    
+    for i, chunk in enumerate(chunks, 1):
+        Logger.info(f"Processing chunk {i}/{len(chunks)} ({len(chunk)} chars)")
+        
+        messages = [
+            {
+                "role": "system",
+                "content": """You are a citation extraction assistant. Extract academic citations and references.
+                Format each citation as a JSON object with:
+                - authors (list)
+                - year
+                - title
+                - source
+                - doi (if available)
+                - url (if available)"""
+            },
+            {
+                "role": "user",
+                "content": chunk
+            }
+        ]
+
         try:
-            content = response["choices"][0]["message"]["content"]
-            citations = json.loads(content)
-            if isinstance(citations, list):
-                return citations
-        except (json.JSONDecodeError, KeyError, TypeError) as e:
-            Logger.warning(f"Failed to parse API response: {str(e)}")
-    
-    # Fallback to regex-based extraction
-    Logger.info("Falling back to regex-based citation extraction")
+            response = client.chat(messages)
+            result = client.extract_tool_result(response)
+            
+            chunk_citations = []
+            if isinstance(result, list):
+                chunk_citations = result
+            elif "content" in result:
+                try:
+                    parsed = json.loads(result["content"])
+                    if isinstance(parsed, list):
+                        chunk_citations = parsed
+                except json.JSONDecodeError:
+                    Logger.warning(f"Failed to parse JSON from chunk {i}")
+            
+            # Deduplicate citations within and across chunks
+            for citation in chunk_citations:
+                # Create unique key for citation
+                if citation.get("doi"):
+                    key = citation["doi"]
+                else:
+                    key = f"{citation.get('title', '')}_{citation.get('year', '')}_{','.join(citation.get('authors', []))}"
+                
+                if key not in seen_citations:
+                    all_citations.append(citation)
+                    seen_citations.add(key)
+            
+        except Exception as e:
+            Logger.error(f"Error processing chunk {i}: {e}")
+            if "token" in str(e).lower():
+                # Try splitting chunk further if token error
+                try:
+                    subchunks = chunk_text(chunk, max_tokens=MAX_CHUNK_TOKENS // 2)
+                    Logger.info(f"Retrying chunk {i} split into {len(subchunks)} subchunks")
+                    for subchunk in subchunks:
+                        try:
+                            messages[1]["content"] = subchunk
+                            response = client.chat(messages)
+                            result = client.extract_tool_result(response)
+                            
+                            if isinstance(result, list):
+                                for citation in result:
+                                    if citation.get("doi"):
+                                        key = citation["doi"]
+                                    else:
+                                        key = f"{citation.get('title', '')}_{citation.get('year', '')}_{','.join(citation.get('authors', []))}"
+                                    
+                                    if key not in seen_citations:
+                                        all_citations.append(citation)
+                                        seen_citations.add(key)
+                        except Exception as sub_e:
+                            Logger.error(f"Error processing subchunk of chunk {i}: {sub_e}")
+                except Exception as split_e:
+                    Logger.error(f"Error splitting chunk {i}: {split_e}")
+            continue
+
+    # If no citations found via API, try regex
+    if not all_citations:
+        Logger.info("No citations found via API, falling back to regex extraction")
+        all_citations = _extract_citations_regex(text)
+
+    return all_citations
+
+def _extract_citations_regex(text: str) -> List[Dict[str, Any]]:
+    """Extract citations using regex patterns."""
     citations = []
     
     # Common citation patterns
@@ -222,19 +452,90 @@ def extract_citations_from_text(text: str) -> List[Dict[str, Any]]:
     
     return citations
 
-def ensure_metadata_dir(directory: Path) -> Path:
+def extract_citations_from_doi(doi: str) -> Optional[Dict[str, Any]]:
     """
-    Ensure the metadata directory exists.
+    Extract citation information from a DOI using multiple services.
     
     Args:
-        directory: Base directory path
+        doi: DOI string
         
     Returns:
-        Path to the metadata directory
+        Citation dictionary or None on failure
     """
-    metadata_dir = directory / ".cleanupx"
-    metadata_dir.mkdir(parents=True, exist_ok=True)
-    return metadata_dir
+    try:
+        # Clean and normalize the DOI
+        doi = doi.strip()
+        if not doi.startswith('10.'):
+            Logger.warning(f"Invalid DOI format: {doi}")
+            return None
+            
+        # Remove any 'Open' suffix that might have been incorrectly appended
+        if doi.endswith('Open'):
+            doi = doi[:-4]
+            
+        # Try multiple DOI resolution services
+        services = [
+            ("https://api.crossref.org/works/", "CrossRef"),
+            ("https://doi.org/api/handles/", "DOI.org"),
+            ("https://api.unpaywall.org/v2/", "Unpaywall"),
+            ("https://api.datacite.org/works/", "DataCite")  # Added DataCite as fallback
+        ]
+        
+        for base_url, service in services:
+            try:
+                url = f"{base_url}{quote_plus(doi)}"
+                headers = {
+                    "Accept": "application/json",
+                    "User-Agent": "CitationExtractor/1.0 (mailto:support@cleanupx.org)"  # Added user agent
+                }
+                
+                if service == "Unpaywall":
+                    api_key = os.getenv("UNPAYWALL_API_KEY")
+                    if api_key:
+                        headers["Authorization"] = f"Bearer {api_key}"
+                
+                response = requests.get(url, headers=headers, timeout=API_TIMEOUT)
+                response.raise_for_status()
+                
+                data = response.json()
+                if service == "CrossRef":
+                    data = data.get("message", {})
+                elif service == "DOI.org":
+                    data = data.get("values", [{}])[0].get("data", {})
+                elif service == "Unpaywall":
+                    data = data.get("data", {})
+                elif service == "DataCite":
+                    data = data.get("data", {}).get("attributes", {})
+                
+                # Extract citation information
+                citation = {
+                    "authors": [
+                        f"{author.get('given', '')} {author.get('family', '')}"
+                        for author in data.get("author", [])
+                    ],
+                    "year": data.get("published-print", {}).get("date-parts", [[None]])[0][0],
+                    "title": data.get("title", [None])[0] if isinstance(data.get("title"), list) else data.get("title"),
+                    "source": data.get("container-title", [None])[0] if isinstance(data.get("container-title"), list) else data.get("container-title"),
+                    "doi": doi,
+                    "url": data.get("URL") or f"https://doi.org/{doi}",
+                    "type": "doi"
+                }
+                
+                # Validate the citation
+                if any(citation.values()):
+                    Logger.info(f"Successfully fetched citation for DOI {doi} from {service}")
+                    return citation
+                    
+            except requests.exceptions.RequestException as e:
+                Logger.warning(f"Failed to fetch citation for DOI {doi} from {service}: {str(e)}")
+                continue
+                
+        Logger.warning(f"All DOI resolution services failed for {doi}")
+        return None
+        
+    except Exception as e:
+        Logger.error(f"Error processing DOI {doi}: {str(e)}")
+        return None
 
 def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> str:
     """
@@ -250,22 +551,7 @@ def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> st
     file_path = Path(file_path)
     text = ""
     
-    # Try PyPDF2 if available
-    if PYPDF2_AVAILABLE:
-        try:
-            with open(file_path, 'rb') as f:
-                reader = PyPDF2.PdfReader(f)
-                pages_to_read = min(len(reader.pages), max_pages) if max_pages else len(reader.pages)
-                for i in range(pages_to_read):
-                    text += reader.pages[i].extract_text() + "\n"
-            if text.strip():
-                return text
-        except Exception as e:
-            Logger.warning(f"PyPDF2 extraction failed for {file_path}: {e}")
-    else:
-        Logger.debug("PyPDF2 not available, skipping PyPDF2 extraction")
-    
-    # Try pdftotext as fallback
+    # Try pdftotext first (more reliable)
     try:
         page_option = []
         if max_pages:
@@ -282,6 +568,25 @@ def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> st
             Logger.warning(f"pdftotext extraction failed for {file_path}: {result.stderr}")
     except Exception as e:
         Logger.warning(f"pdftotext extraction failed for {file_path}: {e}")
+    
+    # Fallback to PyPDF2
+    if PYPDF2_AVAILABLE:
+        try:
+            with open(file_path, 'rb') as f:
+                reader = PyPDF2.PdfReader(f, strict=False)  # Added strict=False to handle malformed PDFs
+                pages_to_read = min(len(reader.pages), max_pages) if max_pages else len(reader.pages)
+                for i in range(pages_to_read):
+                    try:
+                        text += reader.pages[i].extract_text() + "\n"
+                    except Exception as e:
+                        Logger.warning(f"Error extracting text from page {i+1}: {str(e)}")
+                        continue
+            if text.strip():
+                return text
+        except Exception as e:
+            Logger.warning(f"PyPDF2 extraction failed for {file_path}: {e}")
+    else:
+        Logger.debug("PyPDF2 not available, skipping PyPDF2 extraction")
     
     return text
 
@@ -390,40 +695,19 @@ def extract_text_content(file_path: Union[str, Path]) -> str:
         Logger.error(f"Error extracting text from {file_path}: {e}")
         return ""
 
-def extract_citations_from_doi(doi: str) -> Optional[Dict[str, Any]]:
+def ensure_metadata_dir(directory: Path) -> Path:
     """
-    Extract citation information from a DOI using CrossRef API.
+    Ensure the metadata directory exists.
     
     Args:
-        doi: DOI string
+        directory: Base directory path
         
     Returns:
-        Citation dictionary or None on failure
+        Path to the metadata directory
     """
-    try:
-        url = f"https://api.crossref.org/works/{quote_plus(doi)}"
-        response = requests.get(url, timeout=API_TIMEOUT)
-        response.raise_for_status()
-        
-        data = response.json()["message"]
-        
-        citation = {
-            "authors": [
-                f"{author.get('given', '')} {author.get('family', '')}"
-                for author in data.get("author", [])
-            ],
-            "year": data.get("published-print", {}).get("date-parts", [[None]])[0][0],
-            "title": data.get("title", [None])[0],
-            "source": data.get("container-title", [None])[0],
-            "doi": doi,
-            "url": data.get("URL")
-        }
-        
-        return citation
-        
-    except Exception as e:
-        Logger.warning(f"Failed to fetch citation for DOI {doi}: {str(e)}")
-        return None
+    metadata_dir = directory / ".cleanupx"
+    metadata_dir.mkdir(parents=True, exist_ok=True)
+    return metadata_dir
 
 def update_citations_file(directory: Path, new_citations: List[Dict[str, Any]]) -> Path:
     """
@@ -660,88 +944,131 @@ def process_file_for_citations(
         mod_time = datetime.fromtimestamp(file_path.stat().st_mtime)
         
         # Check if we should process this file based on mode
-        citations_file = metadata_dir / "citations.json"  # Fixed path
+        citations_file = metadata_dir / "citations.json"
         if mode != "all" and citations_file.exists():
-            with open(citations_file, "r", encoding="utf-8") as f:
-                existing = json.load(f)
-                file_key = str(file_path)
-                
-                if file_key in existing:
-                    last_processed = datetime.fromisoformat(existing[file_key]["last_processed"])
-                    if mode == "new" or (mode == "update" and mod_time <= last_processed):
-                        return {"skipped": "Already processed"}
+            try:
+                with open(citations_file, "r", encoding="utf-8") as f:
+                    existing = json.load(f)
+                    file_key = str(file_path)
+                    
+                    if file_key in existing:
+                        last_processed = datetime.fromisoformat(existing[file_key]["last_processed"])
+                        if mode == "new" or (mode == "update" and mod_time <= last_processed):
+                            return {"skipped": "Already processed"}
+            except Exception as e:
+                Logger.warning(f"Error reading citations file: {str(e)}")
         
         # Extract content using appropriate method based on file type
-        content = extract_text_content(file_path)
+        content = ""
+        if file_path.suffix.lower() in {'.pdf'}:
+            content = extract_text_from_pdf(file_path)
+        elif file_path.suffix.lower() in {'.docx', '.doc'}:
+            if DOCX2TXT_AVAILABLE:
+                content = docx2txt.process(file_path)
+            elif PYTHON_DOCX_AVAILABLE:
+                doc = Document(file_path)
+                content = "\n".join(paragraph.text for paragraph in doc.paragraphs)
+        else:
+            try:
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+            except Exception as e:
+                Logger.error(f"Error reading file {file_path}: {str(e)}")
+                return {"error": f"Failed to read file: {str(e)}"}
+                
         if not content:
             return {"error": f"Failed to extract content from {file_path}"}
             
         # Extract citations using API
         citations = extract_citations_from_text(content)
         
-        # Look for DOIs
+        # Look for DOIs and track processed ones
+        processed_dois = set()
         doi_pattern = r'\b(10\.\d{4,}(?:\.\d+)*\/(?:(?![\'"])\S)+)\b'
         dois = re.findall(doi_pattern, content)
         
-        # Get citation info for each DOI
+        # Get citation info for each unique DOI
         for doi in dois:
-            citation = extract_citations_from_doi(doi)
-            if citation:
-                citations.append(citation)
+            if doi not in processed_dois:
+                citation = extract_citations_from_doi(doi)
+                if citation:
+                    citations.append(citation)
+                    processed_dois.add(doi)
+                
+        # Deduplicate citations
+        unique_citations = []
+        seen_citations = set()
+        
+        for citation in citations:
+            # Create a unique key for the citation
+            if citation.get("doi"):
+                key = citation["doi"]
+            else:
+                # For non-DOI citations, use a combination of fields
+                key = f"{citation.get('title', '')}_{citation.get('year', '')}_{','.join(citation.get('authors', []))}"
+            
+            if key not in seen_citations:
+                unique_citations.append(citation)
+                seen_citations.add(key)
                 
         # Update citations file
-        if citations:
+        if unique_citations:
             citations_data = {
                 str(file_path): {
-                    "citations": citations,
+                    "citations": unique_citations,
                     "last_processed": mod_time.isoformat(),
                     "file_type": file_path.suffix.lower()
                 }
             }
             
-            if citations_file.exists():
-                with open(citations_file, "r", encoding="utf-8") as f:
-                    existing = json.load(f)
-                existing.update(citations_data)
-                citations_data = existing
+            try:
+                if citations_file.exists():
+                    with open(citations_file, "r", encoding="utf-8") as f:
+                        existing = json.load(f)
+                    existing.update(citations_data)
+                    citations_data = existing
+                    
+                # Ensure parent directory exists
+                citations_file.parent.mkdir(parents=True, exist_ok=True)
                 
-            # Ensure parent directory exists
-            citations_file.parent.mkdir(parents=True, exist_ok=True)
-            
-            with open(citations_file, "w", encoding="utf-8") as f:
-                json.dump(citations_data, f, indent=2)
+                with open(citations_file, "w", encoding="utf-8") as f:
+                    json.dump(citations_data, f, indent=2)
+                    
+                # Generate markdown version
+                markdown_file = metadata_dir / "citations.md"
+                with open(markdown_file, "w", encoding="utf-8") as f:
+                    f.write("# Citations\n\n")
+                    for file_info in citations_data.values():
+                        for citation in file_info["citations"]:
+                            authors = citation.get("authors", [])
+                            if isinstance(authors, str):
+                                authors = [authors]
+                            author_text = ", ".join(authors) if authors else "Unknown Author"
+                            
+                            year = citation.get("year", "n.d.")
+                            title = citation.get("title", "Untitled")
+                            source = citation.get("source", "")
+                            doi = citation.get("doi", "")
+                            url = citation.get("url", "")
+                            
+                            f.write(f"## {title}\n\n")
+                            f.write(f"**Authors:** {author_text}\n\n")
+                            f.write(f"**Year:** {year}\n\n")
+                            if source:
+                                f.write(f"**Source:** {source}\n\n")
+                            if doi:
+                                f.write(f"**DOI:** [{doi}](https://doi.org/{doi})\n\n")
+                            if url and url != f"https://doi.org/{doi}":
+                                f.write(f"**URL:** {url}\n\n")
+                            f.write("---\n\n")
                 
-            # Generate markdown version
-            markdown_file = metadata_dir / "citations.md"
-            with open(markdown_file, "w", encoding="utf-8") as f:
-                f.write("# Citations\n\n")
-                for file_info in citations_data.values():
-                    for citation in file_info["citations"]:
-                        authors = citation.get("authors", [])
-                        if isinstance(authors, str):
-                            authors = [authors]
-                        author_text = ", ".join(authors) if authors else "Unknown Author"
-                        
-                        year = citation.get("year", "n.d.")
-                        title = citation.get("title", "Untitled")
-                        source = citation.get("source", "")
-                        doi = citation.get("doi", "")
-                        url = citation.get("url", "")
-                        
-                        f.write(f"## {title}\n\n")
-                        f.write(f"**Authors:** {author_text}\n\n")
-                        f.write(f"**Year:** {year}\n\n")
-                        if source:
-                            f.write(f"**Source:** {source}\n\n")
-                        if doi:
-                            f.write(f"**DOI:** [{doi}](https://doi.org/{doi})\n\n")
-                        if url and url != f"https://doi.org/{doi}":
-                            f.write(f"**URL:** {url}\n\n")
-                        f.write("---\n\n")
+            except Exception as e:
+                Logger.error(f"Error saving citations: {str(e)}")
+                return {"error": f"Failed to save citations: {str(e)}"}
             
         return {
             "processed": True,
-            "citations_found": len(citations),
+            "citations_found": len(unique_citations),
             "file": str(file_path)
         }
         

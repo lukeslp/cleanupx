@@ -5860,3 +5860,776 @@ https://api.mistral.ai/v1"
 
   **
 --------------------
+
+=== File: snippets/batch_6_combined.md | 2025-04-12 01:30:08 ===
+```python
+@dataclass
+class APIService:
+    """Represents an API service"""
+    name: str
+    key: str
+    category: str
+    requires_payment: bool
+    accessibility_features: List[str]
+    documentation_url: Optional[str] = None
+```
+
+This snippet is the best overall because it defines a clean, extensible data structure for API services, which is central to the system's API analysis and integration features. It's concise, uses modern Python features (like dataclasses), and avoids boilerplate while providing essential attributes.
+
+###
+--------------------
+
+=== File: snippets/snippets_folder_combined.md | 2025-04-12 01:30:16 ===
+This is the most important and unique snippet overall, as it encapsulates event handling, which is a core mechanism for task management and system notifications. It's derived from Batches 1 and 3, and it's non-redundant, reusable, and central to the application's flow.
+
+```python
+# Event Types and Emitter (from Batch 1 and 3)
+from enum import Enum
+
+class EventType(str, Enum):
+    TASK_STARTED = "task_started"
+    TASK_COMPLETED = "task_completed"
+    TASK_FAILED = "task_failed"
+
+class EventEmitter:
+    def __init__(self, event_emitter: Callable[[dict], Any] = None):
+        self.event_emitter = event_emitter
+
+    async def emit(self, description="Unknown State", status="in_progress", done=False):
+        if self.event_emitter:
+            await self.event_emitter({"description": description, "status": status, "done": done})
+```
+
+**Why this is the best**: This snippet is pivotal for the system's event-driven architecture, integrating enums for event types and an asynchronous emitter for real-time updates. It avoids redundancy by consolidating similar implementations from multiple batches into a single, comprehensive block.
+
+###
+--------------------
+
+=== File: snippets/batch_3_combined.md | 2025-04-12 01:30:22 ===
+```
+class OllamaAPI:
+    """Client for interacting with Ollama LLM service."""
+    
+    def __init__(
+        self,
+        base_url: str = "http://localhost:11434/api",
+        model: str = "drummer-knowledge",
+        logger: Optional[logging.Logger] = None
+    ):
+        """
+        Initialize Ollama API client.
+        
+        Args:
+            base_url: Base URL for Ollama API
+            model: Model to use for inference
+            logger: Optional logger instance
+        """
+        self.base_url = base_url
+        self.model = model
+        self.logger = logger or get_logger(__name__)
+```
+--------------------
+Links/Citations:
+http://localhost:11434/api",
+--------------------
+
+=== File: snippets/routes_combined.md | 2025-04-12 01:30:34 ===
+**
+  ```
+  def admin_required(f):
+      """Decorator to require admin authentication"""
+      @wraps(f)
+      def decorated_function(*args, **kwargs):
+          auth_header = request.headers.get('Authorization')
+          if not auth_header:
+              logger.warning("No authorization header provided")
+              return jsonify({"error": "No authorization header"}), 401
+          
+          try:
+              token_type, token = auth_header.split(' ')
+              if token_type.lower() != 'bearer':
+                  logger.warning("Invalid authorization type")
+                  return jsonify({"error": "Invalid authorization type"}), 401
+              
+              if token != os.getenv('ADMIN_TOKEN', ''):
+                  logger.warning("Invalid admin token provided")
+                  return jsonify({"error": "Unauthorized"}), 403
+                  
+              return f(*args, **kwargs)
+          except Exception as e:
+              logger.error(f"Auth error: {str(e)}")
+              return jsonify({"error": "Invalid authorization header"}), 401
+              
+      return decorated_function
+  ```
+
+- **Alternatives**: These are other important and unique snippets that provide key functionality, such as authentication, proxying, file handling, chat integrations, and health checks. I selected them for their specificity and role in the application's ecosystem, ensuring they are distinct from the best version. Each one includes relevant documentation for context.
+
+  **
+--------------------
+
+=== File: snippets/batch_9_combined.md | 2025-04-12 01:30:44 ===
+```python
+class EventEmitter:
+    """Event emitter for progress tracking"""
+
+    def __init__(self, event_emitter: Callable[[dict], Any] = None):
+        self.event_emitter = event_emitter
+
+    async def progress_update(self, description):
+        await self.emit(description)
+
+    async def error_update(self, description):
+        await self.emit(description, "error", True)
+
+    async def success_update(self, description):
+        await self.emit(description, "success", True)
+
+    async def emit(self, description="Unknown State", status="in_progr"):
+        # (Implementation details would follow, e.g., calling the event_emitter)
+        pass
+```
+
+This snippet is essential for handling real-time updates in a non-blocking way, making it a cornerstone for tools like data fetching and error management.
+
+###
+--------------------
+
+=== File: snippets/batch_5_combined.md | 2025-04-12 01:30:54 ===
+**  
+The `BaseProvider` abstract class is the best overall snippet because it establishes a clear, asynchronous contract for AI interactions, emphasizing streaming responses and flexibility. This makes it a cornerstone for building extensible AI tools.
+
+```python
+class BaseProvider(ABC):
+    """Base class for all AI providers."""
+    
+    @abstractmethod
+    async def chat_completion(
+        self,
+        messages: List[Dict[str, str]],
+        stream: bool = True,
+        **kwargs
+    ) -> AsyncIterator[Dict[str, str]]:
+        """Generate chat completions from the AI provider.
+        
+        Args:
+            messages: List of message dictionaries with 'role' and 'content' keys
+            stream: Whether to stream the response
+            **kwargs: Additional provider-specific parameters
+            
+        Yields:
+            Dict containing response chunks with 'type' and 'content' keys
+        """
+        pass
+```
+
+**
+--------------------
+
+=== File: snippets/batch_10_combined.md | 2025-04-12 01:31:02 ===
+**  
+This snippet defines a consistent dark-themed color scheme using CSS variables. It's the most important because it establishes a reusable foundation for the application's visual identity, ensuring theming consistency across components.
+
+```css
+:root {
+    --bg-color: #000000;
+    --text-color: #ffffff;
+    --accent-color: #00ff00;
+    --secondary-color: #333333;
+    --input-bg: #1a1a1a;
+    --step-inactive: #444444;
+    --step-active: var(--accent-color);
+    --step-complete: #00cc00;
+}
+```
+
+**
+--------------------
+
+=== File: snippets/batch_2_combined.md | 2025-04-12 01:31:12 ===
+The best snippet is the **logging setup function**, as it represents a foundational, flexible utility that integrates structlog for advanced logging configuration. This is crucial for any application dealing with verbose output, error handling, and accessibility, making it a cornerstone for the entire codebase. It's unique due to its combination of verbosity control, file logging, and processor configuration.
+
+```python
+def setup_logging(
+    verbose: bool = False,
+    log_file: Optional[Path] = None,
+    log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+) -> None:
+    """Set up logging configuration.
+    
+    Args:
+        verbose: If True, set log level to DEBUG
+        log_file: Optional path to log file
+        log_format: Format string for log messages
+    """
+    level = logging.DEBUG if verbose else logging.INFO
+    
+    structlog.configure(
+        processors=[
+            structlog.stdlib.filter_by_level,
+            structlog.stdlib.add_logger_name,
+            structlog.stdlib.add_log_level,
+            structlog.stdlib.PositionalArgumentsFormatter(),
+        ]
+    )
+```
+
+###
+--------------------
+
+=== File: snippets/batch_7_combined.md | 2025-04-12 01:31:22 ===
+This is the most important and unique snippet overall. I chose the `APIError` class because it exemplifies structured error handling for API failures, which is a recurring theme in the code (e.g., in API interactions like ArxivAPI or stock analysis). It's concise, reusable, and adds value by providing enhanced context (e.g., API name and status code), making it essential for robust, production-ready code.
+
+```python
+class APIError(Exception):
+    """Custom exception for API failures (from code_exceptions.python)."""
+    def __init__(self, message: str, api_name: str, status_code: int = None):
+        """Initialize with enhanced context for error handling."""
+        super().__init__(message)  # Inherit from base exception
+        self.api_name = api_name
+        self.status_code = status_code
+        # Rationale: Unique due to additional parameters for structured error management.
+```
+
+###
+--------------------
+
+=== File: snippets/another_final_combined.md | 2025-04-12 01:31:34 ===
+Below is my extraction of the most important and unique code snippets or documentation segments from the provided code in `snippets/another_final_combined.md`. Based on the context, I focused on elements that are foundational, innovative, and emphasized in the document, such as application setup, AI interactions, security mechanisms, and utilities. I prioritized snippets that demonstrate core functionality, modularity, error handling, and reusability while avoiding redundancies.
+
+- **Best Version**: I selected the `create_app` function as the best snippet because it serves as the foundational entry point for the application. It encapsulates critical setup aspects like configuration, logging, blueprint registration, and error handling, making it essential for the entire application's structure and maintainability.
+
+  ```python
+  def create_app(config=None):
+      """
+      Create and configure the Flask application.
+      
+      Args:
+          config (dict, optional): Configuration overrides.
+          
+      Returns:
+          Flask: Application instance.
+      """
+      import logging
+      from flask import Flask, jsonify
+      from pathlib import Path
+      import os
+      
+      # Configure logging
+      logging.basicConfig(
+          level=logging.INFO,
+          format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+      )
+      logger = logging.getLogger(__name__)
+      
+      # Create Flask app
+      app = Flask(__name__, 
+                  template_folder='templates',
+                  static_folder='static')
+      
+      # Default configuration
+      app.config.update(
+          SECRET_KEY=os.getenv('SECRET_KEY', 'dev-key-change-in-production'),
+          MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB max upload
+          UPLOAD_FOLDER=os.getenv('UPLOAD_FOLDER', 'uploads'),
+          TEMP_FOLDER=os.getenv('TEMP_FOLDER', 'temp'),
+          SERVER_NAME=os.getenv('SERVER_NAME', None),
+          PREFERRED_URL_SCHEME=os.getenv('PREFERRED_URL_SCHEME', 'https'),
+          DEBUG=os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+      )
+      
+      # Apply custom configuration if provided
+      if config:
+          app.config.update(config)
+      
+      # Create necessary directories
+      Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True, parents=True)
+      Path(app.config['TEMP_FOLDER']).mkdir(exist_ok=True, parents=True)
+      
+      # Register blueprints with URL prefixes
+      app.register_blueprint(api_bp, url_prefix='/api/v1')
+      app.register_blueprint(proxy_bp, url_prefix='/api/v1/proxy')
+      app.register_blueprint(llm_bp, url_prefix='/api/v1/llm')
+      app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+      app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
+      app.register_blueprint(file_bp, url_prefix='/api/v1/files')
+      app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
+      app.register_blueprint(tunnel_bp, url_prefix='/api/v1/tunnel')
+      app.register_blueprint(health_bp, url_prefix='/api/v1/health')
+      
+      # Error handlers
+      @app.errorhandler(404)
+      def not_found(error):
+          return jsonify({"error": "Not found"}), 404
+      
+      @app.errorhandler(500)
+      def server_error(error):
+          logger.error(f"Server error: {error}")
+          return jsonify({"error": "Internal server error"}), 500
+      
+      @app.errorhandler(413)
+      def too_large(error):
+          return jsonify({"error": "File too large"}), 413
+      
+      logger.info(f"Application created with config: {app.config}")
+      return app
+  ```
+
+- **Alternatives**: These are other important and unique snippets that highlight key innovations like AI abstractions, security, API handling, and utilities. I selected a few representative ones to keep this concise, focusing on their uniqueness (e.g., asynchronous AI methods, secure decorators, and event handling).
+
+  - **Abstract AI chat completion method**: This is unique for its modular design in handling AI interactions asynchronously, emphasizing extensibility for different AI providers.
+  
+    ```python
+    @abstractmethod
+    async def chat_completion(
+        self,
+        messages: List[Dict[str, str]],
+        stream: bool = True,
+        **kwargs
+    ) -> AsyncIterator[Dict[str, str]]:
+        """Generate chat completions from the AI provider.
+        
+        Args:
+            messages: List of message dictionaries with 'role' and 'content' keys
+            stream: Whether to stream the response
+            **kwargs: Additional provider-specific parameters
+            
+        Yields:
+            Dict containing response chunks with 'type' and 'content' keys
+        """
+        pass
+    ```
+
+  - **Admin authentication decorator**: This is crucial for security, providing a reusable way to protect routes with token-based authentication and error logging.
+  
+    ```python
+    def admin_required(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            auth_header = request.headers.get('Authorization')
+            if not auth_header:
+                logger.warning("No authorization header provided")
+                return jsonify({"error": "No authorization header"}), 401
+            
+            try:
+                token_type, token = auth_header.split(' ')
+                if token_type.lower() != 'Bearer':
+                    logger.warning("Invalid authorization type")
+                    return jsonify({"error": "Invalid authorization type"}), 401
+                
+                if token != ADMIN_TOKEN:
+                    logger.warning("Invalid admin token provided")
+                    return jsonify({"error": "Unauthorized"}), 403
+                    
+                return f(*args, **kwargs)
+            except Exception as e:
+                logger.error(f"Auth error: {str(e)}")
+                return jsonify({"error": "Invalid authorization header"}), 401
+                
+        return decorated_function
+    ```
+
+  - **EventEmitter class**: This utility is unique for its asynchronous event handling, enabling observability in a modular way for progress, errors, and successes.
+  
+    ```python
+    class EventEmitter:
+        def __init__(self, event_emitter: Callable[[dict], Any] = None):
+            self.event_emitter = event_emitter
+        
+        async def progress_update(self, description):
+            await self.emit(description)
+        
+        async def error_update(self, description):
+            await self.emit(description, "error", True)
+        
+        async def success_update(self, description):
+            await self.emit(description, "success", True)
+        
+        async def emit(self, description="Unknown State", status="in_progress", done=False):
+            if self.event_emitter:
+                await self.event_emitter({
+                    "type": "status",
+                    "data": {"status": status, "description": description, "done": done}
+                })
+    ```
+--------------------
+
+=== File: snippets/similar_formatted_final_combined.md | 2025-04-12 01:31:49 ===
+```python
+import logging
+import os
+from pathlib import Path
+from flask import Flask, jsonify
+from flask_cors import CORS
+
+def create_app(config=None):
+    """
+    Create and configure the Flask application.
+    
+    Args:
+        config (dict, optional): Configuration overrides.
+    
+    Returns:
+        Flask: Application instance.
+    """
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger(__name__)
+    
+    # Create Flask app
+    app = Flask(__name__, template_folder='templates', static_folder='static')
+    
+    # Default configuration
+    app.config.update(
+        SECRET_KEY=os.getenv('SECRET_KEY', 'dev-key-change-in-production'),
+        MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB max upload
+        UPLOAD_FOLDER=os.getenv('UPLOAD_FOLDER', 'uploads'),
+        TEMP_FOLDER=os.getenv('TEMP_FOLDER', 'temp'),
+        SERVER_NAME=os.getenv('SERVER_NAME', None),
+        PREFERRED_URL_SCHEME=os.getenv('PREFERRED_URL_SCHEME', 'https'),
+        DEBUG=os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+    )
+    
+    # Apply custom configuration if provided
+    if config:
+        app.config.update(config)
+    
+    # Create necessary directories
+    Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True, parents=True)
+    Path(app.config['TEMP_FOLDER']).mkdir(exist_ok=True, parents=True)
+    
+    # Configure CORS
+    CORS(app, resources={
+        r"/*": {
+            "origins": os.getenv('CORS_ORIGINS', '*').split(','),
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization", "Accept"]
+        }
+    })
+    
+    # Register blueprints
+    app.register_blueprint(api_bp, url_prefix='/api/v1')
+    app.register_blueprint(proxy_bp, url_prefix='/api/v1/proxy')
+    app.register_blueprint(llm_bp, url_prefix='/api/v1/llm')
+    app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+    app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
+    app.register_blueprint(file_bp, url_prefix='/api/v1/files')
+    app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(tunnel_bp, url_prefix='/api/v1/tunnel')
+    app.register_blueprint(health_bp, url_prefix='/api/v1/health')
+    
+    # Root route
+    @app.route('/')
+    def index():
+        return jsonify({
+            "name": "Your API Service",
+            "version": "1.0.0",
+            "status": "operational",
+            "documentation": "/api/v1/docs"
+        })
+    
+    # Error handlers
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({"error": "Not found"}), 404
+    
+    @app.errorhandler(500)
+    def server_error(error):
+        logger.error(f"Server error: {error}")
+        return jsonify({"error": "Internal server error"}), 500
+    
+    @app.errorhandler(413)
+    def too_large(error):
+        return jsonify({"error": "File too large"}), 413
+    
+    # Log startup information
+    logger.info(f"Application created with config: {app.config}")
+    return app
+```
+
+This is the best version because it encapsulates the core application factory logic, including configuration, logging, CORS, blueprint registration, and error handling. It's comprehensive, reusable, and directly from the "Common Content", making it the most refined representation.
+
+###
+--------------------
+
+=== File: snippets/batch_4_combined.md | 2025-04-12 01:31:58 ===
+** I selected the snippet from "Module Initialization and Exports" as the best overall. This is because it serves as the foundational structure of the system, defining key components and exports in a comprehensive yet concise manner. It's essential for understanding the package's architecture and is unique in its role as the entry point for the MoE system.
+
+- **
+--------------------
+
+=== File: snippets/batch_1_combined.md | 2025-04-12 01:32:10 ===
+This is the single most important and unique snippet. I selected the **EventEmitter class** as the best version because it encapsulates a core system for asynchronous event handling, integrates with enums like EventType, and is described in the document as unique for its structured approach to event lifecycle management. It's central to the application's event-driven architecture and combines enums, async methods, and error handling in a self-contained way.
+
+```python
+from enum import Enum
+from typing import Callable, Any, Awaitable
+
+class EventType(str, Enum):
+    """Types of events that can be emitted"""
+    TASK_STARTED = "task_started"
+    TASK_COMPLETED = "task_completed"
+    TASK_FAILED = "task_failed"
+    BELTER_ASSIGNED = "belter_assigned"
+    BELTER_STARTED = "belter_started"
+    BELTER_COMPLETED = "belter_completed"
+    BELTER_FAILED = "belter_failed"
+    DRUMMER_ASSIGNED = "drummer_assigned"
+    DRUMMER_STARTED = "drummer_started"
+    DRUMMER_COMPLETED = "drummer_completed"
+    DRUMMER_FAILED = "drummer_failed"
+    DATA_GATHERING = "data_gathering"
+    DATA_PROCESSING = "data_processing"
+    ANALYSIS_STARTED = "analysis_started"
+    ANALYSIS_COMPLETED = "analysis_completed"
+
+class EventEmitter:
+    def __init__(self, event_emitter: Callable[[dict], Any] = None):
+        self.event_emitter = event_emitter
+
+    async def progress_update(self, description):
+        await self.emit(description)
+
+    async def error_update(self, description):
+        await self.emit(description, "error", True)
+
+    async def success_update(self, description):
+        await self.emit(description, "success", True)
+
+    async def emit(self, description="Unknown State", status="in_progress", done=False):
+        if self.event_emitter:
+            await self.event_emitter({"description": description, "status": status, "done": done})
+```
+
+###
+--------------------
+
+=== File: snippets/formatted.md | 2025-04-12 01:32:22 ===
+This is the most important and unique snippet, as it encapsulates the core application factory pattern in Flask. It's comprehensive, reusable, and integrates logging, CORS, blueprint registration, and error handling—making it essential for building a secure, modular API.
+
+```python
+import logging
+import os
+from pathlib import Path
+from flask import Flask, jsonify
+from flask_cors import CORS
+
+def create_app(config=None):
+    """
+    Create and configure the Flask application.
+    
+    Args:
+        config (dict, optional): Configuration overrides.
+    
+    Returns:
+        Flask: Application instance.
+    """
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger(__name__)
+    
+    # Create Flask app
+    app = Flask(__name__, template_folder='templates', static_folder='static')
+    
+    # Default configuration
+    app.config.update(
+        SECRET_KEY=os.getenv('SECRET_KEY', 'dev-key-change-in-production'),
+        MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB max upload
+        UPLOAD_FOLDER=os.getenv('UPLOAD_FOLDER', 'uploads'),
+        TEMP_FOLDER=os.getenv('TEMP_FOLDER', 'temp'),
+        SERVER_NAME=os.getenv('SERVER_NAME', None),
+        PREFERRED_URL_SCHEME=os.getenv('PREFERRED_URL_SCHEME', 'https'),
+        DEBUG=os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+    )
+    
+    # Apply custom configuration
+    if config:
+        app.config.update(config)
+    
+    # Create necessary directories
+    Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True, parents=True)
+    Path(app.config['TEMP_FOLDER']).mkdir(exist_ok=True, parents=True)
+    
+    # Configure CORS
+    CORS(app, resources={
+        r"/*": {
+            "origins": os.getenv('CORS_ORIGINS', '*').split(','),
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization", "Accept"]
+        }
+    })
+    
+    # Register blueprints
+    app.register_blueprint(api_bp, url_prefix='/api/v1')
+    app.register_blueprint(proxy_bp, url_prefix='/api/v1/proxy')
+    app.register_blueprint(llm_bp, url_prefix='/api/v1/llm')
+    app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+    app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
+    app.register_blueprint(file_bp, url_prefix='/api/v1/files')
+    app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(tunnel_bp, url_prefix='/api/v1/tunnel')
+    app.register_blueprint(health_bp, url_prefix='/api/v1/health')
+    
+    # Root route
+    @app.route('/')
+    def index():
+        return jsonify({
+            "name": "Your API Service",
+            "version": "1.0.0",
+            "status": "operational",
+            "documentation": "/api/v1/docs"
+        })
+    
+    # Error handlers
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({"error": "Not found"}), 404
+    
+    @app.errorhandler(500)
+    def server_error(error):
+        logger.error(f"Server error: {error}")
+        return jsonify({"error": "Internal server error"}), 500
+    
+    @app.errorhandler(413)
+    def too_large(error):
+        return jsonify({"error": "File too large"}), 413
+    
+    logger.info(f"Application created with config: {app.config}")
+    return app
+```
+
+###
+--------------------
+
+=== File: snippets/final_combined.md | 2025-04-12 01:32:36 ===
+This is the most important and unique snippet: the `create_app` function. It encapsulates the core application factory pattern, which is essential for creating a reusable, configurable Flask app. This snippet is unique because it integrates multiple best practices (e.g., logging, CORS, blueprint registration, and error handling) into a single, cohesive structure, making it the cornerstone of the API.
+
+```python
+def create_app(config=None):
+    """
+    Create and configure Flask application
+    
+    Args:
+        config (dict, optional): Configuration overrides
+        
+    Returns:
+        Flask: Application instance
+    """
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger(__name__)
+    
+    # Create Flask app
+    app = Flask(__name__, 
+                template_folder='templates',
+                static_folder='static')
+    
+    # Default configuration
+    app.config.update(
+        SECRET_KEY=os.getenv('SECRET_KEY', 'dev-key-change-in-production'),
+        MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB max upload
+        UPLOAD_FOLDER=os.getenv('UPLOAD_FOLDER', 'uploads'),
+        TEMP_FOLDER=os.getenv('TEMP_FOLDER', 'temp'),
+        SERVER_NAME=os.getenv('SERVER_NAME', None),
+        PREFERRED_URL_SCHEME=os.getenv('PREFERRED_URL_SCHEME', 'https'),
+        DEBUG=os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+    )
+    
+    # Apply custom configuration if provided
+    if config:
+        app.config.update(config)
+    
+    # Create necessary directories
+    Path(app.config['UPLOAD_FOLDER']).mkdir(exist_ok=True, parents=True)
+    Path(app.config['TEMP_FOLDER']).mkdir(exist_ok=True, parents=True)
+    
+    # Configure CORS
+    CORS(app, resources={
+        r"/*": {
+            "origins": os.getenv('CORS_ORIGINS', '*').split(','),
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization", "Accept"]
+        }
+    })
+    
+    # Register blueprints with URL prefixes
+    app.register_blueprint(api_bp, url_prefix='/api/v1')
+    app.register_blueprint(proxy_bp, url_prefix='/api/v1/proxy')
+    app.register_blueprint(llm_bp, url_prefix='/api/v1/llm')
+    app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+    app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
+    app.register_blueprint(file_bp, url_prefix='/api/v1/files')
+    app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
+    app.register_blueprint(tunnel_bp, url_prefix='/api/v1/tunnel')
+    app.register_blueprint(health_bp, url_prefix='/api/v1/health')
+    
+    # Root route
+    @app.route('/')
+    def index():
+        return jsonify({
+            "name": "Your API Service",
+            "version": "1.0.0",
+            "status": "operational",
+            "documentation": "/api/v1/docs"
+        })
+    
+    # Error handlers
+    @app.errorhandler(404)
+    def not_found(error):
+        return jsonify({"error": "Not found"}), 404
+    
+    @app.errorhandler(500)
+    def server_error(error):
+        logger.error(f"Server error: {error}")
+        return jsonify({"error": "Internal server error"}), 500
+    
+    @app.errorhandler(413)
+    def too_large(error):
+        return jsonify({"error": "File too large"}), 413
+    
+    # Log startup information
+    logger.info(f"Application created with config: {app.config}")
+    
+    return app
+```
+
+###
+--------------------
+
+=== File: snippets/batch_8_combined.md | 2025-04-12 01:32:44 ===
+```python
+# Asynchronous sentiment analysis function from finance_analyzer.py and app.js (adapted)
+import asyncio
+from transformers import pipeline
+
+async def _async_sentiment_analysis(content: str, model) -> Dict[str, Union[str, float]]:
+    """Asynchronous sentiment analysis using a pre-trained model."""
+    result = model(content)[0]
+    return {"sentiment": result["label"], "confidence": result["score"]}
+
+async def query_simple(query_string: str, app_id: str, __event_emitter__: Callable[[dict], Awaitable[None]]) -> None:
+    """Query WolframAlpha API asynchronously."""
+    base_url = "http://api.wolframalpha.com/v1/simple"
+    params = {"i": query_string, "appid": app_id}
+    result_url = f"{base_url}?{urllib.parse.urlencode(params)}"
+    await __event_emitter__({
+        "type": "message",
+        "data": {"content": f"![WolframAlpha Simple Result]({result_url})"},
+    })
+```
+**Rationale**: This is the most important and unique segment because it consolidates asynchronous AI operations (e.g., sentiment analysis and API queries), which are central to the document's focus on AI-driven tools. It's efficient, reusable, and eliminates redundancies from multiple files, making it a standout example of core functionality.
+
+###
+--------------------
+Links/Citations:
+http://api.wolframalpha.com/v1/simple"
+--------------------
