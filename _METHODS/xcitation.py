@@ -1,252 +1,429 @@
-### XCITATION - SNIPPET FILE
-### Goal is to create a bibliography while renaming journal articles in a directory (and/or harvest links) using xAI and tool use for things like unpaywall semantic scholar, arxiv, and general web search
+"""
+XCITATION - SNIPPET FILE
+Goal is to create a bibliography while renaming journal articles in a directory (and/or harvest links) 
+using xAI and tool use for things like unpaywall semantic scholar, arxiv, and general web search.
+"""
 
-### POTENTIAL SNIPPETS
+import logging
+from pathlib import Path
+from typing import List, Dict, Optional, Union, Any, Set
+import re
+import json
+from datetime import datetime
+from bibtexparser.bibdatabase import BibDatabase
+from bibtexparser.bwriter import BibTexWriter
+import csv
+from functools import wraps
+import time
+import requests
+import os
+import subprocess
+import io
+import argparse
+import sys
+from dotenv import load_dotenv
+from urllib.parse import quote_plus
 
-model after /_METHODS/xsnipper.py
+# Load environment variables from .env file
+load_dotenv()
 
-def create_bibliography(directory: Union[str, Path], format: str = "apa") -> Optional[str]:
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Constants and configuration
+DEFAULT_MODEL_TEXT = "grok-3-mini-latest"
+API_BASE_URL = "https://api.assisted.space/v2"
+MAX_RETRIES = 3
+RETRY_DELAY = 2  # seconds
+CITATIONS_FILE = ".cleanupx/citations.json"
+API_TIMEOUT = 30
+
+# File type constants
+TEXT_EXTENSIONS = {'.txt', '.md', '.markdown', '.rst', '.text', '.log', '.csv', '.tsv', '.json', '.xml', '.yaml', '.yml', '.html', '.htm', '.py', '.db', '.sh', '.rtf', '.ics', '.icsv', '.icsx'}
+DOCUMENT_EXTENSIONS = {'.pdf', '.docx', '.doc', '.ppt', '.pptx', '.xlsx', '.xls'}
+IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp', '.heic', '.heif', '.ico'}
+MEDIA_EXTENSIONS = {'.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.m4v'}
+ARCHIVE_EXTENSIONS = {'.zip', '.tar', '.tgz', '.tar.gz', '.rar', '.gz', '.pkg'}
+
+# Supported file extensions for citation extraction
+SUPPORTED_EXTENSIONS = TEXT_EXTENSIONS.union(DOCUMENT_EXTENSIONS)
+
+# Optional imports with fallbacks
+try:
+    import pandas as pd
+    PANDAS_AVAILABLE = True
+except ImportError:
+    PANDAS_AVAILABLE = False
+
+try:
+    import PyPDF2
+    PYPDF2_AVAILABLE = True
+except ImportError:
+    PYPDF2_AVAILABLE = False
+
+try:
+    import docx2txt
+    DOCX2TXT_AVAILABLE = True
+except ImportError:
+    DOCX2TXT_AVAILABLE = False
+
+try:
+    from docx import Document
+    PYTHON_DOCX_AVAILABLE = True
+except ImportError:
+    PYTHON_DOCX_AVAILABLE = False
+
+class Logger:
+    """Simple logging class for consistent output formatting."""
+    
+    @staticmethod
+    def info(message):
+        logging.info(message)
+    
+    @staticmethod
+    def warning(message):
+        logging.warning(message)
+    
+    @staticmethod
+    def error(message):
+        logging.error(message)
+        
+    @staticmethod
+    def debug(message):
+        if os.getenv("DEBUG", "").lower() in ("1", "true", "yes"):
+            logging.debug(message)
+
+def call_xai_api(
+    messages: List[Dict[str, str]],
+    model: str = DEFAULT_MODEL_TEXT,
+    temperature: float = 0.7,
+    functions: Optional[List[Dict[str, Any]]] = None,
+    retries: int = MAX_RETRIES
+) -> Optional[Dict[str, Any]]:
     """
-    Create a bibliography from citations found in the directory.
+    Call the X.AI API with retry logic.
     
     Args:
-        directory: Directory to scan for citations
-        format: Citation format (apa, mla, chicago, etc.)
+        messages: List of message dictionaries
+        model: Model name to use
+        temperature: Temperature for generation
+        functions: Optional list of function definitions
+        retries: Number of retries on failure
         
     Returns:
-        Formatted bibliography string or None if no citations found
+        API response dictionary or None on failure
     """
-    try:
-        directory = Path(directory)
-        citations = []
-        
-        # Scan markdown files for citations
-        for file_path in directory.rglob("*.md"):
-            with open(file_path, "r", encoding="utf-8") as f:
-                content = f.read()
-                citations.extend(extract_citations(content))
-        
-        if not citations:
-            return None
-            
-        # Format citations based on style
-        if format.lower() == "apa":
-            return format_apa_citations(citations)
-        elif format.lower() == "mla":
-            return format_mla_citations(citations)
-        elif format.lower() == "chicago":
-            return format_chicago_citations(citations)
-        else:
-            return format_apa_citations(citations)  # Default to APA
-            
-    except Exception as e:
-        logger.error(f"Error creating bibliography: {e}")
+    api_key = os.getenv("XAI_API_KEY")
+    if not api_key:
+        Logger.error("XAI_API_KEY environment variable not set")
         return None
+        
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    data = {
+        "messages": messages,
+        "model": model,
+        "temperature": temperature
+    }
+    
+    if functions:
+        data["functions"] = functions
+        
+    for attempt in range(retries):
+        try:
+            response = requests.post(
+                "https://api.x.ai/v1/chat/completions",
+                headers=headers,
+                json=data,
+                timeout=API_TIMEOUT
+            )
+            response.raise_for_status()
+            return response.json()
+            
+        except requests.exceptions.RequestException as e:
+            Logger.warning(f"API call failed (attempt {attempt + 1}/{retries}): {str(e)}")
+            if attempt < retries - 1:
+                time.sleep(RETRY_DELAY * (attempt + 1))
+            else:
+                Logger.error("Max retries reached for API call")
+                return None
 
-def extract_citations(content: str) -> List[Dict[str, str]]:
+def extract_citations_from_text(text: str) -> List[Dict[str, Any]]:
     """
-    Extract citations from text content.
+    Extract citations from text using the X.AI API.
     
     Args:
-        content: Text content to scan
+        text: Text to analyze
         
     Returns:
         List of citation dictionaries
     """
+    messages = [
+        {
+            "role": "system",
+            "content": """You are a citation extraction assistant. Your task is to analyze text and extract academic citations and references.
+            For each citation, provide:
+            1. Authors (as a list)
+            2. Year
+            3. Title
+            4. Source (journal, conference, etc.)
+            5. DOI if available
+            6. URL if available
+            
+            Format your response as a JSON array of citation objects."""
+        },
+        {
+            "role": "user",
+            "content": text
+        }
+    ]
+    
+    # First try API-based extraction
+    response = call_xai_api(messages)
+    if response and "choices" in response:
+        try:
+            content = response["choices"][0]["message"]["content"]
+            citations = json.loads(content)
+            if isinstance(citations, list):
+                return citations
+        except (json.JSONDecodeError, KeyError, TypeError) as e:
+            Logger.warning(f"Failed to parse API response: {str(e)}")
+    
+    # Fallback to regex-based extraction
+    Logger.info("Falling back to regex-based citation extraction")
     citations = []
     
-    # Match formal citations like [Author, Year] or (Author, Year)
-    citation_pattern = r'[\[\(]([^,\]\)]+),\s*(\d{4})[\]\)](?:\s*\(([^\)]+)\))?'
-    matches = re.finditer(citation_pattern, content)
+    # Common citation patterns
+    patterns = [
+        # Author (Year) pattern
+        r'([A-Z][a-z]+(?:,?\s+(?:&\s+)?[A-Z][a-z]+)*)\s+\((\d{4})\)',
+        # (Author, Year) pattern
+        r'\(([A-Z][a-z]+(?:,?\s+(?:&\s+)?[A-Z][a-z]+)*),\s+(\d{4})\)',
+        # Author et al. (Year) pattern
+        r'([A-Z][a-z]+)\s+et\s+al\.\s+\((\d{4})\)'
+    ]
     
-    for match in matches:
-        author = match.group(1).strip()
-        year = match.group(2)
-        title = match.group(3) if match.group(3) else ""
-        
-        # Look for associated URL
-        url_pattern = rf'\[{re.escape(author)},\s*{year}\].*?\(([^\)]+)\)'
-        url_match = re.search(url_pattern, content)
-        url = url_match.group(1) if url_match else ""
-        
-        citations.append({
-            "author": author,
-            "year": year,
-            "title": title,
-            "url": url
-        })
-    
-    return citations
-
-def format_apa_citations(citations: List[Dict[str, str]]) -> str:
-    """Format citations in APA style."""
-    formatted = []
-    
-    for cite in sorted(citations, key=lambda x: (x["author"].split()[-1], x["year"])):
-        entry = f"{cite['author']} ({cite['year']})"
-        if cite["title"]:
-            entry += f". {cite['title']}"
-            if not cite["title"].endswith("."):
-                entry += "."
-        if cite["url"]:
-            entry += f" Retrieved from {cite['url']}"
-        formatted.append(entry)
-    
-    return "\n\n".join(formatted)
-
-def format_mla_citations(citations: List[Dict[str, str]]) -> str:
-    """Format citations in MLA style."""
-    formatted = []
-    
-    for cite in sorted(citations, key=lambda x: x["author"].split()[-1]):
-        entry = cite["author"]
-        if cite["title"]:
-            entry += f". \"{cite['title']}\""
-        entry += f", {cite['year']}"
-        if cite["url"]:
-            entry += f". Web. {cite['url']}"
-        formatted.append(entry)
-    
-    return "\n\n".join(formatted)
-
-def format_chicago_citations(citations: List[Dict[str, str]]) -> str:
-    """Format citations in Chicago style."""
-    formatted = []
-    
-    for cite in sorted(citations, key=lambda x: x["author"].split()[-1]):
-        entry = f"{cite['author']}. "
-        if cite["title"]:
-            entry += f"\"{cite['title']}.\" "
-        entry += f"({cite['year']})"
-        if cite["url"]:
-            entry += f". {cite['url']}"
-        formatted.append(entry)
-    
-    return "\n\n".join(formatted)
-
-def extract_citations_from_text(text: str) -> List[Dict[str, str]]:
-    """
-    Extract potential citations from text content.
-    
-    Args:
-        text: The text content to analyze
-        
-    Returns:
-        List of dictionaries containing citation information
-    """
-    citations = []
-    
-    # Look for patterns that might indicate references
-    # This is a simplified approach; a more comprehensive solution would use NLP
-    
-    # Match APA-style in-text citations
-    in_text_citations = re.findall(r'\(([A-Za-z]+(?:[ ,&]+[A-Za-z]+)*,? \d{4}[a-z]?(?:, p\. \d+)?)\)', text)
-    
-    # Match potential reference list entries (simplified pattern)
-    reference_entries = re.findall(r'([A-Za-z]+, [A-Z]\. [A-Z]\.(?:, & [A-Za-z]+, [A-Z]\. [A-Z]\.)*) \((\d{4})\)\. (.*?)\. (.*?)(?: |$)', text)
-    
-    # Process in-text citations
-    for citation in in_text_citations:
-        # Parse the citation to extract authors and year
-        parts = citation.split(',')
-        if len(parts) >= 2:
-            authors = parts[0].strip()
-            year_match = re.search(r'(\d{4})', parts[1])
-            year = year_match.group(1) if year_match else ""
-            
-            citations.append({
-                "type": "in-text",
-                "authors": authors,
-                "year": year,
-                "raw": citation
-            })
-    
-    # Process reference list entries
-    for entry in reference_entries:
-        if len(entry) >= 4:
-            authors, year, title, source = entry[0], entry[1], entry[2], entry[3]
-            
-            citations.append({
-                "type": "reference",
-                "authors": authors,
-                "year": year,
-                "title": title,
-                "source": source,
-                "raw": " ".join(entry)
-            })
-    
-    return citations
-
-def extract_citations_from_doi(doi: str) -> Optional[Dict[str, str]]:
-    """
-    Extract citation information from a DOI using public APIs.
-    
-    Args:
-        doi: Digital Object Identifier
-        
-    Returns:
-        Dictionary containing citation information, or None if extraction failed
-    """
-    try:
-        import requests
-        
-        # Try to get metadata from CrossRef
-        url = f"https://api.crossref.org/works/{doi}"
-        response = requests.get(url, headers={"Accept": "application/json"})
-        
-        if response.status_code == 200:
-            data = response.json()
-            message = data.get("message", {})
-            
-            # Extract relevant fields
-            title = message.get("title", [""])[0]
-            authors = []
-            for author in message.get("author", []):
-                given = author.get("given", "")
-                family = author.get("family", "")
-                if given and family:
-                    authors.append(f"{family}, {given[0]}.")
-            
-            # Extract publication date
-            date_parts = message.get("published", {}).get("date-parts", [[]])
-            year = str(date_parts[0][0]) if date_parts and date_parts[0] else ""
-            
-            # Extract container (journal)
-            container = message.get("container-title", [""])[0]
-            
-            # Extract volume, issue, pages
-            volume = message.get("volume", "")
-            issue = message.get("issue", "")
-            page = message.get("page", "")
-            
-            # Extract URL
-            url = message.get("URL", "")
-            
-            # Construct APA citation
-            author_string = ", ".join(authors)
-            if author_string:
-                author_string += "."
-            
+    for pattern in patterns:
+        matches = re.finditer(pattern, text)
+        for match in matches:
             citation = {
-                "type": "doi",
-                "authors": author_string,
-                "year": year,
-                "title": title,
-                "source": container,
-                "volume": volume,
-                "issue": issue,
-                "pages": page,
-                "doi": doi,
-                "url": url,
-                "raw": f"{author_string} ({year}). {title}. {container}, {volume}({issue}), {page}. {doi}"
+                "authors": [author.strip() for author in match.group(1).split('&')],
+                "year": match.group(2),
+                "title": None,
+                "source": None
             }
-            
-            return citation
+            citations.append(citation)
+    
+    return citations
+
+def ensure_metadata_dir(directory: Path) -> Path:
+    """
+    Ensure the metadata directory exists.
+    
+    Args:
+        directory: Base directory path
+        
+    Returns:
+        Path to the metadata directory
+    """
+    metadata_dir = directory / ".cleanupx"
+    metadata_dir.mkdir(parents=True, exist_ok=True)
+    return metadata_dir
+
+def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> str:
+    """
+    Extract text from a PDF file using various methods.
+    
+    Args:
+        file_path: Path to the PDF file
+        max_pages: Maximum number of pages to process
+        
+    Returns:
+        Extracted text content
+    """
+    file_path = Path(file_path)
+    text = ""
+    
+    # Try PyPDF2 if available
+    if PYPDF2_AVAILABLE:
+        try:
+            with open(file_path, 'rb') as f:
+                reader = PyPDF2.PdfReader(f)
+                pages_to_read = min(len(reader.pages), max_pages) if max_pages else len(reader.pages)
+                for i in range(pages_to_read):
+                    text += reader.pages[i].extract_text() + "\n"
+            if text.strip():
+                return text
+        except Exception as e:
+            Logger.warning(f"PyPDF2 extraction failed for {file_path}: {e}")
+    else:
+        Logger.debug("PyPDF2 not available, skipping PyPDF2 extraction")
+    
+    # Try pdftotext as fallback
+    try:
+        page_option = []
+        if max_pages:
+            page_option = ["-l", str(max_pages)]
+        result = subprocess.run(
+            ["pdftotext"] + page_option + ["-layout", str(file_path), "-"],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout
+        else:
+            Logger.warning(f"pdftotext extraction failed for {file_path}: {result.stderr}")
+    except Exception as e:
+        Logger.warning(f"pdftotext extraction failed for {file_path}: {e}")
+    
+    return text
+
+def extract_text_from_docx(file_path: Union[str, Path]) -> str:
+    """
+    Extract text from a DOCX file.
+    
+    Args:
+        file_path: Path to the DOCX file
+        
+    Returns:
+        Extracted text content
+    """
+    # Try docx2txt first if available
+    if DOCX2TXT_AVAILABLE:
+        try:
+            text = docx2txt.process(file_path)
+            if text:
+                return text
+        except Exception as e:
+            Logger.warning(f"docx2txt extraction failed for {file_path}: {e}")
+    
+    # Try python-docx as fallback
+    if PYTHON_DOCX_AVAILABLE:
+        try:
+            doc = Document(file_path)
+            text = "\n".join(paragraph.text for paragraph in doc.paragraphs)
+            if text:
+                return text
+        except Exception as e:
+            Logger.warning(f"python-docx extraction failed for {file_path}: {e}")
+    
+    Logger.error("No available DOCX extraction methods")
+    return ""
+
+def extract_text_from_txt(file_path: Union[str, Path]) -> str:
+    """
+    Extract text from a text file, trying multiple encodings.
+    
+    Args:
+        file_path: Path to the text file
+        
+    Returns:
+        Extracted text content
+    """
+    encodings = ['utf-8', 'latin-1', 'cp1252', 'ascii']
+    
+    for encoding in encodings:
+        try:
+            with open(file_path, 'r', encoding=encoding) as f:
+                text = f.read()
+                if text:
+                    return text
+        except UnicodeDecodeError:
+            continue
+        except Exception as e:
+            Logger.error(f"Error reading {file_path} with {encoding}: {e}")
+    
+    # If all encodings fail, try binary read as last resort
+    try:
+        with open(file_path, 'rb') as f:
+            return f.read().decode('utf-8', errors='replace')
+    except Exception as e:
+        Logger.error(f"Binary fallback failed for {file_path}: {e}")
+    
+    return ""
+
+def extract_text_content(file_path: Union[str, Path]) -> str:
+    """
+    Extract text content from a file based on its type.
+    
+    Args:
+        file_path: Path to the file
+        
+    Returns:
+        Extracted text content
+    """
+    file_path = Path(file_path)
+    ext = file_path.suffix.lower()
+    
+    try:
+        # Use the appropriate extraction method based on file type
+        if ext in TEXT_EXTENSIONS:
+            return extract_text_from_txt(file_path)
+        elif ext in {'.pdf'}:
+            return extract_text_from_pdf(file_path)
+        elif ext in {'.docx', '.doc'}:
+            return extract_text_from_docx(file_path)
+        elif ext in {'.xlsx', '.xls'}:
+            # For Excel files, try to extract text using pandas
+            if PANDAS_AVAILABLE:
+                try:
+                    df = pd.read_excel(file_path)
+                    return df.to_string()
+                except Exception as e:
+                    Logger.error(f"Error processing Excel file {file_path}: {e}")
+                    return ""
+            else:
+                Logger.warning("pandas not installed, cannot process Excel files")
+                return ""
+        else:
+            # Fallback to general text extraction
+            return extract_text_from_txt(file_path)
             
     except Exception as e:
-        logger.error(f"Error extracting citation from DOI {doi}: {e}")
+        Logger.error(f"Error extracting text from {file_path}: {e}")
+        return ""
+
+def extract_citations_from_doi(doi: str) -> Optional[Dict[str, Any]]:
+    """
+    Extract citation information from a DOI using CrossRef API.
     
-    return None
+    Args:
+        doi: DOI string
+        
+    Returns:
+        Citation dictionary or None on failure
+    """
+    try:
+        url = f"https://api.crossref.org/works/{quote_plus(doi)}"
+        response = requests.get(url, timeout=API_TIMEOUT)
+        response.raise_for_status()
+        
+        data = response.json()["message"]
+        
+        citation = {
+            "authors": [
+                f"{author.get('given', '')} {author.get('family', '')}"
+                for author in data.get("author", [])
+            ],
+            "year": data.get("published-print", {}).get("date-parts", [[None]])[0][0],
+            "title": data.get("title", [None])[0],
+            "source": data.get("container-title", [None])[0],
+            "doi": doi,
+            "url": data.get("URL")
+        }
+        
+        return citation
+        
+    except Exception as e:
+        Logger.warning(f"Failed to fetch citation for DOI {doi}: {str(e)}")
+        return None
 
 def update_citations_file(directory: Path, new_citations: List[Dict[str, Any]]) -> Path:
     """
@@ -268,7 +445,7 @@ def update_citations_file(directory: Path, new_citations: List[Dict[str, Any]]) 
             with open(citations_file, 'r', encoding='utf-8') as f:
                 citations = json.load(f)
         except Exception as e:
-            logger.error(f"Error reading citations file {citations_file}: {e}")
+            Logger.error(f"Error reading citations file {citations_file}: {e}")
             citations = []
     
     # Add new citations, avoiding duplicates
@@ -289,9 +466,9 @@ def update_citations_file(directory: Path, new_citations: List[Dict[str, Any]]) 
         
         with open(citations_file, 'w', encoding='utf-8') as f:
             json.dump(citations, f, indent=2)
-        logger.info(f"Updated citations file {citations_file} with {len(new_citations)} new citations")
+        Logger.info(f"Updated citations file {citations_file} with {len(new_citations)} new citations")
     except Exception as e:
-        logger.error(f"Error writing to citations file {citations_file}: {e}")
+        Logger.error(f"Error writing to citations file {citations_file}: {e}")
     
     return citations_file
 
@@ -356,7 +533,7 @@ def generate_apa_citation_list(directory: Path) -> str:
         return "\n\n".join(formatted_citations)
         
     except Exception as e:
-        logger.error(f"Error generating APA citation list for {directory}: {e}")
+        Logger.error(f"Error generating APA citation list for {directory}: {e}")
         return f"Error generating citations: {e}"
 
 def generate_markdown_citation_list(directory: Path) -> str:
@@ -427,7 +604,7 @@ def generate_markdown_citation_list(directory: Path) -> str:
         return markdown
         
     except Exception as e:
-        logger.error(f"Error generating markdown citation list for {directory}: {e}")
+        Logger.error(f"Error generating markdown citation list for {directory}: {e}")
         return f"# Citations\n\nError generating citations: {e}"
 
 def save_markdown_citations(directory: Path) -> Optional[Path]:
@@ -448,324 +625,414 @@ def save_markdown_citations(directory: Path) -> Optional[Path]:
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(markdown)
             
-        logger.info(f"Saved markdown citations to {output_file}")
+        Logger.info(f"Saved markdown citations to {output_file}")
         return output_file
     except Exception as e:
-        logger.error(f"Error saving markdown citations for {directory}: {e}")
+        Logger.error(f"Error saving markdown citations for {directory}: {e}")
         return None
 
-def process_file_for_citations(file_path: Union[str, Path], directory: Optional[Path] = None) -> Dict[str, Any]:
+def process_file_for_citations(
+    file_path: Union[str, Path],
+    metadata_dir: Path,
+    mode: str = "all"
+) -> Dict[str, Any]:
     """
-    Process a file to extract citations.
+    Process a single file for citations.
     
     Args:
-        file_path: Path to the file
-        directory: Directory to store the citations file (defaults to file's directory)
+        file_path: Path to the file to process
+        metadata_dir: Directory to store metadata
+        mode: Processing mode ('all', 'new', or 'update')
         
     Returns:
-        Dictionary with processing results
+        Dictionary containing processing results
     """
-    file_path = Path(file_path)
-    if directory is None:
-        directory = file_path.parent
+    try:
+        file_path = Path(file_path)
+        if not file_path.exists():
+            return {"error": f"File not found: {file_path}"}
+            
+        # Check if file type is supported
+        if file_path.suffix.lower() not in SUPPORTED_EXTENSIONS:
+            return {"error": f"Unsupported file type: {file_path.suffix}"}
+            
+        # Get file modification time
+        mod_time = datetime.fromtimestamp(file_path.stat().st_mtime)
         
-    # Check if file exists
-    if not file_path.exists():
-        logger.error(f"File does not exist: {file_path}")
-        return {"success": False, "error": "File not found"}
+        # Check if we should process this file based on mode
+        citations_file = metadata_dir / CITATIONS_FILE
+        if mode != "all" and citations_file.exists():
+            with open(citations_file, "r", encoding="utf-8") as f:
+                existing = json.load(f)
+                file_key = str(file_path)
+                
+                if file_key in existing:
+                    last_processed = datetime.fromisoformat(existing[file_key]["last_processed"])
+                    if mode == "new" or (mode == "update" and mod_time <= last_processed):
+                        return {"skipped": "Already processed"}
+        
+        # Read file content
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+            
+        # Extract citations using API
+        citations = extract_citations_from_text(content)
+        
+        # Look for DOIs
+        doi_pattern = r'\b(10\.\d{4,}(?:\.\d+)*\/(?:(?![\'"])\S)+)\b'
+        dois = re.findall(doi_pattern, content)
+        
+        # Get citation info for each DOI
+        for doi in dois:
+            citation = extract_citations_from_doi(doi)
+            if citation:
+                citations.append(citation)
+                
+        # Update citations file
+        if citations:
+            citations_data = {
+                str(file_path): {
+                    "citations": citations,
+                    "last_processed": mod_time.isoformat(),
+                    "file_type": file_path.suffix.lower()
+                }
+            }
+            
+            if citations_file.exists():
+                with open(citations_file, "r", encoding="utf-8") as f:
+                    existing = json.load(f)
+                existing.update(citations_data)
+                citations_data = existing
+                
+            with open(citations_file, "w", encoding="utf-8") as f:
+                json.dump(citations_data, f, indent=2)
+                
+            # Generate markdown version
+            markdown_file = metadata_dir / "citations.md"
+            with open(markdown_file, "w", encoding="utf-8") as f:
+                f.write("# Citations\n\n")
+                for file_info in citations_data.values():
+                    for citation in file_info["citations"]:
+                        authors = citation.get("authors", [])
+                        if isinstance(authors, str):
+                            authors = [authors]
+                        author_text = ", ".join(authors) if authors else "Unknown Author"
+                        
+                        year = citation.get("year", "n.d.")
+                        title = citation.get("title", "Untitled")
+                        source = citation.get("source", "")
+                        doi = citation.get("doi", "")
+                        url = citation.get("url", "")
+                        
+                        f.write(f"## {title}\n\n")
+                        f.write(f"**Authors:** {author_text}\n\n")
+                        f.write(f"**Year:** {year}\n\n")
+                        if source:
+                            f.write(f"**Source:** {source}\n\n")
+                        if doi:
+                            f.write(f"**DOI:** [{doi}](https://doi.org/{doi})\n\n")
+                        if url and url != f"https://doi.org/{doi}":
+                            f.write(f"**URL:** {url}\n\n")
+                        f.write("---\n\n")
+            
+        return {
+            "processed": True,
+            "citations_found": len(citations),
+            "file": str(file_path)
+        }
+        
+    except Exception as e:
+        Logger.error(f"Error processing file {file_path}: {str(e)}")
+        return {"error": str(e)}
+
+def process_directory(
+    directory: Union[str, Path],
+    mode: str = "all",
+    file_types: Optional[List[str]] = None
+) -> Dict[str, Any]:
+    """
+    Process a directory for citations.
     
-    # Extract text based on file type
-    ext = file_path.suffix.lower()
-    text = ""
+    Args:
+        directory: Directory to process
+        mode: Processing mode ('all', 'new', or 'update')
+        file_types: List of file extensions to process (defaults to SUPPORTED_FILE_TYPES)
+        
+    Returns:
+        Dictionary containing processing results
+    """
+    try:
+        directory = Path(directory)
+        if not directory.exists():
+            return {"error": f"Directory not found: {directory}"}
+            
+        # Initialize metadata directory
+        metadata_dir = ensure_metadata_dir(directory)
+        if not metadata_dir:
+            return {"error": "Failed to create metadata directory"}
+            
+        # Get list of files to process
+        if not file_types:
+            file_types = SUPPORTED_EXTENSIONS
+            
+        files = []
+        for ext in file_types:
+            files.extend(directory.rglob(f"*{ext}"))
+            
+        results = {
+            "total_files": len(files),
+            "processed": 0,
+            "skipped": 0,
+            "errors": [],
+            "citations_found": 0
+        }
+        
+        # Process each file
+        for file_path in files:
+            result = process_file_for_citations(file_path, metadata_dir, mode)
+            
+            if "error" in result:
+                results["errors"].append({
+                    "file": str(file_path),
+                    "error": result["error"]
+                })
+            elif "skipped" in result:
+                results["skipped"] += 1
+            else:
+                results["processed"] += 1
+                results["citations_found"] += result.get("citations_found", 0)
+                
+        # Generate summary markdown
+        summary_file = metadata_dir / "processing_summary.md"
+        with open(summary_file, "w", encoding="utf-8") as f:
+            f.write("# Citation Processing Summary\n\n")
+            f.write(f"**Processed on:** {datetime.now().isoformat()}\n\n")
+            f.write(f"**Mode:** {mode}\n\n")
+            f.write(f"**Total files found:** {results['total_files']}\n")
+            f.write(f"**Files processed:** {results['processed']}\n")
+            f.write(f"**Files skipped:** {results['skipped']}\n")
+            f.write(f"**Total citations found:** {results['citations_found']}\n\n")
+            
+            if results["errors"]:
+                f.write("## Errors\n\n")
+                for error in results["errors"]:
+                    f.write(f"- {error['file']}: {error['error']}\n")
+                    
+        return results
+        
+    except Exception as e:
+        Logger.error(f"Error processing directory {directory}: {str(e)}")
+        return {"error": str(e)}
+
+def interactive_cli():
+    """Interactive command-line interface for citation processing."""
+    print("\nWelcome to X.AI Citation Processor!")
+    print("This script processes academic files to extract and manage citations.")
+    print("Ensure your XAI_API_KEY environment variable is set.")
     
-    if ext == ".pdf":
-        # For PDFs, we want to scan potentially more pages for citations
-        # than needed for just file renaming, but still limit for large files
-        from cleanupx.processors.document import extract_text_from_pdf
-        text = extract_text_from_pdf(file_path, max_pages=3)
-    elif ext == ".docx":
-        from cleanupx.processors.document import extract_text_from_docx
-        text = extract_text_from_docx(file_path)
-    elif ext in (".txt", ".md", ".rtf"):
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-            text = f.read()
+    while True:
+        print("\nPlease choose an option:")
+        print("  1. Process a directory for citations")
+        print("  2. Process a single file for citations")
+        print("  3. Generate bibliography in specific format")
+        print("  4. Export citations")
+        print("  5. Clear citation cache")
+        print("  6. Exit")
+        
+        choice = input("Enter your choice (1-6): ").strip()
+        
+        if choice == "1":
+            directory = input("Enter the full path to the directory: ").strip()
+            if not os.path.isdir(directory):
+                print(f"Error: {directory} is not a valid directory.")
+                continue
+            
+            mode = input("Enter the mode ('all', 'new', or 'update'): ").strip().lower()
+            if mode not in ['all', 'new', 'update']:
+                print("Invalid mode. Using 'all'.")
+                mode = 'all'
+            
+            verbose_input = input("Enable verbose output? (y/n): ").strip().lower()
+            verbose = verbose_input == "y"
+            
+            recursive_input = input("Process subdirectories recursively? (y/n): ").strip().lower()
+            recursive = recursive_input == "y"
+            
+            output = input("Enter an output file name (default: citations.md): ").strip()
+            if not output:
+                output = "citations.md"
+            
+            results = process_directory(directory, mode, verbose, output, recursive)
+            
+            if results["success"]:
+                print(f"\nProcessing complete!")
+                print(f"Processed {len(results['processed_files'])} files")
+                print(f"Found {results['total_citations']} citations")
+                if results["errors"]:
+                    print(f"\nEncountered {len(results['errors'])} errors:")
+                    for error in results["errors"]:
+                        print(f"- {error['file']}: {error['error']}")
+            else:
+                print(f"\nProcessing failed: {results.get('error', 'Unknown error')}")
+        
+        elif choice == "2":
+            file_path = input("Enter the full path to the file: ").strip()
+            if not os.path.isfile(file_path):
+                print(f"Error: {file_path} is not a valid file.")
+                continue
+            
+            verbose_input = input("Enable verbose output? (y/n): ").strip().lower()
+            verbose = verbose_input == "y"
+            
+            result = process_file_for_citations(file_path)
+            
+            if result["success"]:
+                print(f"\nSuccessfully processed: {file_path}")
+                print(f"Found {len(result['citations'])} citations")
+                if verbose:
+                    for citation in result["citations"]:
+                        print(f"\n- {citation.get('authors', 'Unknown')} ({citation.get('year', 'Unknown')})")
+                        print(f"  {citation.get('title', 'No title')}")
+            else:
+                print(f"\nError processing {file_path}: {result.get('error', 'Unknown error')}")
+        
+        elif choice == "3":
+            directory = input("Enter the directory path: ").strip()
+            if not os.path.isdir(directory):
+                print(f"Error: {directory} is not a valid directory.")
+                continue
+            
+            format_choice = input("Choose citation format (apa/mla/chicago/ieee): ").strip().lower()
+            if format_choice not in ['apa', 'mla', 'chicago', 'ieee']:
+                print("Invalid format. Using APA.")
+                format_choice = 'apa'
+            
+            output = input("Enter output file name (default: bibliography.md): ").strip()
+            if not output:
+                output = "bibliography.md"
+            
+            bibliography = create_bibliography(directory, format_choice)
+            if bibliography:
+                try:
+                    with open(os.path.join(directory, output), 'w', encoding='utf-8') as f:
+                        f.write(bibliography)
+                    print(f"\nBibliography saved to {output}")
+                except Exception as e:
+                    print(f"Error saving bibliography: {e}")
+            else:
+                print("No citations found to generate bibliography.")
+        
+        elif choice == "4":
+            directory = input("Enter the directory path: ").strip()
+            if not os.path.isdir(directory):
+                print(f"Error: {directory} is not a valid directory.")
+                continue
+            
+            format_choice = input("Choose export format (txt/md/bib/csv): ").strip().lower()
+            if format_choice not in ['txt', 'md', 'bib', 'csv']:
+                print("Invalid format. Using markdown.")
+                format_choice = 'md'
+            
+            output = input("Enter output file name: ").strip()
+            if not output:
+                output = f"citations.{format_choice}"
+            
+            citations = generate_citation_list(directory, format_choice)
+            if citations:
+                try:
+                    with open(os.path.join(directory, output), 'w', encoding='utf-8') as f:
+                        f.write(citations)
+                    print(f"\nCitations exported to {output}")
+                except Exception as e:
+                    print(f"Error exporting citations: {e}")
+            else:
+                print("No citations found to export.")
+        
+        elif choice == "5":
+            directory = input("Enter the directory path (or leave blank for current directory): ").strip()
+            if not directory:
+                directory = os.getcwd()
+            
+            confirm = input("Are you sure you want to clear the citation cache? (y/n): ").strip().lower()
+            if confirm == "y":
+                cache_file = os.path.join(directory, CITATIONS_FILE)
+                if os.path.exists(cache_file):
+                    os.remove(cache_file)
+                    print("Citation cache cleared.")
+                else:
+                    print("No citation cache found.")
+        
+        elif choice == "6":
+            print("Exiting X.AI Citation Processor. Goodbye!")
+            break
+        
+        else:
+            print("Invalid choice. Please try again.")
+
+def main():
+    """Main entry point for the script."""
+    parser = argparse.ArgumentParser(
+        description="X.AI Citation Processor: Extract and manage academic citations from files.\n" +
+                   "If no arguments are provided, an interactive CLI is launched."
+    )
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--directory", help="Path to a directory to process for citations")
+    group.add_argument("--file", help="Path to a single file to process")
+    
+    parser.add_argument("--mode", choices=["all", "new", "update"], default="all",
+                      help="Processing mode (all, new, update)")
+    parser.add_argument("--format", choices=["apa", "mla", "chicago", "ieee", "txt", "md", "bib", "csv"],
+                      help="Output format for citations")
+    parser.add_argument("--output", help="Output file path")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose output")
+    parser.add_argument("--recursive", "-r", action="store_true", help="Process subdirectories recursively")
+    parser.add_argument("--clear-cache", action="store_true", help="Clear citation cache")
+    
+    args = parser.parse_args()
+    
+    if not any([args.directory, args.file, args.clear_cache]):
+        interactive_cli()
     else:
-        logger.warning(f"Unsupported file type for citation extraction: {ext}")
-        return {"success": False, "error": "Unsupported file type"}
-    
-    # Extract citations from the text
-    citations = extract_citations_from_text(text)
-    
-    # Look for DOIs in the text
-    doi_pattern = r'\b(10\.\d{4,}(?:\.\d+)*\/(?:(?![\'"])\S)+)\b'
-    dois = re.findall(doi_pattern, text)
-    
-    # Extract citation information from DOIs
-    for doi in dois:
-        doi_citation = extract_citations_from_doi(doi)
-        if doi_citation:
-            citations.append(doi_citation)
-    
-    # Update the citations file with the new citations
-    if citations:
-        update_citations_file(directory, citations)
+        if args.clear_cache:
+            directory = args.directory if args.directory else os.getcwd()
+            cache_file = os.path.join(directory, CITATIONS_FILE)
+            if os.path.exists(cache_file):
+                os.remove(cache_file)
+                print("Citation cache cleared.")
+            else:
+                print("No citation cache found.")
+            return
         
-        # Also generate and save a markdown version
-        save_markdown_citations(directory)
-    
-    return {"success": True, "citations": citations}
-
-def get_citation_stats(directory: Path) -> Dict[str, Any]:
-    """
-    Get statistics about citations in a directory.
-    
-    Args:
-        directory: Directory path to analyze
+        if args.file:
+            result = process_file_for_citations(args.file)
+            if result["success"]:
+                print(f"Found {len(result['citations'])} citations")
+                if args.verbose:
+                    for citation in result["citations"]:
+                        print(f"\n- {citation.get('authors', 'Unknown')} ({citation.get('year', 'Unknown')})")
+                        print(f"  {citation.get('title', 'No title')}")
+            else:
+                print(f"Error: {result.get('error', 'Unknown error')}")
         
-    Returns:
-        Dictionary with citation statistics
-    """
-    citations_file = directory / CITATIONS_FILE
-    if not citations_file.exists():
-        return {
-            "total": 0,
-            "reference": 0,
-            "in_text": 0,
-            "doi": 0,
-            "has_citations_file": False
-        }
-    
-    try:
-        with open(citations_file, 'r', encoding='utf-8') as f:
-            citations = json.load(f)
+        if args.directory:
+            output_file = args.output if args.output else "citations.md"
+            results = process_directory(
+                args.directory,
+                args.mode,
+                args.verbose,
+                output_file,
+                args.recursive
+            )
             
-        stats = {
-            "total": len(citations),
-            "reference": sum(1 for c in citations if c.get("type") == "reference"),
-            "in_text": sum(1 for c in citations if c.get("type") == "in-text"),
-            "doi": sum(1 for c in citations if c.get("type") == "doi"),
-            "has_citations_file": True
-        }
-        
-        return stats
-    except Exception as e:
-        logger.error(f"Error getting citation stats for {directory}: {e}")
-        return {
-            "total": 0,
-            "reference": 0,
-            "in_text": 0,
-            "doi": 0,
-            "has_citations_file": False,
-            "error": str(e)
-        }
+            if results["success"]:
+                print(f"Processed {len(results['processed_files'])} files")
+                print(f"Found {results['total_citations']} citations")
+                if results["errors"]:
+                    print(f"Encountered {len(results['errors'])} errors:")
+                    for error in results["errors"]:
+                        print(f"- {error['file']}: {error['error']}")
+            else:
+                print(f"Error: {results.get('error', 'Unknown error')}")
 
-def generate_citation_list(directory: Path, format: str = 'md') -> str:
-    """
-    Generate a citation list in the specified format.
-    
-    Args:
-        directory: Directory path where the citations file is located
-        format: Output format (txt, md, bib, csv, apa, mla, chicago, ieee)
-        
-    Returns:
-        Formatted string with citations in the specified format
-    """
-    citations_file = directory / CITATIONS_FILE
-    if not citations_file.exists():
-        return f"No citations found in {directory}."
-    
-    try:
-        with open(citations_file, 'r', encoding='utf-8') as f:
-            citations = json.load(f)
-        
-        # Filter to include only reference and DOI citations (not in-text)
-        references = [c for c in citations if c.get("type") in ["reference", "doi"]]
-        
-        if not references:
-            return f"No formal citations found in {directory}."
-        
-        if format == 'txt':
-            return generate_plain_text_citations(references)
-        elif format == 'md':
-            return generate_markdown_citation_list(directory)
-        elif format == 'bib':
-            return generate_bibtex_citations(references)
-        elif format == 'csv':
-            return generate_csv_citations(references)
-        elif format == 'apa':
-            return generate_apa_citation_list(directory)
-        elif format == 'mla':
-            return generate_mla_citations(references)
-        elif format == 'chicago':
-            return generate_chicago_citations(references)
-        elif format == 'ieee':
-            return generate_ieee_citations(references)
-        else:
-            raise ValueError(f"Unsupported citation format: {format}")
-            
-    except Exception as e:
-        logger.error(f"Error generating {format} citation list for {directory}: {e}")
-        return f"Error generating citations: {e}"
-
-def generate_plain_text_citations(references: List[Dict[str, Any]]) -> str:
-    """Generate plain text citations."""
-    formatted_citations = []
-    for ref in references:
-        authors = ref.get("authors", "")
-        year = ref.get("year", "")
-        title = ref.get("title", "")
-        source = ref.get("source", "")
-        volume = ref.get("volume", "")
-        issue = ref.get("issue", "")
-        pages = ref.get("pages", "")
-        doi = ref.get("doi", "")
-        
-        citation = f"{authors} ({year}). {title}. {source}"
-        if volume:
-            citation += f", {volume}"
-            if issue:
-                citation += f"({issue})"
-        if pages:
-            citation += f", {pages}"
-        if doi:
-            citation += f". https://doi.org/{doi}"
-        citation += "."
-        
-        formatted_citations.append(citation)
-    
-    return "\n\n".join(formatted_citations)
-
-def generate_bibtex_citations(references: List[Dict[str, Any]]) -> str:
-    """Generate BibTeX citations."""
-    db = BibDatabase()
-    db.entries = []
-    
-    for ref in references:
-        entry = {
-            'ENTRYTYPE': 'article',
-            'ID': f"{ref.get('authors', '').split(',')[0].strip()}_{ref.get('year', '')}",
-            'title': ref.get("title", ""),
-            'author': ref.get("authors", ""),
-            'year': ref.get("year", ""),
-            'journal': ref.get("source", ""),
-            'volume': ref.get("volume", ""),
-            'number': ref.get("issue", ""),
-            'pages': ref.get("pages", ""),
-            'doi': ref.get("doi", "")
-        }
-        
-        # Remove empty fields
-        entry = {k: v for k, v in entry.items() if v}
-        db.entries.append(entry)
-    
-    writer = BibTexWriter()
-    writer.indent = '    '
-    return writer.write(db)
-
-def generate_csv_citations(references: List[Dict[str, Any]]) -> str:
-    """Generate CSV citations."""
-    import io
-    
-    output = io.StringIO()
-    writer = csv.DictWriter(output, fieldnames=[
-        'authors', 'year', 'title', 'source', 'volume', 'issue', 'pages', 'doi'
-    ])
-    writer.writeheader()
-    
-    for ref in references:
-        writer.writerow({
-            'authors': ref.get("authors", ""),
-            'year': ref.get("year", ""),
-            'title': ref.get("title", ""),
-            'source': ref.get("source", ""),
-            'volume': ref.get("volume", ""),
-            'issue': ref.get("issue", ""),
-            'pages': ref.get("pages", ""),
-            'doi': ref.get("doi", "")
-        })
-    
-    return output.getvalue()
-
-def generate_mla_citations(references: List[Dict[str, Any]]) -> str:
-    """Generate MLA citations."""
-    formatted_citations = []
-    for ref in references:
-        authors = ref.get("authors", "")
-        title = ref.get("title", "")
-        source = ref.get("source", "")
-        volume = ref.get("volume", "")
-        issue = ref.get("issue", "")
-        pages = ref.get("pages", "")
-        year = ref.get("year", "")
-        
-        citation = f"{authors}. \"{title}.\" {source}"
-        if volume:
-            citation += f", vol. {volume}"
-            if issue:
-                citation += f", no. {issue}"
-        if pages:
-            citation += f", pp. {pages}"
-        citation += f", {year}."
-        
-        formatted_citations.append(citation)
-    
-    return "\n\n".join(formatted_citations)
-
-def generate_chicago_citations(references: List[Dict[str, Any]]) -> str:
-    """Generate Chicago style citations."""
-    formatted_citations = []
-    for ref in references:
-        authors = ref.get("authors", "")
-        title = ref.get("title", "")
-        source = ref.get("source", "")
-        volume = ref.get("volume", "")
-        issue = ref.get("issue", "")
-        pages = ref.get("pages", "")
-        year = ref.get("year", "")
-        doi = ref.get("doi", "")
-        
-        citation = f"{authors}. \"{title}.\" {source}"
-        if volume:
-            citation += f" {volume}"
-            if issue:
-                citation += f", no. {issue}"
-        if pages:
-            citation += f" ({year}): {pages}."
-        else:
-            citation += f" ({year})."
-        if doi:
-            citation += f" https://doi.org/{doi}"
-        
-        formatted_citations.append(citation)
-    
-    return "\n\n".join(formatted_citations)
-
-def generate_ieee_citations(references: List[Dict[str, Any]]) -> str:
-    """Generate IEEE style citations."""
-    formatted_citations = []
-    for i, ref in enumerate(references, 1):
-        authors = ref.get("authors", "")
-        title = ref.get("title", "")
-        source = ref.get("source", "")
-        volume = ref.get("volume", "")
-        issue = ref.get("issue", "")
-        pages = ref.get("pages", "")
-        year = ref.get("year", "")
-        doi = ref.get("doi", "")
-        
-        citation = f"[{i}] {authors}, \"{title},\" {source}"
-        if volume:
-            citation += f", vol. {volume}"
-            if issue:
-                citation += f", no. {issue}"
-        if pages:
-            citation += f", pp. {pages}"
-        citation += f", {year}."
-        if doi:
-            citation += f" doi: {doi}"
-        
-        formatted_citations.append(citation)
-    
-    return "\n\n".join(formatted_citations)
-
-def save_citation_list(directory: Path, format: str = 'md', output_file: Optional[Path] = None) -> Optional[Path]:
+if __name__ == "__main__":
+    main()

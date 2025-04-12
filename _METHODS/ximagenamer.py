@@ -1,11 +1,14 @@
-#!/usr/bin/env python3
+
 """
 xai_alt.py - Process image files in a directory to generate comprehensive alt text.
 
 This script:
 1. Scans a directory for image files (optionally recursively)
 2. Uses X.AI Vision API (grok-2-vision-latest) to generate detailed alt text for each image
-3. Creates a markdown file with the same name as each image containing the alt text
+3. Creates a markdown file with the same name as each image containing the alt text.
+   If a .md file already exists (indicating prior processing), the image is skipped and the
+   existing markdown file is copied to the .cleanupx log folder.
+   (You can override this behavior with the --override-md option.)
 4. Maintains a cache file (alt_text_cache.json) to avoid re-processing images
 5. Optionally renames image files based on their content
 6. Provides an interactive CLI for directory selection and processing options
@@ -13,7 +16,7 @@ This script:
 
 Usage:
   python xai_alt.py                      # Run in interactive CLI mode
-  python xai_alt.py --dir PATH [--recursive] [--force] [--rename] [--test]  # Process directory with options
+  python xai_alt.py --dir PATH [--recursive] [--force] [--rename] [--override-md] [--test]  # Process directory with options
 """
 
 import os
@@ -24,6 +27,7 @@ import time
 import base64
 import gc
 import tempfile
+import shutil
 from io import BytesIO
 from pathlib import Path
 import openai
@@ -47,6 +51,14 @@ try:
 except ImportError:
     HEIF_AVAILABLE = False
     logger.warning("pyheif not installed. HEIC/HEIF conversion will be limited. Install with: pip install pyheif")
+
+# Optional dependency for better JPEG metadata handling
+try:
+    import piexif
+    PIEEXIF_AVAILABLE = True
+except ImportError:
+    PIEEXIF_AVAILABLE = False
+    logger.warning("piexif not installed. Extended metadata embedding for JPEG images may not work as expected. Install with: pip install piexif")
 
 # --- Configuration and Setup ---
 # NOTE: In production, do not hardcode your API key; use environment variables instead.
@@ -76,9 +88,9 @@ PROMPT_TEXT = (
     "Also suggest a descriptive filename based on the content of the image. "
     "Format your response in this exact JSON structure:\n"
     "{\n"
-    "  \"description\": \"Detailed description of the image\",\n"
-    "  \"alt_text\": \"Concise alt text for the image\",\n"
-    "  \"suggested_filename\": \"descriptive_filename_without_extension\",\n"
+    "  \"description\": \"A comprehensive description of every detail of the image as well as tones, themes, cultural references, and other relevant information, capturing all text and technical details as though for a blind engineer who needs to understand maps and schematics.\",\n"
+    "  \"alt_text\": \"A comprehensive description of the image, including all that would be wanted as alt text, under 1000 characters.\",\n"
+    "  \"suggested_filename\": \"descriptive_filename_without_extension_six_to_twelve_words\",\n"
     "  \"tags\": [\"tag1\", \"tag2\", ...]\n"
     "}"
 )
@@ -377,6 +389,35 @@ def check_alt_metadata(image_path):
     except Exception as e:
         logger.error(f"Failed to read alt metadata from {image_path}: {e}")
         return "Error"
+
+def copy_md_to_log(md_file_path):
+    """
+    Copy an existing markdown file to the .cleanupx log folder.
+    
+    Args:
+        md_file_path: Path to the markdown file
+        
+    Returns:
+        Destination path of the copied markdown file or None if copy failed.
+    """
+    try:
+        md_file_path = Path(md_file_path)
+        log_folder = md_file_path.parent / ".cleanupx"
+        log_folder.mkdir(parents=True, exist_ok=True)
+        dest_file = log_folder / md_file_path.name
+        if dest_file.exists():
+            base = dest_file.stem
+            ext = dest_file.suffix
+            counter = 1
+            while (log_folder / f"{base}_{counter}{ext}").exists():
+                counter += 1
+            dest_file = log_folder / f"{base}_{counter}{ext}"
+        shutil.copy2(md_file_path, dest_file)
+        logger.info(f"Copied existing markdown {md_file_path} to log folder {dest_file}")
+        return dest_file
+    except Exception as e:
+        logger.error(f"Error copying markdown file {md_file_path} to log folder: {e}")
+        return None
 
 class TimeoutError(Exception):
     """Exception raised when a function times out."""
@@ -698,6 +739,11 @@ def embed_alt_text_into_image(image_path, alt_text):
         
     Returns:
         True if successful, False otherwise
+
+    Note:
+        For JPEG images, if piexif is available, the alt text is embedded into the EXIF ImageDescription tag.
+        For PNG images, the alt text is added using a PngInfo object.
+        For other formats, a fallback approach using the image's info dictionary is attempted.
     """
     if not PIL_AVAILABLE:
         return False
@@ -709,18 +755,30 @@ def embed_alt_text_into_image(image_path, alt_text):
         if image_path.suffix.lower() not in {'.jpg', '.jpeg', '.png', '.tiff', '.tif', '.webp'}:
             return False
         
-        with Image.open(image_path) as img:
-            # Get existing metadata
-            info = img.info
-            
-            # Add alt text to metadata
-            info['alt'] = alt_text
-            
-            # Save the image with the updated metadata
-            img.save(image_path, **info)
-            
-            logger.info(f"Embedded alt text into image: {image_path}")
-            return True
+        # For JPEG images, use piexif to embed metadata if available
+        if image_path.suffix.lower() in {'.jpg', '.jpeg'} and PIEEXIF_AVAILABLE:
+            exif_dict = piexif.load(str(image_path))
+            # Use the ImageDescription (tag 0x010E) to embed alt text
+            exif_dict["0th"][piexif.ImageIFD.ImageDescription] = alt_text.encode("utf-8")
+            exif_bytes = piexif.dump(exif_dict)
+            img = Image.open(image_path)
+            img.save(image_path, "jpeg", exif=exif_bytes)
+        # For PNG images, use PngInfo to add metadata
+        elif image_path.suffix.lower() == ".png":
+            from PIL.PngImagePlugin import PngInfo
+            img = Image.open(image_path)
+            pnginfo = PngInfo()
+            pnginfo.add_text("alt", alt_text)
+            img.save(image_path, pnginfo=pnginfo)
+        else:
+            # Fallback for other formats: update metadata via the info dictionary
+            with Image.open(image_path) as img:
+                info = img.info
+                info["alt"] = alt_text
+                img.save(image_path, **info)
+        
+        logger.info(f"Embedded alt text into image: {image_path}")
+        return True
     except Exception as e:
         logger.error(f"Error embedding alt text into image {image_path}: {e}")
         return False
@@ -790,7 +848,7 @@ def create_markdown_file(image_path, description):
     logger.info(f"Created markdown description: {md_file_path}")
     return md_file_path
 
-def process_image_file(image_path, cache, force=False, rename=False, test=False):
+def process_image_file(image_path, cache, force=False, rename=False, test=False, override_md=False):
     """
     Process a single image file: generate alt text, create markdown file, optionally rename,
     and (if test is enabled) display metadata before and after embedding alt text.
@@ -801,6 +859,7 @@ def process_image_file(image_path, cache, force=False, rename=False, test=False)
         force: Whether to force regeneration of alt text even if in cache
         rename: Whether to rename the image file based on description
         test: Whether to check and display metadata before and after embedding alt text
+        override_md: Whether to override the check for existing markdown file and reprocess the image
         
     Returns:
         Tuple of (success, message, new_image_path)
@@ -811,6 +870,13 @@ def process_image_file(image_path, cache, force=False, rename=False, test=False)
     # Check file extension
     if image_path.suffix.lower() not in IMAGE_EXTENSIONS:
         return False, f"Unsupported file type: {image_path.suffix}", image_path
+
+    # Check if a markdown file already exists for this image and skip processing if not overriding
+    md_candidate = image_path.parent / f"{image_path.stem}.md"
+    if md_candidate.exists() and not override_md:
+        logger.info(f"Markdown file {md_candidate} already exists for {image_path}. Skipping processing.")
+        copy_md_to_log(md_candidate)
+        return True, f"Skipped processing for {image_path} (existing markdown file copied to log folder)", image_path
     
     # Get cache key for this image
     cache_key = get_cache_key(str(image_path))
@@ -858,7 +924,7 @@ def process_image_file(image_path, cache, force=False, rename=False, test=False)
     
     return True, f"Created {md_file_path}", current_image_path
 
-def process_directory(directory, recursive=False, force=False, rename=False, test=False):
+def process_directory(directory, recursive=False, force=False, rename=False, test=False, override_md=False):
     """
     Process all image files in a directory.
     
@@ -868,6 +934,7 @@ def process_directory(directory, recursive=False, force=False, rename=False, tes
         force: Whether to force regeneration of alt text even if in cache
         rename: Whether to rename image files based on description
         test: Whether to check and display metadata before and after embedding alt text
+        override_md: Whether to override existing markdown files and reprocess images
         
     Returns:
         Dictionary with processing statistics
@@ -892,7 +959,7 @@ def process_directory(directory, recursive=False, force=False, rename=False, tes
     for i, image_path in enumerate(image_files, 1):
         logger.info(f"\n[{i}/{stats['total']}] Processing {image_path}")
         
-        success, message, new_path = process_image_file(image_path, cache, force, rename, test)
+        success, message, new_path = process_image_file(image_path, cache, force, rename, test, override_md)
         logger.info(message)
         
         if success:
@@ -944,7 +1011,10 @@ def interactive_cli():
             test_input = input("Check metadata before and after embedding? (y/n): ").strip().lower()
             test = test_input == "y"
             
-            process_directory(directory, recursive, force, rename, test)
+            override_input = input("Override existing markdown files and reprocess images? (y/n): ").strip().lower()
+            override_md = override_input == "y"
+            
+            process_directory(directory, recursive, force, rename, test, override_md)
             
         elif choice == "2":
             print("Exiting. Goodbye!")
@@ -963,6 +1033,7 @@ def main():
     parser.add_argument("--force", "-f", action="store_true", help="Force regeneration of alt text even if cached")
     parser.add_argument("--rename", "-n", action="store_true", help="Rename files based on image content")
     parser.add_argument("--test", "-t", action="store_true", help="Check metadata before and after embedding alt text")
+    parser.add_argument("--override-md", "-o", action="store_true", help="Override existing markdown file check and reprocess images")
     
     args = parser.parse_args()
     
@@ -972,7 +1043,7 @@ def main():
             logger.error(f"Error: {args.dir} is not a valid directory.")
             sys.exit(1)
         
-        process_directory(args.dir, args.recursive, args.force, args.rename, args.test)
+        process_directory(args.dir, args.recursive, args.force, args.rename, args.test, args.override_md)
     else:
         # Interactive mode
         interactive_cli()
