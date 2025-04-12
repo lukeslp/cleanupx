@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """
 scramble.py - A utility for scrambling filenames or generating sample files in a directory.
-This script allows users to interactively choose an operation:
-1. Scramble all filenames: Randomizes names of files in a selected directory (preserving file extensions).
-2. Generate Sample Files: Fills a selected directory with generated sample files having mock content across various file types,
-   including valid images, documents, archives, audio, video, web files, source code, and disk images.
+
+This utility provides an interactive command-line interface to perform two main operations:
+1. Scramble Filenames: Randomizes the names of all files within a chosen directory while preserving file extensions.
+2. Generate Sample Files: Populates a chosen directory with sample files spanning multiple file types,
+   including images, documents, archives, audio, video, web files, source code, and disk images,
+   with content tailored to each format.
+
+Usage:
+    Run the script and follow the interactive prompts to select the desired operation.
 """
 
 import os
@@ -20,11 +25,7 @@ import gzip
 
 console = Console()
 
-def scramble_directory():
-    """
-    Prompt the user to select a directory and scramble all filenames within it.
-    Files are renamed with random alphanumeric strings while preserving their original extensions.
-    """
+def scramble_directory() -> None:
     questions = [
         inquirer.Path(
             'directory',
@@ -48,7 +49,7 @@ def scramble_directory():
         console.print("[yellow]No files found in directory.[/yellow]")
         return
     console.print(f"[cyan]Found {len(files)} files to rename in {target_dir}[/cyan]")
-    rename_log = []
+    rename_log: list[tuple[str, str]] = []
     with Progress() as progress:
         task = progress.add_task("[green]Scrambling filenames...", total=len(files))
         for file_path in files:
@@ -78,12 +79,7 @@ def scramble_directory():
         console.print(f"[bold red]Error saving rename log: {e}[/bold red]")
     console.print(f"[green]Successfully scrambled {len(rename_log)} filenames![/green]")
 
-def generate_sample_files():
-    """
-    Prompt the user to select a directory and fill it with generated sample files.
-    Generated files cover various types, including images, documents, archives, audio, video,
-    web files, source code, and disk images. Each file is populated with mock content appropriate to its file type.
-    """
+def generate_sample_files() -> None:
     questions = [
         inquirer.Path(
             'directory',
@@ -115,7 +111,7 @@ def generate_sample_files():
     ]
     total_files = len(sample_extensions) * files_per_ext
     console.print(f"[cyan]Generating {total_files} sample files in {target_dir}[/cyan]")
-    generated_files = []
+    generated_files: list[str] = []
     sample_image_bytes = {
         ".jpg": b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00\xff\xd9',
         ".png": b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\nIDAT\x08\xd7c\x00\x01\x00\x00\x05\x00\x01\x0d\n,\x89\x00\x00\x00\x00IEND\xaeB`\x82',
@@ -124,10 +120,6 @@ def generate_sample_files():
     }
     
     def create_sample_file(new_path: Path, ext: str) -> None:
-        """
-        Create a sample file at new_path with mock content appropriate for its extension.
-        Handles both binary and text files, as well as archives using specialized modules.
-        """
         try:
             if ext in sample_image_bytes:
                 with open(new_path, "wb") as f:
@@ -172,11 +164,7 @@ def generate_sample_files():
                 progress.update(task, advance=1)
     console.print(f"[green]Successfully generated {len(generated_files)} sample files![/green]")
 
-def interactive_cli():
-    """
-    Interactive command-line interface to choose an operation.
-    The user can select between scrambling filenames and generating sample files.
-    """
+def interactive_cli() -> None:
     questions = [
         inquirer.List(
             'operation',

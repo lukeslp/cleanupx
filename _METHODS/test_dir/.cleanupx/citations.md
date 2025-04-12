@@ -113,58 +113,6 @@ Matthew
 
 **DOI:** [10.1136/bmjopen-2019-029469](https://doi.org/10.1136/bmjopen-2019-029469)
 
-**URL:** http://dx.doi.org/10.1136/bmjopen-2019-029469
-
----
-
-## Amyotrophic lateral sclerosis genetic studies: From genome-wide association mapping to genome sequencing
-
-**Authors:** Ji He, Marie Mangelsdorf, Dongsheng Fan, Perry Bartlett, Matthew Brown
-
-**Year:** 2015
-
-**Source:** Neuroscientist, 21(6), pp. 599-615
-
-**DOI:** [10.1177/1073858414555404](https://doi.org/10.1177/1073858414555404)
-
-**URL:** https://eprints.qut.edu.au/110861/
-
----
-
-## Glycosylation, transport, and complex formation of palmitoyl protein thioesterase 1 (PPT1) – distinct characteristics in neurons
-
-**Authors:** Annina Lyly, Carina von Schantz, Tarja Salonen, Outi Kopra, Jani Saarela, Matti Jauhiainen, Aija Kyttälä, Anu Jalanko
-
-**Year:** 2007
-
-**Source:** BMC Cell Biology
-
-**DOI:** [10.1186/1471-2121-8-22](https://doi.org/10.1186/1471-2121-8-22)
-
-**URL:** http://www.biomedcentral.com/1471-2121/8/22
-
----
-
-## Diagnosis and management of Cornelia de Lange syndrome: first international consensus statement
-
-**Authors:** Antonie D. Kline, Joanna F. Moss, Angelo Selicorni, Anne-Marie Bisgaard, Matthew A. Deardorff, Peter M. Gillett, Stacey L. Ishman, Lynne M. Kerr, Alex V. Levin, Paul A. Mulder, Feliciano J. Ramos, Jolanta Wierzba, Paola Francesca Ajmone, David Axtell, Natalie Blagowidow, Anna Cereda, Antonella Costantino, Valerie Cormier-Daire, David FitzPatrick, Marco Grados, Laura Groves, Whitney Guthrie, Sylvia Huisman, Frank J. Kaiser, Gerritjan Koekkoek, Mary Levis, Milena Mariani, Joseph P. McCleery, Leonie A. Menke, Amy Metrena, Julia O’Connor, Chris Oliver, Juan Pie, Sigrid Piening, Carol J. Potter, Ana L. Quaglio, Egbert Redeker, David Richman, Claudia Rigamonti, Angell Shi, Zeynep Tümer, Ingrid D. C. Van Balkom, Raoul C. Hennekam
-
-**Year:** 2018
-
-**Source:** Nature Reviews Genetics
-
-**DOI:** [10.1038/s41576-018-0031-0](https://doi.org/10.1038/s41576-018-0031-0)
-
----
-
-## Description of the developmental disorder in two infants
-
-**Authors:** Cornelia de Lange
-
-**Year:** 1933
-
-**Source:** Unknown
-
 ---
 
 ## Complex intervention in augmentative and alternative communication (AAC) care in Germany: a study protocol of an evaluation study with a controlled mixed-methods design

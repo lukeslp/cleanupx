@@ -2,19 +2,18 @@
 """
 dedupe_images.py
 
-This script deduplicates images in a folder based on file size and resolution.
-It also provides extended functionality to deduplicate general files and merge
-similar text files into a single comprehensive document.
-
-For images, for each image in the folder (filtered by common image extensions), it computes:
-  - File size (in bytes)
-  - Image resolution (width and height)
-
-For general files, deduplication is based on file size and SHA-256 hash.
-For text files, similarity is computed based on lines, paragraphs, and word overlap.
+This script deduplicates images in a folder based on file size and resolution and extends functionality 
+to deduplicate general files and merge similar text files. The deduplication strategies are:
+  - Images: Uses file size and resolution.
+  - General files: Uses file size and SHA-256 hashing.
+  - Text files: Uses content similarity (lines, paragraphs, and word overlap) and merges similar files.
+  
+It provides an interactive CLI for selecting the deduplication operation, enabling deletion
+and merging of duplicate files. The tool leverages robust logging and error handling practices 
+to ensure reliable operation.
 
 Usage:
-    Run this script and follow the interactive prompts.
+    Run the script and follow the interactive prompts.
 """
 
 import os
@@ -30,58 +29,34 @@ from typing import Optional, Dict, Any, List, Union, Set, Tuple
 
 from PIL import Image
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Define common image file extensions
 IMAGE_EXTENSIONS: Set[str] = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".heic"}
 
 def get_image_info(file_path: Path) -> Tuple[Optional[int], Optional[Tuple[int, int]]]:
-    """
-    Return the file size (in bytes) and resolution (width, height) for an image.
-
-    Args:
-        file_path (Path): Path to the image file.
-
-    Returns:
-        tuple: (file_size, (width, height)) if successful; otherwise (None, None).
-    """
     try:
         file_size = file_path.stat().st_size
     except Exception as e:
         print(f"Error getting file size for {file_path}: {e}")
         return None, None
-
     try:
         with Image.open(file_path) as img:
-            resolution = img.size  # (width, height)
+            resolution = img.size
     except Exception as e:
         print(f"Error opening image {file_path}: {e}")
         resolution = None
-
     return file_size, resolution
 
 def dedupe_images(folder_path: str) -> None:
-    """
-    Scan the specified folder for duplicate images based on file size and resolution.
-    For each set of duplicates, keep the first file and prompt to delete the others.
-
-    Args:
-        folder_path (str): Path to the image folder.
-    """
     folder = Path(folder_path)
     if not folder.is_dir():
         print(f"{folder_path} is not a valid directory.")
         return
-
-    # Collect all image files (non-recursively)
     images = [f for f in folder.iterdir() if f.is_file() and f.suffix.lower() in IMAGE_EXTENSIONS]
     if not images:
         print("No images found in the folder.")
         return
-
-    # Map (file_size, resolution) to list of files
     image_dict: Dict[Tuple[int, Tuple[int, int]], List[Path]] = {}
     for img in images:
         file_size, resolution = get_image_info(img)
@@ -89,9 +64,7 @@ def dedupe_images(folder_path: str) -> None:
             continue
         key = (file_size, resolution)
         image_dict.setdefault(key, []).append(img)
-
     duplicates: List[Path] = []
-    # Identify duplicate groups
     for key, file_list in image_dict.items():
         if len(file_list) > 1:
             original = file_list[0]
@@ -100,8 +73,6 @@ def dedupe_images(folder_path: str) -> None:
             for dup in dupes:
                 print(f"  - {dup.name}")
             duplicates.extend(dupes)
-
-    # Confirm deletion
     if duplicates:
         confirm = input("\nDo you want to delete these duplicate files? [y/N]: ").strip().lower()
         if confirm == 'y':
@@ -116,20 +87,7 @@ def dedupe_images(folder_path: str) -> None:
     else:
         print("No duplicate images found based on size and resolution.")
 
-# -----------------
-# Utility Functions for File Deduplication
-# -----------------
 def get_file_hash(file_path: Path, block_size: int = 65536) -> Optional[str]:
-    """
-    Calculate the SHA-256 hash of a file.
-
-    Args:
-        file_path (Path): Path to the file.
-        block_size (int): Block size for reading.
-
-    Returns:
-        Optional[str]: Hex digest of the file hash, or None if error.
-    """
     try:
         hasher = hashlib.sha256()
         with open(file_path, 'rb') as f:
@@ -141,21 +99,9 @@ def get_file_hash(file_path: Path, block_size: int = 65536) -> Optional[str]:
         return None
 
 def detect_duplicates(directory: Path, file_types: Optional[Set[str]] = None, recursive: bool = False) -> Dict[str, List[Path]]:
-    """
-    Detect duplicate files in a directory based on size and hash.
-
-    Args:
-        directory (Path): Directory to scan.
-        file_types (Optional[Set[str]]): Supported file extensions (if provided).
-        recursive (bool): Whether to process subdirectories.
-
-    Returns:
-        Dict[str, List[Path]]: Mapping from a key (size_hash) to list of files.
-    """
     if not directory.is_dir():
         logger.error(f"{directory} is not a valid directory.")
         return {}
-    
     files: List[Path] = []
     if recursive:
         for path in directory.rglob('*'):
@@ -165,11 +111,9 @@ def detect_duplicates(directory: Path, file_types: Optional[Set[str]] = None, re
         for path in directory.iterdir():
             if path.is_file() and (file_types is None or path.suffix.lower() in file_types):
                 files.append(path)
-    
     if not files:
         logger.info(f"No matching files found in {directory}")
         return {}
-    
     size_groups: Dict[int, List[Path]] = {}
     for file_path in files:
         try:
@@ -177,11 +121,10 @@ def detect_duplicates(directory: Path, file_types: Optional[Set[str]] = None, re
             size_groups.setdefault(size, []).append(file_path)
         except Exception as e:
             logger.error(f"Error getting size for {file_path}: {e}")
-    
     duplicate_groups: Dict[str, List[Path]] = {}
     for size, group in size_groups.items():
         if len(group) < 2:
-            continue  # Need at least 2 files
+            continue
         hash_dict: Dict[str, List[Path]] = {}
         for file_path in group:
             file_hash = get_file_hash(file_path)
@@ -191,41 +134,19 @@ def detect_duplicates(directory: Path, file_types: Optional[Set[str]] = None, re
         for key, paths in hash_dict.items():
             if len(paths) > 1:
                 duplicate_groups[key] = paths
-    
     return duplicate_groups
 
-# -----------------
-# Base Processor Classes
-# -----------------
 class BaseProcessor:
-    """
-    Minimal base processor class.
-    """
     def __init__(self):
         pass
 
 class DedupeProcessor(BaseProcessor):
-    """
-    Processor for deduplicating files.
-    Supports deduplication based on file size, hash, and for images, resolution.
-    """
     def __init__(self):
         super().__init__()
-        self.supported_extensions: Set[str] = set()  # All file types supported
-        self.max_size_mb: float = 1000.0  # Maximum size in MB
+        self.supported_extensions: Set[str] = set()
+        self.max_size_mb: float = 1000.0
 
     def process(self, file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Optional[Dict] = None) -> Dict[str, Any]:
-        """
-        Process a file for deduplication.
-
-        Args:
-            file_path (Union[str, Path]): Path of the file.
-            cache (Dict[str, Any]): Cache for storing file hash.
-            rename_log (Optional[Dict]): Optional log for renames.
-
-        Returns:
-            Dict[str, Any]: Processing result with metadata.
-        """
         file_path = Path(file_path)
         result: Dict[str, Any] = {
             'original_path': str(file_path),
@@ -239,24 +160,19 @@ class DedupeProcessor(BaseProcessor):
         try:
             file_size = file_path.stat().st_size
             result['size'] = file_size
-
             cache_key = str(file_path)
             if cache.get(cache_key) and 'hash' in cache[cache_key]:
                 result['hash'] = cache[cache_key]['hash']
-
             if not result['hash']:
                 result['hash'] = get_file_hash(file_path)
                 if result['hash']:
                     cache[cache_key] = {'hash': result['hash']}
-                    # Assume save_cache(cache) is handled externally
-                    
             if file_path.suffix.lower() in IMAGE_EXTENSIONS:
                 try:
                     with Image.open(file_path) as img:
                         result['resolution'] = img.size
                 except Exception as e:
                     logger.error(f"Error getting image resolution for {file_path}: {e}")
-
             return result
         except Exception as e:
             logger.error(f"Error processing file {file_path}: {e}")
@@ -264,16 +180,6 @@ class DedupeProcessor(BaseProcessor):
             return result
 
     def process_directory(self, directory: Union[str, Path], recursive: bool = False) -> Dict[str, Any]:
-        """
-        Process a directory to find duplicate files.
-
-        Args:
-            directory (Union[str, Path]): Directory to scan.
-            recursive (bool): Whether to process subdirectories.
-
-        Returns:
-            Dict[str, Any]: Aggregated deduplication results.
-        """
         directory = Path(directory)
         result: Dict[str, Any] = {
             'directory': str(directory),
@@ -302,16 +208,6 @@ class DedupeProcessor(BaseProcessor):
             return result
 
     def delete_duplicates(self, duplicate_groups: Dict[str, List[Path]], keep_first: bool = True) -> Dict[str, Any]:
-        """
-        Delete duplicate files from the groups.
-
-        Args:
-            duplicate_groups (Dict[str, List[Path]]): Mapping of group keys to lists of duplicate files.
-            keep_first (bool): If True, retain the first file in each group.
-
-        Returns:
-            Dict[str, Any]: Deletion statistics.
-        """
         result: Dict[str, Any] = {
             'deleted_files': [],
             'errors': [],
@@ -336,9 +232,6 @@ class DedupeProcessor(BaseProcessor):
         return result
 
 class TextDedupeProcessor(BaseProcessor):
-    """
-    Processor for deduplicating and merging similar text files.
-    """
     TEXT_EXTENSIONS: Set[str] = {
         '.txt', '.md', '.markdown', '.rst', '.log', '.csv', '.json', '.xml',
         '.yml', '.yaml', '.html', '.htm', '.css', '.conf', '.ini', '.cfg'
@@ -346,23 +239,12 @@ class TextDedupeProcessor(BaseProcessor):
     def __init__(self):
         super().__init__()
         self.supported_extensions: Set[str] = self.TEXT_EXTENSIONS
-        self.max_size_mb: float = 10.0  # Typical text file sizes are small
+        self.max_size_mb: float = 10.0
         self.similarity_threshold: float = 0.7
         self.exact_duplicates: Dict[str, List[Any]] = defaultdict(list)
         self.similar_groups: List[List[Any]] = []
 
     def process(self, file_path: Union[str, Path], cache: Dict[str, Any], rename_log: Optional[Dict] = None) -> Dict[str, Any]:
-        """
-        Process a text file for deduplication.
-
-        Args:
-            file_path (Union[str, Path]): Path to the text file.
-            cache (Dict[str, Any]): Cache for storing file metrics.
-            rename_log (Optional[Dict]): Log for renames.
-
-        Returns:
-            Dict[str, Any]: Processing result containing file content and metadata.
-        """
         file_path = Path(file_path)
         result: Dict[str, Any] = {
             'original_path': str(file_path),
@@ -376,28 +258,23 @@ class TextDedupeProcessor(BaseProcessor):
             if file_path.suffix.lower() not in self.supported_extensions:
                 result['error'] = f"Unsupported file type: {file_path.suffix}"
                 return result
-
             if file_path.stat().st_size > self.max_size_mb * 1024 * 1024:
                 result['error'] = f"File size exceeds maximum ({self.max_size_mb}MB)"
                 return result
-
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
             if not content:
                 result['error'] = "Failed to read file content"
                 return result
-
             result['content'] = content
             result['paragraphs'] = self._split_into_paragraphs(content)
             result['hash'] = self._calculate_hash(content)
-
             if cache is not None:
                 cache_key = str(file_path)
                 cache[cache_key] = {
                     'hash': result['hash'],
                     'paragraphs': len(result['paragraphs'])
                 }
-                # Assume save_cache(cache) is performed externally
             return result
         except Exception as e:
             logger.error(f"Error processing text file {file_path}: {e}")
@@ -405,16 +282,6 @@ class TextDedupeProcessor(BaseProcessor):
             return result
 
     def process_directory(self, directory: Union[str, Path], recursive: bool = False) -> Dict[str, Any]:
-        """
-        Process a directory to find and group duplicate text files.
-
-        Args:
-            directory (Union[str, Path]): Directory to scan.
-            recursive (bool): Whether to process subdirectories.
-
-        Returns:
-            Dict[str, Any]: Aggregated deduplication results.
-        """
         directory = Path(directory)
         self.exact_duplicates = defaultdict(list)
         self.similar_groups = []
@@ -455,15 +322,6 @@ class TextDedupeProcessor(BaseProcessor):
             return result
 
     def merge_duplicates(self, output_dir: Optional[Path] = None) -> Dict[str, Any]:
-        """
-        Merge duplicate and similar text files.
-
-        Args:
-            output_dir (Optional[Path]): Directory to save merged files.
-
-        Returns:
-            Dict[str, Any]: Merge results.
-        """
         result: Dict[str, Any] = {
             'merged_files': [],
             'errors': [],
@@ -502,16 +360,6 @@ class TextDedupeProcessor(BaseProcessor):
             return result
 
     def _load_text_files(self, directory: Path, recursive: bool = True) -> List[Dict[str, Any]]:
-        """
-        Load all text files from a directory.
-
-        Args:
-            directory (Path): Directory to scan.
-            recursive (bool): Whether to scan subdirectories.
-
-        Returns:
-            List[Dict[str, Any]]: List of processed text file results.
-        """
         files: List[Dict[str, Any]] = []
         def process_file(file_path: Path) -> None:
             if file_path.suffix.lower() in self.supported_extensions:
@@ -530,15 +378,6 @@ class TextDedupeProcessor(BaseProcessor):
         return files
 
     def _find_similar_files(self, files: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
-        """
-        Find groups of files with similar text content.
-
-        Args:
-            files (List[Dict[str, Any]]): List of processed text files.
-
-        Returns:
-            List[List[Dict[str, Any]]]: Groups of similar files.
-        """
         similar_groups: List[List[Dict[str, Any]]] = []
         processed = set()
         for i, file1 in enumerate(files):
@@ -558,16 +397,6 @@ class TextDedupeProcessor(BaseProcessor):
         return similar_groups
 
     def _calculate_similarity(self, file1: Dict[str, Any], file2: Dict[str, Any]) -> float:
-        """
-        Calculate similarity between two text files based on lines, paragraphs, and words.
-
-        Args:
-            file1 (Dict[str, Any]): Processed result for file 1.
-            file2 (Dict[str, Any]): Processed result for file 2.
-
-        Returns:
-            float: Similarity ratio.
-        """
         if file1['hash'] == file2['hash']:
             return 1.0
         lines1 = file1['content'].splitlines()
@@ -589,16 +418,6 @@ class TextDedupeProcessor(BaseProcessor):
         return (line_similarity * 0.5) + (paragraph_similarity * 0.3) + (word_similarity * 0.2)
 
     def _merge_exact_duplicates(self, files: List[Dict[str, Any]], output_dir: Optional[Path] = None) -> Optional[Path]:
-        """
-        Merge exact duplicate text files into a single file.
-
-        Args:
-            files (List[Dict[str, Any]]): List of duplicate file results.
-            output_dir (Optional[Path]): Directory where merged file will be saved.
-
-        Returns:
-            Optional[Path]: Path to the merged file.
-        """
         if not files or len(files) < 2:
             return None
         try:
@@ -627,16 +446,6 @@ class TextDedupeProcessor(BaseProcessor):
             return None
 
     def _merge_similar_files(self, files: List[Dict[str, Any]], output_dir: Optional[Path] = None) -> Optional[Path]:
-        """
-        Merge similar text files into a single markdown file.
-
-        Args:
-            files (List[Dict[str, Any]]): List of similar file results.
-            output_dir (Optional[Path]): Directory where merged file will be saved.
-
-        Returns:
-            Optional[Path]: Path to the merged file.
-        """
         if not files or len(files) < 2:
             return None
         try:
@@ -655,15 +464,6 @@ class TextDedupeProcessor(BaseProcessor):
             return None
 
     def _generate_merged_content(self, files: List[Dict[str, Any]]) -> str:
-        """
-        Generate merged content from similar text files.
-
-        Args:
-            files (List[Dict[str, Any]]): List of file results.
-
-        Returns:
-            str: Merged file content.
-        """
         content = [
             f"# Merged content from {len(files)} similar files\n",
             "## Source Files\n"
@@ -685,15 +485,6 @@ class TextDedupeProcessor(BaseProcessor):
         return "\n".join(content)
 
     def _find_common_paragraphs(self, files: List[Dict[str, Any]]) -> List[str]:
-        """
-        Find paragraphs that are common across all files.
-
-        Args:
-            files (List[Dict[str, Any]]): List of file results.
-
-        Returns:
-            List[str]: List of common paragraphs.
-        """
         if not files:
             return []
         reference_file = files[0]
@@ -709,16 +500,6 @@ class TextDedupeProcessor(BaseProcessor):
         return common_paragraphs
 
     def _find_unique_paragraphs(self, file: Dict[str, Any], common_paragraphs: List[str]) -> List[str]:
-        """
-        Find paragraphs in a file that are not common.
-
-        Args:
-            file (Dict[str, Any]): File result.
-            common_paragraphs (List[str]): List of common paragraphs.
-
-        Returns:
-            List[str]: Unique paragraphs.
-        """
         unique_paragraphs = []
         for paragraph in file['paragraphs']:
             if not any(difflib.SequenceMatcher(None, paragraph, common).ratio() > 0.8 for common in common_paragraphs):
@@ -727,34 +508,15 @@ class TextDedupeProcessor(BaseProcessor):
         return unique_paragraphs
 
     def _split_into_paragraphs(self, text: str) -> List[str]:
-        """
-        Split text into paragraphs.
-
-        Args:
-            text (str): The text to split.
-
-        Returns:
-            List[str]: A list of paragraphs.
-        """
         raw_paragraphs = re.split(r'\n\s*\n', text)
         return [p.strip() for p in raw_paragraphs if p.strip()]
 
     def _calculate_hash(self, text: str) -> str:
-        """
-        Calculate hash for normalized text content.
-
-        Args:
-            text (str): Text content.
-
-        Returns:
-            str: MD5 hash of normalized text.
-        """
         normalized = re.sub(r'\s+', ' ', text.lower())
         normalized = re.sub(r'[#*_`\[\]\(\)\{\}]', '', normalized)
         return hashlib.md5(normalized.encode('utf-8')).hexdigest()
 
 def main() -> None:
-    # Interactive CLI to select deduplication mode and folder
     while True:
         print("\n=== Deduplication CLI ===")
         print("Select the operation to perform:")
@@ -763,11 +525,9 @@ def main() -> None:
         print("3. Deduplicate and Merge Text Files")
         print("4. Exit")
         choice = input("Enter your choice (1-4): ").strip()
-        
         if choice == '4':
             print("Exiting. Goodbye!")
             break
-        
         folder = input("Enter the path to the folder: ").strip()
         if not folder:
             print("Folder path cannot be empty. Please try again.")
@@ -776,7 +536,6 @@ def main() -> None:
         if not folder_path.is_dir():
             print(f"Invalid directory: {folder}")
             continue
-
         if choice == '1':
             dedupe_images(folder)
         elif choice == '2':

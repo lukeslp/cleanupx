@@ -1,56 +1,123 @@
 #!/usr/bin/env python3
 """
-XCITATION - SNIPPET FILE
-Goal is to create a bibliography while renaming journal articles in a directory (and/or harvest links) 
-using xAI and tool use for things like unpaywall semantic scholar, arxiv, and general web search.
+XCITATION - Citation Extraction and Management Tool
+
+This module provides functionality to extract, deduplicate, and manage citations from
+academic papers and documents. It supports:
+- Multiple citation styles (APA, MLA, Chicago, IEEE)
+- DOI resolution from multiple services
+- PDF and document text extraction
+- Citation deduplication and validation
+- Markdown and JSON output formats
+
+Example:
+    >>> from xcitation import process_file_for_citations
+    >>> results = process_file_for_citations("paper.pdf", ".citations")
+    >>> print(f"Found {results['citations_found']} citations")
+
+Dependencies:
+    - requests: For API calls
+    - PyPDF2: For PDF text extraction (optional)
+    - docx2txt: For DOCX text extraction (optional)
+    - python-docx: Alternative DOCX extraction (optional)
 """
 
 import logging
-from pathlib import Path
-from typing import List, Dict, Optional, Union, Any, Set
+import os
 import re
+import subprocess
+from pathlib import Path
+from typing import (
+    List, Dict, Optional, Union, Any, Set, TypedDict, Literal,
+    NamedTuple, cast
+)
 import json
 from datetime import datetime
-from bibtexparser.bibdatabase import BibDatabase
-from bibtexparser.bwriter import BibTexWriter
-import csv
 from functools import wraps
 import time
 import requests
-import os
-import subprocess
-import io
-import argparse
-import sys
-from dotenv import load_dotenv
 from urllib.parse import quote_plus, unquote_plus
+from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
-# Configure logging
+# Configure logging with more detailed format
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
 )
+logger = logging.getLogger(__name__)
 
-# Constants and configuration
+# Type definitions
+class Citation(TypedDict, total=False):
+    """Type definition for citation data."""
+    authors: List[str]
+    year: str
+    title: Optional[str]
+    source: Optional[str]
+    doi: Optional[str]
+    url: Optional[str]
+    volume: Optional[str]
+    issue: Optional[str]
+    pages: Optional[str]
+    type: Literal["doi", "text", "regex"]
+
+class ProcessingResult(TypedDict):
+    """Type definition for file processing results."""
+    processed: bool
+    citations_found: int
+    file: str
+    error: Optional[str]
+
+class ServiceConfig(NamedTuple):
+    """Configuration for DOI resolution services."""
+    url: str
+    name: str
+    requires_key: bool = False
+    key_env_var: Optional[str] = None
+
+# Constants
 DEFAULT_MODEL_TEXT = "grok-3-mini-latest"
 API_BASE_URL = "https://api.x.ai/v1"
 MAX_RETRIES = 3
 RETRY_DELAY = 2  # seconds
 CITATIONS_FILE = "citations.json"
 API_TIMEOUT = 30
+MAX_CHUNK_SIZE = 50000  # Conservative size to stay well under token limit
 
 # File type constants
-TEXT_EXTENSIONS = {'.txt', '.md', '.markdown', '.rst', '.text', '.log', '.csv', '.tsv', '.json', '.xml', '.yaml', '.yml', '.html', '.htm', '.py', '.db', '.sh', '.rtf', '.ics', '.icsv', '.icsx'}
+TEXT_EXTENSIONS = {
+    '.txt', '.md', '.markdown', '.rst', '.text', '.log', '.csv', 
+    '.tsv', '.json', '.xml', '.yaml', '.yml', '.html', '.htm',
+    '.py', '.db', '.sh', '.rtf', '.ics', '.icsv', '.icsx'
+}
 DOCUMENT_EXTENSIONS = {'.pdf', '.docx', '.doc', '.ppt', '.pptx', '.xlsx', '.xls'}
-IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp', '.heic', '.heif', '.ico'}
-MEDIA_EXTENSIONS = {'.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.mp4', '.avi', '.mov', '.mkv', '.webm', '.flv', '.m4v'}
+IMAGE_EXTENSIONS = {
+    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp',
+    '.heic', '.heif', '.ico'
+}
+MEDIA_EXTENSIONS = {
+    '.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.mp4',
+    '.avi', '.mov', '.mkv', '.webm', '.flv', '.m4v'
+}
 ARCHIVE_EXTENSIONS = {'.zip', '.tar', '.tgz', '.tar.gz', '.rar', '.gz', '.pkg'}
 
 # Supported file extensions for citation extraction
 SUPPORTED_EXTENSIONS = TEXT_EXTENSIONS.union(DOCUMENT_EXTENSIONS)
+
+# DOI resolution service configurations
+DOI_SERVICES = [
+    ServiceConfig("https://api.crossref.org/works/", "CrossRef"),
+    ServiceConfig("https://doi.org/api/handles/", "DOI.org"),
+    ServiceConfig(
+        "https://api.unpaywall.org/v2/",
+        "Unpaywall",
+        requires_key=True,
+        key_env_var="UNPAYWALL_API_KEY"
+    ),
+    ServiceConfig("https://api.datacite.org/works/", "DataCite")
+]
 
 # Optional imports with fallbacks
 try:
@@ -58,64 +125,78 @@ try:
     PANDAS_AVAILABLE = True
 except ImportError:
     PANDAS_AVAILABLE = False
+    logger.debug("pandas not available - Excel file processing will be limited")
 
 try:
     import PyPDF2
     PYPDF2_AVAILABLE = True
 except ImportError:
     PYPDF2_AVAILABLE = False
+    logger.debug("PyPDF2 not available - PDF processing will use pdftotext only")
 
 try:
     import docx2txt
     DOCX2TXT_AVAILABLE = True
 except ImportError:
     DOCX2TXT_AVAILABLE = False
+    logger.debug("docx2txt not available - trying python-docx")
 
 try:
     from docx import Document
     PYTHON_DOCX_AVAILABLE = True
 except ImportError:
     PYTHON_DOCX_AVAILABLE = False
+    if not DOCX2TXT_AVAILABLE:
+        logger.warning("No DOCX processing libraries available")
 
-class Logger:
-    """Simple logging class for consistent output formatting."""
+class CitationError(Exception):
+    """Base exception for citation-related errors."""
+    pass
+
+class DOIResolutionError(CitationError):
+    """Raised when unable to resolve a DOI."""
+    pass
+
+class TextExtractionError(CitationError):
+    """Raised when unable to extract text from a document."""
+    pass
+
+def retry_with_backoff(max_retries: int = MAX_RETRIES, initial_delay: float = RETRY_DELAY):
+    """
+    Decorator to retry functions with exponential backoff.
     
-    @staticmethod
-    def info(message):
-        logging.info(message)
-    
-    @staticmethod
-    def warning(message):
-        logging.warning(message)
-    
-    @staticmethod
-    def error(message):
-        logging.error(message)
+    Args:
+        max_retries: Maximum number of retry attempts
+        initial_delay: Initial delay between retries in seconds
         
-    @staticmethod
-    def debug(message):
-        if os.getenv("DEBUG", "").lower() in ("1", "true", "yes"):
-            logging.debug(message)
-
-def retry_with_backoff(func):
-    """Decorator to retry API calls with exponential backoff."""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        retries = 0
-        while retries < MAX_RETRIES:
-            try:
-                return func(*args, **kwargs)
-            except (requests.HTTPError, requests.ConnectionError) as e:
-                retries += 1
-                if retries >= MAX_RETRIES:
-                    Logger.error(f"Max retries reached. Last error: {e}")
-                    raise
-                
-                sleep_time = RETRY_DELAY * (2 ** (retries - 1))
-                Logger.warning(f"API call failed: {e}. Retrying in {sleep_time}s...")
-                time.sleep(sleep_time)
-        return func(*args, **kwargs)  # One last try
-    return wrapper
+    Returns:
+        Decorated function
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            retries = 0
+            current_delay = initial_delay
+            
+            while retries < max_retries:
+                try:
+                    return func(*args, **kwargs)
+                except (requests.HTTPError, requests.ConnectionError) as e:
+                    retries += 1
+                    if retries >= max_retries:
+                        logger.error(f"Max retries ({max_retries}) reached. Last error: {e}")
+                        raise
+                    
+                    logger.warning(
+                        f"API call failed (attempt {retries}/{max_retries}): {e}. "
+                        f"Retrying in {current_delay}s..."
+                    )
+                    time.sleep(current_delay)
+                    current_delay *= 2  # Exponential backoff
+            
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
 
 class XAIClient:
     """
@@ -123,29 +204,43 @@ class XAIClient:
     
     This class provides methods for authenticating and making requests to
     the X.AI API, with built-in error handling and retry logic.
+    
+    Attributes:
+        api_key: X.AI API key
+        base_url: Base URL for API requests
+        session: Requests session for connection pooling
     """
     
-    def __init__(self, api_key=None):
+    def __init__(self, api_key: Optional[str] = None):
         """
         Initialize the client with API credentials.
         
         Args:
             api_key: X.AI API key (defaults to XAI_API_KEY environment variable)
+            
+        Raises:
+            ValueError: If no API key is provided or found in environment
         """
         self.api_key = api_key or os.getenv("XAI_API_KEY")
         if not self.api_key:
-            Logger.error("X.AI API key not found. Set XAI_API_KEY environment variable.")
             raise ValueError("X.AI API key not found. Set XAI_API_KEY environment variable.")
         
         self.base_url = API_BASE_URL
         self.session = requests.Session()
         self.session.headers.update({
             "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "User-Agent": "CitationExtractor/1.0 (mailto:support@cleanupx.org)"
         })
     
-    @retry_with_backoff
-    def chat(self, messages, model=DEFAULT_MODEL_TEXT, temperature=0.3, functions=None):
+    @retry_with_backoff()
+    def chat(
+        self,
+        messages: List[Dict[str, str]],
+        model: str = DEFAULT_MODEL_TEXT,
+        temperature: float = 0.1,
+        functions: Optional[List[Dict[str, Any]]] = None
+    ) -> Dict[str, Any]:
         """
         Send a chat completion request to the X.AI API.
         
@@ -157,6 +252,11 @@ class XAIClient:
             
         Returns:
             Parsed JSON response from the API
+            
+        Raises:
+            requests.HTTPError: If the API request fails
+            requests.ConnectionError: If connection fails
+            ValueError: If response parsing fails
         """
         url = f"{self.base_url}/chat/completions"
         payload = {
@@ -175,7 +275,7 @@ class XAIClient:
                 }
         
         try:
-            Logger.debug(f"Sending request to {url}")
+            logger.debug(f"Sending request to {url}")
             response = self.session.post(url, json=payload, timeout=API_TIMEOUT)
             response.raise_for_status()
             return response.json()
@@ -187,10 +287,10 @@ class XAIClient:
                 except json.JSONDecodeError:
                     error_details = e.response.text
             
-            Logger.error(f"API error: {e}\nResponse details: {error_details}")
+            logger.error(f"API error: {e}\nResponse details: {error_details}")
             raise
     
-    def extract_tool_result(self, response):
+    def extract_tool_result(self, response: Dict[str, Any]) -> Union[List[Any], Dict[str, Any]]:
         """
         Extract function call result from API response.
         
@@ -198,7 +298,10 @@ class XAIClient:
             response: JSON response from chat completion API
             
         Returns:
-            Extracted function arguments as dictionary
+            Extracted function arguments or content
+            
+        Raises:
+            ValueError: If response parsing fails
         """
         try:
             message = response["choices"][0]["message"]
@@ -207,8 +310,7 @@ class XAIClient:
             if "tool_calls" in message and message["tool_calls"]:
                 tool_call = message["tool_calls"][0]
                 if tool_call["type"] == "function":
-                    function_args = json.loads(tool_call["function"]["arguments"])
-                    return function_args
+                    return json.loads(tool_call["function"]["arguments"])
             
             # Fallback to content parsing if no tool calls
             content = message.get("content", "")
@@ -224,98 +326,21 @@ class XAIClient:
             return {"content": content}
             
         except (KeyError, IndexError, json.JSONDecodeError) as e:
-            Logger.error(f"Error extracting tool result: {e}")
-            return {}
+            logger.error(f"Error extracting tool result: {e}")
+            raise ValueError(f"Failed to parse API response: {e}")
 
-def get_xai_client():
+def get_xai_client() -> Optional[XAIClient]:
     """
     Get an initialized X.AI client instance.
     
     Returns:
-        XAIClient instance
+        XAIClient instance or None if initialization fails
     """
     try:
         return XAIClient()
     except ValueError as e:
-        Logger.error(f"Failed to initialize XAI client: {e}")
+        logger.error(f"Failed to initialize XAI client: {e}")
         return None
-
-def chunk_text(text: str, max_tokens: int = 100000) -> List[str]:
-    """
-    Split text into chunks that fit within token limits.
-    Uses sentence boundaries where possible to maintain context.
-    
-    Args:
-        text: Text to chunk
-        max_tokens: Maximum tokens per chunk
-        
-    Returns:
-        List of text chunks
-    """
-    # Rough token estimation (4 chars per token on average)
-    CHARS_PER_TOKEN = 4
-    max_chars = max_tokens * CHARS_PER_TOKEN
-    
-    # Split into sentences first
-    sentence_endings = r'[.!?]\s+'
-    sentences = re.split(sentence_endings, text)
-    
-    chunks = []
-    current_chunk = ""
-    current_length = 0
-    
-    for sentence in sentences:
-        sentence = sentence.strip()
-        if not sentence:
-            continue
-            
-        # Add sentence ending punctuation back
-        sentence = sentence + ". "
-        sentence_length = len(sentence)
-        
-        # If single sentence is too long, split by paragraphs
-        if sentence_length > max_chars:
-            if current_chunk:
-                chunks.append(current_chunk.strip())
-                current_chunk = ""
-                current_length = 0
-            
-            # Split long sentence by paragraphs
-            paragraphs = sentence.split('\n\n')
-            for paragraph in paragraphs:
-                paragraph = paragraph.strip()
-                if not paragraph:
-                    continue
-                    
-                # If paragraph is still too long, split by character limit
-                if len(paragraph) > max_chars:
-                    while paragraph:
-                        chunk_end = max_chars
-                        # Try to break at word boundary
-                        if chunk_end < len(paragraph):
-                            chunk_end = paragraph.rfind(' ', 0, max_chars)
-                            if chunk_end == -1:
-                                chunk_end = max_chars
-                        chunks.append(paragraph[:chunk_end].strip())
-                        paragraph = paragraph[chunk_end:].strip()
-                else:
-                    chunks.append(paragraph)
-            continue
-        
-        # Check if adding sentence would exceed limit
-        if current_length + sentence_length > max_chars:
-            chunks.append(current_chunk.strip())
-            current_chunk = sentence
-            current_length = sentence_length
-        else:
-            current_chunk += sentence
-            current_length += sentence_length
-    
-    # Add final chunk
-    if current_chunk:
-        chunks.append(current_chunk.strip())
-    
-    return chunks
 
 def extract_citations_from_text(text: str) -> List[Dict[str, Any]]:
     """
@@ -331,23 +356,45 @@ def extract_citations_from_text(text: str) -> List[Dict[str, Any]]:
     if not client:
         return []
 
-    # Conservative token limit to leave room for system prompt
-    MAX_CHUNK_TOKENS = 90000  # Well below 131,072 limit
-    
     # Split text into manageable chunks
-    chunks = chunk_text(text, max_tokens=MAX_CHUNK_TOKENS)
-    Logger.info(f"Split text into {len(chunks)} chunks for processing")
+    chunks = []
+    
+    # Split by paragraphs first
+    paragraphs = text.split('\n\n')
+    current_chunk = ""
+    current_size = 0
+    
+    for para in paragraphs:
+        para_size = len(para)
+        if current_size + para_size > MAX_CHUNK_SIZE:
+            if current_chunk:
+                chunks.append(current_chunk)
+            current_chunk = para
+            current_size = para_size
+        else:
+            if current_chunk:
+                current_chunk += "\n\n"
+            current_chunk += para
+            current_size += para_size + 2
+    
+    if current_chunk:
+        chunks.append(current_chunk)
+    
+    if not chunks:
+        chunks = [text]  # Fallback if no paragraphs
+
+    logger.info(f"Split text into {len(chunks)} chunks for processing")
     
     all_citations = []
     seen_citations = set()  # Track duplicates across chunks
     
     for i, chunk in enumerate(chunks, 1):
-        Logger.info(f"Processing chunk {i}/{len(chunks)} ({len(chunk)} chars)")
+        logger.info(f"Processing chunk {i}/{len(chunks)} ({len(chunk)} chars)")
         
         messages = [
             {
                 "role": "system",
-                "content": """You are a citation extraction assistant. Extract academic citations and references.
+                "content": """Extract academic citations and references.
                 Format each citation as a JSON object with:
                 - authors (list)
                 - year
@@ -363,7 +410,7 @@ def extract_citations_from_text(text: str) -> List[Dict[str, Any]]:
         ]
 
         try:
-            response = client.chat(messages)
+            response = client.chat(messages, temperature=0.1)  # Lower temperature for more consistent output
             result = client.extract_tool_result(response)
             
             chunk_citations = []
@@ -375,14 +422,15 @@ def extract_citations_from_text(text: str) -> List[Dict[str, Any]]:
                     if isinstance(parsed, list):
                         chunk_citations = parsed
                 except json.JSONDecodeError:
-                    Logger.warning(f"Failed to parse JSON from chunk {i}")
+                    logger.warning(f"Failed to parse JSON from chunk {i}")
             
             # Deduplicate citations within and across chunks
             for citation in chunk_citations:
                 # Create unique key for citation
                 if citation.get("doi"):
-                    key = citation["doi"]
+                    key = clean_doi(citation["doi"])
                 else:
+                    # For non-DOI citations, use a combination of fields
                     key = f"{citation.get('title', '')}_{citation.get('year', '')}_{','.join(citation.get('authors', []))}"
                 
                 if key not in seen_citations:
@@ -390,22 +438,22 @@ def extract_citations_from_text(text: str) -> List[Dict[str, Any]]:
                     seen_citations.add(key)
             
         except Exception as e:
-            Logger.error(f"Error processing chunk {i}: {e}")
+            logger.error(f"Error processing chunk {i}: {e}")
             if "token" in str(e).lower():
                 # Try splitting chunk further if token error
                 try:
-                    subchunks = chunk_text(chunk, max_tokens=MAX_CHUNK_TOKENS // 2)
-                    Logger.info(f"Retrying chunk {i} split into {len(subchunks)} subchunks")
+                    subchunks = [chunk[i:i + MAX_CHUNK_SIZE//2] for i in range(0, len(chunk), MAX_CHUNK_SIZE//2)]
+                    logger.info(f"Retrying chunk {i} split into {len(subchunks)} subchunks")
                     for subchunk in subchunks:
                         try:
                             messages[1]["content"] = subchunk
-                            response = client.chat(messages)
+                            response = client.chat(messages, temperature=0.1)
                             result = client.extract_tool_result(response)
                             
                             if isinstance(result, list):
                                 for citation in result:
                                     if citation.get("doi"):
-                                        key = citation["doi"]
+                                        key = clean_doi(citation["doi"])
                                     else:
                                         key = f"{citation.get('title', '')}_{citation.get('year', '')}_{','.join(citation.get('authors', []))}"
                                     
@@ -413,14 +461,31 @@ def extract_citations_from_text(text: str) -> List[Dict[str, Any]]:
                                         all_citations.append(citation)
                                         seen_citations.add(key)
                         except Exception as sub_e:
-                            Logger.error(f"Error processing subchunk of chunk {i}: {sub_e}")
+                            logger.error(f"Error processing subchunk of chunk {i}: {sub_e}")
                 except Exception as split_e:
-                    Logger.error(f"Error splitting chunk {i}: {split_e}")
+                    logger.error(f"Error splitting chunk {i}: {split_e}")
             continue
 
-    # If no citations found via API, try regex
+    # Extract DOIs from text and get their citations
+    doi_pattern = r'\b(10\.\d{4,}[/.][^\s/]+)'
+    dois = re.findall(doi_pattern, text)
+    
+    # Get citation info for each unique DOI
+    processed_dois = set()
+    for doi in dois:
+        clean_doi_str = clean_doi(doi)
+        if clean_doi_str not in processed_dois:
+            citation = extract_citations_from_doi(clean_doi_str)
+            if citation:
+                key = citation["doi"]
+                if key not in seen_citations:
+                    all_citations.append(citation)
+                    seen_citations.add(key)
+                processed_dois.add(clean_doi_str)
+
+    # If no citations found via API or DOIs, try regex
     if not all_citations:
-        Logger.info("No citations found via API, falling back to regex extraction")
+        logger.info("No citations found via API or DOIs, falling back to regex extraction")
         all_citations = _extract_citations_regex(text)
 
     return all_citations
@@ -436,106 +501,36 @@ def _extract_citations_regex(text: str) -> List[Dict[str, Any]]:
         # (Author, Year) pattern
         r'\(([A-Z][a-z]+(?:,?\s+(?:&\s+)?[A-Z][a-z]+)*),\s+(\d{4})\)',
         # Author et al. (Year) pattern
-        r'([A-Z][a-z]+)\s+et\s+al\.\s+\((\d{4})\)'
+        r'([A-Z][a-z]+)\s+et\s+al\.\s+\((\d{4})\)',
+        # APA style pattern
+        r'([A-Za-z\-]+(?:,\s+[A-Z]\.)+(?:\s*&\s*[A-Za-z\-]+(?:,\s+[A-Z]\.)+)*)\s*\((\d{4}[a-z]?)\)',
+        # IEEE style pattern
+        r'\[(\d+)\]\s+([^.]+)\.\s+"([^"]+)"\s+(?:in\s+)?([^,]+),\s+(?:vol\.\s+)?(\d+)(?:,\s+(?:no\.\s+)?(\d+))?,\s+pp\.\s+(\d+(?:-\d+)?),\s+(\d{4})'
     ]
     
     for pattern in patterns:
         matches = re.finditer(pattern, text)
         for match in matches:
-            citation = {
-                "authors": [author.strip() for author in match.group(1).split('&')],
-                "year": match.group(2),
-                "title": None,
-                "source": None
-            }
+            if '[' in pattern:  # IEEE style
+                citation = {
+                    "authors": [match.group(2)],
+                    "year": match.group(8),
+                    "title": match.group(3),
+                    "source": match.group(4),
+                    "volume": match.group(5),
+                    "issue": match.group(6),
+                    "pages": match.group(7)
+                }
+            else:  # Other styles
+                citation = {
+                    "authors": [author.strip() for author in match.group(1).split('&')],
+                    "year": match.group(2),
+                    "title": None,
+                    "source": None
+                }
             citations.append(citation)
     
     return citations
-
-def extract_citations_from_doi(doi: str) -> Optional[Dict[str, Any]]:
-    """
-    Extract citation information from a DOI using multiple services.
-    
-    Args:
-        doi: DOI string
-        
-    Returns:
-        Citation dictionary or None on failure
-    """
-    try:
-        # Clean and normalize the DOI
-        doi = doi.strip()
-        if not doi.startswith('10.'):
-            Logger.warning(f"Invalid DOI format: {doi}")
-            return None
-            
-        # Remove any 'Open' suffix that might have been incorrectly appended
-        if doi.endswith('Open'):
-            doi = doi[:-4]
-            
-        # Try multiple DOI resolution services
-        services = [
-            ("https://api.crossref.org/works/", "CrossRef"),
-            ("https://doi.org/api/handles/", "DOI.org"),
-            ("https://api.unpaywall.org/v2/", "Unpaywall"),
-            ("https://api.datacite.org/works/", "DataCite")  # Added DataCite as fallback
-        ]
-        
-        for base_url, service in services:
-            try:
-                url = f"{base_url}{quote_plus(doi)}"
-                headers = {
-                    "Accept": "application/json",
-                    "User-Agent": "CitationExtractor/1.0 (mailto:support@cleanupx.org)"  # Added user agent
-                }
-                
-                if service == "Unpaywall":
-                    api_key = os.getenv("UNPAYWALL_API_KEY")
-                    if api_key:
-                        headers["Authorization"] = f"Bearer {api_key}"
-                
-                response = requests.get(url, headers=headers, timeout=API_TIMEOUT)
-                response.raise_for_status()
-                
-                data = response.json()
-                if service == "CrossRef":
-                    data = data.get("message", {})
-                elif service == "DOI.org":
-                    data = data.get("values", [{}])[0].get("data", {})
-                elif service == "Unpaywall":
-                    data = data.get("data", {})
-                elif service == "DataCite":
-                    data = data.get("data", {}).get("attributes", {})
-                
-                # Extract citation information
-                citation = {
-                    "authors": [
-                        f"{author.get('given', '')} {author.get('family', '')}"
-                        for author in data.get("author", [])
-                    ],
-                    "year": data.get("published-print", {}).get("date-parts", [[None]])[0][0],
-                    "title": data.get("title", [None])[0] if isinstance(data.get("title"), list) else data.get("title"),
-                    "source": data.get("container-title", [None])[0] if isinstance(data.get("container-title"), list) else data.get("container-title"),
-                    "doi": doi,
-                    "url": data.get("URL") or f"https://doi.org/{doi}",
-                    "type": "doi"
-                }
-                
-                # Validate the citation
-                if any(citation.values()):
-                    Logger.info(f"Successfully fetched citation for DOI {doi} from {service}")
-                    return citation
-                    
-            except requests.exceptions.RequestException as e:
-                Logger.warning(f"Failed to fetch citation for DOI {doi} from {service}: {str(e)}")
-                continue
-                
-        Logger.warning(f"All DOI resolution services failed for {doi}")
-        return None
-        
-    except Exception as e:
-        Logger.error(f"Error processing DOI {doi}: {str(e)}")
-        return None
 
 def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> str:
     """
@@ -565,9 +560,9 @@ def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> st
         if result.returncode == 0 and result.stdout.strip():
             return result.stdout
         else:
-            Logger.warning(f"pdftotext extraction failed for {file_path}: {result.stderr}")
+            logger.warning(f"pdftotext extraction failed for {file_path}: {result.stderr}")
     except Exception as e:
-        Logger.warning(f"pdftotext extraction failed for {file_path}: {e}")
+        logger.warning(f"pdftotext extraction failed for {file_path}: {e}")
     
     # Fallback to PyPDF2
     if PYPDF2_AVAILABLE:
@@ -579,14 +574,14 @@ def extract_text_from_pdf(file_path: Union[str, Path], max_pages: int = 3) -> st
                     try:
                         text += reader.pages[i].extract_text() + "\n"
                     except Exception as e:
-                        Logger.warning(f"Error extracting text from page {i+1}: {str(e)}")
+                        logger.warning(f"Error extracting text from page {i+1}: {str(e)}")
                         continue
             if text.strip():
                 return text
         except Exception as e:
-            Logger.warning(f"PyPDF2 extraction failed for {file_path}: {e}")
+            logger.warning(f"PyPDF2 extraction failed for {file_path}: {e}")
     else:
-        Logger.debug("PyPDF2 not available, skipping PyPDF2 extraction")
+        logger.debug("PyPDF2 not available, skipping PyPDF2 extraction")
     
     return text
 
@@ -607,7 +602,7 @@ def extract_text_from_docx(file_path: Union[str, Path]) -> str:
             if text:
                 return text
         except Exception as e:
-            Logger.warning(f"docx2txt extraction failed for {file_path}: {e}")
+            logger.warning(f"docx2txt extraction failed for {file_path}: {e}")
     
     # Try python-docx as fallback
     if PYTHON_DOCX_AVAILABLE:
@@ -617,9 +612,9 @@ def extract_text_from_docx(file_path: Union[str, Path]) -> str:
             if text:
                 return text
         except Exception as e:
-            Logger.warning(f"python-docx extraction failed for {file_path}: {e}")
+            logger.warning(f"python-docx extraction failed for {file_path}: {e}")
     
-    Logger.error("No available DOCX extraction methods")
+    logger.error("No available DOCX extraction methods")
     return ""
 
 def extract_text_from_txt(file_path: Union[str, Path]) -> str:
@@ -643,14 +638,14 @@ def extract_text_from_txt(file_path: Union[str, Path]) -> str:
         except UnicodeDecodeError:
             continue
         except Exception as e:
-            Logger.error(f"Error reading {file_path} with {encoding}: {e}")
+            logger.error(f"Error reading {file_path} with {encoding}: {e}")
     
     # If all encodings fail, try binary read as last resort
     try:
         with open(file_path, 'rb') as f:
             return f.read().decode('utf-8', errors='replace')
     except Exception as e:
-        Logger.error(f"Binary fallback failed for {file_path}: {e}")
+        logger.error(f"Binary fallback failed for {file_path}: {e}")
     
     return ""
 
@@ -682,17 +677,17 @@ def extract_text_content(file_path: Union[str, Path]) -> str:
                     df = pd.read_excel(file_path)
                     return df.to_string()
                 except Exception as e:
-                    Logger.error(f"Error processing Excel file {file_path}: {e}")
+                    logger.error(f"Error processing Excel file {file_path}: {e}")
                     return ""
             else:
-                Logger.warning("pandas not installed, cannot process Excel files")
+                logger.warning("pandas not installed, cannot process Excel files")
                 return ""
         else:
             # Fallback to general text extraction
             return extract_text_from_txt(file_path)
             
     except Exception as e:
-        Logger.error(f"Error extracting text from {file_path}: {e}")
+        logger.error(f"Error extracting text from {file_path}: {e}")
         return ""
 
 def ensure_metadata_dir(directory: Path) -> Path:
@@ -729,7 +724,7 @@ def update_citations_file(directory: Path, new_citations: List[Dict[str, Any]]) 
             with open(citations_file, 'r', encoding='utf-8') as f:
                 citations = json.load(f)
         except Exception as e:
-            Logger.error(f"Error reading citations file {citations_file}: {e}")
+            logger.error(f"Error reading citations file {citations_file}: {e}")
             citations = []
     
     # Add new citations, avoiding duplicates
@@ -750,9 +745,9 @@ def update_citations_file(directory: Path, new_citations: List[Dict[str, Any]]) 
         
         with open(citations_file, 'w', encoding='utf-8') as f:
             json.dump(citations, f, indent=2)
-        Logger.info(f"Updated citations file {citations_file} with {len(new_citations)} new citations")
+        logger.info(f"Updated citations file {citations_file} with {len(new_citations)} new citations")
     except Exception as e:
-        Logger.error(f"Error writing to citations file {citations_file}: {e}")
+        logger.error(f"Error writing to citations file {citations_file}: {e}")
     
     return citations_file
 
@@ -817,7 +812,7 @@ def generate_apa_citation_list(directory: Path) -> str:
         return "\n\n".join(formatted_citations)
         
     except Exception as e:
-        Logger.error(f"Error generating APA citation list for {directory}: {e}")
+        logger.error(f"Error generating APA citation list for {directory}: {e}")
         return f"Error generating citations: {e}"
 
 def generate_markdown_citation_list(directory: Path) -> str:
@@ -888,7 +883,7 @@ def generate_markdown_citation_list(directory: Path) -> str:
         return markdown
         
     except Exception as e:
-        Logger.error(f"Error generating markdown citation list for {directory}: {e}")
+        logger.error(f"Error generating markdown citation list for {directory}: {e}")
         return f"# Citations\n\nError generating citations: {e}"
 
 def save_markdown_citations(directory: Path) -> Optional[Path]:
@@ -909,10 +904,10 @@ def save_markdown_citations(directory: Path) -> Optional[Path]:
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(markdown)
             
-        Logger.info(f"Saved markdown citations to {output_file}")
+        logger.info(f"Saved markdown citations to {output_file}")
         return output_file
     except Exception as e:
-        Logger.error(f"Error saving markdown citations for {directory}: {e}")
+        logger.error(f"Error saving markdown citations for {directory}: {e}")
         return None
 
 def process_file_for_citations(
@@ -956,7 +951,7 @@ def process_file_for_citations(
                         if mode == "new" or (mode == "update" and mod_time <= last_processed):
                             return {"skipped": "Already processed"}
             except Exception as e:
-                Logger.warning(f"Error reading citations file: {str(e)}")
+                logger.warning(f"Error reading citations file: {str(e)}")
         
         # Extract content using appropriate method based on file type
         content = ""
@@ -973,7 +968,7 @@ def process_file_for_citations(
                 with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                     content = f.read()
             except Exception as e:
-                Logger.error(f"Error reading file {file_path}: {str(e)}")
+                logger.error(f"Error reading file {file_path}: {str(e)}")
                 return {"error": f"Failed to read file: {str(e)}"}
                 
         if not content:
@@ -984,7 +979,7 @@ def process_file_for_citations(
         
         # Look for DOIs and track processed ones
         processed_dois = set()
-        doi_pattern = r'\b(10\.\d{4,}(?:\.\d+)*\/(?:(?![\'"])\S)+)\b'
+        doi_pattern = r'\b(10\.\d{4,}[/.][^\s/]+)'
         dois = re.findall(doi_pattern, content)
         
         # Get citation info for each unique DOI
@@ -1002,7 +997,7 @@ def process_file_for_citations(
         for citation in citations:
             # Create a unique key for the citation
             if citation.get("doi"):
-                key = citation["doi"]
+                key = clean_doi(citation["doi"])
             else:
                 # For non-DOI citations, use a combination of fields
                 key = f"{citation.get('title', '')}_{citation.get('year', '')}_{','.join(citation.get('authors', []))}"
@@ -1063,7 +1058,7 @@ def process_file_for_citations(
                             f.write("---\n\n")
                 
             except Exception as e:
-                Logger.error(f"Error saving citations: {str(e)}")
+                logger.error(f"Error saving citations: {str(e)}")
                 return {"error": f"Failed to save citations: {str(e)}"}
             
         return {
@@ -1073,7 +1068,7 @@ def process_file_for_citations(
         }
         
     except Exception as e:
-        Logger.error(f"Error processing file {file_path}: {str(e)}")
+        logger.error(f"Error processing file {file_path}: {str(e)}")
         return {"error": str(e)}
 
 def process_directory(
@@ -1152,7 +1147,7 @@ def process_directory(
         return results
         
     except Exception as e:
-        Logger.error(f"Error processing directory {directory}: {str(e)}")
+        logger.error(f"Error processing directory {directory}: {str(e)}")
         return {"error": str(e)}
 
 def interactive_cli():
