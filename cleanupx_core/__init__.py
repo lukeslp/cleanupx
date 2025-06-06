@@ -1,5 +1,5 @@
 """
-CleanupX Core Module - Unified File Processing Framework
+cleanupx Core Module - Unified File Processing Framework
 
 This module provides comprehensive file processing capabilities including:
 - AI-powered code analysis and deduplication
@@ -24,7 +24,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Module version
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 __author__ = "Luke Steuber"
 __email__ = "luke@lukesteuber.com"
 __license__ = "MIT"
@@ -100,7 +100,7 @@ def get_status():
 def print_status():
     """Print module status for debugging."""
     status = get_status()
-    print(f"CleanupX Core v{status['version']}")
+    print(f"cleanupx Core v{status['version']}")
     print(f"  Integrated Processors: {'✓' if status['integrated_available'] else '✗'}")
     print(f"  XAI API Support: {'✓' if status['xai_api_available'] else '✗'}")
     print(f"  Legacy Processors: {'✓' if status['legacy_available'] else '✗'}")
