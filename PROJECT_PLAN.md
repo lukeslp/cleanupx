@@ -117,3 +117,4 @@ The following features have been recently added to the system:
 - **File Processing:** Enhanced support for all major file types with improved metadata extraction
 - **Organization Features:** Added AI-powered suggestions for file organization
 - **Cache Management:** Implemented comprehensive caching system for better performance
+- **Documentation:** Added API usage examples under `snippets/xai_api_usage.md`
