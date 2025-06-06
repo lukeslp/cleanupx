@@ -1,27 +1,35 @@
 {
-  "timestamp": "2025-06-06 12:29:53",
+  "timestamp": "2025-06-06 14:32:24",
   "directory": "test",
   "results": {
     "deduplication": {
       "status": "success",
-      "duplicates_found": false
+      "duplicates_found": true,
+      "total_groups": 2,
+      "total_batches": 1,
+      "results_file": "test/cleanupx_output/deduplicated/deduplication_results.json"
     },
     "extraction": {
       "status": "success",
       "output_file": "test/cleanupx_output/final_combined.md",
-      "summary_file": "test/.xsnippet/summary.txt",
-      "snippets_file": "test/.xsnippet/snippets.txt",
-      "log_file": "test/.xsnippet/log.txt"
+      "summary_file": null,
+      "snippets_file": null,
+      "log_file": null,
+      "note": "Fallback mode used - install dependencies for full functionality"
     },
     "organization": {
       "status": "success",
       "message": "Directory test analyzed",
       "report_file": "test/organization_report.md",
       "extensions_found": {
+        ".docx": 2,
+        ".pdf": 3,
+        ".md": 11,
+        ".py": 1,
+        ".json": 3,
         ".txt": 4,
-        ".md": 3,
         ".html": 1,
-        ".json": 1
+        ".csv": 1
       }
     }
   }

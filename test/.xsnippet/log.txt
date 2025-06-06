@@ -68,3 +68,85 @@
 [2025-06-06 12:29:53] Error generating project summary: Failed to initialize API client
 [2025-06-06 12:29:53] Project summary updated.
 [2025-06-06 12:29:53] Processing complete.
+[2025-06-06 12:45:42] Started processing directory: test (mode: code)
+[2025-06-06 12:45:42] Processing batch 1/1
+[2025-06-06 12:45:42] Processing file: test/organization_report.md
+[2025-06-06 12:45:42] Error processing batch 1 in test/organization_report.md: Failed to initialize API client
+[2025-06-06 12:45:42] Moved processed file test/organization_report.md to test/.xsnippet/xsnippet_processed/organization_report.md
+[2025-06-06 12:45:42] Error synthesizing overall snippets: Failed to initialize API client
+[2025-06-06 12:45:42] Batch 1 results written to test/.xsnippet/batches/batch_1_combined.md
+[2025-06-06 12:45:42] Starting final sweep across all batches
+[2025-06-06 12:45:42] Final combined document written to test/.xsnippet/final/final_combined.md
+[2025-06-06 12:45:42] Error writing final output: [Errno 2] No such file or directory: 'test/test/cleanupx_output/final_combined.md'
+[2025-06-06 12:45:42] Error generating project summary: Failed to initialize API client
+[2025-06-06 12:45:42] Project summary updated.
+[2025-06-06 12:45:42] Processing complete.
+[2025-06-06 13:11:31] Started processing directory: test (mode: code)
+[2025-06-06 13:11:31] Processing batch 1/1
+[2025-06-06 13:11:31] Processing file: test/organization_report.md
+[2025-06-06 13:11:39] Error archiving alternatives for test/organization_report.md: [Errno 2] No such file or directory: 'test/.xsnippet/archive/test/organization_report.md_alternatives.md'
+[2025-06-06 13:11:39] Moved processed file test/organization_report.md to test/.xsnippet/xsnippet_processed/organization_report.md
+[2025-06-06 13:11:47] Batch 1 results written to test/.xsnippet/batches/batch_1_combined.md
+[2025-06-06 13:11:47] Starting final sweep across all batches
+[2025-06-06 13:11:56] Final combined document written to test/.xsnippet/final/final_combined.md
+[2025-06-06 13:11:56] Error writing final output: [Errno 2] No such file or directory: 'test/test/cleanupx_output/final_combined.md'
+[2025-06-06 13:12:08] Project summary updated.
+[2025-06-06 13:12:08] Processing complete.
+[2025-06-06 13:13:09] Started processing directory: test (mode: code)
+[2025-06-06 13:13:09] Processing batch 1/1
+[2025-06-06 13:13:09] Processing file: test/organization_report.md
+[2025-06-06 13:13:09] Error processing batch 1 in test/organization_report.md: Failed to initialize API client
+[2025-06-06 13:13:09] Moved processed file test/organization_report.md to test/.xsnippet/xsnippet_processed/organization_report.md
+[2025-06-06 13:13:09] Error synthesizing overall snippets: Failed to initialize API client
+[2025-06-06 13:13:09] Batch 1 results written to test/.xsnippet/batches/batch_1_combined.md
+[2025-06-06 13:13:09] Starting final sweep across all batches
+[2025-06-06 13:13:09] Final combined document written to test/.xsnippet/final/final_combined.md
+[2025-06-06 13:13:09] Error writing final output: [Errno 2] No such file or directory: 'test/test/cleanupx_output/final_combined.md'
+[2025-06-06 13:13:09] Error generating project summary: Failed to initialize API client
+[2025-06-06 13:13:09] Project summary updated.
+[2025-06-06 13:13:09] Processing complete.
+[2025-06-06 13:13:28] Started processing directory: test (mode: code)
+[2025-06-06 13:13:28] Processing batch 1/1
+[2025-06-06 13:13:28] Processing file: test/organization_report.md
+[2025-06-06 13:13:28] Error processing batch 1 in test/organization_report.md: Failed to initialize API client
+[2025-06-06 13:13:28] Moved processed file test/organization_report.md to test/.xsnippet/xsnippet_processed/organization_report.md
+[2025-06-06 13:13:28] Error synthesizing overall snippets: Failed to initialize API client
+[2025-06-06 13:13:28] Batch 1 results written to test/.xsnippet/batches/batch_1_combined.md
+[2025-06-06 13:13:28] Starting final sweep across all batches
+[2025-06-06 13:13:28] Final combined document written to test/.xsnippet/final/final_combined.md
+[2025-06-06 13:13:28] Error writing final output: [Errno 2] No such file or directory: 'test/test/cleanupx_output/final_combined.md'
+[2025-06-06 13:13:28] Error generating project summary: Failed to initialize API client
+[2025-06-06 13:13:28] Project summary updated.
+[2025-06-06 13:13:28] Processing complete.
+[2025-06-06 13:14:20] Started processing directory: test (mode: code)
+[2025-06-06 13:14:20] Processing batch 1/1
+[2025-06-06 13:14:20] Processing file: test/organization_report.md
+[2025-06-06 13:14:25] Error archiving alternatives for test/organization_report.md: [Errno 2] No such file or directory: 'test/.xsnippet/archive/test/organization_report.md_alternatives.md'
+[2025-06-06 13:14:25] Moved processed file test/organization_report.md to test/.xsnippet/xsnippet_processed/organization_report.md
+[2025-06-06 13:14:31] Batch 1 results written to test/.xsnippet/batches/batch_1_combined.md
+[2025-06-06 13:14:31] Starting final sweep across all batches
+[2025-06-06 13:14:40] Final combined document written to test/.xsnippet/final/final_combined.md
+[2025-06-06 13:14:40] Error writing final output: [Errno 2] No such file or directory: 'test/test/cleanupx_output/final_combined.md'
+[2025-06-06 13:14:52] Project summary updated.
+[2025-06-06 13:14:52] Processing complete.
+[2025-06-06 13:21:22] Started processing directory: test (mode: code)
+[2025-06-06 13:21:22] Processing batch 1/1
+[2025-06-06 13:21:22] Processing file: test/sample.md
+[2025-06-06 13:21:26] Error archiving alternatives for test/sample.md: [Errno 2] No such file or directory: 'test/.xsnippet/archive/test/sample.md_alternatives.md'
+[2025-06-06 13:21:26] Moved processed file test/sample.md to test/.xsnippet/xsnippet_processed/sample.md
+[2025-06-06 13:21:26] Processing file: test/sample.csv
+[2025-06-06 13:21:32] Error archiving alternatives for test/sample.csv: [Errno 2] No such file or directory: 'test/.xsnippet/archive/test/sample.csv_alternatives.md'
+[2025-06-06 13:21:32] Moved processed file test/sample.csv to test/.xsnippet/xsnippet_processed/sample.csv
+[2025-06-06 13:21:32] Processing file: test/7.19.23 LuKi Hands-on Protocol Updated.docx
+[2025-06-06 13:48:05] Started processing directory: test (mode: code)
+[2025-06-06 13:48:05] Processing batch 1/1
+[2025-06-06 13:48:05] Processing file: test/7.19.23 LuKi Hands-on Protocol Updated.docx
+[2025-06-06 13:49:00] Started processing directory: test (mode: code)
+[2025-06-06 13:49:00] Processing batch 1/1
+[2025-06-06 13:49:00] Processing file: test/7.19.23 LuKi Hands-on Protocol Updated.docx
+[2025-06-06 13:49:14] Started processing directory: test (mode: code)
+[2025-06-06 13:49:14] Processing batch 1/1
+[2025-06-06 13:49:14] Processing file: test/7.19.23 LuKi Hands-on Protocol Updated.docx
+[2025-06-06 13:49:59] Started processing directory: test (mode: code)
+[2025-06-06 13:49:59] Processing batch 1/1
+[2025-06-06 13:49:59] Processing file: test/7.19.23 LuKi Hands-on Protocol Updated.docx

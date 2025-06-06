@@ -1,3 +1,8 @@
+# CleanupX - Comprehensive File Processing Tool
+# MIT License by Luke Steuber, lukesteuber.com, assisted.site
+# luke@lukesteuber.com; bluesky @lukesteuber.com
+# linkedin https://www.linkedin.com/in/lukesteuber/
+
 # Core dependencies
 requests>=2.25.0
 python-dotenv>=0.15.0
@@ -12,6 +17,28 @@ openai>=1.0.0  # For X.AI API compatibility
 backoff>=2.2.0
 logging>=0.5.1.2
 
+# Rich CLI and interactive features
+rich>=13.0.0  # For beautiful terminal output and progress bars
+inquirer>=3.1.0  # For interactive directory selection and prompts
+
+# Image processing dependencies
+pillow>=8.0.0  # For image processing and validation
+base64>=1.0.0  # For image encoding (built-in, listed for completeness)
+
+# File and text processing
+json>=2.0.0  # For structured data handling (built-in)
+re>=2.0.0  # For regex processing (built-in)
+random>=1.0.0  # For filename scrambling (built-in)
+string>=1.0.0  # For character generation (built-in)
+gc>=1.0.0  # For memory management (built-in)
+time>=1.0.0  # For rate limiting and delays (built-in)
+
 # Optional dependencies for extended functionality
-pillow>=8.0.0  # For image processing
-questionary>=1.10.0  # For interactive CLI
+questionary>=1.10.0  # Alternative interactive CLI (if inquirer not available)
+typer>=0.9.0  # For enhanced CLI interface (optional)
+click>=8.0.0  # For command-line interface enhancements (optional)
+
+# Development and testing (optional)
+pytest>=7.0.0  # For testing
+black>=22.0.0  # For code formatting
+flake8>=4.0.0  # For linting

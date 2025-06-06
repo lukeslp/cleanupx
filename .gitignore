@@ -1,6 +1,11 @@
 make this complete for Python# .gitignore for Python projects
 highres*
 .DS_Store
+test
+_METHODS
+scraps
+snippets
+storage
 
 # Python bytecode
 __pycache__/

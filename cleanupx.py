@@ -1,6 +1,19 @@
 #!/usr/bin/env python3
 """
-CleanupX - Unified Code Organization and Deduplication Tool
+File Purpose: Main entry point for CleanupX - Comprehensive File Processing Tool
+Primary Functions/Classes: 
+- main(): Command-line interface and argument parsing
+- deduplicate_directory(): Legacy duplicate detection
+- extract_snippets(): Legacy snippet extraction  
+- organize_directory(): Legacy file organization
+- process_all(): Legacy comprehensive processing
+- process_comprehensive(): New comprehensive processing with all features
+
+Inputs and Outputs (I/O):
+- Input: Command-line arguments, directory paths, processing options
+- Output: Processed files, reports, metadata, organized directories
+
+CleanupX - Comprehensive File Organization and Processing Tool
 
 This script integrates multiple utilities to help organize, deduplicate, and
 extract important snippets from code repositories and snippet collections.
@@ -9,13 +22,23 @@ Features:
 - Find and process duplicate files using X.AI API
 - Extract important code snippets for documentation
 - Organize and rename files based on content analysis
+- Generate alt text for images using AI vision
+- Scramble filenames for privacy
+- AI-powered code analysis and consolidation
 - Generate summaries and documentation
 
 Usage:
   python cleanupx.py deduplicate --dir <directory> [--output <output_dir>]
   python cleanupx.py extract --dir <directory> [--output <output_file>]
   python cleanupx.py organize --dir <directory>
+  python cleanupx.py images --dir <directory> [--force] [--rename]
+  python cleanupx.py scramble --dir <directory>
   python cleanupx.py all --dir <directory> [--output <output_dir>]
+  python cleanupx.py comprehensive --dir <directory> [--all-features]
+
+MIT License by Luke Steuber, lukesteuber.com, assisted.site
+luke@lukesteuber.com; bluesky @lukesteuber.com
+linkedin https://www.linkedin.com/in/lukesteuber/
 """
 
 import os
@@ -27,21 +50,54 @@ import time
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
-# Import our unified X.AI API
+# Import the new comprehensive cleanup functionality
 try:
-    from storage import xai_unified
+    from cleanupx_core import (
+        cleanup_directory,
+        CleanupProcessor,
+        XAIIntegration,
+        ImageProcessor,
+        FilenameScrambler,
+        INTEGRATED_AVAILABLE
+    )
+    COMPREHENSIVE_AVAILABLE = INTEGRATED_AVAILABLE
+except ImportError as e:
+    logging.warning(f"Comprehensive cleanup module not available: {e}")
+    COMPREHENSIVE_AVAILABLE = False
+
+# Convenience functions for the new structure
+def process_images_directory(directory, recursive=False, force=False, rename=False, api_key=None):
+    """Process all images in a directory for alt text generation."""
+    if not COMPREHENSIVE_AVAILABLE:
+        return {"error": "Comprehensive cleanup module not available"}
+    
+    processor = CleanupProcessor(api_key)
+    file_scan = processor.scan_directory(directory, recursive)
+    return processor.process_images(file_scan['images'], force, rename)
+
+def scramble_directory_filenames(directory, interactive=True):
+    """Scramble filenames in a directory."""
+    if not COMPREHENSIVE_AVAILABLE:
+        return {"error": "Comprehensive cleanup module not available"}
+    
+    scrambler = FilenameScrambler()
+    return scrambler.scramble_directory(directory, interactive)
+
+# Import our unified X.AI API for legacy support
+try:
+    from cleanupx_core.api import xai_unified
     XAI_AVAILABLE = True
 except ImportError:
     try:
-        import storage.xai_unified as xai_unified
+        import cleanupx_core.api.xai_unified as xai_unified
         XAI_AVAILABLE = True
     except ImportError:
         XAI_AVAILABLE = False
         logging.warning("X.AI unified API not available. Install requirements or check path.")
 
-# Import functionality from deduper module
+# Import functionality from legacy processors for backward compatibility
 try:
-    from _METHODS.deduper import (
+    from cleanupx_core.processors.legacy.deduper import (
         DedupeProcessor, TextDedupeProcessor, detect_duplicates
     )
     DEDUPER_AVAILABLE = True
@@ -50,7 +106,7 @@ except ImportError as e:
     DEDUPER_AVAILABLE = False
 
 try:
-    from _METHODS.xsnipper import (
+    from cleanupx_core.processors.legacy.xsnipper import (
         process_directory as process_snippets_directory,
         init_snipper_directory
     )
@@ -67,7 +123,147 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # =============================================================================
-# Fallback functions for when modules are not available
+# New Comprehensive Processing Functions
+# =============================================================================
+
+def process_comprehensive(
+    dir_path: Path, 
+    output_dir: Optional[Path] = None,
+    process_images: bool = True,
+    scramble_filenames: bool = False,
+    ai_analysis: bool = True,
+    extract_citations: bool = True,
+    extract_snippets: bool = True,
+    organize: bool = True,
+    dry_run: bool = False
+) -> Dict[str, Any]:
+    """
+    Run comprehensive processing with all integrated features.
+    
+    Args:
+        dir_path: Directory to process
+        output_dir: Output directory for results
+        process_images: Whether to generate alt text for images
+        scramble_filenames: Whether to scramble filenames for privacy
+        ai_analysis: Whether to use AI for code analysis
+        extract_citations: Whether to extract citations
+        extract_snippets: Whether to extract code snippets
+        organize: Whether to organize files by type
+        dry_run: Whether to simulate processing
+        
+    Returns:
+        Dictionary with comprehensive processing results
+    """
+    if not COMPREHENSIVE_AVAILABLE:
+        logger.error("Comprehensive cleanup module not available. Falling back to legacy processing.")
+        return process_all(dir_path, output_dir)
+    
+    if not dir_path.is_dir():
+        logger.error(f"Invalid directory: {dir_path}")
+        return {"error": f"Invalid directory: {dir_path}"}
+    
+    # Set default output directory if not provided
+    if output_dir is None:
+        output_dir = dir_path / "cleanupx_comprehensive_output"
+    
+    logger.info(f"Starting comprehensive processing of directory: {dir_path}")
+    logger.info(f"Output directory: {output_dir}")
+    logger.info(f"Features enabled - Images: {process_images}, Scramble: {scramble_filenames}, AI: {ai_analysis}")
+    
+    try:
+        # Use the new comprehensive cleanup function
+        results = cleanup_directory(
+            directory=dir_path,
+            recursive=True,
+            extract_citations=extract_citations,
+            extract_snippets=extract_snippets,
+            organize=organize,
+            process_images=process_images,
+            scramble_filenames=scramble_filenames,
+            ai_analysis=ai_analysis,
+            dry_run=dry_run
+        )
+        
+        logger.info("Comprehensive processing completed successfully!")
+        return results
+        
+    except Exception as e:
+        logger.error(f"Error in comprehensive processing: {e}")
+        return {"error": f"Comprehensive processing failed: {e}"}
+
+def process_images_only(dir_path: Path, force: bool = False, rename: bool = False) -> Dict[str, Any]:
+    """
+    Process only images in a directory for alt text generation.
+    
+    Args:
+        dir_path: Directory containing images
+        force: Force regeneration of alt text even if cached
+        rename: Rename image files based on content
+        
+    Returns:
+        Dictionary with image processing results
+    """
+    if not COMPREHENSIVE_AVAILABLE:
+        logger.error("Comprehensive cleanup module not available for image processing.")
+        return {"error": "Image processing module not available"}
+    
+    if not dir_path.is_dir():
+        logger.error(f"Invalid directory: {dir_path}")
+        return {"error": f"Invalid directory: {dir_path}"}
+    
+    logger.info(f"Processing images in directory: {dir_path}")
+    logger.info(f"Force regeneration: {force}, Rename files: {rename}")
+    
+    try:
+        results = process_images_directory(
+            directory=dir_path,
+            recursive=True,
+            force=force,
+            rename=rename
+        )
+        
+        logger.info("Image processing completed successfully!")
+        return results
+        
+    except Exception as e:
+        logger.error(f"Error in image processing: {e}")
+        return {"error": f"Image processing failed: {e}"}
+
+def scramble_filenames_only(dir_path: Path) -> Dict[str, Any]:
+    """
+    Scramble filenames in a directory for privacy.
+    
+    Args:
+        dir_path: Directory containing files to scramble
+        
+    Returns:
+        Dictionary with scrambling results
+    """
+    if not COMPREHENSIVE_AVAILABLE:
+        logger.error("Comprehensive cleanup module not available for filename scrambling.")
+        return {"error": "Filename scrambling module not available"}
+    
+    if not dir_path.is_dir():
+        logger.error(f"Invalid directory: {dir_path}")
+        return {"error": f"Invalid directory: {dir_path}"}
+    
+    logger.info(f"Scrambling filenames in directory: {dir_path}")
+    
+    try:
+        results = scramble_directory_filenames(
+            directory=dir_path,
+            interactive=False
+        )
+        
+        logger.info("Filename scrambling completed successfully!")
+        return results
+        
+    except Exception as e:
+        logger.error(f"Error in filename scrambling: {e}")
+        return {"error": f"Filename scrambling failed: {e}"}
+
+# =============================================================================
+# Legacy Fallback functions for when modules are not available
 # =============================================================================
 
 def fallback_find_potential_duplicates(dir_path: Path) -> List[Dict[str, List[Path]]]:
@@ -164,7 +360,7 @@ def fallback_process_batch(batch: List[Dict], output_dir: Path) -> Dict[str, Any
     return batch_results
 
 # =============================================================================
-# Deduplication functionality
+# Legacy Deduplication functionality
 # =============================================================================
 
 def deduplicate_directory(dir_path: Path, output_dir: Optional[Path] = None) -> Dict[str, Any]:
@@ -233,7 +429,7 @@ def deduplicate_directory(dir_path: Path, output_dir: Optional[Path] = None) -> 
     }
 
 # =============================================================================
-# Snippet extraction functionality
+# Legacy Snippet extraction functionality
 # =============================================================================
 
 def extract_snippets(dir_path: Path, output_file: Optional[str] = None, mode: str = "code") -> Dict[str, Any]:
@@ -312,7 +508,7 @@ def extract_snippets(dir_path: Path, output_file: Optional[str] = None, mode: st
             return {"error": f"Fallback snippet extraction failed: {e}"}
 
 # =============================================================================
-# File organization functionality
+# Legacy File organization functionality
 # =============================================================================
 
 def organize_directory(dir_path: Path) -> Dict[str, Any]:
@@ -371,12 +567,12 @@ def organize_directory(dir_path: Path) -> Dict[str, Any]:
         }
 
 # =============================================================================
-# Combined processing
+# Legacy Combined processing
 # =============================================================================
 
 def process_all(dir_path: Path, output_dir: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Run all processing steps on a directory.
+    Run all processing steps on a directory (legacy version).
     
     Args:
         dir_path: Directory to process
@@ -441,12 +637,35 @@ def process_all(dir_path: Path, output_dir: Optional[Path] = None) -> Dict[str, 
 def main():
     """Main entry point for the script."""
     parser = argparse.ArgumentParser(
-        description="CleanupX - Unified Code Organization and Deduplication Tool"
+        description="CleanupX - Comprehensive File Organization and Processing Tool"
     )
     
     # Add subparsers for different commands
     subparsers = parser.add_subparsers(dest="command", help="Command to run")
     
+    # Comprehensive command (new)
+    comp_parser = subparsers.add_parser("comprehensive", help="Run comprehensive processing with all features")
+    comp_parser.add_argument("--dir", required=True, help="Directory to process")
+    comp_parser.add_argument("--output", help="Output directory (default: <dir>/cleanupx_comprehensive_output)")
+    comp_parser.add_argument("--no-images", action="store_true", help="Skip image processing")
+    comp_parser.add_argument("--scramble", action="store_true", help="Scramble filenames for privacy")
+    comp_parser.add_argument("--no-ai", action="store_true", help="Skip AI analysis")
+    comp_parser.add_argument("--no-citations", action="store_true", help="Skip citation extraction")
+    comp_parser.add_argument("--no-snippets", action="store_true", help="Skip snippet extraction")
+    comp_parser.add_argument("--no-organize", action="store_true", help="Skip file organization")
+    comp_parser.add_argument("--dry-run", action="store_true", help="Simulate processing without making changes")
+    
+    # Images command (new)
+    images_parser = subparsers.add_parser("images", help="Process images for alt text generation")
+    images_parser.add_argument("--dir", required=True, help="Directory containing images")
+    images_parser.add_argument("--force", action="store_true", help="Force regeneration of alt text")
+    images_parser.add_argument("--rename", action="store_true", help="Rename image files based on content")
+    
+    # Scramble command (new)
+    scramble_parser = subparsers.add_parser("scramble", help="Scramble filenames for privacy")
+    scramble_parser.add_argument("--dir", required=True, help="Directory to scramble")
+    
+    # Legacy commands
     # Deduplicate command
     dedup_parser = subparsers.add_parser("deduplicate", help="Find and process duplicate files")
     dedup_parser.add_argument("--dir", required=True, help="Directory to process")
@@ -463,8 +682,8 @@ def main():
     organize_parser = subparsers.add_parser("organize", help="Organize and rename files")
     organize_parser.add_argument("--dir", required=True, help="Directory to process")
     
-    # Process all command
-    all_parser = subparsers.add_parser("all", help="Run all processing steps")
+    # Process all command (legacy)
+    all_parser = subparsers.add_parser("all", help="Run all processing steps (legacy)")
     all_parser.add_argument("--dir", required=True, help="Directory to process")
     all_parser.add_argument("--output", help="Output directory (default: <dir>/cleanupx_output)")
     
@@ -479,7 +698,36 @@ def main():
     dir_path = Path(args.dir)
     
     # Execute the requested command
-    if args.command == "deduplicate":
+    if args.command == "comprehensive":
+        output_dir = Path(args.output) if args.output else None
+        result = process_comprehensive(
+            dir_path=dir_path,
+            output_dir=output_dir,
+            process_images=not args.no_images,
+            scramble_filenames=args.scramble,
+            ai_analysis=not args.no_ai,
+            extract_citations=not args.no_citations,
+            extract_snippets=not args.no_snippets,
+            organize=not args.no_organize,
+            dry_run=args.dry_run
+        )
+        if result.get("error"):
+            logger.error(result["error"])
+            return 1
+    
+    elif args.command == "images":
+        result = process_images_only(dir_path, args.force, args.rename)
+        if result.get("error"):
+            logger.error(result["error"])
+            return 1
+    
+    elif args.command == "scramble":
+        result = scramble_filenames_only(dir_path)
+        if result.get("error"):
+            logger.error(result["error"])
+            return 1
+    
+    elif args.command == "deduplicate":
         output_dir = Path(args.output) if args.output else None
         result = deduplicate_directory(dir_path, output_dir)
         if result.get("error"):
