@@ -1,0 +1,70 @@
+{% set name = "cleanupx" %}
+{% set version = "2.0.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: # This will be filled in by conda-forge
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+  entry_points:
+    - cleanupx = cleanupx:main
+    - cleanupx-status = cleanupx_core:print_status
+
+requirements:
+  host:
+    - python >=3.8
+    - pip
+    - setuptools >=61.0
+    - wheel
+  run:
+    - python >=3.8
+    - requests >=2.31.0
+    - python-dotenv >=0.15.0
+    - rich >=13.7.0
+    - inquirer >=3.4.0
+    - pillow >=10.0.0
+    - backoff >=2.2.0
+
+test:
+  imports:
+    - cleanupx_core
+    - cleanupx_core.api
+    - cleanupx_core.processors
+    - cleanupx_core.utils
+  commands:
+    - cleanupx --help
+    - cleanupx-status
+    - python -c "import cleanupx_core; cleanupx_core.print_status()"
+
+about:
+  home: https://lukesteuber.com
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Comprehensive AI-powered file processing and organization tool
+  description: |
+    CleanupX is a comprehensive file organization and processing framework with 
+    AI-powered capabilities. It provides intelligent file deduplication, image 
+    processing with accessibility features, privacy utilities like filename 
+    scrambling, and seamless integration with AI services for content analysis.
+    
+    Key features:
+    - AI-powered file analysis and deduplication
+    - Image accessibility features (alt text generation)
+    - Privacy utilities (filename scrambling)
+    - Comprehensive file organization
+    - Rich CLI interface with progress bars
+    - Extensible plugin architecture
+  doc_url: https://github.com/lukeslp/cleanupx#readme
+  dev_url: https://github.com/lukeslp/cleanupx
+
+extra:
+  recipe-maintainers:
+    - lukeslp 
