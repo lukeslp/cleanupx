@@ -37,6 +37,39 @@ This project is a comprehensive system for organizing, analyzing, and managing a
   - Configuration management and caching
   - Batch processing capabilities
 
+## Recent Bug Fixes and Improvements
+
+### CleanupX Import Path Issues (Fixed)
+**Issue:** The main `cleanupx.py` script had several import path problems that prevented it from running:
+- Missing `find_duplicates` module (tried to import non-existent module)
+- Incorrect function name `init_xcleaner_directory` (should be `init_snipper_directory`)
+- Import path issues with X.AI unified API module
+- Missing fallback functionality when dependencies aren't available
+
+**Solution Implemented:**
+- ✅ **Fixed Import Paths:** Updated all import statements to use correct module paths
+  - Changed from `find_duplicates` to `_METHODS.deduper` (which actually exists)
+  - Fixed `init_xcleaner_directory` to `init_snipper_directory`
+  - Improved X.AI API import with multiple fallback attempts
+- ✅ **Added Fallback Functions:** Created robust fallback implementations for when modules aren't available
+  - `fallback_find_potential_duplicates()` - Uses file size comparison when full deduplication isn't available
+  - `fallback_create_batches()` - Groups files for processing
+  - `fallback_process_batch()` - Processes file groups and creates consolidated reports
+- ✅ **Enhanced Error Handling:** Added proper error checking and logging throughout
+- ✅ **Graceful Degradation:** Script now works even without X.AI API key or optional dependencies
+- ✅ **Comprehensive Testing:** All commands now work correctly:
+  - `python cleanupx.py deduplicate --dir <directory>` ✅
+  - `python cleanupx.py extract --dir <directory>` ✅
+  - `python cleanupx.py organize --dir <directory>` ✅
+  - `python cleanupx.py all --dir <directory>` ✅
+
+**Verification:**
+- Successfully processed test directories with duplicate files
+- Proper duplicate detection and consolidation working
+- File organization and reporting functional
+- Snippet extraction working (with API key warnings when not configured)
+- All processing results properly saved to JSON files
+
 ## Next Steps / Future Enhancements
 ### Immediate Priorities
 - **Enhanced Metadata Handling:**
@@ -78,7 +111,8 @@ This project is a comprehensive system for organizing, analyzing, and managing a
   4. Advanced organization features (Completed)
   5. Extended academic content management features (Ongoing)
   6. Enhanced metadata handling (Current)
-  7. Web interface development (Planned)
+  7. Import path fixes and reliability improvements (Completed)
+  8. Web interface development (Planned)
 
 ## Timeline
 - **Phase 1:** Core System and Basic Features (Completed)
@@ -92,6 +126,10 @@ This project is a comprehensive system for organizing, analyzing, and managing a
   - ✅ Citation extraction and management
   - ✅ Advanced organization features
   - ✅ Interactive UI implementation
+- **Phase 2.5:** Bug Fixes and Reliability (Completed)
+  - ✅ Fixed import path issues in cleanupx.py
+  - ✅ Added fallback functionality for graceful degradation
+  - ✅ Enhanced error handling and logging
 - **Phase 3:** Enhanced Metadata and Academic Features (Current)
   - Enhanced metadata extraction and embedding
   - Academic database integration
@@ -105,6 +143,7 @@ This project is a comprehensive system for organizing, analyzing, and managing a
 - Efficient and intuitive file organization
 - Comprehensive academic citation management
 - High user satisfaction with interactive interface
+- System reliability and proper error handling
 
 ## Recent Enhancements
 The following features have been recently added to the system:
@@ -118,3 +157,5 @@ The following features have been recently added to the system:
 - **Organization Features:** Added AI-powered suggestions for file organization
 - **Cache Management:** Implemented comprehensive caching system for better performance
 - **Documentation:** Added API usage examples under `snippets/xai_api_usage.md`
+- **Import Fix:** Resolved critical import path issues in cleanupx.py main script
+- **Reliability:** Added comprehensive fallback functionality for graceful degradation

@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-06-06 12:10:15",
+  "total_groups": 1,
+  "total_batches": 1,
+  "batch_results": [
+    {
+      "status": "processed",
+      "groups_processed": 1,
+      "files_processed": 2,
+      "consolidated_files": [
+        "test_all/cleanupx_output/deduplicated/consolidated_test1_1749229815.md"
+      ]
+    }
+  ]
+}

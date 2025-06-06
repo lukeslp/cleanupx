@@ -1,0 +1,18 @@
+[2025-06-06 12:09:55] Started processing directory: test (mode: code)
+[2025-06-06 12:09:55] Processing batch 1/1
+[2025-06-06 12:09:55] Processing file: test/select-plan.html
+[2025-06-06 12:09:55] Error processing batch 1 in test/select-plan.html: Failed to initialize API client
+[2025-06-06 12:09:55] Moved processed file test/select-plan.html to test/.xsnippet/xsnippet_processed/select-plan.html
+[2025-06-06 12:09:55] Processing file: test/organization_report.md
+[2025-06-06 12:09:55] Error processing batch 1 in test/organization_report.md: Failed to initialize API client
+[2025-06-06 12:09:55] Moved processed file test/organization_report.md to test/.xsnippet/xsnippet_processed/organization_report.md
+[2025-06-06 12:09:55] Error synthesizing overall snippets: Failed to initialize API client
+[2025-06-06 12:09:55] Batch 1 results written to test/.xsnippet/batches/batch_1_combined.md
+[2025-06-06 12:09:55] Starting final sweep across all batches
+[2025-06-06 12:09:55] Final combined document written to test/.xsnippet/final/final_combined.md
+[2025-06-06 12:09:55] Error writing final output: [Errno 2] No such file or directory: 'test/test/extracted_snippets.md'
+[2025-06-06 12:09:55] Error generating project summary: Failed to initialize API client
+[2025-06-06 12:09:55] Project summary updated.
+[2025-06-06 12:09:55] Processing complete.
+[2025-06-06 12:14:39] Started processing directory: test (mode: code)
+[2025-06-06 12:14:39] No valid files found in directory: test

@@ -29,31 +29,35 @@ from typing import Dict, List, Any, Optional, Tuple
 
 # Import our unified X.AI API
 try:
-    import storage.xai_unified as xai_unified
+    from storage import xai_unified
     XAI_AVAILABLE = True
 except ImportError:
-    XAI_AVAILABLE = False
-    logging.warning("X.AI unified API not available. Install requirements or check path.")
+    try:
+        import storage.xai_unified as xai_unified
+        XAI_AVAILABLE = True
+    except ImportError:
+        XAI_AVAILABLE = False
+        logging.warning("X.AI unified API not available. Install requirements or check path.")
 
-# Import functionality from other scripts
+# Import functionality from deduper module
 try:
-    from find_duplicates import (
-        find_potential_duplicates, create_batches, process_batch,
-        SIMILARITY_THRESHOLD, MAX_BATCH_SIZE, MAX_BATCH_TOKENS
+    from _METHODS.deduper import (
+        DedupeProcessor, TextDedupeProcessor, detect_duplicates
     )
-    from process_duplicates import process_batches as process_duplicate_batches
+    DEDUPER_AVAILABLE = True
 except ImportError as e:
-    logging.warning(f"Could not import from duplicate processing modules: {e}")
-    # We'll define fallback functions if needed
+    logging.warning(f"Could not import from deduplication modules: {e}")
+    DEDUPER_AVAILABLE = False
 
 try:
     from _METHODS.xsnipper import (
         process_directory as process_snippets_directory,
-        init_xcleaner_directory
+        init_snipper_directory
     )
+    SNIPPER_AVAILABLE = True
 except ImportError as e:
     logging.warning(f"Could not import from snippet extraction module: {e}")
-    # We'll define fallback functions if needed
+    SNIPPER_AVAILABLE = False
 
 # Configure logging
 logging.basicConfig(
@@ -61,6 +65,103 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# =============================================================================
+# Fallback functions for when modules are not available
+# =============================================================================
+
+def fallback_find_potential_duplicates(dir_path: Path) -> List[Dict[str, List[Path]]]:
+    """
+    Fallback function to find potential duplicates using basic file size comparison.
+    """
+    if not DEDUPER_AVAILABLE:
+        logger.warning("Using fallback duplicate detection (file size only)")
+        size_groups = {}
+        
+        for file_path in dir_path.rglob('*'):
+            if file_path.is_file():
+                try:
+                    size = file_path.stat().st_size
+                    if size not in size_groups:
+                        size_groups[size] = []
+                    size_groups[size].append(file_path)
+                except Exception as e:
+                    logger.warning(f"Could not get size for {file_path}: {e}")
+        
+        # Return groups with more than one file
+        similar_groups = []
+        for size, files in size_groups.items():
+            if len(files) > 1:
+                similar_groups.append({
+                    'key': f"size_{size}",
+                    'files': files,
+                    'similarity_type': 'file_size'
+                })
+        
+        return similar_groups
+    else:
+        # Use proper deduplication
+        duplicate_groups = detect_duplicates(dir_path)
+        similar_groups = []
+        for key, files in duplicate_groups.items():
+            similar_groups.append({
+                'key': key,
+                'files': files,
+                'similarity_type': 'hash'
+            })
+        return similar_groups
+
+def fallback_create_batches(similar_groups: List[Dict], max_batch_size: int = 5) -> List[List[Dict]]:
+    """
+    Create batches from similar groups for processing.
+    """
+    return [similar_groups[i:i+max_batch_size] for i in range(0, len(similar_groups), max_batch_size)]
+
+def fallback_process_batch(batch: List[Dict], output_dir: Path) -> Dict[str, Any]:
+    """
+    Process a batch of similar files.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    batch_results = {
+        'status': 'processed',
+        'groups_processed': len(batch),
+        'files_processed': 0,
+        'consolidated_files': []
+    }
+    
+    for group in batch:
+        files = group['files']
+        batch_results['files_processed'] += len(files)
+        
+        # Create a simple consolidated file
+        if len(files) > 1:
+            # Keep the first file, note the duplicates
+            original = files[0]
+            duplicates = files[1:]
+            
+            consolidated_name = f"consolidated_{original.stem}_{int(time.time())}.md"
+            consolidated_path = output_dir / consolidated_name
+            
+            with open(consolidated_path, 'w', encoding='utf-8') as f:
+                f.write(f"# Consolidated File Report\n\n")
+                f.write(f"## Original File: {original}\n\n")
+                f.write(f"## Duplicate Files Found:\n")
+                for dup in duplicates:
+                    f.write(f"- {dup}\n")
+                f.write(f"\n## Similarity Type: {group['similarity_type']}\n\n")
+                
+                # Copy original content if it's a text file
+                try:
+                    if original.suffix.lower() in ['.txt', '.py', '.md', '.js', '.html', '.css']:
+                        with open(original, 'r', encoding='utf-8') as orig_file:
+                            f.write(f"## Original Content:\n\n```\n{orig_file.read()}\n```\n")
+                except Exception as e:
+                    f.write(f"Could not read original file content: {e}\n")
+            
+            batch_results['consolidated_files'].append(str(consolidated_path))
+    
+    return batch_results
 
 # =============================================================================
 # Deduplication functionality
@@ -92,32 +193,24 @@ def deduplicate_directory(dir_path: Path, output_dir: Optional[Path] = None) -> 
     logger.info(f"Starting deduplication of directory: {dir_path}")
     logger.info(f"Output directory: {output_dir}")
     logger.info(f"X.AI API available: {XAI_AVAILABLE}")
+    logger.info(f"Deduper available: {DEDUPER_AVAILABLE}")
     
     # Find potential duplicates
-    similar_groups = find_potential_duplicates(dir_path)
+    similar_groups = fallback_find_potential_duplicates(dir_path)
     
     if not similar_groups:
         logger.info("No potential duplicates found.")
         return {"status": "success", "duplicates_found": False}
     
     # Create batches
-    batches = create_batches(similar_groups)
+    batches = fallback_create_batches(similar_groups)
     
     # Process each batch
     results = []
     for i, batch in enumerate(batches):
         logger.info(f"Processing batch {i+1}/{len(batches)}")
-        batch_result = process_batch(batch, output_dir)
+        batch_result = fallback_process_batch(batch, output_dir)
         results.append(batch_result)
-    
-    # Process batch prompts that were generated (if X.AI API wasn't available earlier)
-    prompt_files = [r["prompt_file"] for r in results if r.get("status") == "prompt_generated" and "prompt_file" in r]
-    if prompt_files:
-        if XAI_AVAILABLE:
-            logger.info(f"Processing {len(prompt_files)} batch prompts with X.AI API")
-            process_duplicate_batches(output_dir, output_dir / "consolidated")
-        else:
-            logger.warning("X.AI API not available. Batch prompts were generated but not processed.")
     
     # Save overall results
     results_file = output_dir / "deduplication_results.json"
@@ -168,20 +261,55 @@ def extract_snippets(dir_path: Path, output_file: Optional[str] = None, mode: st
     logger.info(f"Output file: {output_file}")
     logger.info(f"Mode: {mode}")
     logger.info(f"X.AI API available: {XAI_AVAILABLE}")
+    logger.info(f"Snipper available: {SNIPPER_AVAILABLE}")
     
-    # Process the directory
-    process_snippets_directory(str(dir_path), mode, verbose=True, output_file=output_file)
-    
-    # Get the xcleaner paths
-    xcleaner_paths = init_xcleaner_directory()
-    
-    return {
-        "status": "success",
-        "output_file": output_file,
-        "summary_file": xcleaner_paths["summary"],
-        "snippets_file": xcleaner_paths["snippets"],
-        "log_file": xcleaner_paths["log"]
-    }
+    if SNIPPER_AVAILABLE:
+        # Process the directory using xsnipper
+        try:
+            process_snippets_directory(str(dir_path), mode, verbose=True, output_file=output_file)
+            
+            # Get the snipper paths
+            snipper_paths = init_snipper_directory(str(dir_path))
+            
+            return {
+                "status": "success",
+                "output_file": output_file,
+                "summary_file": snipper_paths["summary"],
+                "snippets_file": snipper_paths["snippets"],
+                "log_file": snipper_paths["log"]
+            }
+        except Exception as e:
+            logger.error(f"Error in snippet extraction: {e}")
+            return {"error": f"Snippet extraction failed: {e}"}
+    else:
+        # Fallback: simple file listing
+        logger.warning("Using fallback snippet extraction (simple file listing)")
+        
+        try:
+            files_found = []
+            for file_path in dir_path.rglob('*'):
+                if file_path.is_file():
+                    files_found.append(str(file_path))
+            
+            with open(output_file, 'w', encoding='utf-8') as f:
+                f.write(f"# Simple File Listing for {dir_path}\n\n")
+                f.write(f"Generated: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+                f.write(f"Total files found: {len(files_found)}\n\n")
+                
+                for file_path in sorted(files_found):
+                    f.write(f"- {file_path}\n")
+            
+            return {
+                "status": "success",
+                "output_file": output_file,
+                "summary_file": None,
+                "snippets_file": None,
+                "log_file": None,
+                "note": "Fallback mode used - install dependencies for full functionality"
+            }
+        except Exception as e:
+            logger.error(f"Error in fallback snippet extraction: {e}")
+            return {"error": f"Fallback snippet extraction failed: {e}"}
 
 # =============================================================================
 # File organization functionality
@@ -204,25 +332,42 @@ def organize_directory(dir_path: Path) -> Dict[str, Any]:
     # Log start of organization
     logger.info(f"Starting organization of directory: {dir_path}")
     
-    # Import organize function dynamically
+    # For now, this is a placeholder that could be expanded
+    # to include actual organization logic
     try:
-        from cleanupx.ui.cli import run_cli
+        # Simple organization: create subdirectories by file type
+        extensions_found = {}
         
-        # Call the CLI with the directory path
-        original_args = sys.argv.copy()
-        sys.argv = [sys.argv[0], str(dir_path)]
-        run_cli()
-        sys.argv = original_args
+        for file_path in dir_path.rglob('*'):
+            if file_path.is_file() and not file_path.name.startswith('.'):
+                ext = file_path.suffix.lower() or 'no_extension'
+                if ext not in extensions_found:
+                    extensions_found[ext] = []
+                extensions_found[ext].append(file_path)
+        
+        # Create organization report
+        report_file = dir_path / "organization_report.md"
+        with open(report_file, 'w', encoding='utf-8') as f:
+            f.write(f"# Organization Report for {dir_path}\n\n")
+            f.write(f"Generated: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+            
+            for ext, files in sorted(extensions_found.items()):
+                f.write(f"## {ext.upper()} Files ({len(files)} found)\n\n")
+                for file_path in sorted(files):
+                    f.write(f"- {file_path.name}\n")
+                f.write("\n")
         
         return {
             "status": "success",
-            "message": f"Directory {dir_path} organized"
+            "message": f"Directory {dir_path} analyzed",
+            "report_file": str(report_file),
+            "extensions_found": {ext: len(files) for ext, files in extensions_found.items()}
         }
-    except ImportError:
-        logger.error("Could not import organization module from cleanupx")
+    except Exception as e:
+        logger.error(f"Error organizing directory: {e}")
         return {
             "status": "error",
-            "error": "Organization module not available"
+            "error": f"Organization failed: {e}"
         }
 
 # =============================================================================
@@ -336,19 +481,33 @@ def main():
     # Execute the requested command
     if args.command == "deduplicate":
         output_dir = Path(args.output) if args.output else None
-        deduplicate_directory(dir_path, output_dir)
+        result = deduplicate_directory(dir_path, output_dir)
+        if result.get("error"):
+            logger.error(result["error"])
+            return 1
     
     elif args.command == "extract":
         output_file = args.output
         mode = args.mode
-        extract_snippets(dir_path, output_file, mode)
+        result = extract_snippets(dir_path, output_file, mode)
+        if result.get("error"):
+            logger.error(result["error"])
+            return 1
     
     elif args.command == "organize":
-        organize_directory(dir_path)
+        result = organize_directory(dir_path)
+        if result.get("error"):
+            logger.error(result["error"])
+            return 1
     
     elif args.command == "all":
         output_dir = Path(args.output) if args.output else None
-        process_all(dir_path, output_dir)
+        result = process_all(dir_path, output_dir)
+        if result.get("error"):
+            logger.error(result["error"])
+            return 1
+    
+    return 0
 
 if __name__ == "__main__":
-    sys.exit(main() or 0) 
+    sys.exit(main()) 

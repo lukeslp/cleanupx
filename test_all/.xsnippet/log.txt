@@ -1,0 +1,19 @@
+[2025-06-06 12:10:15] Started processing directory: test_all (mode: code)
+[2025-06-06 12:10:15] Processing batch 1/1
+[2025-06-06 12:10:15] Processing file: test_all/test1.txt
+[2025-06-06 12:10:15] Error processing batch 1 in test_all/test1.txt: Failed to initialize API client
+[2025-06-06 12:10:15] Moved processed file test_all/test1.txt to test_all/.xsnippet/xsnippet_processed/test1.txt
+[2025-06-06 12:10:15] Processing file: test_all/test3.txt
+[2025-06-06 12:10:15] Error processing batch 1 in test_all/test3.txt: Failed to initialize API client
+[2025-06-06 12:10:15] Moved processed file test_all/test3.txt to test_all/.xsnippet/xsnippet_processed/test3.txt
+[2025-06-06 12:10:15] Processing file: test_all/test2.txt
+[2025-06-06 12:10:15] Error processing batch 1 in test_all/test2.txt: Failed to initialize API client
+[2025-06-06 12:10:15] Moved processed file test_all/test2.txt to test_all/.xsnippet/xsnippet_processed/test2.txt
+[2025-06-06 12:10:15] Error synthesizing overall snippets: Failed to initialize API client
+[2025-06-06 12:10:15] Batch 1 results written to test_all/.xsnippet/batches/batch_1_combined.md
+[2025-06-06 12:10:15] Starting final sweep across all batches
+[2025-06-06 12:10:15] Final combined document written to test_all/.xsnippet/final/final_combined.md
+[2025-06-06 12:10:15] Error writing final output: [Errno 2] No such file or directory: 'test_all/test_all/cleanupx_output/final_combined.md'
+[2025-06-06 12:10:15] Error generating project summary: Failed to initialize API client
+[2025-06-06 12:10:15] Project summary updated.
+[2025-06-06 12:10:15] Processing complete.
