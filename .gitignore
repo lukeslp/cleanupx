@@ -12,6 +12,7 @@ inbox/
 conda-dist/
 .conda-build/
 storage/
+
 # Python bytecode and compiled files
 __pycache__/
 *.py[cod]
@@ -199,3 +200,5 @@ test_results/
 user_data/
 sample_files/
 
+# --- CleanupX: Additional ignores for build/publish scripts ---
+scripts/build_and_publish.sh
