@@ -1,18 +1,26 @@
-make this complete for Python# .gitignore for Python projects
-highres*
-.DS_Store
-test
-_METHODS
-scraps
-snippets
-storage
+# .gitignore for CleanupX Python Package
+# Comprehensive patterns for Python development and distribution
 
-# Python bytecode
+# Project-specific build artifacts and temporary directories
+highres*
+_METHODS/
+scraps/
+snippets/
+cache/
+output/
+inbox/
+conda-dist/
+.conda-build/
+storage/
+# Python bytecode and compiled files
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
+*.pyd
+*.pyo
+
+# Distribution and packaging
 build/
 develop-eggs/
 dist/
@@ -25,12 +33,16 @@ parts/
 sdist/
 var/
 wheels/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
+*.whl
 
-.DS_Store
-inbox/
+# PyInstaller
+*.manifest
+*.spec
 
 # Virtual environments
 venv/
@@ -40,21 +52,82 @@ ENV/
 env/
 .env/
 .venv/
+pyvenv.cfg
 
-# IDE specific files
+# Environment variables and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.key
+*.pem
+*.crt
+secrets.json
+
+# IDE and editor files
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 .spyderproject
 .spyproject
 .ropeproject
+.project
+.pydevproject
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Testing and coverage
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.cache
+.pytest_cache/
+.hypothesis/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Documentation builds
+docs/_build/
+docs/build/
+site/
+
+# MyPy type checker
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# Profiling
+.prof
+
+# Logs
+*.log
+logs/
+pip-log.txt
+pip-delete-this-directory.txt
 
 # macOS specific files
 .DS_Store
 .AppleDouble
 .LSOverride
-Icon
+Icon?
 ._*
 .DocumentRevisions-V100
 .fseventsd
@@ -64,36 +137,65 @@ Icon
 .VolumeIcon.icns
 .com.apple.timemachine.donotpresent
 
-# Testing
-.coverage
-htmlcov/
-.tox/
-.nox/
-.hypothesis/
-.pytest_cache/
-nosetests.xml
-coverage.xml
-*.cover
+# Windows specific files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Linux specific files
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
 
-# Logs
-*.log
-logs/
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+.#*
+#*#
 
-# Local configuration
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Database files
+*.db
+*.sqlite
+*.sqlite3
 
-# Distribution / packaging
-*.manifest
-*.spec
+# Git and version control
+.git/
+*.orig
+*.rej
 
-# Project specific
-cache/
-output/
+# Package manager files
+Pipfile.lock
+poetry.lock
+
+# Cloud and deployment
+.serverless/
+.vercel
+.netlify/
+
+# Local development and experiment files
+scratch/
+experiments/
+playground/
+local/
+
+# User-specific test files and data
+test_output/
+test_results/
+user_data/
+sample_files/
 
