@@ -1,6 +1,8 @@
 # CleanupX
 
 A unified code organization, deduplication, and documentation tool that uses the X.AI API to help manage code repositories and snippet collections.
+This project is released under the MIT License by [Luke Steuber](https://lukesteuber.com) and is part of the [Assisted.site](https://assisted.site/) family of tools.
+If you find it useful feel free to toss a coin in the [tip&nbsp;jar](https://usefulai.lemonsqueezy.com/buy/bf6ce1bd-85f5-4a09-ba10-191a670f74af) or follow along on [Substack](https://lukesteuber.substack.com/).
 
 ## Features
 
@@ -64,6 +66,9 @@ The default models used are:
 You can customize these models by setting the appropriate environment variables (see Configuration section).
 
 ## Usage
+
+If you just want to see how the API calls work, peek at the examples in
+[`snippets/xai_api_usage.md`](snippets/xai_api_usage.md).
 
 CleanupX provides a unified command-line interface for all its functions. Here are the main commands:
 
@@ -218,3 +223,5 @@ If files aren't being processed correctly:
 
 - X.AI for providing the API for code analysis
 - All contributors to this project
+- Project lead and maintainer: [Luke Steuber](https://github.com/lukeslp)
+- Licensed under the [MIT License](LICENSE)

@@ -29,6 +29,8 @@ inbox/
 
 # Virtual environments
 venv/
+fresh_venv/
+.cursor/
 ENV/
 env/
 .env/
