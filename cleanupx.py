@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-File Purpose: Main entry point for CleanupX - Comprehensive File Processing Tool
+File Purpose: Main entry point for cleanupx - Comprehensive File Processing Tool
 Primary Functions/Classes: 
 - main(): Command-line interface and argument parsing
 - deduplicate_directory(): Legacy duplicate detection
@@ -13,7 +13,7 @@ Inputs and Outputs (I/O):
 - Input: Command-line arguments, directory paths, processing options
 - Output: Processed files, reports, metadata, organized directories
 
-CleanupX - Comprehensive File Organization and Processing Tool
+cleanupx - Comprehensive File Organization and Processing Tool
 
 This script integrates multiple utilities to help organize, deduplicate, and
 extract important snippets from code repositories and snippet collections.
@@ -637,7 +637,7 @@ def process_all(dir_path: Path, output_dir: Optional[Path] = None) -> Dict[str, 
 def main():
     """Main entry point for the script."""
     parser = argparse.ArgumentParser(
-        description="CleanupX - Comprehensive File Organization and Processing Tool"
+        description="cleanupx - Comprehensive File Organization and Processing Tool"
     )
     
     # Add subparsers for different commands

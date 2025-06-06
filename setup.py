@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CleanupX - Comprehensive File Processing Tool
+cleanupx - Comprehensive File Processing Tool
 Setup script for PyPI distribution
 
 MIT License by Luke Steuber

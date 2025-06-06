@@ -1,4 +1,4 @@
-# CleanupX - Comprehensive File Processing Tool
+# cleanupx - Comprehensive File Processing Tool
 
 **Version 2.0.0** - Reorganized & Production Ready
 
@@ -136,7 +136,7 @@ rarfile               # RAR archive processing
 ## 🏗️ Architecture
 
 ### Modular Design
-CleanupX is built with a clean, modular architecture:
+cleanupx is built with a clean, modular architecture:
 
 - **`cleanupx_core/`**: Core functionality with stable APIs
 - **`storage/`**: Non-essential functionality for experimentation
@@ -167,7 +167,7 @@ python3 -c "import cleanupx_core; cleanupx_core.print_status()"
 
 Expected output:
 ```
-CleanupX Core v2.0.0
+cleanupx Core v2.0.0
   Integrated Processors: ✓
   XAI API Support: ✓  
   Legacy Processors: ✓

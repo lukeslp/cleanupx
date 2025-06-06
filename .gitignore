@@ -1,4 +1,4 @@
-# .gitignore for CleanupX Python Package
+# .gitignore for cleanupx Python Package
 # Comprehensive patterns for Python development and distribution
 
 # Project-specific build artifacts and temporary directories
@@ -200,5 +200,5 @@ test_results/
 user_data/
 sample_files/
 
-# --- CleanupX: Additional ignores for build/publish scripts ---
+# --- cleanupx: Additional ignores for build/publish scripts ---
 scripts/build_and_publish.sh
