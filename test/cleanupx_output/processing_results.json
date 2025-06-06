@@ -1,0 +1,28 @@
+{
+  "timestamp": "2025-06-06 12:29:53",
+  "directory": "test",
+  "results": {
+    "deduplication": {
+      "status": "success",
+      "duplicates_found": false
+    },
+    "extraction": {
+      "status": "success",
+      "output_file": "test/cleanupx_output/final_combined.md",
+      "summary_file": "test/.xsnippet/summary.txt",
+      "snippets_file": "test/.xsnippet/snippets.txt",
+      "log_file": "test/.xsnippet/log.txt"
+    },
+    "organization": {
+      "status": "success",
+      "message": "Directory test analyzed",
+      "report_file": "test/organization_report.md",
+      "extensions_found": {
+        ".txt": 4,
+        ".md": 3,
+        ".html": 1,
+        ".json": 1
+      }
+    }
+  }
+}

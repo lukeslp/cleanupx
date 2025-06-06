@@ -16,3 +16,55 @@
 [2025-06-06 12:09:55] Processing complete.
 [2025-06-06 12:14:39] Started processing directory: test (mode: code)
 [2025-06-06 12:14:39] No valid files found in directory: test
+[2025-06-06 12:26:27] Started processing directory: test (mode: code)
+[2025-06-06 12:26:27] Processing batch 1/1
+[2025-06-06 12:26:27] Processing file: test/organization_report.md
+[2025-06-06 12:26:27] Error processing batch 1 in test/organization_report.md: Failed to initialize API client
+[2025-06-06 12:26:27] Moved processed file test/organization_report.md to test/.xsnippet/xsnippet_processed/organization_report.md
+[2025-06-06 12:26:27] Error synthesizing overall snippets: Failed to initialize API client
+[2025-06-06 12:26:27] Batch 1 results written to test/.xsnippet/batches/batch_1_combined.md
+[2025-06-06 12:26:27] Starting final sweep across all batches
+[2025-06-06 12:26:27] Final combined document written to test/.xsnippet/final/final_combined.md
+[2025-06-06 12:26:27] Error writing final output: [Errno 2] No such file or directory: 'test/test/cleanupx_output/final_combined.md'
+[2025-06-06 12:26:27] Error generating project summary: Failed to initialize API client
+[2025-06-06 12:26:27] Project summary updated.
+[2025-06-06 12:26:27] Processing complete.
+[2025-06-06 12:26:44] Started processing directory: test (mode: code)
+[2025-06-06 12:26:44] Processing batch 1/1
+[2025-06-06 12:26:44] Processing file: test/organization_report.md
+[2025-06-06 12:26:44] Error processing batch 1 in test/organization_report.md: Failed to initialize API client
+[2025-06-06 12:26:44] Moved processed file test/organization_report.md to test/.xsnippet/xsnippet_processed/organization_report.md
+[2025-06-06 12:26:44] Error synthesizing overall snippets: Failed to initialize API client
+[2025-06-06 12:26:44] Batch 1 results written to test/.xsnippet/batches/batch_1_combined.md
+[2025-06-06 12:26:44] Starting final sweep across all batches
+[2025-06-06 12:26:44] Final combined document written to test/.xsnippet/final/final_combined.md
+[2025-06-06 12:26:44] Error writing final output: [Errno 2] No such file or directory: 'test/test/cleanupx_output/final_combined.md'
+[2025-06-06 12:26:44] Error generating project summary: Failed to initialize API client
+[2025-06-06 12:26:44] Project summary updated.
+[2025-06-06 12:26:44] Processing complete.
+[2025-06-06 12:27:11] Started processing directory: test (mode: code)
+[2025-06-06 12:27:11] Processing batch 1/1
+[2025-06-06 12:27:11] Processing file: test/organization_report.md
+[2025-06-06 12:27:11] Error processing batch 1 in test/organization_report.md: Failed to initialize API client
+[2025-06-06 12:27:11] Moved processed file test/organization_report.md to test/.xsnippet/xsnippet_processed/organization_report.md
+[2025-06-06 12:27:11] Error synthesizing overall snippets: Failed to initialize API client
+[2025-06-06 12:27:11] Batch 1 results written to test/.xsnippet/batches/batch_1_combined.md
+[2025-06-06 12:27:11] Starting final sweep across all batches
+[2025-06-06 12:27:11] Final combined document written to test/.xsnippet/final/final_combined.md
+[2025-06-06 12:27:11] Error writing final output: [Errno 2] No such file or directory: 'test/test/cleanupx_output/final_combined.md'
+[2025-06-06 12:27:11] Error generating project summary: Failed to initialize API client
+[2025-06-06 12:27:11] Project summary updated.
+[2025-06-06 12:27:11] Processing complete.
+[2025-06-06 12:29:53] Started processing directory: test (mode: code)
+[2025-06-06 12:29:53] Processing batch 1/1
+[2025-06-06 12:29:53] Processing file: test/organization_report.md
+[2025-06-06 12:29:53] Error processing batch 1 in test/organization_report.md: Failed to initialize API client
+[2025-06-06 12:29:53] Moved processed file test/organization_report.md to test/.xsnippet/xsnippet_processed/organization_report.md
+[2025-06-06 12:29:53] Error synthesizing overall snippets: Failed to initialize API client
+[2025-06-06 12:29:53] Batch 1 results written to test/.xsnippet/batches/batch_1_combined.md
+[2025-06-06 12:29:53] Starting final sweep across all batches
+[2025-06-06 12:29:53] Final combined document written to test/.xsnippet/final/final_combined.md
+[2025-06-06 12:29:53] Error writing final output: [Errno 2] No such file or directory: 'test/test/cleanupx_output/final_combined.md'
+[2025-06-06 12:29:53] Error generating project summary: Failed to initialize API client
+[2025-06-06 12:29:53] Project summary updated.
+[2025-06-06 12:29:53] Processing complete.
