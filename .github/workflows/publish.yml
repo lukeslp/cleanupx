@@ -1,8 +1,9 @@
 name: Publish to PyPI
 
 on:
-  release:
-    types: [published]
+  # Disabled automatic publishing to avoid conflicts with manual uploads
+  # release:
+  #   types: [published]
   workflow_dispatch:
 
 jobs:
@@ -67,7 +68,8 @@ jobs:
   publish:
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
+    # Only run on manual workflow dispatch, not automatic releases
+    if: github.event_name == 'workflow_dispatch'
     environment:
       name: pypi
       url: https://pypi.org/p/cleanupx
