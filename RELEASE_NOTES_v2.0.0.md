@@ -1,8 +1,8 @@
-# CleanupX v2.0.0 - Production Ready 🚀
+# cleanupx v0.8.0 - Prerelease 🚧
 
-**The first production-ready release of CleanupX is now live on PyPI!**
+**A prerelease version of cleanupx is now live on PyPI for testing and feedback!**
 
-This major release transforms CleanupX from experimental scripts into a professional-grade package with comprehensive file processing capabilities.
+This prerelease features consistent branding, integrated legacy processors, and GitHub sponsor links while maintaining all the comprehensive file processing capabilities.
 
 ## 🎉 Major Features
 
@@ -100,25 +100,25 @@ export CLEANUP_OUTPUT_DIR="/path/to/output"
 export CLEANUP_LOG_LEVEL="INFO"
 ```
 
-## 🆕 What's New in v2.0.0
+## 🆕 What's New in v0.8.0
 
-### Architecture Overhaul
-- **Complete package restructure** with clean modular design
-- **Unified import system** with fallback handling for missing dependencies
-- **Centralized output management** instead of scattered files
-- **Production-ready error handling** and logging
+### Branding & Consistency
+- **Consistent lowercase "cleanupx" branding** throughout all documentation and code
+- **Updated CLI commands** to use `cleanupx` instead of `python cleanupx.py`
+- **GitHub sponsor integration** with funding links and connect table
+- **Professional README** with improved installation instructions
 
-### Enhanced Features
-- **Rich CLI interface** with progress bars and colored output
-- **Interactive directory selection** with user-friendly prompts
-- **Comprehensive file type support** including images, documents, and archives
-- **Extensible processor architecture** for easy feature additions
+### Legacy Processor Integration
+- **Migrated deduper.py** from storage to cleanupx_core/processors/legacy/
+- **Migrated xsnipper.py** from storage to cleanupx_core/processors/legacy/
+- **Fixed import issues** that were causing legacy processor warnings
+- **Maintained backward compatibility** for all existing functionality
 
-### Developer Experience
-- **Professional packaging** with setup.py and pyproject.toml
-- **Comprehensive documentation** with installation guides
-- **GitHub workflows** for CI/CD and automated testing
-- **Contributing guidelines** for community development
+### Package Improvements
+- **Prerelease versioning** (0.8.0) for testing and feedback
+- **Simplified conda dependencies** to avoid conda-forge conflicts
+- **Enhanced error handling** for missing optional dependencies
+- **Updated documentation** to reflect current state and usage
 
 ## 🔄 Breaking Changes
 

@@ -1,23 +1,24 @@
-# CleanupX v2.0.0 Release Guide
+# cleanupx v0.8.0 Release Guide
 
-**Production-Ready Package Release**
+**Prerelease Package Release**
 
-This document outlines the complete release process for CleanupX v2.0.0, the first production-ready release suitable for PyPI and conda distribution.
+This document outlines the complete release process for cleanupx v0.8.0, a prerelease version for testing and feedback before the stable 1.0.0 release.
 
 ## 🎯 Release Overview
 
-**Version**: 2.0.0  
-**Release Date**: 2025-06-06  
-**Release Type**: Major Release - "Production Ready"  
-**Stability**: Production/Stable  
+**Version**: 0.8.0  
+**Release Date**: 2025-06-07  
+**Release Type**: Prerelease - "Testing & Feedback"  
+**Stability**: Prerelease/Beta  
 
 ### Key Highlights
 - **Complete package restructure** for professional distribution
 - **PyPI and conda compatibility** with proper packaging
 - **AI-powered file processing** with X.AI integration
 - **Comprehensive CLI interface** with rich output
-- **Full documentation** and installation guides
-- **Cross-platform support** (Windows, macOS, Linux)
+- **GitHub sponsor integration** with funding links
+- **Consistent branding** with lowercase "cleanupx" throughout
+- **Legacy processor integration** from storage directory
 
 ## 📋 Pre-Release Checklist
 
@@ -58,13 +59,14 @@ This document outlines the complete release process for CleanupX v2.0.0, the fir
 #### Build and Test Package
 ```bash
 # Clean and build
-./scripts/build.sh
+rm -rf dist/ build/ *.egg-info/
+python -m build
 
 # Verify package
 python -m twine check dist/*
 
 # Test local installation
-pip install dist/cleanupx-2.0.0-py3-none-any.whl
+pip install dist/cleanupx-0.8.0-py3-none-any.whl
 cleanupx --help
 ```
 
@@ -85,7 +87,7 @@ twine upload dist/*
 #### Build Conda Package
 ```bash
 # Build conda package
-./scripts/build_conda.sh
+conda-build conda-recipe/ --output-folder conda-dist/ --no-test
 
 # Test installation
 conda install --use-local cleanupx
@@ -102,15 +104,15 @@ cleanupx-status
 
 #### Create Release
 1. Go to https://github.com/lukeslp/cleanupx/releases/new
-2. Tag version: `v2.0.0`
-3. Release title: `CleanupX v2.0.0 - Production Ready`
+2. Tag version: `v0.8.0`
+3. Release title: `cleanupx v0.8.0 - Prerelease`
 4. Description: Use template below
 
 #### Release Description Template
 ```markdown
-# CleanupX v2.0.0 - Production Ready 🚀
+# cleanupx v0.8.0 - Prerelease 🚧
 
-The first production-ready release of CleanupX, featuring a complete package restructure and professional distribution capabilities.
+A prerelease version of cleanupx for testing and feedback, featuring consistent branding and integrated legacy processors.
 
 ## 🎉 Major Features
 

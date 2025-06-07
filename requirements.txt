@@ -16,7 +16,7 @@ certifi @ file:///croot/certifi_1745939216646/work/certifi
 cffi @ file:///croot/cffi_1736182485317/work
 chardet @ file:///work/perseverance-python-buildout/croot/chardet_1728402558925/work
 charset-normalizer @ file:///croot/charset-normalizer_1721748349566/work
--e git+https://github.com/lukeslp/cleanupx@faa91c326dd3e8bcdf5da9e3b0ff5c31731ce6cb#egg=cleanupx
+-e git+https://github.com/lukeslp/cleanupx@16bd2f2fb45c7ff291c6a157d9f3c4accdda1fad#egg=cleanupx
 click @ file:///croot/click_1744271578095/work
 colorama @ file:///work/perseverance-python-buildout/croot/colorama_1728388434940/work
 conda @ file:///croot/conda_1749171252582/work/conda-src
@@ -91,7 +91,7 @@ python-dotenv @ file:///croot/python-dotenv_1745610241282/work
 python-editor @ file:///Users/ktietz/demo/mc3/conda-bld/python-editor_1629715712526/work
 pytz @ file:///work/perseverance-python-buildout/croot/pytz_1728386814080/work
 PyYAML @ file:///croot/pyyaml_1731006091482/work
-readchar @ file:///work/perseverance-python-buildout/croot/readchar_1728397613245/work
+readchar==4.2.1
 readme_renderer==44.0
 referencing @ file:///io/perseverance-python-buildout/croot/referencing_1731700447964/work
 regex==2024.11.6
