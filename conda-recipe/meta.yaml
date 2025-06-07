@@ -1,5 +1,5 @@
 {% set name = "cleanupx" %}
-{% set version = "2.0.0" %}
+{% set version = "0.8.0" %}
 
 package:
   name: {{ name|lower }}
@@ -11,7 +11,7 @@ source:
 build:
   number: 0
   noarch: python
-  script: {{ PYTHON }} -m pip install . -vv --no-deps --ignore-installed
+  script: {{ PYTHON }} -m pip install . -vv
   entry_points:
     - cleanupx = cleanupx:main
     - cleanupx-status = cleanupx_core:print_status
@@ -25,18 +25,16 @@ requirements:
   run:
     - python >=3.8
     - requests >=2.31.0
-    - python-dotenv >=0.15.0
     - rich >=13.7.0
-    - inquirer >=3.4.0
     - pillow >=10.0.0
-    - backoff >=2.2.0
+    - pip
 
 test:
   imports:
     - cleanupx_core
   commands:
     - cleanupx --help
-    - python -c "import cleanupx_core; print('CleanupX conda package working!')"
+    - python -c "import cleanupx_core; print('cleanupx conda package working!')"
 
 about:
   home: https://lukesteuber.com
@@ -45,7 +43,7 @@ about:
   license_file: LICENSE
   summary: Comprehensive AI-powered file processing and organization tool
   description: |
-    CleanupX is a comprehensive file organization and processing framework with 
+    cleanupx is a comprehensive file organization and processing framework with 
     AI-powered capabilities. It provides intelligent file deduplication, image 
     processing with accessibility features, privacy utilities like filename 
     scrambling, and seamless integration with AI services for content analysis.
