@@ -24,7 +24,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Module version
-__version__ = "0.8.1"
+__version__ = "0.8.2"
 __author__ = "Luke Steuber"
 __email__ = "luke@lukesteuber.com"
 __license__ = "MIT"
