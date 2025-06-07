@@ -1,16 +1,17 @@
 # cleanupx - Comprehensive File Processing Tool
 
-**Version 2.0.0** - Reorganized & Production Ready
+**Version 0.8.0** - Prerelease
 
 A powerful, AI-enhanced file organization and processing framework with comprehensive capabilities for code analysis, image processing, file deduplication, and privacy utilities.
 
-## 🎯 What's New in v2.0
+## 🎯 What's New in v0.8 (Prerelease)
 
 - **🏗️ Complete Reorganization**: Clean modular structure with core functionality separated from storage
 - **🚀 Enhanced Performance**: Streamlined imports and optimized processing
 - **🔄 Backward Compatibility**: All existing commands continue to work
 - **📦 Unified Architecture**: Consolidated scattered functionality into organized modules
 - **🔒 SSL Ready**: Full HTTPS support with proper certificate configuration
+- **🎯 Consistent Branding**: Unified "cleanupx" naming throughout the project
 
 ## 📁 Project Structure
 
@@ -35,11 +36,15 @@ cleanupx/
 ### Installation
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd cleanupx
+# Install from PyPI (recommended)
+pip install cleanupx
 
-# Install dependencies
+# Or install prerelease version
+pip install --pre cleanupx
+
+# Or clone from source
+git clone https://github.com/lukeslp/cleanupx.git
+cd cleanupx
 pip install -r requirements.txt
 
 # Set up environment (optional for AI features)
@@ -50,19 +55,19 @@ echo "XAI_API_KEY=your-xai-api-key" > .env
 
 ```bash
 # Check system status
-python3 cleanupx.py --help
+cleanupx --help
 
 # Run file deduplication
-python3 cleanupx.py deduplicate --dir test
+cleanupx deduplicate --dir test
 
 # Process images for accessibility
-python3 cleanupx.py images --dir test  
+cleanupx images --dir test  
 
 # Comprehensive processing with all features
-python3 cleanupx.py comprehensive --dir test
+cleanupx comprehensive --dir test
 
 # Privacy: scramble filenames
-python3 cleanupx.py scramble --dir test
+cleanupx scramble --dir test
 ```
 
 ## 🛠️ Features
@@ -167,7 +172,7 @@ python3 -c "import cleanupx_core; cleanupx_core.print_status()"
 
 Expected output:
 ```
-cleanupx Core v2.0.0
+cleanupx Core v0.8.0
   Integrated Processors: ✓
   XAI API Support: ✓  
   Legacy Processors: ✓
@@ -179,25 +184,25 @@ cleanupx Core v2.0.0
 ### Basic File Organization
 ```bash
 # Organize a downloads directory
-python3 cleanupx.py organize --dir ~/Downloads
+cleanupx organize --dir ~/Downloads
 
 # Find duplicates in a project
-python3 cleanupx.py deduplicate --dir ~/Projects/MyProject
+cleanupx deduplicate --dir ~/Projects/MyProject
 ```
 
 ### AI-Enhanced Processing
 ```bash
 # Generate alt text for all images
-python3 cleanupx.py images --dir ./photos
+cleanupx images --dir ./photos
 
 # Comprehensive AI analysis
-python3 cleanupx.py comprehensive --dir ./documents
+cleanupx comprehensive --dir ./documents
 ```
 
 ### Privacy & Testing
 ```bash
 # Scramble filenames for privacy
-python3 cleanupx.py scramble --dir ./sensitive_data
+cleanupx scramble --dir ./sensitive_data
 
 # Note: Scrambling creates a log file to reverse changes
 ```
@@ -220,14 +225,20 @@ The reorganized architecture provides:
 ## 📝 License & Credits
 
 **MIT License** by Luke Steuber  
-- **Website**: lukesteuber.com, assisted.site  
-- **Email**: luke@lukesteuber.com  
-- **Social**: bluesky @lukesteuber.com, linkedin https://www.linkedin.com/in/lukesteuber/  
-- **GitHub**: lukeslp  
 
-**Support the Project**:
-- **Tip Jar**: https://usefulai.lemonsqueezy.com/buy/bf6ce1bd-85f5-4a09-ba10-191a670f74af  
-- **Substack**: https://lukesteuber.substack.com/  
+### 🔗 Connect & Support
+
+| Platform | Link |
+|----------|------|
+| 🌐 **Website** | [lukesteuber.com](https://lukesteuber.com) |
+| 🛠️ **Playground** | [assisted.site](https://assisted.site/) |
+| 📧 **Email** | [luke@lukesteuber.com](mailto:luke@lukesteuber.com) |
+| 🐦 **Bluesky** | [@lukesteuber.com](https://bsky.app/profile/lukesteuber.com) |
+| 💼 **LinkedIn** | [lukesteuber](https://www.linkedin.com/in/lukesteuber/) |
+| 💻 **GitHub** | [lukeslp](https://github.com/lukeslp) |
+| 🧠 **LlamaLine** | [AI CLI Tool](https://github.com/lukeslp/llamaline) |
+| ✉️ **Newsletter** | [Substack](https://lukesteuber.substack.com/) |
+| ☕ **Support** | [Tip Jar](https://usefulai.lemonsqueezy.com/buy/bf6ce1bd-85f5-4a09-ba10-191a670f74af) |  
 
 ## 🎯 What's Next
 
@@ -239,6 +250,6 @@ The reorganized architecture provides:
 
 ---
 
-**Version**: 2.0.0 - Reorganized & Production Ready  
+**Version**: 0.8.0 - Prerelease  
 **Last Updated**: June 6, 2025  
-**Status**: ✅ Fully Functional with Clean Architecture
+**Status**: 🚧 Prerelease - Testing & Feedback Welcome
