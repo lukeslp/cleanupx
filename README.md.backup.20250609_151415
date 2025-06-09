@@ -39,15 +39,15 @@ cleanupx/
 
 ```bash
 # Install from PyPI (recommended)
-sudo pip install cleanupx
+pip install cleanupx
 
 # Or install prerelease version
-sudo pip install --pre cleanupx
+pip install --pre cleanupx
 
 # Or clone from source
 git clone https://github.com/lukeslp/cleanupx.git
 cd cleanupx
-sudo pip install -r requirements.txt
+pip install -r requirements.txt
 
 # Set up environment (optional for AI features)
 echo "XAI_API_KEY=your-xai-api-key" > .env

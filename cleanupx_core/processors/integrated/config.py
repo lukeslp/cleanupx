@@ -1,5 +1,18 @@
 """
 Configuration settings for CleanupX.
+
+File Purpose: Core configuration module for CleanupX with sudo-enabled system integration
+Primary Functions/Classes: 
+- File extension categorization (IMAGE_EXTENSIONS, TEXT_EXTENSIONS, etc.)
+- API configuration for XAI integration
+- Protected file patterns for system safety
+- Function schemas for AI processing
+Inputs and Outputs (I/O): 
+- Input: Environment variables, file extensions, API keys
+- Output: Configuration constants and schemas for processors
+
+Note: This configuration supports both standard and sudo-enabled installations.
+For system-wide installation, see SUDO_INSTALLATION_GUIDE.md in project root.
 """
 
 import os
@@ -29,8 +42,10 @@ CACHE_FILE: str = "generated_alts.json"
 RENAME_LOG_FILE: str = "rename_log.json"
 
 # Protected files that should not be processed
+# Note: System files are protected regardless of sudo privileges
 PROTECTED_PATTERNS: list = [
     "PROJECT_PLAN.md",
+    "SUDO_INSTALLATION_GUIDE.md",  # Protect sudo installation guide
     ".git*",
     "*.exe",
     "*.dll",
@@ -51,11 +66,13 @@ PROTECTED_PATTERNS: list = [
     "*.lock",
     "*.sh",
     "*.bat",
+    "*sudo*",  # Protect sudo-related files
+    "*.backup.*",  # Protect backup files created by sudo script
 ]
 
 # XAI Model Constants
-XAI_MODEL_VISION = "gpt-4-vision-preview"
-XAI_MODEL_TEXT = "gpt-4-turbo-preview"
+XAI_MODEL_VISION = "gpt-2-vision-preview"
+XAI_MODEL_TEXT = "gpt-2-turbo-preview"
 
 # API Configuration
 API_BASE_URL = "https://api.assisted.space/v2"

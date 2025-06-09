@@ -52,7 +52,7 @@ print_success "Required tools found"
 
 # Install/upgrade build tools
 print_step "Installing/upgrading build tools..."
-sudo pip install --upgrade pip build twine
+pip install --upgrade pip build twine
 
 # Clean previous builds
 print_step "Cleaning previous builds..."

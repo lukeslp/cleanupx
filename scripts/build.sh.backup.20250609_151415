@@ -10,7 +10,7 @@ echo "🏗️  Building CleanupX package..."
 rm -rf build/ dist/ *.egg-info/
 
 # Install build tools
-sudo pip install --upgrade build twine
+pip install --upgrade build twine
 
 # Build package
 python -m build

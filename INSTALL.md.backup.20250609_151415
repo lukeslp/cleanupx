@@ -7,13 +7,13 @@ Complete installation instructions for CleanupX across different platforms and p
 ### PyPI (Recommended)
 ```bash
 # Basic installation
-sudo pip install cleanupx
+pip install cleanupx
 
 # With all optional features
-sudo pip install cleanupx[all]
+pip install cleanupx[all]
 
 # Specific feature sets
-sudo pip install cleanupx[ai,documents,images]
+pip install cleanupx[ai,documents,images]
 ```
 
 ### Conda/Mamba
@@ -31,43 +31,43 @@ mamba install -c conda-forge cleanupx
 
 #### Core Only (Minimal)
 ```bash
-sudo pip install cleanupx
+pip install cleanupx
 ```
 **Includes**: Basic file processing, organization, deduplication
 
 #### AI Features
 ```bash
-sudo pip install cleanupx[ai]
+pip install cleanupx[ai]
 ```
 **Adds**: OpenAI API integration, AI-powered analysis
 
 #### Document Processing
 ```bash
-sudo pip install cleanupx[documents]
+pip install cleanupx[documents]
 ```
 **Adds**: PDF processing, Word document support
 
 #### Enhanced Image Support
 ```bash
-sudo pip install cleanupx[images]
+pip install cleanupx[images]
 ```
 **Adds**: HEIC/HEIF support, advanced image formats
 
 #### Archive Support
 ```bash
-sudo pip install cleanupx[archives]
+pip install cleanupx[archives]
 ```
 **Adds**: RAR archive processing
 
 #### Development Tools
 ```bash
-sudo pip install cleanupx[dev]
+pip install cleanupx[dev]
 ```
 **Adds**: Testing, linting, formatting tools
 
 #### Everything
 ```bash
-sudo pip install cleanupx[all]
+pip install cleanupx[all]
 ```
 **Includes**: All optional features combined
 
@@ -80,7 +80,7 @@ git clone https://github.com/lukeslp/cleanupx.git
 cd cleanupx
 
 # Install in development mode
-sudo pip install -e .[dev]
+pip install -e .[dev]
 
 # Verify installation
 cleanupx --help
@@ -90,7 +90,7 @@ cleanupx-status
 ### Pre-commit Hooks (Optional)
 ```bash
 # Install pre-commit hooks for development
-sudo pip install pre-commit
+pip install pre-commit
 pre-commit install
 ```
 
@@ -105,7 +105,7 @@ sudo apt update
 sudo apt install python3 python3-pip
 
 # Install CleanupX
-sudo pip3 install cleanupx[all]
+pip3 install cleanupx[all]
 
 # For system-wide installation
 sudo pip3 install cleanupx[all]
@@ -115,7 +115,7 @@ sudo pip3 install cleanupx[all]
 ```bash
 # Using Homebrew (recommended)
 brew install python3
-sudo pip3 install cleanupx[all]
+pip3 install cleanupx[all]
 
 # Using MacPorts
 sudo port install python311
@@ -139,11 +139,11 @@ python3 -m pip install cleanupx[all]
 ```bash
 # CentOS/RHEL
 sudo yum install python3 python3-pip
-sudo pip3 install cleanupx[all]
+pip3 install cleanupx[all]
 
 # Fedora
 sudo dnf install python3 python3-pip
-sudo pip3 install cleanupx[all]
+pip3 install cleanupx[all]
 ```
 
 ### Arch Linux
@@ -152,7 +152,7 @@ sudo pip3 install cleanupx[all]
 sudo pacman -S python python-pip
 
 # Install CleanupX
-sudo pip install cleanupx[all]
+pip install cleanupx[all]
 
 # Or from AUR (when available)
 yay -S cleanupx
@@ -230,17 +230,17 @@ cleanupx organize --dir test_files
 ### From PyPI
 ```bash
 # Upgrade to latest version
-sudo pip install --upgrade cleanupx
+pip install --upgrade cleanupx
 
 # Upgrade with all features
-sudo pip install --upgrade cleanupx[all]
+pip install --upgrade cleanupx[all]
 ```
 
 ### From Development Source
 ```bash
 cd cleanupx
 git pull origin main
-sudo pip install -e .[dev]
+pip install -e .[dev]
 ```
 
 ## 🗑️ Uninstalling
@@ -261,13 +261,13 @@ rm -rf ~/.cleanupx  # Config files (if any)
 ```bash
 # Reinstall cleanupx
 pip uninstall cleanupx
-sudo pip install cleanupx
+pip install cleanupx
 ```
 
 #### Permission Denied on Linux/macOS
 ```bash
 # Use user installation
-sudo pip install --user cleanupx[all]
+pip install --user cleanupx[all]
 
 # Add to PATH if needed
 export PATH="$HOME/.local/bin:$PATH"
@@ -276,19 +276,19 @@ export PATH="$HOME/.local/bin:$PATH"
 #### SSL Certificate Errors
 ```bash
 # Upgrade certificates
-sudo pip install --upgrade certifi
+pip install --upgrade certifi
 
 # Or use trusted host
-sudo pip install --trusted-host pypi.org --trusted-host pypi.python.org cleanupx
+pip install --trusted-host pypi.org --trusted-host pypi.python.org cleanupx
 ```
 
 #### Missing Dependencies
 ```bash
 # Install with all dependencies
-sudo pip install cleanupx[all]
+pip install cleanupx[all]
 
 # Force reinstall dependencies
-sudo pip install --force-reinstall cleanupx[all]
+pip install --force-reinstall cleanupx[all]
 ```
 
 ### Platform-Specific Issues
@@ -303,7 +303,7 @@ python -m cleanupx --help
 #### macOS: Permission denied
 ```bash
 # Use user installation
-sudo pip3 install --user cleanupx[all]
+pip3 install --user cleanupx[all]
 
 # Update PATH in ~/.zshrc or ~/.bash_profile
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
@@ -324,10 +324,10 @@ source ~/.bashrc
 ### Prerequisites
 ```bash
 # Install build tools
-sudo pip install build twine
+pip install build twine
 
 # Install development dependencies
-sudo pip install -e .[dev]
+pip install -e .[dev]
 ```
 
 ### Build Process
@@ -345,7 +345,7 @@ twine check dist/*
 ### Local Installation
 ```bash
 # Install from local build
-sudo pip install dist/cleanupx-2.0.0-py3-none-any.whl
+pip install dist/cleanupx-2.0.0-py3-none-any.whl
 ```
 
 ## 📊 Installation Verification Script
