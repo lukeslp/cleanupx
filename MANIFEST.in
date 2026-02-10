@@ -1,0 +1,44 @@
+# CleanupX Distribution Manifest
+# Specifies which files to include in the PyPI package
+
+# Include essential documentation
+include README.md
+include LICENSE
+include CHANGELOG.md
+include PROJECT_PLAN.md
+
+# Include configuration files
+include requirements.txt
+include pyproject.toml
+include setup.py
+
+# Include the main script
+include cleanupx.py
+
+# Include all Python files in cleanupx_core
+recursive-include cleanupx_core *.py
+
+# Include package metadata
+recursive-include cleanupx_core *.md *.txt *.json
+
+# Exclude development and cache files
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude * .DS_Store
+recursive-exclude * .git*
+
+# Exclude storage directory (non-core functionality)
+prune storage
+
+# Exclude test files from distribution
+prune test
+
+# Exclude development tools
+exclude .gitignore
+exclude .github
+recursive-exclude .github *
+
+# Exclude build artifacts
+prune build
+prune dist
+prune *.egg-info 

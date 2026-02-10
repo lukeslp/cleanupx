@@ -1,0 +1,204 @@
+# .gitignore for cleanupx Python Package
+# Comprehensive patterns for Python development and distribution
+
+# Project-specific build artifacts and temporary directories
+highres*
+_METHODS/
+scraps/
+snippets/
+cache/
+output/
+inbox/
+conda-dist/
+.conda-build/
+storage/
+
+# Python bytecode and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+*.pyo
+
+# Distribution and packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.whl
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Virtual environments
+venv/
+fresh_venv/
+.cursor/
+ENV/
+env/
+.env/
+.venv/
+pyvenv.cfg
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.key
+*.pem
+*.crt
+secrets.json
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.spyderproject
+.spyproject
+.ropeproject
+.project
+.pydevproject
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Testing and coverage
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.cache
+.pytest_cache/
+.hypothesis/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Documentation builds
+docs/_build/
+docs/build/
+site/
+
+# MyPy type checker
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# Profiling
+.prof
+
+# Logs
+*.log
+logs/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# macOS specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows specific files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux specific files
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+.#*
+#*#
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Git and version control
+.git/
+*.orig
+*.rej
+
+# Package manager files
+Pipfile.lock
+poetry.lock
+
+# Cloud and deployment
+.serverless/
+.vercel
+.netlify/
+
+# Local development and experiment files
+scratch/
+experiments/
+playground/
+local/
+
+# User-specific test files and data
+test_output/
+test_results/
+user_data/
+sample_files/
+
+# --- cleanupx: Additional ignores for build/publish scripts ---
+scripts/build_and_publish.sh

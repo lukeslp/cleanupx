@@ -1,0 +1,86 @@
+
+=== File: test/select-plan.html | 2025-06-06 12:09:55 ===
+
+--------------------
+
+=== File: test/organization_report.md | 2025-06-06 12:09:55 ===
+
+--------------------
+
+=== File: test/organization_report.md | 2025-06-06 12:26:27 ===
+
+--------------------
+
+=== File: test/organization_report.md | 2025-06-06 12:26:44 ===
+
+--------------------
+
+=== File: test/organization_report.md | 2025-06-06 12:27:11 ===
+
+--------------------
+
+=== File: test/organization_report.md | 2025-06-06 12:29:53 ===
+
+--------------------
+
+=== File: test/organization_report.md | 2025-06-06 12:45:42 ===
+
+--------------------
+
+=== File: test/organization_report.md | 2025-06-06 13:11:39 ===
+```
+# Organization Report for test
+
+Generated: 2025-06-06 12:45:42
+
+## .HTML Files (1 found)
+- select-plan.html
+
+## .JSON Files (1 found)
+- processing_results.json
+
+## .MD Files (3 found)
+- batch_1_combined.md
+- final_combined.md
+- organization_report.md
+
+## .TXT Files (4 found)
+- api_credentials.txt
+- log.txt
+- snippets.txt
+- summary.txt
+```
+--------------------
+
+=== File: test/organization_report.md | 2025-06-06 13:13:09 ===
+
+--------------------
+
+=== File: test/organization_report.md | 2025-06-06 13:13:28 ===
+
+--------------------
+
+=== File: test/organization_report.md | 2025-06-06 13:14:25 ===
+```
+## .MD Files (3 found)
+- batch_1_combined.md
+- final_combined.md
+- organization_report.md
+```
+
+This is the most important and unique segment because it directly references the documentation files (including the current file), providing meta-information about the report itself. It's concise, self-referential, and highlights the core output of the organization process in a structured way.
+--------------------
+
+=== File: test/sample.md | 2025-06-06 13:21:26 ===
+```python
+print('Hello World')
+```
+
+This is the most important and unique code snippet in the file, as it represents a simple, executable Python example that demonstrates basic output functionality. It's embedded in a code block, making it the focal point of the Markdown document.
+--------------------
+
+=== File: test/sample.csv | 2025-06-06 13:21:32 ===
+name,age,city  
+
+This header line is the most important and unique snippet, as it defines the structure and schema of the CSV file, including the column names for the data.
+--------------------

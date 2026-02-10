@@ -1,0 +1,13 @@
+# GitHub Sponsors configuration for cleanupx
+# These links will appear in the "Sponsor" button on GitHub
+
+github: lukeslp
+patreon: lukeslp
+custom:
+  - 'https://usefulai.lemonsqueezy.com/buy/bf6ce1bd-85f5-4a09-ba10-191a670f74af'
+  - 'https://assisted.site/'
+  - 'https://lukesteuber.substack.com/'
+  - 'https://www.linkedin.com/in/lukesteuber/'
+  - 'https://bsky.app/profile/lukesteuber.com'
+  - 'mailto:luke@lukesteuber.com'
+  - 'https://github.com/lukeslp/llamaline'

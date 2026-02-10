@@ -1,0 +1,49 @@
+name: Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev]
+    
+    - name: Lint with flake8
+      run: |
+        flake8 cleanupx_core/ cleanupx.py --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 cleanupx_core/ cleanupx.py --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+    
+    - name: Format check with black
+      run: |
+        black --check cleanupx_core/ cleanupx.py
+    
+    - name: Test imports and basic functionality
+      run: |
+        python -c "import cleanupx_core; cleanupx_core.print_status()"
+        python cleanupx.py --help
+    
+    - name: Test core module functionality
+      run: |
+        python -c "from cleanupx_core import get_status; status = get_status(); print(f'Version: {status[\"version\"]}')"
+        python -c "import cleanupx_core.api; print('API module loaded')"
+        python -c "import cleanupx_core.processors; print('Processors module loaded')"
+        python -c "import cleanupx_core.utils; print('Utils module loaded')" 
