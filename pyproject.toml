@@ -34,7 +34,7 @@ classifiers = [
     "Natural Language :: English",
 ]
 keywords = [
-    "file-processing", "ai", "deduplication", "organization", 
+    "file-processing", "llm", "deduplication", "organization",
     "cleanup", "images", "accessibility", "privacy", "automation",
     "cli", "productivity", "utilities", "xai", "machine-learning"
 ]

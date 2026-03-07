@@ -44,7 +44,7 @@ MAX_FILE_SIZE_MB = 20
 
 # Prompt text used for alt text generation
 PROMPT_TEXT = (
-    "You are an AI specializing in describing images for accessibility purposes. "
+    "You specialize in describing images for accessibility purposes. "
     "Write comprehensive alt text for this image, as though for a blind engineer who needs "
     "to understand every detail of the information including text. "
     "Also suggest a descriptive filename based on the content of the image. "
