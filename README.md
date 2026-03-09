@@ -12,7 +12,7 @@ File organization and processing tool with optional LLM features for image alt-t
 pip install cleanupx
 ```
 
-Set `XAI_API_KEY` in your environment for LLM-powered features (optional).
+Set `XAI_API_KEY` in your environment to enable LLM features like alt text generation (optional).
 
 ## Usage
 
